@@ -21,13 +21,26 @@ export function NetworkLayout() {
   };
 
   const updateForceSetting = (value: number[] | string, key: keyof ForceSettings) => {
-    useStore.setState({
+    let newValue = typeof value === 'string' ? Number.parseFloat(value) : value[0];
+    // Ensure value stays within allowed range (-200 to -10)
+    if (key === 'chargeStrength') {
+      newValue = Math.max(-200, Math.min(-10, newValue)); // Correct clamping
+    }
+
+    // Ensure value stays within allowed range (1 to 3000)
+    if (key === 'linkDistance') {
+      newValue = Math.max(1, Math.min(3000, newValue)); // Correct clamping
+    }
+
+    useStore.setState(state => ({
       forceSettings: {
         ...forceSettings,
-        [key]: typeof value === 'string' ? Number.parseFloat(value) : value[0],
+        [key]: newValue,
       },
-    });
+    }));
+  
   };
+
   return (
     <Collapsible defaultOpen className='mb-2 border p-2 rounded shadow'>
       <div className='flex items-center justify-between w-full'>
@@ -65,8 +78,8 @@ export function NetworkLayout() {
                 min={option.min}
                 max={option.max}
                 step={option.step}
-                value={[forceSettings[option.key]]}
-                onValueChange={value => updateForceSetting(value, option.key)}
+                value={[useStore(state => forceSettings[option.key as keyof ForceSettings])]} // Ensure reactivity
+                onValueChange={value => updateForceSetting(value, option.key as keyof ForceSettings)}
               />
             </div>
             <Input
@@ -75,8 +88,8 @@ export function NetworkLayout() {
               min={option.min}
               max={option.max}
               step={option.step}
-              value={forceSettings[option.key]}
-              onChange={e => e.target.value && updateForceSetting(e.target.value, option.key)}
+              value={useStore(state => forceSettings[option.key as keyof ForceSettings])} // Ensure UI updates
+              onChange={(e) => updateForceSetting(e.target.value, option.key as keyof ForceSettings)}
             />
           </div>
         ))}

@@ -7,4 +7,5 @@ export interface ForceSettings {
    * Distance between the links
    */
   linkDistance: number;
+  chargeStrength : number;
 }

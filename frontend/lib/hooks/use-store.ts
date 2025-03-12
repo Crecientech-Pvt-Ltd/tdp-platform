@@ -14,6 +14,7 @@ export const useStore = create<GraphStore>(set => ({
   // Select defaultValue best for viewing the graph
   forceSettings: {
     linkDistance: 30,
+    chargeStrength: -50,
   },
   defaultNodeSize: 5,
   defaultLabelDensity: 3,

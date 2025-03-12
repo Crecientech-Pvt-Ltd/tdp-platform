@@ -57,7 +57,7 @@ export function ForceLayout() {
             .id(d => d.ID!)
             .distance(settings.linkDistance),
         )
-        .force('charge', forceManyBody().strength(-200).theta(0.8))
+        .force('charge', forceManyBody().strength(settings.chargeStrength).theta(0.8))
         .force('collide', forceCollide(defaultNodeSize * 8))
         .on('tick', tick);
 
@@ -73,6 +73,29 @@ export function ForceLayout() {
       });
     });
   }, [sigma, tick]);
+
+  useEffect(() => {
+    if (!simulation.current) return;
+  
+    console.log(`Updating charge strength to: ${settings.chargeStrength}`);
+  
+    simulation.current.force(
+      'charge',
+      forceManyBody().strength(settings.chargeStrength).theta(0.8)
+    );
+  
+    // Adjust link distance to stabilize the network as charge strength increases
+    simulation.current.force(
+      'link',
+      forceLink<NodeAttributes, SimulationLinkDatum<NodeAttributes>>(edges.current)
+        .id(d => d.ID!)
+        .distance(Math.abs(settings.chargeStrength) * 2) // Increase link distance as repulsion increases
+    );
+  
+    simulation.current.alpha(0.3).restart(); // Restart simulation to apply new forces
+  }, [settings.chargeStrength]);
+  
+  
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {

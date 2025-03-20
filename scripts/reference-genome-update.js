@@ -1,10 +1,10 @@
-import neo4j from "neo4j-driver";
-import inquirer from "inquirer";
-import chalk from "chalk";
-import yargs from "yargs";
-import Path from "node:path";
-import Papa from "papaparse";
 import { createReadStream, createWriteStream } from "node:fs";
+import Path from "node:path";
+import chalk from "chalk";
+import inquirer from "inquirer";
+import neo4j from "neo4j-driver";
+import Papa from "papaparse";
+import yargs from "yargs";
 
 const defaultUsername = "neo4j";
 const defaultDatabase = "pdnet";
@@ -40,8 +40,16 @@ const argv = yargs(process.argv.slice(2))
 	.alias("help", "h")
 	.version("1.0.0")
 	.alias("version", "v")
-	.usage(chalk.green("Usage: $0 [-f | --file] <filename> [-U | --dbUrl] <url> [-u | --username] <username> [-p | --password] <password> [-d | --database] <database>"))
-	.example(chalk.blue("node $0 -f data.csv -U bolt://localhost:7687 -u neo4j -p password -d pdnet"))
+	.usage(
+		chalk.green(
+			"Usage: $0 [-f | --file] <filename> [-U | --dbUrl] <url> [-u | --username] <username> [-p | --password] <password> [-d | --database] <database>",
+		),
+	)
+	.example(
+		chalk.blue(
+			"node $0 -f data.csv -U bolt://localhost:7687 -u neo4j -p password -d pdnet",
+		),
+	)
 	.example(chalk.cyan("Update Reference Genome in Neo4j")).argv;
 
 async function promptForDetails(answer) {
@@ -90,20 +98,8 @@ async function promptForDetails(answer) {
 }
 
 (async () => {
-	let {
-		file,
-		dbUrl,
-		username,
-		password,
-		database,
-	} = await argv;
-	if (
-		!file ||
-		!dbUrl ||
-		!username ||
-		!password ||
-		!database
-	) {
+	let { file, dbUrl, username, password, database } = await argv;
+	if (!file || !dbUrl || !username || !password || !database) {
 		try {
 			const answers = await promptForDetails({
 				file,
@@ -132,7 +128,10 @@ async function promptForDetails(answer) {
 	Papa.parse(createReadStream(file), {
 		header: true,
 		step: ({ data }) => {
-			const { "Ensembl gene ID": geneID, "Ensembl ID(supplied by Ensembl)": suppliedID } = data;
+			const {
+				"Ensembl gene ID": geneID,
+				"Ensembl ID(supplied by Ensembl)": suppliedID,
+			} = data;
 			if (suppliedID) geneIDs.add(suppliedID);
 			else if (geneID) geneIDs.add(geneID);
 		},
@@ -145,11 +144,12 @@ async function promptForDetails(answer) {
 
 	try {
 		console.log(chalk.green(chalk.bold("[LOG]"), "This will take a while..."));
-		const indexQuery = "CREATE INDEX Gene_name_Gene_Alias IF NOT EXISTS FOR (g:GeneAlias) ON (g.Gene_name)";
+		const indexQuery =
+			"CREATE INDEX Gene_name_Gene_Alias IF NOT EXISTS FOR (g:GeneAlias) ON (g.Gene_name)";
 		await session.run(indexQuery);
 
 		const query = `
-			LOAD CSV WITH HEADERS FROM '${/^https?:\/\//.test(file) ? file : `file:///${file.replace(/^\.[\\/]+/,"")}`}' AS line
+			LOAD CSV WITH HEADERS FROM '${/^https?:\/\//.test(file) ? file : `file:///${file.replace(/^\.[\\/]+/, "")}`}' AS line
 			CALL {
 				WITH line
 				WITH line, [alias IN split(line.\`Alias symbols\`, ",") | toUpper(trim(alias))] AS aliases
@@ -170,14 +170,21 @@ async function promptForDetails(answer) {
 
 		const result = await session.run(query);
 
-		const res = (await session.run("MATCH (g:Gene) RETURN g.ID AS ID")).records.map((record) => record.get("ID"));
+		const res = (
+			await session.run("MATCH (g:Gene) RETURN g.ID AS ID")
+		).records.map((record) => record.get("ID"));
 		const diffGenes = res.filter((id) => !geneIDs.has(id));
 		const diffGenesWriter = createWriteStream("diffGenes.txt");
 		diffGenesWriter.write(diffGenes.join("\n"));
 		diffGenesWriter.close();
 
-		console.log(chalk.green(chalk.bold("[LOG]"), `Deleting ${diffGenes.length} unused nodes...`));
-		
+		console.log(
+			chalk.green(
+				chalk.bold("[LOG]"),
+				`Deleting ${diffGenes.length} unused nodes...`,
+			),
+		);
+
 		const deleteQuery = `
 			MATCH (g:Gene) WHERE g.ID IN $geneIDs 
 			CALL {
@@ -189,12 +196,30 @@ async function promptForDetails(answer) {
 
 		const end = new Date().getTime();
 		console.log(chalk.green(chalk.bold("[LOG]"), "Data loaded using LOAD CSV"));
-		console.log(chalk.green(chalk.bold("[LOG]"), `Nodes Created: ${result.summary.counters.updates().nodesCreated}`));
-		console.log(chalk.green(chalk.bold("[LOG]"), `Relationship Created: ${result.summary.counters.updates().relationshipsCreated}`));
+		console.log(
+			chalk.green(
+				chalk.bold("[LOG]"),
+				`Nodes Created: ${result.summary.counters.updates().nodesCreated}`,
+			),
+		);
+		console.log(
+			chalk.green(
+				chalk.bold("[LOG]"),
+				`Relationship Created: ${result.summary.counters.updates().relationshipsCreated}`,
+			),
+		);
 
-		console.log(chalk.green(chalk.bold("[LOG]"), `Time taken: ${(end - start) / 1000} seconds`));
+		console.log(
+			chalk.green(
+				chalk.bold("[LOG]"),
+				`Time taken: ${(end - start) / 1000} seconds`,
+			),
+		);
 	} catch (error) {
-		console.error(chalk.bold("[ERROR]"), "Error connecting to database. \nMake sure database is active and database URL/credentials are valid");
+		console.error(
+			chalk.bold("[ERROR]"),
+			"Error connecting to database. \nMake sure database is active and database URL/credentials are valid",
+		);
 		console.debug(chalk.bold("[DEBUG]"), error);
 	} finally {
 		await session.close();

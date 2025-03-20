@@ -1,69 +1,72 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true,
-    "defaultBranch": "main"
-  },
-  "files": {
-    "include": [
-      "app/**/*.js",
-      "app/**/*.ts",
-      "app/**/*.jsx",
-      "app/**/*.tsx",
-      "components/**/*.js",
-      "components/**/*.ts",
-      "components/**/*.jsx",
-      "components/**/*.tsx",
-      "lib/**/*.ts",
-      "lib/**/*.tsx"
-    ],
-    "ignore": ["**/*.min.js", "**/dist/**", "**/build/**", "**/node_modules/**"]
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineEnding": "lf",
-    "formatWithErrors": false,
-    "lineWidth": 120
-  },
-  "organizeImports": {
-    "enabled": true
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "style": {
-        "noParameterAssign": "off",
-        "noCommaOperator": "off",
-        "useSingleVarDeclarator": "off",
-        "useShorthandAssign": "off",
-        "noNonNullAssertion": "off",
-        "useNodejsImportProtocol": "off"
-      },
-      "suspicious": {
-        "noAssignInExpressions": "off",
-        "noAsyncPromiseExecutor": "off"
-      },
-      "a11y": {
-        "useMediaCaption": "off"
-      }
-    },
-    "ignore": ["**/node_modules/**"]
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "single",
-      "quoteProperties": "asNeeded",
-      "trailingCommas": "all",
-      "semicolons": "always",
-      "arrowParentheses": "asNeeded",
-      "bracketSpacing": true,
-      "bracketSameLine": false
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
+		"defaultBranch": "main"
+	},
+	"files": {
+		"include": [
+			"app/**/*.js",
+			"app/**/*.ts",
+			"app/**/*.jsx",
+			"app/**/*.tsx",
+			"components/**/*.js",
+			"components/**/*.ts",
+			"components/**/*.jsx",
+			"components/**/*.tsx",
+			"lib/**/*.ts",
+			"lib/**/*.tsx"
+		],
+		"ignore": ["**/*.min.js", "**/dist/**", "**/build/**", "**/node_modules/**"]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "space",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"formatWithErrors": false,
+		"lineWidth": 120
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"noParameterAssign": "off",
+				"noCommaOperator": "off",
+				"useSingleVarDeclarator": "off",
+				"useShorthandAssign": "off",
+				"noNonNullAssertion": "off",
+				"useNodejsImportProtocol": "off"
+			},
+			"suspicious": {
+				"noAssignInExpressions": "off",
+				"noAsyncPromiseExecutor": "off"
+			},
+			"a11y": {
+				"useMediaCaption": "off"
+			}
+		},
+		"ignore": ["**/node_modules/**"]
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"jsxQuoteStyle": "single",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "all",
+			"semicolons": "always",
+			"arrowParentheses": "asNeeded",
+			"bracketSpacing": true,
+			"bracketSameLine": false
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		}
+	}
 }

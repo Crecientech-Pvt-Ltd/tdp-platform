@@ -3,8 +3,8 @@
  * @interface ForceSettings
  */
 export interface ForceSettings {
-  /**
-   * Distance between the links
-   */
-  linkDistance: number;
+	/**
+	 * Distance between the links
+	 */
+	linkDistance: number;
 }

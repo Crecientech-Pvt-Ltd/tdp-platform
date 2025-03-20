@@ -1,14 +1,20 @@
-import { Legend, NetworkAnalysis, NetworkInfo, NetworkLayout, NetworkStyle } from '.';
-import { ScrollArea } from '../ui/scroll-area';
+import {
+	Legend,
+	NetworkAnalysis,
+	NetworkInfo,
+	NetworkLayout,
+	NetworkStyle,
+} from ".";
+import { ScrollArea } from "../ui/scroll-area";
 
 export function RightSideBar() {
-  return (
-    <ScrollArea className='border-l p-2 text-xs flex flex-col h-[98vh]'>
-      <NetworkLayout />
-      <NetworkAnalysis/>
-      <NetworkStyle />
-      <NetworkInfo />
-      <Legend />
-    </ScrollArea>
-  );
+	return (
+		<ScrollArea className="border-l p-2 text-xs flex flex-col h-[98vh]">
+			<NetworkLayout />
+			<NetworkAnalysis />
+			<NetworkStyle />
+			<NetworkInfo />
+			<Legend />
+		</ScrollArea>
+	);
 }

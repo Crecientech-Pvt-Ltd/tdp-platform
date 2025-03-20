@@ -1,113 +1,113 @@
 import {
-  FIRST_ORDER_GENES_QUERY,
-  LEIDEN_QUERY,
-  RENEW_QUERY,
-} from '@/neo4j/neo4j.constants';
-import { Neo4jService } from '@/neo4j/neo4j.service';
-import { RedisService } from '@/redis/redis.service';
-import { Injectable } from '@nestjs/common';
-import { GraphConfigDto } from './algorithm.dto';
+	FIRST_ORDER_GENES_QUERY,
+	LEIDEN_QUERY,
+	RENEW_QUERY,
+} from "@/neo4j/neo4j.constants";
+import type { Neo4jService } from "@/neo4j/neo4j.service";
+import type { RedisService } from "@/redis/redis.service";
+import { Injectable } from "@nestjs/common";
+import type { GraphConfigDto } from "./algorithm.dto";
 
 @Injectable()
 export class AlgorithmService {
-  constructor(
-    private readonly neo4jService: Neo4jService,
-    private readonly redisService: RedisService,
-  ) {}
-  // https://stackoverflow.com/a/54014428/1376947
-  hslToHex(h: number, s: number, l: number) {
-    l /= 100;
-    const a = (s * Math.min(l, 1 - l)) / 100;
-    const f = (n: number) => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color)
-        .toString(16)
-        .padStart(2, '0');
-    };
-    return `#${f(0)}${f(8)}${f(4)}`;
-  }
+	constructor(
+		private readonly neo4jService: Neo4jService,
+		private readonly redisService: RedisService,
+	) {}
+	// https://stackoverflow.com/a/54014428/1376947
+	hslToHex(h: number, s: number, l: number) {
+		l /= 100;
+		const a = (s * Math.min(l, 1 - l)) / 100;
+		const f = (n: number) => {
+			const k = (n + h / 30) % 12;
+			const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+			return Math.round(255 * color)
+				.toString(16)
+				.padStart(2, "0");
+		};
+		return `#${f(0)}${f(8)}${f(4)}`;
+	}
 
-  colorGenerator() {
-    let count = 0;
-    const goldenAngle = 137.508;
-    return () => {
-      let h = (count * goldenAngle) % 360;
-      const s = 40 + (count % 4) * 20;
-      let l = 20 + (count % 5) * 15;
-      if (h > 60 && h < 180) {
-        l = l < 50 ? l + 10 : l - 10;
-        h = h < 120 ? h + 60 : h - 60;
-      }
-      count++;
-      return this.hslToHex(h, s, l);
-    };
-  }
+	colorGenerator() {
+		let count = 0;
+		const goldenAngle = 137.508;
+		return () => {
+			let h = (count * goldenAngle) % 360;
+			const s = 40 + (count % 4) * 20;
+			let l = 20 + (count % 5) * 15;
+			if (h > 60 && h < 180) {
+				l = l < 50 ? l + 10 : l - 10;
+				h = h < 120 ? h + 60 : h - 60;
+			}
+			count++;
+			return this.hslToHex(h, s, l);
+		};
+	}
 
-  async louvain(
-    graphName: string,
-    resolution: number,
-    weighted: boolean,
-    minCommunitySize: number,
-  ) {
-    if (!(await this.neo4jService.graphExists(graphName))) return;
-    const session = this.neo4jService.getSession();
-    const response = (
-      await session.run(LEIDEN_QUERY(minCommunitySize, weighted), {
-        graphName,
-        resolution,
-      })
-    ).records;
-    await this.neo4jService.releaseSession(session);
-    let count = 0;
-    const colorGen = this.colorGenerator();
-    return response.reduce(
-      (acc, record) => {
-        const community = record.get('community');
-        if (!acc[community])
-          acc[community] = {
-            name: `Community ${++count}`,
-            genes: [],
-            color: colorGen(),
-          };
-        acc[community].genes.push(record.get('ID'));
-        return acc;
-      },
-      {} as Record<string, { name: string; genes: string[]; color: string }>,
-    );
-  }
+	async louvain(
+		graphName: string,
+		resolution: number,
+		weighted: boolean,
+		minCommunitySize: number,
+	) {
+		if (!(await this.neo4jService.graphExists(graphName))) return;
+		const session = this.neo4jService.getSession();
+		const response = (
+			await session.run(LEIDEN_QUERY(minCommunitySize, weighted), {
+				graphName,
+				resolution,
+			})
+		).records;
+		await this.neo4jService.releaseSession(session);
+		let count = 0;
+		const colorGen = this.colorGenerator();
+		return response.reduce(
+			(acc, record) => {
+				const community = record.get("community");
+				if (!acc[community])
+					acc[community] = {
+						name: `Community ${++count}`,
+						genes: [],
+						color: colorGen(),
+					};
+				acc[community].genes.push(record.get("ID"));
+				return acc;
+			},
+			{} as Record<string, { name: string; genes: string[]; color: string }>,
+		);
+	}
 
-  async renewSession(graphConfig: GraphConfigDto) {
-    if (await this.neo4jService.graphExists(graphConfig.graphName))
-      return false;
-    const session = this.neo4jService.getSession();
-    if (graphConfig.order === 2) {
-      graphConfig.order = 0;
-      graphConfig.geneIDs = (
-        await session.run<{ geneIDs: string[] }>(
-          FIRST_ORDER_GENES_QUERY(graphConfig.interactionType),
-          {
-            geneIDs: graphConfig.geneIDs,
-            minScore: graphConfig.minScore,
-          },
-        )
-      ).records[0].get('geneIDs');
-    }
-    await session.run(
-      RENEW_QUERY(graphConfig.order, graphConfig.interactionType),
-      {
-        geneIDs: graphConfig.geneIDs,
-        minScore: graphConfig.minScore,
-        graphName: graphConfig.graphName,
-      },
-    );
-    await this.neo4jService.releaseSession(session);
-    await this.redisService.redisClient.set(
-      graphConfig.graphName,
-      '',
-      'EX',
-      120,
-    );
-    return true;
-  }
+	async renewSession(graphConfig: GraphConfigDto) {
+		if (await this.neo4jService.graphExists(graphConfig.graphName))
+			return false;
+		const session = this.neo4jService.getSession();
+		if (graphConfig.order === 2) {
+			graphConfig.order = 0;
+			graphConfig.geneIDs = (
+				await session.run<{ geneIDs: string[] }>(
+					FIRST_ORDER_GENES_QUERY(graphConfig.interactionType),
+					{
+						geneIDs: graphConfig.geneIDs,
+						minScore: graphConfig.minScore,
+					},
+				)
+			).records[0].get("geneIDs");
+		}
+		await session.run(
+			RENEW_QUERY(graphConfig.order, graphConfig.interactionType),
+			{
+				geneIDs: graphConfig.geneIDs,
+				minScore: graphConfig.minScore,
+				graphName: graphConfig.graphName,
+			},
+		);
+		await this.neo4jService.releaseSession(session);
+		await this.redisService.redisClient.set(
+			graphConfig.graphName,
+			"",
+			"EX",
+			120,
+		);
+		return true;
+	}
 }

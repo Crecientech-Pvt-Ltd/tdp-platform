@@ -3,54 +3,54 @@
 # ------------------------------------------------------
 
 input DataRequired {
-  disease: String
-  properties: [String!]!
+	disease: String
+	properties: [String!]!
 }
 
 type Description {
-  description: String
-  name: String!
+	description: String
+	name: String!
 }
 
 type Gene {
-  Aliases: String
-  Description: String
-  Gene_name: String
-  ID: ID!
-  Input: String!
-  common: JSON
-  disease: JSON
-  hgnc_gene_id: String
+	Aliases: String
+	Description: String
+	Gene_name: String
+	ID: ID!
+	Input: String!
+	common: JSON
+	disease: JSON
+	hgnc_gene_id: String
 }
 
 type GeneBase {
-  Description: String
-  Gene_name: String
-  ID: String!
+	Description: String
+	Gene_name: String
+	ID: String!
 }
 
 type GeneInteraction {
-  gene1: String!
-  gene2: String!
-  score: Float!
+	gene1: String!
+	gene2: String!
+	score: Float!
 }
 
 type GeneInteractionOutput {
-  genes: [GeneBase!]!
-  graphName: String
-  links: [GeneInteraction!]
+	genes: [GeneBase!]!
+	graphName: String
+	links: [GeneInteraction!]
 }
 
 type Header {
-  common: [Description!]
-  disease: [Description!]
+	common: [Description!]
+	disease: [Description!]
 }
 
 input InteractionInput {
-  geneIDs: [String!]!
-  graphName: String
-  interactionType: String!
-  minScore: Float!
+	geneIDs: [String!]!
+	graphName: String
+	interactionType: String!
+	minScore: Float!
 }
 
 """
@@ -59,7 +59,10 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Query {
-  genes(config: [DataRequired!], geneIDs: [String!]!): [Gene!]!
-  getGeneInteractions(input: InteractionInput!, order: Int!): GeneInteractionOutput!
-  headers(disease: String!): Header!
+	genes(config: [DataRequired!], geneIDs: [String!]!): [Gene!]!
+	getGeneInteractions(
+		input: InteractionInput!
+		order: Int!
+	): GeneInteractionOutput!
+	headers(disease: String!): Header!
 }

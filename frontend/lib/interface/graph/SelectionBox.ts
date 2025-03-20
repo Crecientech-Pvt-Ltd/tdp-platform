@@ -3,23 +3,23 @@
  * @interface SelectionBox
  */
 export interface SelectionBox {
-  /**
-   * x coordinate of the topleft corner of the selection box
-   */
-  startX: number;
+	/**
+	 * x coordinate of the topleft corner of the selection box
+	 */
+	startX: number;
 
-  /**
-   * y coordinate of the topleft corner of the selection box
-   */
-  startY: number;
+	/**
+	 * y coordinate of the topleft corner of the selection box
+	 */
+	startY: number;
 
-  /**
-   * x coordinate of the bottomright corner of the selection box
-   */
-  endX: number;
+	/**
+	 * x coordinate of the bottomright corner of the selection box
+	 */
+	endX: number;
 
-  /**
-   * y coordinate of the bottomright corner of the selection box
-   */
-  endY: number;
+	/**
+	 * y coordinate of the bottomright corner of the selection box
+	 */
+	endY: number;
 }

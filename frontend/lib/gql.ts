@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const GENE_VERIFICATION_QUERY = gql`
   query GeneVerification($geneIDs: [String!]!) {
@@ -50,13 +50,13 @@ export const GENE_UNIVERSAL_QUERY = (bringMeta = false) => gql`
       disease
       common
       ${
-				bringMeta
-					? `Gene_name
+        bringMeta
+          ? `Gene_name
       Description
       Aliases
       hgnc_gene_id`
-					: ""
-			}
+          : ''
+      }
     }
   }
 `;
@@ -65,13 +65,13 @@ export const GET_HEADERS_QUERY = (bringCommon = true) => gql`
   query GetHeaders($disease: String!) {
     headers(disease: $disease) {
       ${
-				bringCommon
-					? `common {
+        bringCommon
+          ? `common {
         name
         description
       }`
-					: ""
-			}
+          : ''
+      }
       disease {
         name
         description

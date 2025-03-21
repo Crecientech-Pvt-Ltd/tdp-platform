@@ -1,19 +1,19 @@
-import type { Gene } from ".";
+import type { Gene } from '.';
 
 /**
  * API data for gene universal data in index page
  * @interface GeneUniversalData
  */
 export interface DataRequired {
-	/**
-	 * Disease name of the properties (optional)
-	 */
-	disease?: string;
+  /**
+   * Disease name of the properties (optional)
+   */
+  disease?: string;
 
-	/**
-	 * Properties to be queried
-	 */
-	properties: string[];
+  /**
+   * Properties to be queried
+   */
+  properties: string[];
 }
 
 /**
@@ -21,15 +21,15 @@ export interface DataRequired {
  * @interface GeneUniversalDataVariables
  */
 export interface GeneUniversalDataVariables {
-	/**
-	 * Gene IDs to be queried
-	 */
-	geneIDs: string[];
+  /**
+   * Gene IDs to be queried
+   */
+  geneIDs: string[];
 
-	/**
-	 * Configuration for the query for getting fields
-	 */
-	config?: DataRequired[];
+  /**
+   * Configuration for the query for getting fields
+   */
+  config?: DataRequired[];
 }
 
 /**
@@ -37,8 +37,8 @@ export interface GeneUniversalDataVariables {
  * @interface GeneUniversalData
  */
 export interface GeneUniversalData {
-	/**
-	 * Genes to be displayed in the table
-	 */
-	genes: Gene[];
+  /**
+   * Genes to be displayed in the table
+   */
+  genes: Gene[];
 }

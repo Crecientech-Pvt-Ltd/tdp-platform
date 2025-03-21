@@ -5,14 +5,14 @@
  * Used in @interface GetHeadersData
  */
 export type GenePropertyMetadata = {
-	/**
-	 * Property name
-	 */
-	name: string;
-	/**
-	 * Property description
-	 */
-	description?: string;
+  /**
+   * Property name
+   */
+  name: string;
+  /**
+   * Property description
+   */
+  description?: string;
 };
 
 /**
@@ -21,19 +21,19 @@ export type GenePropertyMetadata = {
  * @interface GetHeadersData
  */
 export interface GetHeadersData {
-	/**
-	 * Headers for the dropdowns
-	 */
-	headers: {
-		/**
-		 * Diseases independent properties
-		 */
-		common?: GenePropertyMetadata[];
-		/**
-		 * Diseases dependent properties
-		 */
-		disease?: GenePropertyMetadata[];
-	};
+  /**
+   * Headers for the dropdowns
+   */
+  headers: {
+    /**
+     * Diseases independent properties
+     */
+    common?: GenePropertyMetadata[];
+    /**
+     * Diseases dependent properties
+     */
+    disease?: GenePropertyMetadata[];
+  };
 }
 
 /**
@@ -42,8 +42,8 @@ export interface GetHeadersData {
  * @interface GetHeadersVariables
  */
 export interface GetHeadersVariables {
-	/**
-	 * Disease to search for
-	 */
-	disease: string;
+  /**
+   * Disease to search for
+   */
+  disease: string;
 }

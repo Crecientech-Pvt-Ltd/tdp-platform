@@ -3,18 +3,18 @@
  * @interface SelectedNodeProperty
  */
 export interface SelectedNodeProperty {
-	/**
-	 * Gene Name of the node
-	 */
-	Gene_Name: string;
+  /**
+   * Gene Name of the node
+   */
+  Gene_Name: string;
 
-	/**
-	 * ENSG ID of the node
-	 */
-	ID: string;
+  /**
+   * ENSG ID of the node
+   */
+  ID: string;
 
-	/**
-	 * Description of the node
-	 */
-	Description: string;
+  /**
+   * Description of the node
+   */
+  Description: string;
 }

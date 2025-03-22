@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { GENE_UNIVERSAL_QUERY } from '@/lib/gql';
-import { useStore } from '@/lib/hooks';
-import type { EdgeAttributes, GeneUniversalData, GeneUniversalDataVariables, NodeAttributes } from '@/lib/interface';
-import { type EventMessage, Events, envURL, eventEmitter } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
-import { useSigma } from '@react-sigma/core';
-import { fitViewportToNodes } from '@sigma/utils';
-import { scaleLinear } from 'd3-scale';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
+import { GENE_UNIVERSAL_QUERY } from "@/lib/gql";
+import { useStore } from "@/lib/hooks";
+import type { EdgeAttributes, GeneUniversalData, GeneUniversalDataVariables, NodeAttributes } from "@/lib/interface";
+import { type EventMessage, Events, envURL, eventEmitter } from "@/lib/utils";
+import { useLazyQuery } from "@apollo/client";
+import { useSigma } from "@react-sigma/core";
+import { fitViewportToNodes } from "@sigma/utils";
+import { scaleLinear } from "d3-scale";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 
 export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: React.MutableRefObject<Set<string>> }) {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
@@ -47,9 +47,9 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
     (async () => {
       let nodeCount = 0;
       const userOrCommonIdentifier = useStore.getState().radioOptions.user.TE.includes(nodeDegreeProperty)
-        ? 'user'
-        : 'common';
-      const isNodeDegree = nodeDegreeProperty === 'Gene Degree';
+        ? "user"
+        : "common";
+      const isNodeDegree = nodeDegreeProperty === "Gene Degree";
       if (!isNodeDegree) {
         await fetchUniversal({
           variables: {
@@ -105,9 +105,9 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
     if (radialAnalysis.hubGeneEdgeCount < 1) {
       graph.updateEachNodeAttributes((node, attr) => {
         if (highlightedNodesRef?.current.has(node)) {
-          attr.type = 'highlight';
+          attr.type = "highlight";
         } else {
-          attr.type = 'circle';
+          attr.type = "circle";
         }
         return attr;
       });
@@ -115,11 +115,11 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
       graph.updateEachNodeAttributes((node, attr) => {
         const degree = graph.degree(node);
         if (degree >= radialAnalysis.hubGeneEdgeCount) {
-          attr.type = 'border';
+          attr.type = "border";
         } else if (highlightedNodesRef?.current.has(node)) {
-          attr.type = 'highlight';
+          attr.type = "highlight";
         } else {
-          attr.type = 'circle';
+          attr.type = "circle";
         }
         return attr;
       });
@@ -128,8 +128,8 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
 
   async function renewSession() {
     const res = await fetch(`${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/algorithm/renew-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(useStore.getState().graphConfig!),
     });
     if (res.status === 202 || res.status === 409) return true;
@@ -141,17 +141,17 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     eventEmitter.on(Events.ALGORITHM, async ({ name, parameters }: EventMessage[Events.ALGORITHM]) => {
-      if (name === 'None') {
+      if (name === "None") {
         setCommunityMap({});
         graph.updateEachNodeAttributes((_, attr) => {
           attr.color = undefined;
           attr.community = undefined;
           return attr;
         });
-      } else if (name === 'Louvain') {
+      } else if (name === "Louvain") {
         const { resolution, weighted, minCommunitySize } = parameters;
-        if (searchParams?.get('file')) {
-          const louvain = await import('graphology-communities-louvain').then(lib => lib.default);
+        if (searchParams?.get("file")) {
+          const louvain = await import("graphology-communities-louvain").then(lib => lib.default);
           const hslToHex = (h: number, s: number, l: number) => {
             l /= 100;
             const a = (s * Math.min(l, 1 - l)) / 100;
@@ -160,20 +160,20 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
               const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
               return Math.round(255 * color)
                 .toString(16)
-                .padStart(2, '0');
+                .padStart(2, "0");
             };
             return `#${f(0)}${f(8)}${f(4)}`;
           };
           const res = louvain(graph, {
             resolution: +resolution,
-            getEdgeWeight: weighted ? 'score' : null,
+            getEdgeWeight: weighted ? "score" : null,
           });
           const map: Record<string, { name: string; genes: string[]; color: string }> = {};
           let count = 0;
           for (const [node, comm] of Object.entries(res)) {
             if (!map[comm]) {
               map[comm] = {
-                name: '',
+                name: "",
                 genes: [],
                 color: hslToHex(count++ * 137.508, 75, 50),
               };
@@ -183,12 +183,12 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
           for (const { genes, color } of Object.values(map)) {
             if (genes.length < +minCommunitySize) {
               for (const gene of genes) {
-                graph.setNodeAttribute(gene, 'color', undefined);
+                graph.setNodeAttribute(gene, "color", undefined);
               }
               continue;
             }
             for (const gene of genes) {
-              graph.setNodeAttribute(gene, 'color', color);
+              graph.setNodeAttribute(gene, "color", color);
             }
           }
           setCommunityMap(map);
@@ -197,10 +197,10 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
         (async function louvain() {
           const { graphName } = useStore.getState().graphConfig!;
           const res = await fetch(
-            `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/algorithm/louvain?graphName=${encodeURIComponent(graphName)}&minCommunitySize=${minCommunitySize}${resolution ? `&resolution=${resolution}` : ''}&weighted=${encodeURIComponent(!!weighted)}`,
+            `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/algorithm/louvain?graphName=${encodeURIComponent(graphName)}&minCommunitySize=${minCommunitySize}${resolution ? `&resolution=${resolution}` : ""}&weighted=${encodeURIComponent(!!weighted)}`,
             {
               headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                "Content-Type": "application/x-www-form-urlencoded",
               },
             },
           );
@@ -209,7 +209,7 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
             setCommunityMap(data);
             for (const community of Object.values(data)) {
               for (const gene of community.genes) {
-                graph.setNodeAttribute(gene, 'color', community.color);
+                graph.setNodeAttribute(gene, "color", community.color);
               }
             }
           } else if (res.status === 404) {
@@ -224,17 +224,17 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
                 }
               }),
               {
-                success: 'Session renewed',
-                loading: 'Session expired, renewing...',
-                error: 'Failed to renew session',
-                description: 'This may take a while, please be patient',
-                cancel: { label: 'Close', onClick() {} },
+                success: "Session renewed",
+                loading: "Session expired, renewing...",
+                error: "Failed to renew session",
+                description: "This may take a while, please be patient",
+                cancel: { label: "Close", onClick() {} },
               },
             );
           } else {
-            toast.error('Failed to fetch Louvain data', {
-              cancel: { label: 'Close', onClick() {} },
-              description: 'Server not available,Please try again later. Graph must have relationships to run Louvain.',
+            toast.error("Failed to fetch Louvain data", {
+              cancel: { label: "Close", onClick() {} },
+              description: "Server not available,Please try again later. Graph must have relationships to run Louvain.",
             });
           }
         })();
@@ -245,21 +245,24 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
   return (
     <>
       {Object.keys(communityMap).length > 0 && (
-        <div className='absolute bottom-2 left-2 space-y-1 flex flex-col max-h-56 overflow-scroll border shadow rounded-md backdrop-blur p-2'>
+        <div className="absolute bottom-2 left-2 space-y-1 flex flex-col max-h-56 overflow-scroll border shadow rounded-md backdrop-blur p-2">
           {Object.entries(communityMap).map(([id, val], idx) => (
-            <div key={id} className='flex items-center gap-1'>
+            <div
+              key={id}
+              className="flex items-center gap-1"
+            >
               <Checkbox
                 defaultChecked
                 onCheckedChange={bool => {
-                  if (bool === 'indeterminate') return;
+                  if (bool === "indeterminate") return;
                   for (const gene of val.genes) {
-                    graph.setNodeAttribute(gene, 'hidden', !bool);
+                    graph.setNodeAttribute(gene, "hidden", !bool);
                   }
                 }}
               />
               <Button
                 style={{ backgroundColor: val.color }}
-                className='h-5 w-30'
+                className="h-5 w-30"
                 onClick={() => fitViewportToNodes(sigma, val.genes, { animate: true })}
               >
                 Community {idx + 1}

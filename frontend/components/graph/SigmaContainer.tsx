@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import NodeGradientProgram from '@/lib/NodeGradientProgram';
-import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
+import NodeGradientProgram from "@/lib/NodeGradientProgram";
+import type { EdgeAttributes, NodeAttributes } from "@/lib/interface";
 import {
   ControlsContainer,
   FullScreenControl,
   type SigmaContainerProps,
   SigmaContainer as _SigmaContainer,
-} from '@react-sigma/core';
-import { NodeBorderProgram, createNodeBorderProgram } from '@sigma/node-border';
-import type { Attributes } from 'graphology-types';
-import { Maximize, Minimize } from 'lucide-react';
-import React, { Suspense, useEffect } from 'react';
-import type { Sigma } from 'sigma';
-import { EdgeLineProgram, drawDiscNodeHover } from 'sigma/rendering';
+} from "@react-sigma/core";
+import { NodeBorderProgram, createNodeBorderProgram } from "@sigma/node-border";
+import type { Attributes } from "graphology-types";
+import { Maximize, Minimize } from "lucide-react";
+import React, { Suspense, useEffect } from "react";
+import type { Sigma } from "sigma";
+import { EdgeLineProgram, drawDiscNodeHover } from "sigma/rendering";
 import {
   ColorAnalysis,
   ForceLayout,
@@ -24,7 +24,7 @@ import {
   LoadGraph,
   SizeAnalysis,
   ZoomControl,
-} from '.';
+} from ".";
 
 export const SigmaContainer = React.forwardRef<
   Sigma<NodeAttributes, EdgeAttributes, Attributes>,
@@ -34,8 +34,8 @@ export const SigmaContainer = React.forwardRef<
   const highlightedNodesRef = React.useRef(new Set<string>());
 
   useEffect(() => {
-    const sigmaContainer = document.querySelector('.sigma-container') as HTMLElement;
-    sigmaContainer.addEventListener('contextmenu', e => e.preventDefault());
+    const sigmaContainer = document.querySelector(".sigma-container") as HTMLElement;
+    sigmaContainer.addEventListener("contextmenu", e => e.preventDefault());
   }, []);
 
   return (
@@ -49,10 +49,10 @@ export const SigmaContainer = React.forwardRef<
           border: createNodeBorderProgram({
             borders: [
               {
-                size: { attribute: 'borderSize', defaultValue: 0.4 },
-                color: { attribute: 'borderColor' },
+                size: { attribute: "borderSize", defaultValue: 0.4 },
+                color: { attribute: "borderColor" },
               },
-              { size: { fill: true }, color: { attribute: 'color' } },
+              { size: { fill: true }, color: { attribute: "color" } },
             ],
           }),
           highlight: NodeBorderProgram,
@@ -67,15 +67,21 @@ export const SigmaContainer = React.forwardRef<
         <LoadGraph />
       </Suspense>
       <GraphExport highlightedNodesRef={highlightedNodesRef} />
-      <GraphEvents highlightedNodesRef={highlightedNodesRef} clickedNodesRef={clickedNodesRef} />
+      <GraphEvents
+        highlightedNodesRef={highlightedNodesRef}
+        clickedNodesRef={clickedNodesRef}
+      />
       <ForceLayout />
       <GraphSettings clickedNodesRef={clickedNodesRef} />
       <ColorAnalysis />
       <SizeAnalysis />
       <GraphAnalysis highlightedNodesRef={highlightedNodesRef} />
-      <ControlsContainer position='bottom-right' style={{ zIndex: 0 }}>
+      <ControlsContainer
+        position="bottom-right"
+        style={{ zIndex: 0 }}
+      >
         <ZoomControl />
-        <FullScreenControl labels={{ enter: 'ENTER', exit: 'EXIT' }}>
+        <FullScreenControl labels={{ enter: "ENTER", exit: "EXIT" }}>
           <Maximize />
           <Minimize />
         </FullScreenControl>

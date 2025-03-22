@@ -1,4 +1,4 @@
-import type { Attributes } from 'graphology-types';
+import type { Attributes } from "graphology-types";
 
 /**
  * Edge attributes used in the graph
@@ -40,7 +40,7 @@ export interface EdgeAttributes extends Attributes {
    * type of the edge (custom defined but ProgramClasses needs to be mapped in SigmaContainer)
    * defeault: line
    */
-  type?: 'line' | 'rectangle';
+  type?: "line" | "rectangle";
 
   /**
    * z-index of the edge

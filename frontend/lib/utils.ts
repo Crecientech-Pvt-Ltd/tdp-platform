@@ -1,19 +1,19 @@
-import EventEmitter from 'events';
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import type { GenePropertyMetadata } from './interface';
+import EventEmitter from "events";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import type { GenePropertyMetadata } from "./interface";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function getProperty(val: string | GenePropertyMetadata) {
-  return typeof val === 'string' ? val : val.name;
+  return typeof val === "string" ? val : val.name;
 }
 
 export async function openDB(name: string, mode: IDBTransactionMode) {
   return new Promise<IDBObjectStore | null>((resolve, reject) => {
-    const request = indexedDB.open('universal', 1);
+    const request = indexedDB.open("universal", 1);
     request.onsuccess = () => {
       const db = request.result;
       const tx = db.transaction(name, mode);
@@ -23,8 +23,8 @@ export async function openDB(name: string, mode: IDBTransactionMode) {
     request.onerror = () => reject(null);
     request.onupgradeneeded = () => {
       const db = request.result;
-      db.createObjectStore('network');
-      db.createObjectStore('files');
+      db.createObjectStore("network");
+      db.createObjectStore("files");
     };
   });
 }
@@ -45,19 +45,19 @@ export function distinct<T>(arr: T[]): Array<T> {
  * @returns Formatted string
  */
 export function formatBytes(bytes: number | string, decimals = 2): string {
-  if (!+bytes) return '0 Bytes';
+  if (!+bytes) return "0 Bytes";
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   const i = Math.floor(Math.log(+bytes) / Math.log(k));
   return `${Number.parseFloat((+bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
 }
 
 export const eventEmitter = new EventEmitter();
 export enum Events {
-  ALGORITHM = 'algorithm',
-  EXPORT = 'export',
-  HIGHLIGHT_SEED_GENES = 'highlight_seed_genes',
+  ALGORITHM = "algorithm",
+  EXPORT = "export",
+  HIGHLIGHT_SEED_GENES = "highlight_seed_genes",
 }
 export type EventMessage = {
   [Events.ALGORITHM]: {
@@ -65,13 +65,13 @@ export type EventMessage = {
     parameters: Record<string, string>;
   };
   [Events.EXPORT]: {
-    format: 'png' | 'json' | 'csv';
+    format: "png" | "json" | "csv";
     all?: boolean;
   };
 };
 
 export function envURL(env?: string) {
-  return (env || 'https://pdnet-rnd-web.crecientech.com').replace(/\/$/, '');
+  return (env || "https://pdnet-rnd-web.crecientech.com").replace(/\/$/, "");
 }
 
 export function initRadioOptions() {

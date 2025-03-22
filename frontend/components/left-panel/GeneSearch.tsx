@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useStore } from '@/lib/hooks';
-import { Events, eventEmitter } from '@/lib/utils';
-import { SquareArrowOutUpRight } from 'lucide-react';
-import React, { createRef, useEffect } from 'react';
-import { Textarea } from '../ui/textarea';
+import { useStore } from "@/lib/hooks";
+import { Events, eventEmitter } from "@/lib/utils";
+import { SquareArrowOutUpRight } from "lucide-react";
+import React, { createRef, useEffect } from "react";
+import { Textarea } from "../ui/textarea";
 
 export function GeneSearch() {
   const nodeSearchQuery = useStore(state => state.nodeSearchQuery);
@@ -16,7 +16,7 @@ export function GeneSearch() {
   useEffect(() => {
     const handleHighlightSeedGenes = (checked: boolean) => {
       if (checked) {
-        useStore.setState({ nodeSearchQuery: geneIDs.join('\n') });
+        useStore.setState({ nodeSearchQuery: geneIDs.join("\n") });
       }
     };
 
@@ -28,13 +28,13 @@ export function GeneSearch() {
   }, [geneIDs]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
-    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+    } else if (e.key === "Enter" && selectedIndex >= 0) {
       e.preventDefault();
       appendSuggestion(suggestions[selectedIndex]);
     }
@@ -44,7 +44,7 @@ export function GeneSearch() {
     const words = nodeSearchQuery.split(/[\n,]/);
     words.pop();
     words.push(suggestion);
-    useStore.setState({ nodeSearchQuery: `${words.join(', ')}, ` });
+    useStore.setState({ nodeSearchQuery: `${words.join(", ")}, ` });
     useStore.setState({ nodeSuggestions: [] });
     textareaRef.current?.focus();
     setSelectedIndex(-1);
@@ -70,14 +70,14 @@ export function GeneSearch() {
           Export <SquareArrowOutUpRight size={10} className='mt-1 ml-0.5' />
         </button>
       </div> */}
-      <div className='relative w-full'>
+      <div className="relative w-full">
         {suggestions.length > 0 && (
-          <ul className='absolute z-10 w-full mt-0.5 bg-white border border-gray-300 rounded-md shadow-sm max-h-32 overflow-auto text-xs'>
+          <ul className="absolute z-10 w-full mt-0.5 bg-white border border-gray-300 rounded-md shadow-sm max-h-32 overflow-auto text-xs">
             {suggestions.map((suggestion, index) => (
               // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
               <li
                 key={suggestion}
-                className={`px-2 py-1 cursor-pointer hover:bg-gray-100 ${index === selectedIndex ? 'bg-gray-100' : ''}`}
+                className={`px-2 py-1 cursor-pointer hover:bg-gray-100 ${index === selectedIndex ? "bg-gray-100" : ""}`}
                 onClick={() => appendSuggestion(suggestion)}
               >
                 {suggestion}
@@ -87,9 +87,9 @@ export function GeneSearch() {
         )}
         <Textarea
           ref={textareaRef}
-          id='nodeSearchQuery'
-          placeholder='Search Genes...'
-          className='min-h-20 text-xs'
+          id="nodeSearchQuery"
+          placeholder="Search Genes..."
+          className="min-h-20 text-xs"
           value={nodeSearchQuery}
           onChange={e => useStore.setState({ nodeSearchQuery: e.target.value })}
           onKeyDown={handleKeyDown}

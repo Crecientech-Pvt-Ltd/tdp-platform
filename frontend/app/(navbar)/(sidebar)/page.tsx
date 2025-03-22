@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import PopUpTable from '@/components/PopUpTable';
+import PopUpTable from "@/components/PopUpTable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,22 +10,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { graphConfig } from '@/lib/data';
-import { GENE_VERIFICATION_QUERY } from '@/lib/gql';
-import type { GeneVerificationData, GeneVerificationVariables, GraphConfigForm } from '@/lib/interface';
-import { distinct } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
-import { AlertTriangle, Loader } from 'lucide-react';
-import { Link } from 'next-view-transitions';
-import React, { type ChangeEvent } from 'react';
-import { toast } from 'sonner';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { graphConfig } from "@/lib/data";
+import { GENE_VERIFICATION_QUERY } from "@/lib/gql";
+import type { GeneVerificationData, GeneVerificationVariables, GraphConfigForm } from "@/lib/interface";
+import { distinct } from "@/lib/utils";
+import { useLazyQuery } from "@apollo/client";
+import { AlertTriangle, Loader } from "lucide-react";
+import { Link } from "next-view-transitions";
+import React, { type ChangeEvent } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const [verifyGenes, { data, loading }] = useLazyQuery<GeneVerificationData, GeneVerificationVariables>(
@@ -33,22 +33,22 @@ export default function Home() {
   );
 
   const [formData, setFormData] = React.useState<GraphConfigForm>({
-    seedGenes: 'MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2',
-    diseaseMap: 'ALS',
-    order: '0',
-    interactionType: 'PPI',
-    minScore: '0.9',
+    seedGenes: "MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2",
+    diseaseMap: "ALS",
+    order: "0",
+    interactionType: "PPI",
+    minScore: "0.9",
   });
 
   React.useEffect(() => {
     const escapeListener = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setTableOpen(false);
       }
     };
-    document.addEventListener('keydown', escapeListener);
+    document.addEventListener("keydown", escapeListener);
     return () => {
-      document.removeEventListener('keydown', escapeListener);
+      document.removeEventListener("keydown", escapeListener);
     };
   }, []);
 
@@ -66,9 +66,9 @@ export default function Home() {
     });
     if (error) {
       console.error(error);
-      toast.error('Error fetching data', {
-        cancel: { label: 'Close', onClick() {} },
-        description: 'Server not available,Please try again later',
+      toast.error("Error fetching data", {
+        cancel: { label: "Close", onClick() {} },
+        description: "Server not available,Please try again later",
       });
       return;
     }
@@ -81,9 +81,9 @@ export default function Home() {
 
   const handleFileRead = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file?.type !== 'text/plain') {
-      toast.error('Invalid file type', {
-        cancel: { label: 'Close', onClick() {} },
+    if (file?.type !== "text/plain") {
+      toast.error("Invalid file type", {
+        cancel: { label: "Close", onClick() {} },
       });
       return;
     }
@@ -91,8 +91,8 @@ export default function Home() {
     if (text) {
       setFormData({ ...formData, seedGenes: text });
     } else {
-      toast.error('Error reading file', {
-        cancel: { label: 'Close', onClick() {} },
+      toast.error("Error reading file", {
+        cancel: { label: "Close", onClick() {} },
       });
     }
   };
@@ -109,11 +109,11 @@ export default function Home() {
       const warningThreshold = orderNum === 0 ? 1000 : 25;
 
       if (seedCount > maxGenes) {
-        toast.error('Too many seed genes', {
+        toast.error("Too many seed genes", {
           description: `Maximum ${maxGenes} genes allowed for ${
-            orderNum === 0 ? 'zero' : 'first/second'
+            orderNum === 0 ? "zero" : "first/second"
           } order networks`,
-          cancel: { label: 'Close', onClick() {} },
+          cancel: { label: "Close", onClick() {} },
         });
         return;
       }
@@ -125,14 +125,14 @@ export default function Home() {
     }
     const seedGenes = data?.genes.map(gene => gene.ID);
     if (!seedGenes) {
-      toast.error('There is no valid gene in the list', {
-        cancel: { label: 'Close', onClick() {} },
-        description: 'Please enter valid gene names',
+      toast.error("There is no valid gene in the list", {
+        cancel: { label: "Close", onClick() {} },
+        description: "Please enter valid gene names",
       });
       return;
     }
     localStorage.setItem(
-      'graphConfig',
+      "graphConfig",
       JSON.stringify({
         geneIDs: seedGenes,
         diseaseMap: formData.diseaseMap,
@@ -143,40 +143,40 @@ export default function Home() {
       }),
     );
     setTableOpen(false);
-    window.open('/network', '_blank', 'noopener,noreferrer');
+    window.open("/network", "_blank", "noopener,noreferrer");
   };
 
   return (
-    <div className='mx-auto border rounded-lg shadow-md h-full'>
+    <div className="mx-auto border rounded-lg shadow-md h-full">
       <h2
         style={{
-          background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+          background: "linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)",
         }}
-        className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
+        className="text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6"
       >
         Search by Multiple Proteins
       </h2>
       <form onSubmit={handleSubmit}>
-        <div className='space-y-4 px-8'>
+        <div className="space-y-4 px-8">
           <div>
-            <div className='flex justify-between'>
-              <Label htmlFor='seedGenes'>Seed Genes</Label>
-              <p className='text-zinc-500'>
+            <div className="flex justify-between">
+              <Label htmlFor="seedGenes">Seed Genes</Label>
+              <p className="text-zinc-500">
                 (one-per-line or CSV; examples: {/* biome-ignore lint/a11y/useKeyWithClickEvents: required */}
                 <span
-                  className='underline cursor-pointer'
+                  className="underline cursor-pointer"
                   onClick={() => {
                     setFormData({
                       ...formData,
-                      seedGenes: 'MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2',
+                      seedGenes: "MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2",
                     });
                   }}
                 >
                   #1
-                </span>{' '}
+                </span>{" "}
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <span
-                  className='underline cursor-pointer'
+                  className="underline cursor-pointer"
                   onClick={() => {
                     setFormData({
                       ...formData,
@@ -190,10 +190,10 @@ ENSG00000162063`,
                   }}
                 >
                   #2
-                </span>{' '}
+                </span>{" "}
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <span
-                  className='underline cursor-pointer'
+                  className="underline cursor-pointer"
                   onClick={() => {
                     setFormData({
                       ...formData,
@@ -213,34 +213,41 @@ FIG4`,
             </div>
             <Textarea
               rows={6}
-              id='seedGenes'
-              placeholder='Type seed genes in either , or new line separated format'
-              className='mt-1'
+              id="seedGenes"
+              placeholder="Type seed genes in either , or new line separated format"
+              className="mt-1"
               value={formData.seedGenes}
               onChange={handleSeedGenesChange}
               required
             />
             <center>OR</center>
-            <Label htmlFor='seedFile'>Upload Text File</Label>
+            <Label htmlFor="seedFile">Upload Text File</Label>
             <Input
-              id='seedFile'
-              type='file'
-              accept='.txt'
-              className='border-2 hover:border-dashed cursor-pointer h-9'
+              id="seedFile"
+              type="file"
+              accept=".txt"
+              className="border-2 hover:border-dashed cursor-pointer h-9"
               onChange={handleFileRead}
             />
           </div>
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {graphConfig.map(config => (
               <div key={config.id}>
                 <Label htmlFor={config.id}>{config.name}</Label>
-                <Select required value={formData[config.id]} onValueChange={val => handleSelect(val, config.id)}>
+                <Select
+                  required
+                  value={formData[config.id]}
+                  onValueChange={val => handleSelect(val, config.id)}
+                >
                   <SelectTrigger id={config.id}>
-                    <SelectValue placeholder='Select...' />
+                    <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
                     {config.options.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
@@ -251,19 +258,22 @@ FIG4`,
           </div>
           <center>
             <Button
-              type='submit'
+              type="submit"
               style={{
-                background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+                background: "linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)",
               }}
-              className='w-3/4 text-white mb-4'
+              className="w-3/4 text-white mb-4"
             >
               {loading ? (
                 <>
-                  <Loader className='animate-spin mr-2' size={20} />
+                  <Loader
+                    className="animate-spin mr-2"
+                    size={20}
+                  />
                   Verifying {geneIDs.length} genes...
                 </>
               ) : (
-                'Submit'
+                "Submit"
               )}
             </Button>
           </center>
@@ -278,15 +288,18 @@ FIG4`,
         <AlertDialog open={showAlert}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className='text-red-500 flex items-center'>
-                <AlertTriangle size={24} className='mr-2' />
+              <AlertDialogTitle className="text-red-500 flex items-center">
+                <AlertTriangle
+                  size={24}
+                  className="mr-2"
+                />
                 Warning!
               </AlertDialogTitle>
-              <AlertDialogDescription className='text-black'>
+              <AlertDialogDescription className="text-black">
                 You are about to generate a graph with a large number of nodes/edges. This may take a long time to
                 complete.
               </AlertDialogDescription>
-              <p className='text-black font-semibold'>Are you sure you want to proceed?</p>
+              <p className="text-black font-semibold">Are you sure you want to proceed?</p>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setShowAlert(false)}>Cancel</AlertDialogCancel>
@@ -294,7 +307,7 @@ FIG4`,
                 onClick={() => {
                   setShowAlert(false);
                   handleGenerateGraph(true);
-                  document.body.removeAttribute('style');
+                  document.body.removeAttribute("style");
                 }}
               >
                 Continue

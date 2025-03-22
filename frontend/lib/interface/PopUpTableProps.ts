@@ -1,4 +1,4 @@
-import type { GeneVerificationData } from './api';
+import type { GeneVerificationData } from "./api";
 
 /**
  * Props for the normal popup table

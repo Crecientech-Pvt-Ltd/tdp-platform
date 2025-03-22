@@ -1,4 +1,4 @@
-import type { Gene } from '.';
+import type { Gene } from ".";
 
 /**
  * API data for gene universal data in index page

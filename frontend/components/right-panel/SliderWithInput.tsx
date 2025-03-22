@@ -1,7 +1,7 @@
-'use client';
-import { useState } from 'react';
-import { Input } from '../ui/input';
-import { Slider } from '../ui/slider';
+"use client";
+import { useState } from "react";
+import { Input } from "../ui/input";
+import { Slider } from "../ui/slider";
 
 export default function SliderWithInput({
   min,
@@ -18,16 +18,24 @@ export default function SliderWithInput({
 }) {
   const [value, setValue] = useState(defaultValue);
   return (
-    <div className='flex items-center text-xs space-x-2'>
-      <Slider min={min} max={max} step={step} id={id} name={id} value={[value]} onValueChange={e => setValue(e[0])} />
+    <div className="flex items-center text-xs space-x-2">
+      <Slider
+        min={min}
+        max={max}
+        step={step}
+        id={id}
+        name={id}
+        value={[value]}
+        onValueChange={e => setValue(e[0])}
+      />
       <Input
-        type='number'
+        type="number"
         min={min}
         max={max}
         step={step}
         value={value}
         onChange={e => setValue(Number(e.target.value))}
-        className='w-16'
+        className="w-16"
       />
     </div>
   );

@@ -1,13 +1,13 @@
-import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import type { GenePropertyMetadata } from '@/lib/interface';
-import { cn, getProperty } from '@/lib/utils';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { Check, ChevronsUpDown, Info, ListCheck } from 'lucide-react';
-import * as React from 'react';
-import { Spinner } from './ui/spinner';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { GenePropertyMetadata } from "@/lib/interface";
+import { cn, getProperty } from "@/lib/utils";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { Check, ChevronsUpDown, Info, ListCheck } from "lucide-react";
+import * as React from "react";
+import { Spinner } from "./ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface VirtualizedCommandProps {
   options: (string | GenePropertyMetadata)[];
@@ -44,7 +44,7 @@ const VirtualizedCommand = ({
     const lowerCaseSearch = search.toLowerCase();
     setFilteredOptions(
       options.filter(option => {
-        if (typeof option === 'string') {
+        if (typeof option === "string") {
           return option.toLowerCase().includes(lowerCaseSearch);
         }
         return option.name.toLowerCase().includes(lowerCaseSearch);
@@ -53,30 +53,43 @@ const VirtualizedCommand = ({
   };
 
   return (
-    <Command style={{ width }} shouldFilter={false}>
-      <CommandInput onValueChange={handleSearch} placeholder={placeholder}>
+    <Command
+      style={{ width }}
+      shouldFilter={false}
+    >
+      <CommandInput
+        onValueChange={handleSearch}
+        placeholder={placeholder}
+      >
         {multiselect && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className='bg-transparent  hover:bg-muted cursor-pointer p-2 rounded border shadow'
+                className="bg-transparent  hover:bg-muted cursor-pointer p-2 rounded border shadow"
                 onClick={() => onSelectOption?.(filteredOptions.slice(0, 50).map(getProperty))}
               >
-                <ListCheck className='h-4 w-4 text-black' />
+                <ListCheck className="h-4 w-4 text-black" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Select all (only first 50 items are selected at max)</TooltipContent>
           </Tooltip>
         )}
       </CommandInput>
-      {loading ? <Spinner variant={1} size={'small'} /> : <CommandEmpty>No Result Found.</CommandEmpty>}
+      {loading ? (
+        <Spinner
+          variant={1}
+          size={"small"}
+        />
+      ) : (
+        <CommandEmpty>No Result Found.</CommandEmpty>
+      )}
       <CommandGroup>
         <CommandList ref={parentRef}>
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
+              width: "100%",
+              position: "relative",
             }}
           >
             {virtualOptions.map(virtualOption => {
@@ -84,7 +97,7 @@ const VirtualizedCommand = ({
               const value = getProperty(option);
               return (
                 <CommandItem
-                  className='absolute flex justify-between w-full overflow-visible'
+                  className="absolute flex justify-between w-full overflow-visible"
                   style={{
                     transform: `translateY(${virtualOption.start}px)`,
                   }}
@@ -92,23 +105,27 @@ const VirtualizedCommand = ({
                   value={value}
                   onSelect={onSelectOption}
                 >
-                  <div className='flex item-center'>
+                  <div className="flex item-center">
                     <Check
                       className={cn(
-                        'mr-2 h-4 w-4',
+                        "mr-2 h-4 w-4",
                         (selectedOption instanceof Set ? selectedOption.has(value) : selectedOption === value)
-                          ? 'opacity-100'
-                          : 'opacity-0',
+                          ? "opacity-100"
+                          : "opacity-0",
                       )}
                     />
                     {value}
                   </div>
-                  {typeof option !== 'string' && option.description && (
+                  {typeof option !== "string" && option.description && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className='h-4 w-4 ml-2 cursor-pointer' />
+                        <Info className="h-4 w-4 ml-2 cursor-pointer" />
                       </TooltipTrigger>
-                      <TooltipContent side='left' align='start' className='max-w-48'>
+                      <TooltipContent
+                        side="left"
+                        align="start"
+                        className="max-w-48"
+                      >
                         {option.description}
                       </TooltipContent>
                     </Tooltip>
@@ -131,7 +148,7 @@ interface VirtualizedComboboxProps {
   value: string | Set<string>;
   width?: string;
   onChange: (value: string | Set<string>) => void;
-  align?: 'start' | 'end' | 'center';
+  align?: "start" | "end" | "center";
   multiselect?: boolean;
 }
 
@@ -139,35 +156,41 @@ export function VirtualizedCombobox({
   loading = false,
   className,
   data = [],
-  placeholder: searchPlaceholder = 'Search items...',
+  placeholder: searchPlaceholder = "Search items...",
   value,
-  width = '800px',
+  width = "800px",
   onChange,
-  align = 'start',
+  align = "start",
   multiselect = false,
 }: VirtualizedComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+    >
       <PopoverTrigger asChild>
         <Button
-          variant='outline'
-          role='combobox'
+          variant="outline"
+          role="combobox"
           aria-expanded={open}
-          className={cn('w-[200px] justify-between text-ellipsis text-wrap break-words h-9', className)}
+          className={cn("w-[200px] justify-between text-ellipsis text-wrap break-words h-9", className)}
         >
-          <span className='truncate'>
+          <span className="truncate">
             {multiselect && value instanceof Set
               ? value.size
                 ? `${value.size} selected`
                 : searchPlaceholder
               : value || searchPlaceholder}
           </span>
-          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align={align} className={cn(`w-[${width || '200px'}] p-0`, className)}>
+      <PopoverContent
+        align={align}
+        className={cn(`w-[${width || "200px"}] p-0`, className)}
+      >
         <VirtualizedCommand
           multiselect={multiselect}
           options={data}
@@ -175,8 +198,8 @@ export function VirtualizedCombobox({
           selectedOption={value}
           onSelectOption={currentValue => {
             if (multiselect) {
-              if (typeof value === 'string') value = new Set();
-              if (typeof currentValue === 'string') {
+              if (typeof value === "string") value = new Set();
+              if (typeof currentValue === "string") {
                 if (value.has(currentValue)) {
                   value.delete(currentValue);
                 } else {
@@ -192,7 +215,7 @@ export function VirtualizedCombobox({
                 }
               }
               onChange(new Set(value));
-            } else if (typeof currentValue === 'string') {
+            } else if (typeof currentValue === "string") {
               onChange(currentValue);
               setOpen(false);
             }

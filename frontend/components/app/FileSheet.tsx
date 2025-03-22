@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   AlertDialog,
@@ -9,11 +9,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -22,18 +22,18 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
-import { DISEASE_DEPENDENT_PROPERTIES, DISEASE_INDEPENDENT_PROPERTIES } from '@/lib/data';
-import { useStore } from '@/lib/hooks';
-import type { RadioOptions, UniversalData } from '@/lib/interface';
-import { formatBytes, initRadioOptions, openDB } from '@/lib/utils';
-import type { CheckedState } from '@radix-ui/react-checkbox';
-import { Trash2, Upload } from 'lucide-react';
-import { Link } from 'next-view-transitions';
-import Papa from 'papaparse';
-import React from 'react';
-import { useDropzone } from 'react-dropzone';
-import { toast } from 'sonner';
+} from "@/components/ui/sheet";
+import { DISEASE_DEPENDENT_PROPERTIES, DISEASE_INDEPENDENT_PROPERTIES } from "@/lib/data";
+import { useStore } from "@/lib/hooks";
+import type { RadioOptions, UniversalData } from "@/lib/interface";
+import { formatBytes, initRadioOptions, openDB } from "@/lib/utils";
+import type { CheckedState } from "@radix-ui/react-checkbox";
+import { Trash2, Upload } from "lucide-react";
+import { Link } from "next-view-transitions";
+import Papa from "papaparse";
+import React from "react";
+import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 
 export function FileSheet() {
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
@@ -42,11 +42,11 @@ export function FileSheet() {
   const geneNameToID = useStore(state => state.geneNameToID);
 
   React.useEffect(() => {
-    openDB('files', 'readonly').then(store => {
+    openDB("files", "readonly").then(store => {
       if (!store) {
-        toast.error('Failed to open IndexedDB database', {
-          cancel: { label: 'Close', onClick() {} },
-          description: 'Please make sure you have enabled IndexedDB in your browser',
+        toast.error("Failed to open IndexedDB database", {
+          cancel: { label: "Close", onClick() {} },
+          description: "Please make sure you have enabled IndexedDB in your browser",
         });
         return;
       }
@@ -64,11 +64,11 @@ export function FileSheet() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: async (acceptedFiles, fileRejections) => {
-      const store = await openDB('files', 'readwrite');
+      const store = await openDB("files", "readwrite");
       if (!store) {
-        toast.error('Failed to open IndexedDB database', {
-          cancel: { label: 'Close', onClick() {} },
-          description: 'Please make sure you have enabled IndexedDB in your browser',
+        toast.error("Failed to open IndexedDB database", {
+          cancel: { label: "Close", onClick() {} },
+          description: "Please make sure you have enabled IndexedDB in your browser",
         });
         return;
       }
@@ -97,14 +97,14 @@ export function FileSheet() {
         };
       }
       if (fileRejections.length > 0) {
-        const rejectedFiles = fileRejections.map(r => r.file.name).join(', ');
+        const rejectedFiles = fileRejections.map(r => r.file.name).join(", ");
         toast.error(`Files rejected: ${rejectedFiles}`, {
-          cancel: { label: 'Close', onClick() {} },
-          description: 'Please make sure files are in CSV format',
+          cancel: { label: "Close", onClick() {} },
+          description: "Please make sure files are in CSV format",
         });
       }
     },
-    accept: { 'text/csv': ['.csv'] },
+    accept: { "text/csv": [".csv"] },
   });
 
   const handleCheckboxChange = (fileName: string) => {
@@ -118,11 +118,11 @@ export function FileSheet() {
   const removeFile = async (name?: string) => {
     setUploadedFiles(name ? uploadedFiles.filter(file => file.name !== name) : []);
     setShowConfirmDialog(false);
-    const store = await openDB('files', 'readwrite');
+    const store = await openDB("files", "readwrite");
     if (!store) {
-      toast.error('Failed to open IndexedDB database', {
-        cancel: { label: 'Close', onClick() {} },
-        description: 'Please make sure you have enabled IndexedDB in your browser',
+      toast.error("Failed to open IndexedDB database", {
+        cancel: { label: "Close", onClick() {} },
+        description: "Please make sure you have enabled IndexedDB in your browser",
       });
       return;
     }
@@ -133,7 +133,7 @@ export function FileSheet() {
   };
 
   const handleConfirmDialogChange = (checked: CheckedState) => {
-    sessionStorage.setItem('showConfirmDialog', JSON.stringify(!checked));
+    sessionStorage.setItem("showConfirmDialog", JSON.stringify(!checked));
   };
 
   const handleUniversalUpdate = async () => {
@@ -144,11 +144,11 @@ export function FileSheet() {
     };
     for (const file of uploadedFiles) {
       if (!checkedOptions[file.name]) continue;
-      const store = await openDB('files', 'readonly');
+      const store = await openDB("files", "readonly");
       if (!store) {
-        toast.error('Failed to open IndexedDB database', {
-          cancel: { label: 'Close', onClick() {} },
-          description: 'Please make sure you have enabled IndexedDB in your browser',
+        toast.error("Failed to open IndexedDB database", {
+          cancel: { label: "Close", onClick() {} },
+          description: "Please make sure you have enabled IndexedDB in your browser",
         });
         return;
       }
@@ -162,23 +162,23 @@ export function FileSheet() {
         const IDHeaderName = parsedData.meta.fields?.[0];
         if (!IDHeaderName) {
           toast.error(`Invalid file: ${file.name}`, {
-            cancel: { label: 'Close', onClick() {} },
-            description: 'Please check the file and try again',
+            cancel: { label: "Close", onClick() {} },
+            description: "Please check the file and try again",
           });
           return;
         }
         try {
           for (const row of parsedData.data) {
             const firstValue = row[IDHeaderName];
-            const geneID = firstValue.startsWith('ENSG') ? firstValue : geneNameToID.get(firstValue?.toUpperCase());
+            const geneID = firstValue.startsWith("ENSG") ? firstValue : geneNameToID.get(firstValue?.toUpperCase());
             if (!geneID || !universalData[geneID]) continue;
             for (const prop in row) {
               if (prop === IDHeaderName) continue;
 
               for (const field of [...DISEASE_DEPENDENT_PROPERTIES, ...DISEASE_DEPENDENT_PROPERTIES]) {
-                const fieldRegex = new RegExp(`^${field}_`, 'i');
+                const fieldRegex = new RegExp(`^${field}_`, "i");
                 if (fieldRegex.test(prop)) {
-                  universalData[geneID].user[field][prop.replace(fieldRegex, '')] = row[prop];
+                  universalData[geneID].user[field][prop.replace(fieldRegex, "")] = row[prop];
                   break;
                 }
               }
@@ -187,8 +187,8 @@ export function FileSheet() {
           for (const prop of parsedData.meta.fields ?? []) {
             if (prop === IDHeaderName) continue;
             for (const field of [...DISEASE_DEPENDENT_PROPERTIES, ...DISEASE_INDEPENDENT_PROPERTIES]) {
-              if (new RegExp(`^${field}_`, 'i').test(prop)) {
-                radioOptions.user[field].push(prop.replace(new RegExp(`^${field}_`, 'i'), ''));
+              if (new RegExp(`^${field}_`, "i").test(prop)) {
+                radioOptions.user[field].push(prop.replace(new RegExp(`^${field}_`, "i"), ""));
                 break;
               }
             }
@@ -196,17 +196,17 @@ export function FileSheet() {
           useStore.setState({ universalData, radioOptions });
         } catch (error) {
           console.error(error);
-          toast.error('Error updating universal data', {
-            cancel: { label: 'Close', onClick() {} },
+          toast.error("Error updating universal data", {
+            cancel: { label: "Close", onClick() {} },
           });
           return;
         }
       };
     }
     if (uploadedFiles.length) {
-      toast.success('Data updated successfully', {
-        cancel: { label: 'Close', onClick() {} },
-        description: 'You can now play your uploaded data!',
+      toast.success("Data updated successfully", {
+        cancel: { label: "Close", onClick() {} },
+        description: "You can now play your uploaded data!",
       });
     }
   };
@@ -225,40 +225,43 @@ export function FileSheet() {
         user: initRadioOptions(),
       },
     });
-    toast.info('Data reset successfully', {
-      cancel: { label: 'Close', onClick() {} },
+    toast.info("Data reset successfully", {
+      cancel: { label: "Close", onClick() {} },
     });
   };
 
   return (
     <div>
-      <div className='flex flex-col lg:flex-row gap-2 justify-between'>
+      <div className="flex flex-col lg:flex-row gap-2 justify-between">
         <Sheet>
           <SheetTrigger asChild>
-            <Button size='sm' className='text-xs w-full'>
-              <Upload className='h-3 w-3 mr-1' />
+            <Button
+              size="sm"
+              className="text-xs w-full"
+            >
+              <Upload className="h-3 w-3 mr-1" />
               Upload Files
             </Button>
           </SheetTrigger>
-          <SheetContent side='bottom'>
+          <SheetContent side="bottom">
             <SheetHeader>
               <SheetTitle>Uploaded Files</SheetTitle>
               <SheetDescription>
                 Manage your uploaded files here. <br />
-                To know more about the file format, click{' '}
+                To know more about the file format, click{" "}
                 <Link
-                  className='font-semibold underline'
-                  href='/docs/network-visualization/left-panel#file-format'
-                  target='_blank'
+                  className="font-semibold underline"
+                  href="/docs/network-visualization/left-panel#file-format"
+                  target="_blank"
                 >
                   here ↗
                 </Link>
                 .
               </SheetDescription>
             </SheetHeader>
-            <div className='py-4'>
+            <div className="py-4">
               <div
-                className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center mb-4 cursor-pointer'
+                className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center mb-4 cursor-pointer"
                 {...getRootProps()}
               >
                 <input {...getInputProps()} />
@@ -269,8 +272,13 @@ export function FileSheet() {
                 )}
               </div>
               {uploadedFiles.length ? (
-                <div className='flex flex-row-reverse'>
-                  <Button size='sm' className='mb-2' variant='destructive' onClick={() => setShowConfirmDialog(true)}>
+                <div className="flex flex-row-reverse">
+                  <Button
+                    size="sm"
+                    className="mb-2"
+                    variant="destructive"
+                    onClick={() => setShowConfirmDialog(true)}
+                  >
                     Delete All
                   </Button>
                 </div>
@@ -279,14 +287,17 @@ export function FileSheet() {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription className='text-black'>
+                    <AlertDialogDescription className="text-black">
                       This action cannot be undone. This will permanently delete all the files.
                     </AlertDialogDescription>
-                    <div className='flex items-center space-x-2 mt-4'>
-                      <Checkbox id='terms' onCheckedChange={handleConfirmDialogChange} />
+                    <div className="flex items-center space-x-2 mt-4">
+                      <Checkbox
+                        id="terms"
+                        onCheckedChange={handleConfirmDialogChange}
+                      />
                       <Label
-                        htmlFor='terms'
-                        className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+                        htmlFor="terms"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Do not show again
                       </Label>
@@ -298,14 +309,14 @@ export function FileSheet() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <ScrollArea className='h-[200px]'>
+              <ScrollArea className="h-[200px]">
                 {uploadedFiles.map(file => (
                   <div
                     key={file.name}
-                    className='flex justify-between items-center mb-2 p-2 bg-primary-foreground shadow rounded'
+                    className="flex justify-between items-center mb-2 p-2 bg-primary-foreground shadow rounded"
                   >
                     <div>
-                      <div className='text-sm font-medium flex gap-4'>
+                      <div className="text-sm font-medium flex gap-4">
                         <Checkbox
                           id={file.name}
                           checked={checkedOptions[file.name] || false}
@@ -313,12 +324,16 @@ export function FileSheet() {
                         />
                         {file.name}
                       </div>
-                      <span className='text-xs text-gray-500 ml-8'>
+                      <span className="text-xs text-gray-500 ml-8">
                         Date: {new Date(file.lastModified).toLocaleString()} | Size: {formatBytes(file.size)}
                       </span>
                     </div>
-                    <Button variant='ghost' size='icon' onClick={() => removeFile(file.name)}>
-                      <Trash2 className='h-4 w-4' />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFile(file.name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
@@ -326,18 +341,26 @@ export function FileSheet() {
             </div>
             <SheetFooter>
               <SheetTrigger asChild>
-                <Button onClick={handleUniversalUpdate} className='w-full'>
+                <Button
+                  onClick={handleUniversalUpdate}
+                  className="w-full"
+                >
                   Submit
                 </Button>
               </SheetTrigger>
             </SheetFooter>
           </SheetContent>
         </Sheet>
-        <Button variant={'destructive'} size={'sm'} className='text-xs' onClick={handleReset}>
+        <Button
+          variant={"destructive"}
+          size={"sm"}
+          className="text-xs"
+          onClick={handleReset}
+        >
           Reset Uploads
         </Button>
       </div>
-      <div className='text-xs text-gray-500 italic mt-2'>
+      <div className="text-xs text-gray-500 italic mt-2">
         <b>NOTE:</b> The uploaded files will be stored in your browser's local storage and is not shared with anyone.
       </div>
     </div>

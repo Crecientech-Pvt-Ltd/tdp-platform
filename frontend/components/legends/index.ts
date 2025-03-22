@@ -1,2 +1,2 @@
-export * from './BinaryLegend';
-export * from './HeatMapLegend';
+export * from "./BinaryLegend";
+export * from "./HeatMapLegend";

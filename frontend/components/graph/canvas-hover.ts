@@ -1,8 +1,8 @@
-import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
-import type { Settings } from 'sigma/settings';
-import type { NodeDisplayData, PartialButFor } from 'sigma/types';
+import type { EdgeAttributes, NodeAttributes } from "@/lib/interface";
+import type { Settings } from "sigma/settings";
+import type { NodeDisplayData, PartialButFor } from "sigma/types";
 
-const TEXT_COLOR = '#000000';
+const TEXT_COLOR = "#000000";
 
 /**
  * This function draw in the input canvas 2D context a rectangle.
@@ -43,7 +43,7 @@ function drawRoundRect(
  */
 export function drawHover(
   context: CanvasRenderingContext2D,
-  data: PartialButFor<NodeDisplayData, 'x' | 'y' | 'size' | 'label' | 'color'>,
+  data: PartialButFor<NodeDisplayData, "x" | "y" | "size" | "label" | "color">,
   settings: Settings<NodeAttributes, EdgeAttributes>,
   // sizePropertyText?: string,
   // colorPropertyText?: string,
@@ -52,17 +52,17 @@ export function drawHover(
   const font = settings.labelFont;
   const weight = settings.labelWeight;
   const subLabelSize = size - 2;
-  const geneName = `Gene Name: ${data.label || ''}`;
+  const geneName = `Gene Name: ${data.label || ""}`;
   const geneID = `ENSG ID: ${data.ID}`;
   const description = `Description: ${data.description}`;
 
   // Then we draw the label background
   context.beginPath();
-  context.fillStyle = '#fff';
+  context.fillStyle = "#fff";
   context.shadowOffsetX = 0;
   context.shadowOffsetY = 2;
   context.shadowBlur = 8;
-  context.shadowColor = '#000';
+  context.shadowColor = "#000";
 
   context.font = `${weight} ${size}px ${font}`;
   const geneNameWidth = context.measureText(geneName).width;

@@ -1,5 +1,5 @@
-import type { SimulationNodeDatum } from 'd3-force';
-import type { Attributes } from 'graphology-types';
+import type { SimulationNodeDatum } from "d3-force";
+import type { Attributes } from "graphology-types";
 /**
  * Node attributes used in the graph
  * @extends Attributes
@@ -50,7 +50,7 @@ export interface NodeAttributes extends Attributes, SimulationNodeDatum {
    * type of the node (custom defined but ProgramClasses needs to be mapped in SigmaContainer)
    * defeault: circle
    */
-  type?: 'circle' | 'border' | 'highlight';
+  type?: "circle" | "border" | "highlight";
 
   /**
    * boolean whether the node is highlighted (shows hoverlabel on true)

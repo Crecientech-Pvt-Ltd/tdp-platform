@@ -28,7 +28,7 @@
     "lineEnding": "lf",
     "lineWidth": 120,
     "bracketSpacing": true,
-    "attributePosition": "auto" // (Alternative for bracketSameLine)
+    "attributePosition": "multiline" // (Alternative for bracketSameLine)
   },
   "organizeImports": {
     "enabled": true
@@ -57,8 +57,8 @@
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "single",
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
       "trailingCommas": "all",
       "semicolons": "always",

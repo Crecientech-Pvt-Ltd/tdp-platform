@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   DISEASE_DEPENDENT_PROPERTIES,
@@ -6,14 +6,14 @@ import {
   HIGHLIGHTED_EDGE_COLOR,
   type NodeColorType,
   type NodeSizeType,
-} from '@/lib/data';
-import { useStore } from '@/lib/hooks';
-import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection, SelectionBox } from '@/lib/interface';
-import { Trie } from '@/lib/trie';
-import { cn } from '@/lib/utils';
-import { useCamera, useRegisterEvents, useSigma } from '@react-sigma/core';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { drawSelectionBox, findNodesInSelection } from './canvas-brush';
+} from "@/lib/data";
+import { useStore } from "@/lib/hooks";
+import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection, SelectionBox } from "@/lib/interface";
+import { Trie } from "@/lib/trie";
+import { cn } from "@/lib/utils";
+import { useCamera, useRegisterEvents, useSigma } from "@react-sigma/core";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { drawSelectionBox, findNodesInSelection } from "./canvas-brush";
 
 export function GraphEvents({
   clickedNodesRef,
@@ -34,7 +34,7 @@ export function GraphEvents({
       value: node,
     })) as { key: string; value: string }[];
     if (!Array.isArray(nodeArr)) return;
-    trieRef.current = Trie.fromArray(nodeArr, 'key');
+    trieRef.current = Trie.fromArray(nodeArr, "key");
   }, [totalNodes]);
 
   const { gotoNode } = useCamera();
@@ -56,15 +56,15 @@ export function GraphEvents({
     const previousHighlightedNodes = highlightedNodesRef.current;
     for (const node of previousHighlightedNodes) {
       if (geneNames.has(node) || !graph.hasNode(node)) continue;
-      graph.removeNodeAttribute(node, 'highlighted');
-      graph.setNodeAttribute(node, 'type', 'circle');
+      graph.removeNodeAttribute(node, "highlighted");
+      graph.setNodeAttribute(node, "type", "circle");
     }
     let count = 0;
     for (const node of geneNames) {
-      if (previousHighlightedNodes.has(node) || !graph.hasNode(node) || graph.getNodeAttribute(node, 'hidden') === true)
+      if (previousHighlightedNodes.has(node) || !graph.hasNode(node) || graph.getNodeAttribute(node, "hidden") === true)
         continue;
-      graph.setNodeAttribute(node, 'type', 'highlight');
-      graph.setNodeAttribute(node, 'highlighted', true);
+      graph.setNodeAttribute(node, "type", "highlight");
+      graph.setNodeAttribute(node, "highlighted", true);
       if (++count === geneNames.size) gotoNode(node, { duration: 100 });
     }
     highlightedNodesRef.current = geneNames;
@@ -72,7 +72,7 @@ export function GraphEvents({
 
   useEffect(() => {
     if (trieRef.current.size === 0) return;
-    const prefix = nodeSearchQuery.split(/[\n,]/).pop()?.trim() || '';
+    const prefix = nodeSearchQuery.split(/[\n,]/).pop()?.trim() || "";
     if (prefix.length === 0) return;
     const suggestions = trieRef.current.search(prefix.toUpperCase()).map(s => s.key);
     useStore.setState({ nodeSuggestions: suggestions });
@@ -89,9 +89,9 @@ export function GraphEvents({
     (_selectedNodes: string[]) => {
       const graph = sigma.getGraph();
       const temp = _selectedNodes.map(node => ({
-        Gene_Name: graph.getNodeAttribute(node, 'label') as string,
+        Gene_Name: graph.getNodeAttribute(node, "label") as string,
         ID: node,
-        Description: graph.getNodeAttribute(node, 'description') as string,
+        Description: graph.getNodeAttribute(node, "description") as string,
       }));
       useStore.setState({ selectedNodes: temp });
     },
@@ -100,7 +100,7 @@ export function GraphEvents({
 
   const handleMouseDown = useCallback(
     (e: MouseEvent) => {
-      if (canvasRef.current) canvasRef.current.style.cursor = 'crosshair';
+      if (canvasRef.current) canvasRef.current.style.cursor = "crosshair";
       setIsSelecting(true);
       const mousePosition = sigma.viewportToGraph({
         x: e.offsetX,
@@ -161,8 +161,8 @@ export function GraphEvents({
     // Clear the selection rectangle
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.style.cursor = 'default';
-    const ctx = canvas.getContext('2d');
+    canvas.style.cursor = "default";
+    const ctx = canvas.getContext("2d");
     ctx?.clearRect(0, 0, canvas.width, canvas.height);
     if (_selectedNodes.length) handleSelectedNodes(_selectedNodes);
   }, [handleSelectedNodes, _selectedNodes]);
@@ -183,7 +183,7 @@ export function GraphEvents({
         });
         for (const node of graph.extremities(e.edge)) {
           graph.updateNodeAttributes(node, attr => {
-            attr.type = 'border';
+            attr.type = "border";
             attr.highlighted = true;
             return attr;
           });
@@ -198,9 +198,9 @@ export function GraphEvents({
         for (const node of graph.extremities(e.edge)) {
           graph.updateNodeAttributes(node, attr => {
             if (highlightedNodesRef.current.has(node)) {
-              attr.type = 'highlight';
+              attr.type = "highlight";
             } else {
-              attr.type = 'circle';
+              attr.type = "circle";
               attr.highlighted = false;
             }
             return attr;
@@ -222,8 +222,8 @@ export function GraphEvents({
         } else if (draggedNode) {
           const pos = sigma.viewportToGraph(e);
           // Get new position of node
-          graph.setNodeAttribute(draggedNode, 'x', pos.x);
-          graph.setNodeAttribute(draggedNode, 'y', pos.y);
+          graph.setNodeAttribute(draggedNode, "x", pos.x);
+          graph.setNodeAttribute(draggedNode, "y", pos.y);
         }
         // Prevent sigma to move camera:
         e.preventSigmaDefault();
@@ -242,14 +242,14 @@ export function GraphEvents({
           graph.forEachNeighbor(clickedNode, (neighbor, attr) => {
             clickedNodesRef?.current.delete(neighbor);
             if (highlightedNodesRef.current.has(neighbor)) return;
-            attr.type = 'circle';
+            attr.type = "circle";
             attr.highlighted = false;
           });
           if (highlightedNodesRef.current.has(clickedNode)) {
-            graph.setNodeAttribute(clickedNode, 'type', 'highlight');
+            graph.setNodeAttribute(clickedNode, "type", "highlight");
           } else {
-            graph.setNodeAttribute(clickedNode, 'highlighted', false);
-            graph.setNodeAttribute(clickedNode, 'type', 'circle');
+            graph.setNodeAttribute(clickedNode, "highlighted", false);
+            graph.setNodeAttribute(clickedNode, "type", "circle");
           }
           setClickedNode(null);
           sigma.refresh();
@@ -261,7 +261,7 @@ export function GraphEvents({
         else {
           for (const node of _selectedNodes) {
             if (highlightedNodesRef.current.has(node)) continue;
-            graph.setNodeAttribute(node, 'type', 'circle');
+            graph.setNodeAttribute(node, "type", "circle");
           }
           setSelectedNodes([]);
           handleSelectedNodes([]);
@@ -274,7 +274,7 @@ export function GraphEvents({
         if (e.event.original.ctrlKey) {
           highlightedNodesRef.current.add(e.node);
           const trimmedQuery = nodeSearchQuery.trim();
-          const node = graph.getNodeAttribute(e.node, 'label');
+          const node = graph.getNodeAttribute(e.node, "label");
           const appendedQuery = trimmedQuery ? trimmedQuery.replace(/[,\s]*$/, `, ${node},`) : `${node},`;
           useStore.setState({ nodeSearchQuery: appendedQuery });
         }
@@ -284,17 +284,17 @@ export function GraphEvents({
             graph.forEachNeighbor(node, (neighbor, attr) => {
               clickedNodesRef?.current.delete(neighbor);
               if (highlightedNodesRef.current.has(neighbor)) return;
-              attr.type = 'circle';
+              attr.type = "circle";
               attr.highlighted = false;
             });
           }
           clickedNodesRef?.current.add(e.node);
-          graph.setNodeAttribute(e.node, 'type', 'border');
-          graph.setNodeAttribute(e.node, 'highlighted', true);
+          graph.setNodeAttribute(e.node, "type", "border");
+          graph.setNodeAttribute(e.node, "highlighted", true);
           if (highlightNeighborNodes) {
             graph.forEachNeighbor(e.node, (neighbor, attr) => {
               clickedNodesRef?.current.add(neighbor);
-              attr.type = 'border';
+              attr.type = "border";
               attr.highlighted = true;
             });
           }
@@ -319,31 +319,31 @@ export function GraphEvents({
       if (!selectedRadio || !selectedProperty) return <></>;
       const diseaseNameOrCommon = DISEASE_DEPENDENT_PROPERTIES?.includes(selectedRadio as DiseaseDependentProperties)
         ? diseaseName
-        : 'common';
+        : "common";
       const userRadioArr = radioOptions.user[selectedRadio];
-      if (typeof selectedProperty === 'string') {
+      if (typeof selectedProperty === "string") {
         const value = (
           universalData[node]?.[
-            userRadioArr?.includes(selectedProperty) ? 'user' : diseaseNameOrCommon
+            userRadioArr?.includes(selectedProperty) ? "user" : diseaseNameOrCommon
           ] as OtherSection & CommonSection
         )?.[selectedRadio]?.[selectedProperty];
         return (
           <div>
-            <h3 className='font-bold break-words'>{selectedProperty}</h3>
-            <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
+            <h3 className="font-bold break-words">{selectedProperty}</h3>
+            <p className={cn(value ? "italic" : "")}>{value || "N/A"}</p>
           </div>
         );
       }
       const values = selectedProperty.size
         ? Array.from(selectedProperty).map(prop => {
             const value = (
-              universalData[node]?.[userRadioArr?.includes(prop) ? 'user' : diseaseNameOrCommon] as OtherSection &
+              universalData[node]?.[userRadioArr?.includes(prop) ? "user" : diseaseNameOrCommon] as OtherSection &
                 CommonSection
             )?.[selectedRadio]?.[prop];
             return (
               <div key={prop}>
-                <h3 className='font-bold break-words'>{prop}</h3>
-                <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
+                <h3 className="font-bold break-words">{prop}</h3>
+                <p className={cn(value ? "italic" : "")}>{value || "N/A"}</p>
               </div>
             );
           })
@@ -356,18 +356,18 @@ export function GraphEvents({
   return (
     <>
       {clickedNode && (
-        <div className='absolute top-0 right-0 space-y-1 text-xs shadow rounded border backdrop-blur p-1 m-1 w-80 max-h-[80vh] overflow-y-auto'>
+        <div className="absolute top-0 right-0 space-y-1 text-xs shadow rounded border backdrop-blur p-1 m-1 w-80 max-h-[80vh] overflow-y-auto">
           <div>
-            <h3 className='font-bold'>Ensembl ID</h3>
+            <h3 className="font-bold">Ensembl ID</h3>
             <p>{clickedNode}</p>
           </div>
           <div>
-            <h3 className='font-bold'>Gene Name</h3>
-            <p>{clickedNode ? sigma.getGraph().getNodeAttribute(clickedNode, 'label') : 'No Node Selected'}</p>
+            <h3 className="font-bold">Gene Name</h3>
+            <p>{clickedNode ? sigma.getGraph().getNodeAttribute(clickedNode, "label") : "No Node Selected"}</p>
           </div>
           <div>
-            <h3 className='font-bold'>Description</h3>
-            <p>{clickedNode ? sigma.getGraph().getNodeAttribute(clickedNode, 'description') : 'No Node Selected'}</p>
+            <h3 className="font-bold">Description</h3>
+            <p>{clickedNode ? sigma.getGraph().getNodeAttribute(clickedNode, "description") : "No Node Selected"}</p>
           </div>
           {propertyResolve(clickedNode, selectedRadioNodeColor, selectedNodeColorProperty)}
           {propertyResolve(clickedNode, selectedRadioNodeSize, selectedNodeSizeProperty)}

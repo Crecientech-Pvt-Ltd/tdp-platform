@@ -5,9 +5,9 @@ import type {
   GraphConfig,
   NodeColorType,
   NodeSizeType,
-} from '@/lib/data';
-import type { ForceSettings, RadialAnalysisSetting } from '.';
-import type { GenePropertyMetadata, SelectedNodeProperty } from '..';
+} from "@/lib/data";
+import type { ForceSettings, RadialAnalysisSetting } from ".";
+import type { GenePropertyMetadata, SelectedNodeProperty } from "..";
 
 /**
  * Store for Zustand

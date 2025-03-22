@@ -67,19 +67,13 @@ export const SigmaContainer = React.forwardRef<
         <LoadGraph />
       </Suspense>
       <GraphExport highlightedNodesRef={highlightedNodesRef} />
-      <GraphEvents
-        highlightedNodesRef={highlightedNodesRef}
-        clickedNodesRef={clickedNodesRef}
-      />
+      <GraphEvents highlightedNodesRef={highlightedNodesRef} clickedNodesRef={clickedNodesRef} />
       <ForceLayout />
       <GraphSettings clickedNodesRef={clickedNodesRef} />
       <ColorAnalysis />
       <SizeAnalysis />
       <GraphAnalysis highlightedNodesRef={highlightedNodesRef} />
-      <ControlsContainer
-        position="bottom-right"
-        style={{ zIndex: 0 }}
-      >
+      <ControlsContainer position="bottom-right" style={{ zIndex: 0 }}>
         <ZoomControl />
         <FullScreenControl labels={{ enter: "ENTER", exit: "EXIT" }}>
           <Maximize />

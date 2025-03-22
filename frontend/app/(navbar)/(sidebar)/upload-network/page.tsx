@@ -111,10 +111,7 @@ export default function UploadFile() {
         <div className="space-y-4 px-8">
           <div>
             <Label htmlFor="fileType">Select File Type</Label>
-            <Select
-              value={fileType}
-              onValueChange={val => setFileType(val as "csv" | "json")}
-            >
+            <Select value={fileType} onValueChange={val => setFileType(val as "csv" | "json")}>
               <SelectTrigger id="fileType">
                 <SelectValue placeholder="Select file type" />
               </SelectTrigger>
@@ -131,18 +128,10 @@ export default function UploadFile() {
                 (1st & 2nd columns need to be ENSG IDs or Gene name,
                 <br />
                 while 3rd column should be interaction score; examples:{" "}
-                <a
-                  href={"/example1.csv"}
-                  download
-                  className="underline"
-                >
+                <a href={"/example1.csv"} download className="underline">
                   #1
                 </a>{" "}
-                <a
-                  href={"/example2.csv"}
-                  download
-                  className="underline"
-                >
+                <a href={"/example2.csv"} download className="underline">
                   #2
                 </a>
                 )
@@ -164,13 +153,7 @@ export default function UploadFile() {
             type="submit"
             className="w-full text-white"
           >
-            {loading && (
-              <Loader
-                className="animate-spin mr-2"
-                size={20}
-              />
-            )}{" "}
-            Submit
+            {loading && <Loader className="animate-spin mr-2" size={20} />} Submit
           </Button>
         </div>
       </form>

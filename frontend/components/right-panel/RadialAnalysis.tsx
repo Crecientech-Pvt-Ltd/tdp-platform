@@ -32,42 +32,25 @@ export function RadialAnalysis() {
   }, []);
 
   return (
-    <Collapsible
-      defaultOpen
-      className="mb-2 border p-2 rounded shadow"
-    >
+    <Collapsible defaultOpen className="mb-2 border p-2 rounded shadow">
       <div className="flex items-center justify-between">
         <Label className="font-bold">Radial Analysis</Label>
         <CollapsibleTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="w-6 h-6"
-          >
+          <Button type="button" variant="outline" size="icon" className="w-6 h-6">
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
       <CollapsibleContent className="flex flex-col gap-2">
         {radialAnalysisOptions.map((option, idx) => (
-          <div
-            key={option.key}
-            className="space-y-1"
-          >
+          <div key={option.key} className="space-y-1">
             <div className="flex gap-2 items-center">
               <div className="flex flex-col gap-2 w-full">
-                <Label
-                  htmlFor={option.key}
-                  className="text-xs font-semibold flex gap-1 items-center"
-                >
+                <Label htmlFor={option.key} className="text-xs font-semibold flex gap-1 items-center">
                   {option.label}
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info
-                        className="shrink-0"
-                        size={12}
-                      />
+                      <Info className="shrink-0" size={12} />
                     </TooltipTrigger>
                     <TooltipContent align="end">
                       <p className="max-w-60">{option.tooltip}</p>

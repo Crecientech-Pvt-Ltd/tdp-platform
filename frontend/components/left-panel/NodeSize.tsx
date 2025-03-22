@@ -20,10 +20,7 @@ export function NodeSize({
   const selectedNodeSizeProperty = useStore(state => state.selectedNodeSizeProperty);
 
   return (
-    <Collapsible
-      defaultOpen
-      className="mb-2 border p-2 rounded shadow"
-    >
+    <Collapsible defaultOpen className="mb-2 border p-2 rounded shadow">
       <div className="flex items-center justify-between w-full">
         <Label className="font-bold">Node Size</Label>
         <div className="space-x-1 flex items-center">
@@ -44,12 +41,7 @@ export function NodeSize({
             </TooltipContent>
           </Tooltip>
           <CollapsibleTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="w-6 h-6"
-            >
+            <Button type="button" variant="outline" size="icon" className="w-6 h-6">
               <ChevronsUpDown size={15} />
             </Button>
           </CollapsibleTrigger>
@@ -69,24 +61,11 @@ export function NodeSize({
             return (
               <Tooltip key={label}>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value={PROPERTY_LABEL_TYPE_MAPPING[label]}
-                    id={label}
-                  />
-                  <Label
-                    htmlFor={label}
-                    className="text-xs"
-                  >
+                  <RadioGroupItem value={PROPERTY_LABEL_TYPE_MAPPING[label]} id={label} />
+                  <Label htmlFor={label} className="text-xs">
                     {label}
                   </Label>
-                  <TooltipTrigger asChild>
-                    {tooltipContent && (
-                      <Info
-                        size={12}
-                        className="shrink-0"
-                      />
-                    )}
-                  </TooltipTrigger>
+                  <TooltipTrigger asChild>{tooltipContent && <Info size={12} className="shrink-0" />}</TooltipTrigger>
                 </div>
                 {tooltipContent && (
                   <TooltipContent align="start">

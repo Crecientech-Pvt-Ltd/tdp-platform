@@ -52,18 +52,12 @@ export default function PopUpDataTable<E, F>({
           <Tabs defaultValue={tabsTitle?.[0]}>
             <TabsList className={cn("w-full grid", `grid-cols-${tabsTitle?.length}`)}>
               {tabsTitle?.map(title => (
-                <TabsTrigger
-                  key={title}
-                  value={title}
-                >
+                <TabsTrigger key={title} value={title}>
                   {title}
                 </TabsTrigger>
               ))}
             </TabsList>
-            <TabsContent
-              key={tabsTitle?.[0]}
-              value={tabsTitle![0]}
-            >
+            <TabsContent key={tabsTitle?.[0]} value={tabsTitle![0]}>
               <DataTable
                 data={data[0]}
                 loading={loading?.[0]}
@@ -71,10 +65,7 @@ export default function PopUpDataTable<E, F>({
                 filterColumnName={filterColumnNames[0]}
               />
             </TabsContent>
-            <TabsContent
-              key={tabsTitle?.[1]}
-              value={tabsTitle![1]}
-            >
+            <TabsContent key={tabsTitle?.[1]} value={tabsTitle![1]}>
               <DataTable
                 data={data[1]}
                 loading={loading?.[1]}
@@ -87,30 +78,20 @@ export default function PopUpDataTable<E, F>({
         <DialogFooter className="gap-2 w-full">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                size={"icon"}
-                variant={"outline"}
-              >
+              <Button size={"icon"} variant={"outline"}>
                 <Download size={20} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {tabsTitle?.map(title => (
-                <DropdownMenuItem
-                  key={title}
-                  onClick={() => handleDownload(title)}
-                >
+                <DropdownMenuItem key={title} onClick={() => handleDownload(title)}>
                   {title}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
           <DialogClose asChild>
-            <Button
-              type="button"
-              variant={"secondary"}
-              onClick={() => setOpen(false)}
-            >
+            <Button type="button" variant={"secondary"} onClick={() => setOpen(false)}>
               Close (Esc)
             </Button>
           </DialogClose>

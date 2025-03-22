@@ -200,12 +200,7 @@ export function LeftSideBar() {
       <div className="flex flex-col">
         <Label className="font-bold mb-2">Disease Map</Label>
         <div className="flex items-center gap-2">
-          <motion.div
-            layout
-            transition={{ duration: 0.1, ease: "easeInOut" }}
-            initial={{ width: "100%" }}
-            animate
-          >
+          <motion.div layout transition={{ duration: 0.1, ease: "easeInOut" }} initial={{ width: "100%" }} animate>
             <Combobox
               value={diseaseName}
               onChange={value => typeof value === "string" && useStore.setState({ diseaseName: value })}

@@ -235,10 +235,7 @@ export function FileSheet() {
       <div className="flex flex-col lg:flex-row gap-2 justify-between">
         <Sheet>
           <SheetTrigger asChild>
-            <Button
-              size="sm"
-              className="text-xs w-full"
-            >
+            <Button size="sm" className="text-xs w-full">
               <Upload className="h-3 w-3 mr-1" />
               Upload Files
             </Button>
@@ -273,12 +270,7 @@ export function FileSheet() {
               </div>
               {uploadedFiles.length ? (
                 <div className="flex flex-row-reverse">
-                  <Button
-                    size="sm"
-                    className="mb-2"
-                    variant="destructive"
-                    onClick={() => setShowConfirmDialog(true)}
-                  >
+                  <Button size="sm" className="mb-2" variant="destructive" onClick={() => setShowConfirmDialog(true)}>
                     Delete All
                   </Button>
                 </div>
@@ -291,10 +283,7 @@ export function FileSheet() {
                       This action cannot be undone. This will permanently delete all the files.
                     </AlertDialogDescription>
                     <div className="flex items-center space-x-2 mt-4">
-                      <Checkbox
-                        id="terms"
-                        onCheckedChange={handleConfirmDialogChange}
-                      />
+                      <Checkbox id="terms" onCheckedChange={handleConfirmDialogChange} />
                       <Label
                         htmlFor="terms"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -328,11 +317,7 @@ export function FileSheet() {
                         Date: {new Date(file.lastModified).toLocaleString()} | Size: {formatBytes(file.size)}
                       </span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFile(file.name)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => removeFile(file.name)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -341,22 +326,14 @@ export function FileSheet() {
             </div>
             <SheetFooter>
               <SheetTrigger asChild>
-                <Button
-                  onClick={handleUniversalUpdate}
-                  className="w-full"
-                >
+                <Button onClick={handleUniversalUpdate} className="w-full">
                   Submit
                 </Button>
               </SheetTrigger>
             </SheetFooter>
           </SheetContent>
         </Sheet>
-        <Button
-          variant={"destructive"}
-          size={"sm"}
-          className="text-xs"
-          onClick={handleReset}
-        >
+        <Button variant={"destructive"} size={"sm"} className="text-xs" onClick={handleReset}>
           Reset Uploads
         </Button>
       </div>

@@ -39,10 +39,7 @@ export function ColorPicker({
         >
           <div className="w-full flex items-center gap-2">
             {color ? (
-              <div
-                className="h-4 w-4 rounded !bg-center !bg-cover transition-all"
-                style={{ background: color }}
-              />
+              <div className="h-4 w-4 rounded !bg-center !bg-cover transition-all" style={{ background: color }} />
             ) : (
               <Paintbrush className="h-4 w-4" />
             )}
@@ -50,10 +47,7 @@ export function ColorPicker({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-36 md:w-64"
-        align="end"
-      >
+      <PopoverContent className="w-36 md:w-64" align="end">
         <div className="flex flex-wrap">
           {solids.map(s => (
             // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>

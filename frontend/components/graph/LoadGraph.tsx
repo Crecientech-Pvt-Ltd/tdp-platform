@@ -218,10 +218,7 @@ export function LoadGraph() {
     <>
       {loading ? (
         <div className=" absolute bottom-0 w-full h-full z-40 grid place-items-center">
-          <div
-            className="flex flex-col items-center"
-            id="test"
-          >
+          <div className="flex flex-col items-center" id="test">
             <Spinner />
             Loading...
           </div>
@@ -231,10 +228,7 @@ export function LoadGraph() {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-red-500 flex items-center">
-                <AlertTriangle
-                  size={24}
-                  className="mr-2"
-                />
+                <AlertTriangle size={24} className="mr-2" />
                 Warning!
               </AlertDialogTitle>
               <AlertDialogDescription className="text-black">

@@ -46,19 +46,11 @@ export function NetworkStyle() {
   }, [highlightSeedGenes]);
 
   return (
-    <Collapsible
-      defaultOpen
-      className="mb-2 border p-2 rounded shadow text-xs"
-    >
+    <Collapsible defaultOpen className="mb-2 border p-2 rounded shadow text-xs">
       <div className="flex items-center justify-between w-full">
         <p className="font-bold">Network Style</p>
         <CollapsibleTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="w-6 h-6"
-          >
+          <Button type="button" variant="outline" size="icon" className="w-6 h-6">
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
@@ -66,10 +58,7 @@ export function NetworkStyle() {
       <CollapsibleContent className="flex flex-col gap-2">
         <div className="flex space-x-2 items-center">
           <div className="flex flex-col space-y-1 w-full">
-            <Label
-              htmlFor="defaultNodeSize"
-              className="text-xs font-semibold"
-            >
+            <Label htmlFor="defaultNodeSize" className="text-xs font-semibold">
               Node Size
             </Label>
             <Slider
@@ -94,10 +83,7 @@ export function NetworkStyle() {
         </div>
         <div className="flex space-x-2 items-center">
           <div className="flex flex-col space-y-1 w-full">
-            <Label
-              htmlFor="defaultLabelSize"
-              className="text-xs font-semibold"
-            >
+            <Label htmlFor="defaultLabelSize" className="text-xs font-semibold">
               Node Label Size
             </Label>
             <Slider
@@ -122,22 +108,13 @@ export function NetworkStyle() {
         </div>
         <div className="flex space-x-2 items-center">
           <div className="flex flex-col space-y-1 w-full">
-            <Label
-              htmlFor="defaultLabelDensity"
-              className="text-xs font-semibold flex gap-1 items-center"
-            >
+            <Label htmlFor="defaultLabelDensity" className="text-xs font-semibold flex gap-1 items-center">
               Label Density
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info
-                    className="shrink-0"
-                    size={12}
-                  />
+                  <Info className="shrink-0" size={12} />
                 </TooltipTrigger>
-                <TooltipContent
-                  className="max-w-60"
-                  align="end"
-                >
+                <TooltipContent className="max-w-60" align="end">
                   Change the density of the node/edge labels in the network
                 </TooltipContent>
               </Tooltip>
@@ -170,22 +147,13 @@ export function NetworkStyle() {
               checked={showEdgeLabel}
               onCheckedChange={checked => handleCheckBox(checked, "showEdgeLabel")}
             />
-            <Label
-              htmlFor="showEdgeLabel"
-              className="text-xs font-semibold flex gap-1 items-center"
-            >
+            <Label htmlFor="showEdgeLabel" className="text-xs font-semibold flex gap-1 items-center">
               Show Edge Label
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info
-                    className="shrink-0"
-                    size={12}
-                  />
+                  <Info className="shrink-0" size={12} />
                 </TooltipTrigger>
-                <TooltipContent
-                  className="max-w-60"
-                  align="end"
-                >
+                <TooltipContent className="max-w-60" align="end">
                   For larger graphs, it is recommended to zoom before turn on edge labels to improve performance
                 </TooltipContent>
               </Tooltip>
@@ -197,10 +165,7 @@ export function NetworkStyle() {
               checked={showEdgeColor}
               onCheckedChange={checked => handleCheckBox(checked, "showEdgeColor")}
             />
-            <Label
-              htmlFor="showEdgeColor"
-              className="text-xs font-semibold"
-            >
+            <Label htmlFor="showEdgeColor" className="text-xs font-semibold">
               Show Edge Color
             </Label>
           </div>
@@ -210,49 +175,27 @@ export function NetworkStyle() {
               checked={highlightNeighborNodes}
               onCheckedChange={checked => handleCheckBox(checked, "highlightNeighborNodes")}
             />
-            <Label
-              htmlFor="highlightNeighborNodes"
-              className="text-xs font-semibold flex gap-1 items-center"
-            >
+            <Label htmlFor="highlightNeighborNodes" className="text-xs font-semibold flex gap-1 items-center">
               Highlight Neighbor Genes
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info
-                    className="shrink-0"
-                    size={12}
-                  />
+                  <Info className="shrink-0" size={12} />
                 </TooltipTrigger>
-                <TooltipContent
-                  className="max-w-60"
-                  align="end"
-                >
+                <TooltipContent className="max-w-60" align="end">
                   Upon checked, Highlights the neighbors of the hovered genes
                 </TooltipContent>
               </Tooltip>
             </Label>
           </div>
           <div className="flex items-center gap-2">
-            <Checkbox
-              id="highlightSeedGenes"
-              checked={highlightSeedGenes}
-              onCheckedChange={handleCheck}
-            />
-            <Label
-              htmlFor="highlightSeedGenes"
-              className="text-xs font-semibold flex gap-1 items-center"
-            >
+            <Checkbox id="highlightSeedGenes" checked={highlightSeedGenes} onCheckedChange={handleCheck} />
+            <Label htmlFor="highlightSeedGenes" className="text-xs font-semibold flex gap-1 items-center">
               Highlight Seed Genes
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info
-                    className="shrink-0"
-                    size={12}
-                  />
+                  <Info className="shrink-0" size={12} />
                 </TooltipTrigger>
-                <TooltipContent
-                  className="max-w-60"
-                  align="end"
-                >
+                <TooltipContent className="max-w-60" align="end">
                   When checked, it highlights the predefined Seed Genes in the search box.
                 </TooltipContent>
               </Tooltip>
@@ -260,10 +203,7 @@ export function NetworkStyle() {
           </div>
         </div>
         <div>
-          <Label
-            htmlFor="edgeOpacity"
-            className="text-xs font-semibold"
-          >
+          <Label htmlFor="edgeOpacity" className="text-xs font-semibold">
             Edge Opacity
           </Label>
           <div className="flex items-center text-xs space-x-2">
@@ -287,17 +227,10 @@ export function NetworkStyle() {
           </div>
         </div>
         <div>
-          <Label
-            htmlFor="defaultNodeColor"
-            className="text-xs font-semibold"
-          >
+          <Label htmlFor="defaultNodeColor" className="text-xs font-semibold">
             Node Color
           </Label>
-          <ColorPicker
-            color={defaultNodeColor}
-            property="defaultNodeColor"
-            className="w-full"
-          />
+          <ColorPicker color={defaultNodeColor} property="defaultNodeColor" className="w-full" />
         </div>
       </CollapsibleContent>
     </Collapsible>

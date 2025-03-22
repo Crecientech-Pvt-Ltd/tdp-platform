@@ -51,11 +51,7 @@ export function BinaryLegend({
 
   return (
     <div>
-      <svg
-        ref={svgRef}
-        width={width}
-        height={height}
-      />
+      <svg ref={svgRef} width={width} height={height} />
     </div>
   );
 }

@@ -71,11 +71,7 @@ export default function History({
       <div className="flex justify-between">
         <h3 className="text-2xl font-semibold mb-1">History</h3>
         {history.length ? (
-          <Button
-            size="icon"
-            className="mb-2 bg-red-700 hover:bg-red-800"
-            onClick={() => setShowConfirmDialog(true)}
-          >
+          <Button size="icon" className="mb-2 bg-red-700 hover:bg-red-800" onClick={() => setShowConfirmDialog(true)}>
             <Trash2 size={20} />
           </Button>
         ) : null}
@@ -88,10 +84,7 @@ export default function History({
               This action cannot be undone. This will permanently delete all the files.
             </AlertDialogDescription>
             <div className="flex items-center space-x-2 mt-4">
-              <Checkbox
-                id="terms"
-                onCheckedChange={handleConfirmDialogChange}
-              />
+              <Checkbox id="terms" onCheckedChange={handleConfirmDialogChange} />
               <Label
                 htmlFor="terms"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

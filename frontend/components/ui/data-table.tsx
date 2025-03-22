@@ -68,15 +68,9 @@ export function DataTable<TData>({ columns, data, filterColumnName, loading = fa
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map(cell => (
-                    <TableCell
-                      style={cell.column.columnDef.meta}
-                      key={cell.id}
-                    >
+                    <TableCell style={cell.column.columnDef.meta} key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -84,19 +78,13 @@ export function DataTable<TData>({ columns, data, filterColumnName, loading = fa
               ))
             ) : loading ? (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   <Spinner variant={1} />
                 </TableCell>
               </TableRow>
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

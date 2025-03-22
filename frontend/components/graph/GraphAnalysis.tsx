@@ -247,10 +247,7 @@ export function GraphAnalysis({ highlightedNodesRef }: { highlightedNodesRef?: R
       {Object.keys(communityMap).length > 0 && (
         <div className="absolute bottom-2 left-2 space-y-1 flex flex-col max-h-56 overflow-scroll border shadow rounded-md backdrop-blur p-2">
           {Object.entries(communityMap).map(([id, val], idx) => (
-            <div
-              key={id}
-              className="flex items-center gap-1"
-            >
+            <div key={id} className="flex items-center gap-1">
               <Checkbox
                 defaultChecked
                 onCheckedChange={bool => {

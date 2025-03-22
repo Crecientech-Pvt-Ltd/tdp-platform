@@ -53,14 +53,8 @@ const VirtualizedCommand = ({
   };
 
   return (
-    <Command
-      style={{ width }}
-      shouldFilter={false}
-    >
-      <CommandInput
-        onValueChange={handleSearch}
-        placeholder={placeholder}
-      >
+    <Command style={{ width }} shouldFilter={false}>
+      <CommandInput onValueChange={handleSearch} placeholder={placeholder}>
         {multiselect && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -75,14 +69,7 @@ const VirtualizedCommand = ({
           </Tooltip>
         )}
       </CommandInput>
-      {loading ? (
-        <Spinner
-          variant={1}
-          size={"small"}
-        />
-      ) : (
-        <CommandEmpty>No Result Found.</CommandEmpty>
-      )}
+      {loading ? <Spinner variant={1} size={"small"} /> : <CommandEmpty>No Result Found.</CommandEmpty>}
       <CommandGroup>
         <CommandList ref={parentRef}>
           <div
@@ -121,11 +108,7 @@ const VirtualizedCommand = ({
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 ml-2 cursor-pointer" />
                       </TooltipTrigger>
-                      <TooltipContent
-                        side="left"
-                        align="start"
-                        className="max-w-48"
-                      >
+                      <TooltipContent side="left" align="start" className="max-w-48">
                         {option.description}
                       </TooltipContent>
                     </Tooltip>
@@ -166,10 +149,7 @@ export function VirtualizedCombobox({
   const [open, setOpen] = React.useState<boolean>(false);
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -187,10 +167,7 @@ export function VirtualizedCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        align={align}
-        className={cn(`w-[${width || "200px"}] p-0`, className)}
-      >
+      <PopoverContent align={align} className={cn(`w-[${width || "200px"}] p-0`, className)}>
         <VirtualizedCommand
           multiselect={multiselect}
           options={data}

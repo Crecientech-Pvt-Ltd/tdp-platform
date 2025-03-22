@@ -19,55 +19,25 @@ export default function NetworkLayoutPage({
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="bg-gray-200 h-8 flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-full"
-          onClick={() => setLeftSidebar(!leftSidebar)}
-        >
+        <Button variant="ghost" size="icon" className="h-full" onClick={() => setLeftSidebar(!leftSidebar)}>
           {leftSidebar ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
         <AppBar />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-full"
-          onClick={() => setRightSidebar(!rightSidebar)}
-        >
+        <Button variant="ghost" size="icon" className="h-full" onClick={() => setRightSidebar(!rightSidebar)}>
           {rightSidebar ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
       </div>
 
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="flex flex-1"
-      >
-        <ResizablePanel
-          defaultSize={16}
-          minSize={16}
-          className={leftSidebar ? "block" : "hidden"}
-        >
+      <ResizablePanelGroup direction="horizontal" className="flex flex-1">
+        <ResizablePanel defaultSize={16} minSize={16} className={leftSidebar ? "block" : "hidden"}>
           <LeftSideBar />
         </ResizablePanel>
-        <ResizableHandle
-          withHandle
-          className={leftSidebar ? "flex" : "hidden"}
-        />
-        <ResizablePanel
-          defaultSize={68}
-          className="bg-white h-full"
-        >
+        <ResizableHandle withHandle className={leftSidebar ? "flex" : "hidden"} />
+        <ResizablePanel defaultSize={68} className="bg-white h-full">
           {children}
         </ResizablePanel>
-        <ResizableHandle
-          withHandle
-          className={rightSidebar ? "flex" : "hidden"}
-        />
-        <ResizablePanel
-          defaultSize={16}
-          minSize={16}
-          className={rightSidebar ? "block" : "hidden"}
-        >
+        <ResizableHandle withHandle className={rightSidebar ? "flex" : "hidden"} />
+        <ResizablePanel defaultSize={16} minSize={16} className={rightSidebar ? "block" : "hidden"}>
           <RightSideBar />
         </ResizablePanel>
       </ResizablePanelGroup>

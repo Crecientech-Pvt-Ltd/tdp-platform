@@ -114,12 +114,5 @@ export function HeatmapLegend({
     svg.appendChild(titleElement);
   }, [height, range, title, domain, divisions, formatLabel, colorScale, svgRef, startLabel, endLabel]);
 
-  return (
-    <svg
-      key={title}
-      ref={svgRef}
-      width={"100%"}
-      height={height}
-    />
-  );
+  return <svg key={title} ref={svgRef} width={"100%"} height={height} />;
 }

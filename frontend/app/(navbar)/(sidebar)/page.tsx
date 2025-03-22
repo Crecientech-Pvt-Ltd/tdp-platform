@@ -234,20 +234,13 @@ FIG4`,
             {graphConfig.map(config => (
               <div key={config.id}>
                 <Label htmlFor={config.id}>{config.name}</Label>
-                <Select
-                  required
-                  value={formData[config.id]}
-                  onValueChange={val => handleSelect(val, config.id)}
-                >
+                <Select required value={formData[config.id]} onValueChange={val => handleSelect(val, config.id)}>
                   <SelectTrigger id={config.id}>
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
                     {config.options.map(option => (
-                      <SelectItem
-                        key={option.value}
-                        value={option.value}
-                      >
+                      <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
                     ))}
@@ -266,10 +259,7 @@ FIG4`,
             >
               {loading ? (
                 <>
-                  <Loader
-                    className="animate-spin mr-2"
-                    size={20}
-                  />
+                  <Loader className="animate-spin mr-2" size={20} />
                   Verifying {geneIDs.length} genes...
                 </>
               ) : (
@@ -289,10 +279,7 @@ FIG4`,
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-red-500 flex items-center">
-                <AlertTriangle
-                  size={24}
-                  className="mr-2"
-                />
+                <AlertTriangle size={24} className="mr-2" />
                 Warning!
               </AlertDialogTitle>
               <AlertDialogDescription className="text-black">

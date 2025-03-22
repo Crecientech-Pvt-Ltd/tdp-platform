@@ -20,63 +20,35 @@ export function NetworkAnalysis() {
   };
 
   return (
-    <Collapsible
-      defaultOpen
-      className="mb-2 border p-2 rounded shadow text-xs"
-    >
+    <Collapsible defaultOpen className="mb-2 border p-2 rounded shadow text-xs">
       <div className="flex items-center justify-between w-full">
         <p className="font-bold">Network Analysis</p>
         <CollapsibleTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="w-6 h-6"
-          >
+          <Button type="button" variant="outline" size="icon" className="w-6 h-6">
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
       <CollapsibleContent className="mt-1">
-        <RadioGroup
-          defaultValue="None"
-          className="mb-2"
-        >
+        <RadioGroup defaultValue="None" className="mb-2">
           {algorithms.map(({ name, parameters }) => (
             <Popover key={name}>
-              <PopoverTrigger
-                asChild
-                onClick={() => name === "None" && handleAlgoQuery(name)}
-              >
+              <PopoverTrigger asChild onClick={() => name === "None" && handleAlgoQuery(name)}>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value={name}
-                    id={name}
-                  />
-                  <Label
-                    htmlFor={name}
-                    className="text-xs"
-                  >
+                  <RadioGroupItem value={name} id={name} />
+                  <Label htmlFor={name} className="text-xs">
                     {name}
                   </Label>
                 </div>
               </PopoverTrigger>
               {parameters.length > 0 && (
                 <PopoverContent className="w-52">
-                  <form
-                    key={name}
-                    className="space-y-2 flex flex-col"
-                    action={f => handleAlgoQuery(name, f)}
-                  >
+                  <form key={name} className="space-y-2 flex flex-col" action={f => handleAlgoQuery(name, f)}>
                     {parameters.map(({ name, displayName, type, defaultValue, min, max, step }) => {
                       if (type === "slider") {
                         return (
                           <div key={name}>
-                            <Label
-                              key={name}
-                              htmlFor={name}
-                              className="font-semibold text-xs"
-                            >
+                            <Label key={name} htmlFor={name} className="font-semibold text-xs">
                               {displayName}
                             </Label>
                             <SliderWithInput
@@ -95,26 +67,14 @@ export function NetworkAnalysis() {
                           style={{ gridTemplateColumns: "1fr 2fr" }}
                           className="grid grid-cols-2 w-full items-center gap-2"
                         >
-                          <Label
-                            key={name}
-                            htmlFor={name}
-                            className="font-semibold text-xs"
-                          >
+                          <Label key={name} htmlFor={name} className="font-semibold text-xs">
                             {displayName}
                           </Label>
-                          <Checkbox
-                            name={name}
-                            id={name}
-                            defaultChecked={defaultValue as boolean}
-                          />
+                          <Checkbox name={name} id={name} defaultChecked={defaultValue as boolean} />
                         </div>
                       );
                     })}
-                    <Button
-                      type="submit"
-                      size={"sm"}
-                      className=""
-                    >
+                    <Button type="submit" size={"sm"} className="">
                       Apply
                     </Button>
                   </form>

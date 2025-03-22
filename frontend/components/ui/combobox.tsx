@@ -30,10 +30,7 @@ export function Combobox({
   const [open, setOpen] = React.useState(false);
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -51,10 +48,7 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        align={align}
-        className={cn("p-0 w-full", className)}
-      >
+      <PopoverContent align={align} className={cn("p-0 w-full", className)}>
         <Command>
           <CommandInput placeholder={placeholder} />
           <CommandList>
@@ -92,11 +86,7 @@ export function Combobox({
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 ml-4 cursor-pointer" />
                         </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          align="start"
-                          className="max-w-80"
-                        >
+                        <TooltipContent side="right" align="start" className="max-w-80">
                           {item.description}
                         </TooltipContent>
                       </Tooltip>

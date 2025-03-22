@@ -31,16 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ApolloWrapper>
-          <NextTopLoader
-            showSpinner={false}
-            color="teal"
-          />
+          <NextTopLoader showSpinner={false} color="teal" />
           <ViewTransitions>
             <TooltipProvider delayDuration={100}>{children}</TooltipProvider>
           </ViewTransitions>

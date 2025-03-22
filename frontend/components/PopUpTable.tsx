@@ -125,10 +125,7 @@ export default function PopUpTable({
         <DialogFooter className="gap-2 w-full">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                size={"icon"}
-                variant={"outline"}
-              >
+              <Button size={"icon"} variant={"outline"}>
                 <Download size={20} />
               </Button>
             </DropdownMenuTrigger>
@@ -137,18 +134,11 @@ export default function PopUpTable({
               <DropdownMenuItem onClick={() => handleDownload(false)}>Not-Found</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            onClick={() => handleGenerateGraph()}
-            className="bg-teal-600 hover:bg-teal-700"
-          >
+          <Button onClick={() => handleGenerateGraph()} className="bg-teal-600 hover:bg-teal-700">
             Submit
           </Button>
           <DialogClose asChild>
-            <Button
-              type="button"
-              variant={"secondary"}
-              onClick={() => setTableOpen(false)}
-            >
+            <Button type="button" variant={"secondary"} onClick={() => setTableOpen(false)}>
               Close
             </Button>
           </DialogClose>

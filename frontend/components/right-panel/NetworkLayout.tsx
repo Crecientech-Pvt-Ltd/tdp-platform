@@ -29,59 +29,32 @@ export function NetworkLayout() {
     });
   };
   return (
-    <Collapsible
-      defaultOpen
-      className="mb-2 border p-2 rounded shadow"
-    >
+    <Collapsible defaultOpen className="mb-2 border p-2 rounded shadow">
       <div className="flex items-center justify-between w-full">
         <p className="font-bold">Network Layout</p>
         <CollapsibleTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="w-6 h-6"
-          >
+          <Button type="button" variant="outline" size="icon" className="w-6 h-6">
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
       <CollapsibleContent className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <Label
-            htmlFor="network-animation-control"
-            className="text-xs font-semibold"
-          >
+          <Label htmlFor="network-animation-control" className="text-xs font-semibold">
             Animation
           </Label>
-          <Switch
-            id="network-animation-control"
-            defaultChecked
-            onCheckedChange={handleGraphAnimation}
-          />
+          <Switch id="network-animation-control" defaultChecked onCheckedChange={handleGraphAnimation} />
         </div>
         {forceLayoutOptions.map(option => (
-          <div
-            key={option.key}
-            className="flex space-x-2 items-center"
-          >
+          <div key={option.key} className="flex space-x-2 items-center">
             <div className="flex flex-col space-y-2 w-full">
-              <Label
-                htmlFor={option.key}
-                className="text-xs font-semibold flex gap-1 items-center"
-              >
+              <Label htmlFor={option.key} className="text-xs font-semibold flex gap-1 items-center">
                 {option.label}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info
-                      className="shrink-0"
-                      size={12}
-                    />
+                    <Info className="shrink-0" size={12} />
                   </TooltipTrigger>
-                  <TooltipContent
-                    className="max-w-60"
-                    align="end"
-                  >
+                  <TooltipContent className="max-w-60" align="end">
                     {option.tooltip}
                   </TooltipContent>
                 </Tooltip>

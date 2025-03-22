@@ -6,10 +6,7 @@ import { ArrowUpDown } from "lucide-react";
 function headerHelper<TData>(columnName: string) {
   return ({ column }: { column: Column<TData> }) => {
     return (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
         {columnName}
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>

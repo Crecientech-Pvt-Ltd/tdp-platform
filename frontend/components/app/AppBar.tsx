@@ -12,20 +12,14 @@ export function AppBar() {
         <TooltipTrigger className="relative">
           {visible && (
             // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-            <span
-              className="absolute -bottom-2 flex size-2.5"
-              onClick={() => setVisible(false)}
-            >
+            <span className="absolute -bottom-2 flex size-2.5" onClick={() => setVisible(false)}>
               <span className="absolute inline-flex h-[150%] w-[150%] z-50 animate-ping rounded-full -bottom-0.5 bg-sky-400 opacity-75" />
               <span className="relative inline-flex size-2.5 rounded-full bg-sky-500" />
             </span>
           )}
           <SquareDashedMousePointer className="h-4 w-4" />
         </TooltipTrigger>
-        <TooltipContent
-          align="start"
-          className="max-w-96 text-sm"
-        >
+        <TooltipContent align="start" className="max-w-96 text-sm">
           <ol>
             <li>
               • To select multiple genes and export details or perform GSEA analysis, use the mouse to select the genes
@@ -57,14 +51,7 @@ export function AppBar() {
           </ol>
         </TooltipContent>
       </Tooltip>
-      <Suspense
-        fallback={
-          <Input
-            className="text-sm font-semibold max-w-fit"
-            value={"Untitled"}
-          />
-        }
-      >
+      <Suspense fallback={<Input className="text-sm font-semibold max-w-fit" value={"Untitled"} />}>
         <FileName />
       </Suspense>
       <Export />

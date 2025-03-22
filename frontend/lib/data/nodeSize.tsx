@@ -18,17 +18,11 @@ export const nodeSize = [
     tooltipContent: (
       <>
         Druggability scores from{" "}
-        <a
-          href="https://astrazeneca-cgr-publications.github.io/DrugnomeAI/index.html"
-          className="underline"
-        >
+        <a href="https://astrazeneca-cgr-publications.github.io/DrugnomeAI/index.html" className="underline">
           DrugnomeAI
         </a>
         /
-        <a
-          href="https://public.cgr.astrazeneca.com/mantisml/v2/index.html"
-          className="underline"
-        >
+        <a href="https://public.cgr.astrazeneca.com/mantisml/v2/index.html" className="underline">
           Mantis-ML
         </a>
       </>
@@ -39,17 +33,11 @@ export const nodeSize = [
     tooltipContent: (
       <>
         Tissue-specific expression from{" "}
-        <a
-          href="https://gtexportal.org/"
-          className="underline"
-        >
+        <a href="https://gtexportal.org/" className="underline">
           GTEX
         </a>{" "}
         and{" "}
-        <a
-          href="https://www.proteinatlas.org/"
-          className="underline"
-        >
+        <a href="https://www.proteinatlas.org/" className="underline">
           HPA (Human Protein Atlas)
         </a>
       </>

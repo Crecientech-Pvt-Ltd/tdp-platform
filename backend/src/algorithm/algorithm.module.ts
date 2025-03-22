@@ -1,9 +1,9 @@
-import { Module } from "@nestjs/common";
-import { AlgorithmController } from "./algorithm.controller";
-import { AlgorithmService } from "./algorithm.service";
+import { Module } from '@nestjs/common';
+import { AlgorithmService } from './algorithm.service';
+import { AlgorithmController } from './algorithm.controller';
 
 @Module({
-	providers: [AlgorithmService],
-	controllers: [AlgorithmController],
+  providers: [AlgorithmService],
+  controllers: [AlgorithmController],
 })
 export class AlgorithmModule {}

@@ -1,4 +1,4 @@
-import type { AlgorithmService } from '@/algorithm/algorithm.service';
+import { AlgorithmService } from '@/algorithm/algorithm.service';
 import {
   Body,
   Controller,
@@ -14,7 +14,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import type { GraphConfigDto } from './algorithm.dto';
+import { GraphConfigDto } from './algorithm.dto';
 
 @Controller('algorithm')
 export class AlgorithmController {

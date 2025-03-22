@@ -1,20 +1,20 @@
-import type { Neo4jConfig } from '@/interfaces';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import {
   GRAPH_DROP_QUERY,
   NEO4J_CONFIG,
   NEO4J_DRIVER,
 } from '@/neo4j/neo4j.constants';
+import { Neo4jConfig } from '@/interfaces';
+import { Driver, Session, SessionMode } from 'neo4j-driver';
+import { RedisService } from '@/redis/redis.service';
 import { regexp } from '@/neo4j/neo4j.util';
-import type { RedisService } from '@/redis/redis.service';
-import {
-  Inject,
-  Injectable,
-  Logger,
-  type OnModuleDestroy,
-  type OnModuleInit,
-} from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { Driver, Session, SessionMode } from 'neo4j-driver';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class Neo4jService implements OnModuleInit, OnModuleDestroy {

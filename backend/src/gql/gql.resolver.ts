@@ -1,11 +1,9 @@
-import type { RedisService } from '@/redis/redis.service';
+import { Resolver, Query, Args, Context, Info, Int } from '@nestjs/graphql';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import { Args, Context, Info, Int, Query, Resolver } from '@nestjs/graphql';
+import { GqlService } from './gql.service';
+import { RedisService } from '@/redis/redis.service';
 import { isUUID } from 'class-validator';
-import type { Request } from 'express';
-import type { FieldNode, GraphQLResolveInfo } from 'graphql';
-import type { GqlService } from './gql.service';
+import { ConfigService } from '@nestjs/config';
 import {
   DataRequired,
   Gene,
@@ -13,6 +11,8 @@ import {
   Header,
   InteractionInput,
 } from './models';
+import type { FieldNode, GraphQLResolveInfo } from 'graphql';
+import { Request } from 'express';
 
 @Resolver('gql')
 export class GqlResolver {

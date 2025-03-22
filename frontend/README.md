@@ -38,20 +38,20 @@ While building this project in Dockerized form or publishing the website in prod
 
 ## Learn More
 
-* To learn more about Next.js, take a look at the following resources:
-    - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-    - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- To learn more about Next.js, take a look at the following resources:
 
-* For graphql queries, you can check out the apollo client documentation [here](https://www.apollographql.com/docs/react/).
+  - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+  - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-* For styling, you can check out the tailwindcss documentation [here](https://tailwindcss.com/docs).
+- For graphql queries, you can check out the apollo client documentation [here](https://www.apollographql.com/docs/react/).
 
-* We use shadcn component library for building the components. You can check out the documentation [here](https://ui.shadcn.com/docs).
+- For styling, you can check out the tailwindcss documentation [here](https://tailwindcss.com/docs).
 
-* For state management, take a look at the zustand documentation [here](https://zustand.docs.pmnd.rs/getting-started/introduction).
+- We use shadcn component library for building the components. You can check out the documentation [here](https://ui.shadcn.com/docs).
 
-* For graph visualization, we use sigma.js hence, react-sigma. Documentation of both the libraries are useful to understand the working of the graph.
+- For state management, take a look at the zustand documentation [here](https://zustand.docs.pmnd.rs/getting-started/introduction).
 
-    - [Sigma.js](https://sigmajs.org/docs/). Also, this library uses graphology library for its backend implementation, so you can check out the documentation of graphology [here](https://graphology.github.io/).
-    - [React-Sigma](https://sim51.github.io/react-sigma/docs/start-setup/)
+- For graph visualization, we use sigma.js hence, react-sigma. Documentation of both the libraries are useful to understand the working of the graph.
 
+  - [Sigma.js](https://sigmajs.org/docs/). Also, this library uses graphology library for its backend implementation, so you can check out the documentation of graphology [here](https://graphology.github.io/).
+  - [React-Sigma](https://sim51.github.io/react-sigma/docs/start-setup/)

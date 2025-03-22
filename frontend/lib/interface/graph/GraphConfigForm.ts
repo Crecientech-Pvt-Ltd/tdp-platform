@@ -1,4 +1,4 @@
-import type { GeneInteractionType } from "@/lib/data";
+import type { GeneInteractionType } from '@/lib/data';
 
 export interface GraphConfigForm {
   seedGenes: string;

@@ -1,16 +1,16 @@
-import type { PopUpDataTableProps } from "@/lib/interface";
-import { cn } from "@/lib/utils";
-import { Download } from "lucide-react";
-import { unparse } from "papaparse";
-import React from "react";
-import { Button } from "./ui/button";
-import { DataTable } from "./ui/data-table";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from "./ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import type { PopUpDataTableProps } from '@/lib/interface';
+import { cn } from '@/lib/utils';
+import { Download } from 'lucide-react';
+import { unparse } from 'papaparse';
+import React from 'react';
+import { Button } from './ui/button';
+import { DataTable } from './ui/data-table';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from './ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 export default function PopUpDataTable<E, F>({
-  dialogTitle = "",
+  dialogTitle = '',
   data,
   columns,
   open = false,
@@ -24,8 +24,8 @@ export default function PopUpDataTable<E, F>({
    */
   const handleDownload = (fileName?: string) => {
     const csv = unparse<E | F>(data[tabsTitle?.indexOf(fileName ?? tabsTitle[0]) ?? 0]);
-    const element = document.createElement("a");
-    const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const element = document.createElement('a');
+    const file = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     element.href = URL.createObjectURL(file);
     if (fileName) element.download = `${fileName}.csv`;
     document.body.appendChild(element);
@@ -38,19 +38,19 @@ export default function PopUpDataTable<E, F>({
   React.useEffect(() => {
     // esc key to close the dialog
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === 'Escape') setOpen(false);
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return (
     <Dialog open={open}>
-      <DialogContent className="max-w-7xl max-h-[90vh] min-h-[60vh] flex flex-col">
+      <DialogContent className='max-w-7xl max-h-[90vh] min-h-[60vh] flex flex-col'>
         <DialogTitle>{dialogTitle}</DialogTitle>
-        <div className="flex-grow overflow-y-scroll">
+        <div className='flex-grow overflow-y-scroll'>
           <Tabs defaultValue={tabsTitle?.[0]}>
-            <TabsList className={cn("w-full grid", `grid-cols-${tabsTitle?.length}`)}>
+            <TabsList className={cn('w-full grid', `grid-cols-${tabsTitle?.length}`)}>
               {tabsTitle?.map(title => (
                 <TabsTrigger key={title} value={title}>
                   {title}
@@ -75,10 +75,10 @@ export default function PopUpDataTable<E, F>({
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter className="gap-2 w-full">
+        <DialogFooter className='gap-2 w-full'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size={"icon"} variant={"outline"}>
+              <Button size={'icon'} variant={'outline'}>
                 <Download size={20} />
               </Button>
             </DropdownMenuTrigger>
@@ -91,7 +91,7 @@ export default function PopUpDataTable<E, F>({
             </DropdownMenuContent>
           </DropdownMenu>
           <DialogClose asChild>
-            <Button type="button" variant={"secondary"} onClick={() => setOpen(false)}>
+            <Button type='button' variant={'secondary'} onClick={() => setOpen(false)}>
               Close (Esc)
             </Button>
           </DialogClose>

@@ -26,11 +26,11 @@ export class Trie<E = string> {
   }
 
   add(input: E, keyToIndex?: string): void {
-    if (typeof input === "string" && keyToIndex === undefined) {
+    if (typeof input === 'string' && keyToIndex === undefined) {
       // Handle direct string input
       this.#addString(input, input);
       this.size++;
-    } else if (typeof input === "object" && keyToIndex) {
+    } else if (typeof input === 'object' && keyToIndex) {
       // Handle object input
       const key = this.#getValueByKey(input, keyToIndex);
       if (key) {
@@ -59,18 +59,18 @@ export class Trie<E = string> {
     if (!obj) return null;
 
     // Handle nested keys (e.g., "user.id")
-    const keys = key.split(".");
+    const keys = key.split('.');
     let value: Record<string, string> | string = obj;
 
     for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
+      if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
         return null;
       }
     }
 
-    return typeof value === "string" ? value : null;
+    return typeof value === 'string' ? value : null;
   }
 
   addAll(objects: E[], keyToIndex: string): void {

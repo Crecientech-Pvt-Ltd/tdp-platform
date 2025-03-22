@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useStore } from "@/lib/hooks";
-import type { EdgeAttributes, NodeAttributes, OtherSection } from "@/lib/interface";
-import { useSigma } from "@react-sigma/core";
-import { scaleLinear } from "d3-scale";
-import { useEffect } from "react";
+import { useStore } from '@/lib/hooks';
+import type { EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
+import { useSigma } from '@react-sigma/core';
+import { scaleLinear } from 'd3-scale';
+import { useEffect } from 'react';
 
 export function SizeAnalysis() {
   const selectedRadioNodeSize = useStore(state => state.selectedRadioNodeSize);
@@ -18,7 +18,7 @@ export function SizeAnalysis() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!selectedRadioNodeSize && graph) {
-      useStore.setState({ selectedNodeSizeProperty: "" });
+      useStore.setState({ selectedNodeSizeProperty: '' });
       graph.updateEachNodeAttributes((_node, attr) => {
         attr.size = defaultNodeSize;
         return attr;
@@ -30,11 +30,11 @@ export function SizeAnalysis() {
   useEffect(() => {
     if (!selectedNodeSizeProperty || !graph || !selectedRadioNodeSize) return;
     const isUserProperty =
-      typeof selectedNodeSizeProperty === "string" &&
+      typeof selectedNodeSizeProperty === 'string' &&
       radioOptions.user[selectedRadioNodeSize].includes(selectedNodeSizeProperty);
-    const userOrDiseaseIdentifier = isUserProperty ? "user" : diseaseName;
-    const userOrCommonIdentifier = isUserProperty ? "user" : "common";
-    if (selectedRadioNodeSize === "Druggability" && typeof selectedNodeSizeProperty === "string") {
+    const userOrDiseaseIdentifier = isUserProperty ? 'user' : diseaseName;
+    const userOrCommonIdentifier = isUserProperty ? 'user' : 'common';
+    if (selectedRadioNodeSize === 'Druggability' && typeof selectedNodeSizeProperty === 'string') {
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
           const valString = cur[userOrCommonIdentifier].Druggability[selectedNodeSizeProperty];
@@ -51,7 +51,7 @@ export function SizeAnalysis() {
         else attr.size = 0.5;
         return attr;
       });
-    } else if (selectedRadioNodeSize === "TE" && typeof selectedNodeSizeProperty === "string") {
+    } else if (selectedRadioNodeSize === 'TE' && typeof selectedNodeSizeProperty === 'string') {
       // ************ Multiselect code **********************
       // const propertyArray = Array.from(selectedNodeSizeProperty);
       // const userTEArray = radioOptions.user.TE;
@@ -97,7 +97,7 @@ export function SizeAnalysis() {
         else attr.size = 0.5;
         return attr;
       });
-    } else if (selectedRadioNodeSize === "LogFC" && typeof selectedNodeSizeProperty === "string") {
+    } else if (selectedRadioNodeSize === 'LogFC' && typeof selectedNodeSizeProperty === 'string') {
       const max = Object.values(universalData).reduce((acc, cur) => {
         const valString = (cur[userOrDiseaseIdentifier] as OtherSection).LogFC?.[selectedNodeSizeProperty];
         if (!valString) return acc;
@@ -113,7 +113,7 @@ export function SizeAnalysis() {
         else attr.size = 0.5;
         return attr;
       });
-    } else if (selectedRadioNodeSize === "GWAS" && typeof selectedNodeSizeProperty === "string") {
+    } else if (selectedRadioNodeSize === 'GWAS' && typeof selectedNodeSizeProperty === 'string') {
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).GWAS?.[selectedNodeSizeProperty];
@@ -132,7 +132,7 @@ export function SizeAnalysis() {
         else attr.size = 0.5;
         return attr;
       });
-    } else if (selectedRadioNodeSize === "GDA" && typeof selectedNodeSizeProperty === "string") {
+    } else if (selectedRadioNodeSize === 'GDA' && typeof selectedNodeSizeProperty === 'string') {
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).GDA?.[selectedNodeSizeProperty];

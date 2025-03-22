@@ -1,7 +1,7 @@
-import type { EdgeAttributes, NodeAttributes } from "@/lib/interface";
-import type { SelectionBox } from "@/lib/interface/graph";
-import type AbstractGraph from "graphology-types";
-import type { Sigma } from "sigma";
+import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
+import type { SelectionBox } from '@/lib/interface/graph';
+import type AbstractGraph from 'graphology-types';
+import type { Sigma } from 'sigma';
 
 /**
  * Draw selection box on the canvas
@@ -15,7 +15,7 @@ export function drawSelectionBox(
   canvas: HTMLCanvasElement,
   selectionBox: SelectionBox,
 ) {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
 
   if (ctx === null) return;
 
@@ -35,7 +35,7 @@ export function drawSelectionBox(
 
   // Draw new rectangle
   ctx.beginPath();
-  ctx.fillStyle = "rgba(229,229,229,0.5)";
+  ctx.fillStyle = 'rgba(229,229,229,0.5)';
   ctx.fillRect(
     Math.min(start.x, end.x),
     Math.min(start.y, end.y),
@@ -66,12 +66,12 @@ export function findNodesInSelection(
       nodePosition.y >= Math.min(box.startY, box.endY) &&
       nodePosition.y <= Math.max(box.startY, box.endY)
     ) {
-      graph.setNodeAttribute(node, "type", "border");
-      if (!graph.getNodeAttribute(node, "hidden")) selectedNodes.push(node);
+      graph.setNodeAttribute(node, 'type', 'border');
+      if (!graph.getNodeAttribute(node, 'hidden')) selectedNodes.push(node);
     } else {
       if (highlightedNodes.has(node)) return;
-      graph.removeNodeAttribute(node, "type");
-      graph.removeNodeAttribute(node, "borderColor");
+      graph.removeNodeAttribute(node, 'type');
+      graph.removeNodeAttribute(node, 'borderColor');
     }
   });
   return selectedNodes;

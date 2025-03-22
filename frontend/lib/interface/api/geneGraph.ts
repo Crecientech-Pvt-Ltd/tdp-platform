@@ -1,4 +1,4 @@
-import type { GeneBase } from ".";
+import type { GeneBase } from '.';
 
 /**
  * Variables for gene graph GraphQL query

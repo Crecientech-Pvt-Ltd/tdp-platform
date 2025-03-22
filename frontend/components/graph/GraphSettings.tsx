@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { FADED_EDGE_COLOR, HIGHLIGHTED_EDGE_COLOR } from "@/lib/data";
-import { useStore } from "@/lib/hooks";
-import type { EdgeAttributes, NodeAttributes } from "@/lib/interface";
-import { useSetSettings, useSigma } from "@react-sigma/core";
-import { useEffect, useState } from "react";
+import { FADED_EDGE_COLOR, HIGHLIGHTED_EDGE_COLOR } from '@/lib/data';
+import { useStore } from '@/lib/hooks';
+import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
+import { useSetSettings, useSigma } from '@react-sigma/core';
+import { useEffect, useState } from 'react';
 
 export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.MutableRefObject<Set<string>> }) {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
@@ -24,8 +24,8 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
   const highlightNeighborNodes = useStore(state => state.highlightNeighborNodes);
 
   useEffect(() => {
-    sigma.on("enterNode", e => setHoveredNode({ node: e.node, ctrlKey: e.event.original.ctrlKey }));
-    sigma.on("leaveNode", () => setHoveredNode(null));
+    sigma.on('enterNode', e => setHoveredNode({ node: e.node, ctrlKey: e.event.original.ctrlKey }));
+    sigma.on('leaveNode', () => setHoveredNode(null));
   }, [sigma]);
 
   useEffect(() => {
@@ -80,15 +80,15 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
         if (hoveredNode) {
           if (node === hoveredNode.node) {
             data.highlighted = true;
-            data.type = "circle";
+            data.type = 'circle';
           } else if (
             clickedNodesRef?.current.has(node) ||
             ((highlightNeighborNodes || hoveredNode.ctrlKey) && graph.neighbors(hoveredNode.node).includes(node))
           ) {
             data.highlighted = true;
-            data.type = "border";
+            data.type = 'border';
           } else {
-            data.color = "#E2E2E2";
+            data.color = '#E2E2E2';
             data.highlighted = false;
           }
         }

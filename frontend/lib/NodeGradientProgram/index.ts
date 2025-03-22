@@ -1,15 +1,15 @@
-import { type NodeHoverDrawingFunction, NodeProgram, type ProgramInfo } from "sigma/rendering";
-import type { NodeDisplayData, RenderParams } from "sigma/types";
-import { floatColor } from "sigma/utils";
+import { type NodeHoverDrawingFunction, NodeProgram, type ProgramInfo } from 'sigma/rendering';
+import type { NodeDisplayData, RenderParams } from 'sigma/types';
+import { floatColor } from 'sigma/utils';
 
-import { drawHover } from "@/components/graph/canvas-hover";
-import type { Attributes } from "graphology-types";
-import FRAGMENT_SHADER_SOURCE from "./node-gradient-frag.glsl";
-import VERTEX_SHADER_SOURCE from "./node-gradient-vert.glsl";
+import { drawHover } from '@/components/graph/canvas-hover';
+import type { Attributes } from 'graphology-types';
+import FRAGMENT_SHADER_SOURCE from './node-gradient-frag.glsl';
+import VERTEX_SHADER_SOURCE from './node-gradient-vert.glsl';
 
 const { UNSIGNED_BYTE, FLOAT } = WebGLRenderingContext;
 
-const UNIFORMS = ["u_sizeRatio", "u_pixelRatio", "u_matrix"] as const;
+const UNIFORMS = ['u_sizeRatio', 'u_pixelRatio', 'u_matrix'] as const;
 
 export default class NodeGradientProgram extends NodeProgram<(typeof UNIFORMS)[number]> {
   getDefinition() {
@@ -20,10 +20,10 @@ export default class NodeGradientProgram extends NodeProgram<(typeof UNIFORMS)[n
       METHOD: WebGLRenderingContext.POINTS,
       UNIFORMS,
       ATTRIBUTES: [
-        { name: "a_position", size: 2, type: FLOAT },
-        { name: "a_size", size: 1, type: FLOAT },
-        { name: "a_color", size: 4, type: UNSIGNED_BYTE, normalized: true },
-        { name: "a_id", size: 4, type: UNSIGNED_BYTE, normalized: true },
+        { name: 'a_position', size: 2, type: FLOAT },
+        { name: 'a_size', size: 1, type: FLOAT },
+        { name: 'a_color', size: 4, type: UNSIGNED_BYTE, normalized: true },
+        { name: 'a_id', size: 4, type: UNSIGNED_BYTE, normalized: true },
       ],
     };
   }

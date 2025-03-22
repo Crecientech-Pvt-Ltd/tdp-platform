@@ -1,11 +1,11 @@
-import type { PopUpTableProps } from "@/lib/interface";
-import { Download } from "lucide-react";
-import { unparse } from "papaparse";
-import { Button } from "./ui/button";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from "./ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import type { PopUpTableProps } from '@/lib/interface';
+import { Download } from 'lucide-react';
+import { unparse } from 'papaparse';
+import { Button } from './ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from './ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 export default function PopUpTable({
   setTableOpen,
@@ -31,10 +31,10 @@ export default function PopUpTable({
         geneIDs.filter(gene => !data?.genes.find(g => g.Input === gene || g.ID === gene)).map(gene => ({ Gene: gene })),
       );
     }
-    const element = document.createElement("a");
-    const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const element = document.createElement('a');
+    const file = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     element.href = URL.createObjectURL(file);
-    element.download = foundGenes ? "found_genes.csv" : "not_found_genes.csv";
+    element.download = foundGenes ? 'found_genes.csv' : 'not_found_genes.csv';
     document.body.appendChild(element);
     element.click();
     URL.revokeObjectURL(element.href);
@@ -45,23 +45,23 @@ export default function PopUpTable({
 
   return (
     <Dialog open={tableOpen}>
-      <DialogContent className="max-w-5xl w-11/12 max-h-[90vh] min-h-[60vh] flex flex-col">
+      <DialogContent className='max-w-5xl w-11/12 max-h-[90vh] min-h-[60vh] flex flex-col'>
         <DialogTitle>Results Preview</DialogTitle>
-        <div className="flex-grow overflow-y-scroll">
-          <Tabs defaultValue="found">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="found">Found</TabsTrigger>
+        <div className='flex-grow overflow-y-scroll'>
+          <Tabs defaultValue='found'>
+            <TabsList className='grid w-full grid-cols-2'>
+              <TabsTrigger value='found'>Found</TabsTrigger>
               <TabsTrigger
-                value="not-found"
-                className={`${notFoundFilteredGeneIDs.length > 0 && "text-red-500 underline font-semibold"}`}
+                value='not-found'
+                className={`${notFoundFilteredGeneIDs.length > 0 && 'text-red-500 underline font-semibold'}`}
               >
                 Not-Found
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="found">
+            <TabsContent value='found'>
               <Table>
                 <TableHeader>
-                  <TableRow className="font-bold">
+                  <TableRow className='font-bold'>
                     <TableHead>S. No.</TableHead>
                     <TableHead>Input</TableHead>
                     <TableHead>ENSG ID</TableHead>
@@ -75,21 +75,21 @@ export default function PopUpTable({
                     <TableRow key={`${gene.ID}-${gene.Input}`}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{gene.Input}</TableCell>
-                      <TableCell className="underline hover:text-teal-900 cursor-pointer">
+                      <TableCell className='underline hover:text-teal-900 cursor-pointer'>
                         <a
-                          className="flex gap-1"
-                          target="_blank"
-                          rel="noreferrer"
+                          className='flex gap-1'
+                          target='_blank'
+                          rel='noreferrer'
                           href={`https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${gene.ID}`}
                         >
                           {gene.ID}
                         </a>
                       </TableCell>
-                      <TableCell className="underline hover:text-teal-900 cursor-pointer">
+                      <TableCell className='underline hover:text-teal-900 cursor-pointer'>
                         <a
-                          className="flex gap-1"
-                          target="_blank"
-                          rel="noreferrer"
+                          className='flex gap-1'
+                          target='_blank'
+                          rel='noreferrer'
                           href={`https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/${gene.hgnc_gene_id}`}
                         >
                           {gene.Gene_name}
@@ -102,18 +102,18 @@ export default function PopUpTable({
                 </TableBody>
               </Table>
             </TabsContent>
-            <TabsContent value="not-found">
+            <TabsContent value='not-found'>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="font-bold">S. No.</TableHead>
-                    <TableHead className="font-bold">ENSG ID/Gene Name</TableHead>
+                    <TableHead className='font-bold'>S. No.</TableHead>
+                    <TableHead className='font-bold'>ENSG ID/Gene Name</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {notFoundFilteredGeneIDs.map((gene, index) => (
                     <TableRow key={gene}>
-                      <TableCell className="">{index + 1}</TableCell>
+                      <TableCell className=''>{index + 1}</TableCell>
                       <TableCell>{gene}</TableCell>
                     </TableRow>
                   ))}
@@ -122,10 +122,10 @@ export default function PopUpTable({
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter className="gap-2 w-full">
+        <DialogFooter className='gap-2 w-full'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size={"icon"} variant={"outline"}>
+              <Button size={'icon'} variant={'outline'}>
                 <Download size={20} />
               </Button>
             </DropdownMenuTrigger>
@@ -134,11 +134,11 @@ export default function PopUpTable({
               <DropdownMenuItem onClick={() => handleDownload(false)}>Not-Found</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => handleGenerateGraph()} className="bg-teal-600 hover:bg-teal-700">
+          <Button onClick={() => handleGenerateGraph()} className='bg-teal-600 hover:bg-teal-700'>
             Submit
           </Button>
           <DialogClose asChild>
-            <Button type="button" variant={"secondary"} onClick={() => setTableOpen(false)}>
+            <Button type='button' variant={'secondary'} onClick={() => setTableOpen(false)}>
               Close
             </Button>
           </DialogClose>

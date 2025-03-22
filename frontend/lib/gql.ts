@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const GENE_VERIFICATION_QUERY = gql`
   query GeneVerification($geneIDs: [String!]!) {
@@ -55,7 +55,7 @@ export const GENE_UNIVERSAL_QUERY = (bringMeta = false) => gql`
       Description
       Aliases
       hgnc_gene_id`
-          : ""
+          : ''
       }
     }
   }
@@ -70,7 +70,7 @@ export const GET_HEADERS_QUERY = (bringCommon = true) => gql`
         name
         description
       }`
-          : ""
+          : ''
       }
       disease {
         name

@@ -1,58 +1,58 @@
-import type { PROPERTY_LABEL_TYPE_MAPPING } from ".";
+import type { PROPERTY_LABEL_TYPE_MAPPING } from '.';
 
 export const nodeColor = [
   {
-    label: "LogFC",
+    label: 'LogFC',
     tooltipContent: <>Differential Expression in Log2 fold change.</>,
   },
   {
-    label: "GDA",
+    label: 'GDA',
     tooltipContent: <>Gene Disease Association Score</>,
   },
   {
-    label: "Genetics",
+    label: 'Genetics',
     tooltipContent: <>Odd ratio or Beta-values from population studies.</>,
   },
   {
-    label: "Pathways",
+    label: 'Pathways',
     tooltipContent: <>Pathways membership from MSigDB</>,
   },
   {
-    label: "Druggability",
+    label: 'Druggability',
     tooltipContent: (
       <>
-        Druggability scores from{" "}
-        <a href="https://astrazeneca-cgr-publications.github.io/DrugnomeAI/index.html" className="underline">
+        Druggability scores from{' '}
+        <a href='https://astrazeneca-cgr-publications.github.io/DrugnomeAI/index.html' className='underline'>
           DrugnomeAI
         </a>
         /
-        <a href="https://public.cgr.astrazeneca.com/mantisml/v2/index.html" className="underline">
+        <a href='https://public.cgr.astrazeneca.com/mantisml/v2/index.html' className='underline'>
           Mantis-ML
         </a>
       </>
     ),
   },
   {
-    label: "TE",
+    label: 'TE',
     tooltipContent: (
       <>
-        Tissue-specific expression from{" "}
-        <a href="https://gtexportal.org/" className="underline">
+        Tissue-specific expression from{' '}
+        <a href='https://gtexportal.org/' className='underline'>
           GTEX
-        </a>{" "}
-        and{" "}
-        <a href="https://www.proteinatlas.org/" className="underline">
+        </a>{' '}
+        and{' '}
+        <a href='https://www.proteinatlas.org/' className='underline'>
           HPA (Human Protein Atlas)
         </a>
       </>
     ),
   },
   {
-    label: "Databases",
+    label: 'Databases',
     tooltipContent: <>Membership in Various Databases</>,
   },
   {
-    label: "Custom",
+    label: 'Custom',
     tooltipContent: (
       <>
         Custom information <br />
@@ -65,7 +65,7 @@ export const nodeColor = [
 ] as const;
 
 export type NodeColorType = {
-  [K in keyof typeof PROPERTY_LABEL_TYPE_MAPPING]: K extends (typeof nodeColor)[number]["label"]
+  [K in keyof typeof PROPERTY_LABEL_TYPE_MAPPING]: K extends (typeof nodeColor)[number]['label']
     ? (typeof PROPERTY_LABEL_TYPE_MAPPING)[K]
     : never;
 }[keyof typeof PROPERTY_LABEL_TYPE_MAPPING];

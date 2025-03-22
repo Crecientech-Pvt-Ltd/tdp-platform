@@ -1,25 +1,25 @@
-import { SquareDashedMousePointer } from "lucide-react";
-import { Suspense, useState } from "react";
-import { Export, FileName } from ".";
-import { Input } from "../ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { SquareDashedMousePointer } from 'lucide-react';
+import { Suspense, useState } from 'react';
+import { Export, FileName } from '.';
+import { Input } from '../ui/input';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 export function AppBar() {
   const [visible, setVisible] = useState(true);
   return (
-    <div className="flex gap-2 items-center">
+    <div className='flex gap-2 items-center'>
       <Tooltip>
-        <TooltipTrigger className="relative">
+        <TooltipTrigger className='relative'>
           {visible && (
             // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-            <span className="absolute -bottom-2 flex size-2.5" onClick={() => setVisible(false)}>
-              <span className="absolute inline-flex h-[150%] w-[150%] z-50 animate-ping rounded-full -bottom-0.5 bg-sky-400 opacity-75" />
-              <span className="relative inline-flex size-2.5 rounded-full bg-sky-500" />
+            <span className='absolute -bottom-2 flex size-2.5' onClick={() => setVisible(false)}>
+              <span className='absolute inline-flex h-[150%] w-[150%] z-50 animate-ping rounded-full -bottom-0.5 bg-sky-400 opacity-75' />
+              <span className='relative inline-flex size-2.5 rounded-full bg-sky-500' />
             </span>
           )}
-          <SquareDashedMousePointer className="h-4 w-4" />
+          <SquareDashedMousePointer className='h-4 w-4' />
         </TooltipTrigger>
-        <TooltipContent align="start" className="max-w-96 text-sm">
+        <TooltipContent align='start' className='max-w-96 text-sm'>
           <ol>
             <li>
               • To select multiple genes and export details or perform GSEA analysis, use the mouse to select the genes
@@ -27,7 +27,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className="border rounded-md px-1"> Shift(⇧) + Click</kbd> & Drag
+              <kbd className='border rounded-md px-1'> Shift(⇧) + Click</kbd> & Drag
             </li>
             <br />
             <li>
@@ -37,7 +37,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className="border rounded-md px-1">Cmd/Ctrl(⌘) + Hover</kbd>
+              <kbd className='border rounded-md px-1'>Cmd/Ctrl(⌘) + Hover</kbd>
             </li>
             <br />
             <li>
@@ -46,12 +46,12 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className="border rounded-md px-1">Cmd/Ctrl(⌘) + Click</kbd>
+              <kbd className='border rounded-md px-1'>Cmd/Ctrl(⌘) + Click</kbd>
             </li>
           </ol>
         </TooltipContent>
       </Tooltip>
-      <Suspense fallback={<Input className="text-sm font-semibold max-w-fit" value={"Untitled"} />}>
+      <Suspense fallback={<Input className='text-sm font-semibold max-w-fit' value={'Untitled'} />}>
         <FileName />
       </Suspense>
       <Export />

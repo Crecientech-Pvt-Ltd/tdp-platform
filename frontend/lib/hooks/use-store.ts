@@ -1,16 +1,16 @@
-import { create } from "zustand";
-import type { GraphStore } from "../interface";
-import { initRadioOptions } from "../utils";
+import { create } from 'zustand';
+import type { GraphStore } from '../interface';
+import { initRadioOptions } from '../utils';
 
 export const useStore = create<GraphStore>(set => ({
-  projectTitle: "Untitled",
-  nodeSearchQuery: "",
+  projectTitle: 'Untitled',
+  nodeSearchQuery: '',
   nodeSuggestions: [],
   forceWorker: {
     start() {},
     stop() {},
   },
-  defaultNodeColor: "skyblue",
+  defaultNodeColor: 'skyblue',
   // Select defaultValue best for viewing the graph
   forceSettings: {
     linkDistance: 30,
@@ -29,17 +29,17 @@ export const useStore = create<GraphStore>(set => ({
     edgeWeightCutOff: 0.4,
     nodeDegreeCutOff: 0,
     hubGeneEdgeCount: 0,
-    nodeDegreeProperty: "Gene Degree",
+    nodeDegreeProperty: 'Gene Degree',
   },
   geneIDs: [],
-  diseaseName: "ALS",
+  diseaseName: 'ALS',
   universalData: {},
   radioOptions: {
     user: initRadioOptions(),
     database: initRadioOptions(),
   },
-  selectedNodeSizeProperty: "",
-  selectedNodeColorProperty: "",
+  selectedNodeSizeProperty: '',
+  selectedNodeColorProperty: '',
   geneNameToID: new Map(),
   graphConfig: null,
   edgeOpacity: 1,

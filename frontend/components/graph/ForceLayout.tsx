@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import type EventEmitter from "events";
-import { useStore } from "@/lib/hooks";
-import type { EdgeAttributes, NodeAttributes } from "@/lib/interface";
-import { useSigma } from "@react-sigma/core";
+import type EventEmitter from 'events';
+import { useStore } from '@/lib/hooks';
+import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
+import { useSigma } from '@react-sigma/core';
 import {
   type Simulation,
   type SimulationLinkDatum,
@@ -11,8 +11,8 @@ import {
   forceLink,
   forceManyBody,
   forceSimulation,
-} from "d3-force";
-import { useCallback, useEffect, useRef } from "react";
+} from 'd3-force';
+import { useCallback, useEffect, useRef } from 'react';
 
 export function ForceLayout() {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
@@ -26,22 +26,22 @@ export function ForceLayout() {
   const tick = useCallback(() => {
     if (!graph || !nodes.current.length) return;
     for (const node of nodes.current) {
-      graph.setNodeAttribute(node.ID, "x", node.x);
-      graph.setNodeAttribute(node.ID, "y", node.y);
+      graph.setNodeAttribute(node.ID, 'x', node.x);
+      graph.setNodeAttribute(node.ID, 'y', node.y);
     }
   }, [graph]);
 
   useEffect(() => {
-    sigma.on("afterRender", () => {
+    sigma.on('afterRender', () => {
       if (!sigma.getGraph().order) return;
-      (sigma as EventEmitter).emit("loaded");
+      (sigma as EventEmitter).emit('loaded');
     });
   }, [sigma]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!sigma) return;
-    (sigma as EventEmitter).once("loaded", () => {
+    (sigma as EventEmitter).once('loaded', () => {
       const graph = sigma.getGraph();
       nodes.current = graph.mapNodes(node => ({
         ID: node,
@@ -52,14 +52,14 @@ export function ForceLayout() {
       }));
       simulation.current = forceSimulation<NodeAttributes, SimulationLinkDatum<NodeAttributes>>(nodes.current)
         .force(
-          "link",
+          'link',
           forceLink<NodeAttributes, SimulationLinkDatum<NodeAttributes>>(edges.current)
             .id(d => d.ID!)
             .distance(settings.linkDistance),
         )
-        .force("charge", forceManyBody().strength(-200).theta(0.8))
-        .force("collide", forceCollide(defaultNodeSize * 8))
-        .on("tick", tick);
+        .force('charge', forceManyBody().strength(-200).theta(0.8))
+        .force('collide', forceCollide(defaultNodeSize * 8))
+        .on('tick', tick);
 
       useStore.setState({
         forceWorker: {
@@ -78,12 +78,12 @@ export function ForceLayout() {
   useEffect(() => {
     if (!simulation.current || !edges.current) return;
     simulation.current.force(
-      "link",
+      'link',
       forceLink<NodeAttributes, SimulationLinkDatum<NodeAttributes>>(edges.current)
         .id(d => d.ID!)
         .distance(settings.linkDistance),
     );
-    simulation.current.force("collide", forceCollide(defaultNodeSize * 8));
+    simulation.current.force('collide', forceCollide(defaultNodeSize * 8));
     simulation.current.alpha(0.3).restart();
   }, [settings]);
 

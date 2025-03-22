@@ -26,8 +26,9 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
-    "formatWithErrors": false,
-    "lineWidth": 120
+    "lineWidth": 120,
+    "bracketSpacing": true,
+    "attributePosition": "auto" // (Alternative for bracketSameLine)
   },
   "organizeImports": {
     "enabled": true

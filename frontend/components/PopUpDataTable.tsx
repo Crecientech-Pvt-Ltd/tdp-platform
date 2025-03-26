@@ -78,7 +78,7 @@ export default function PopUpDataTable<E, F>({
         <DialogFooter className='gap-2 w-full'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size={'icon'} variant={'outline'}>
+              <Button size={'icon'} variant={'oldtoolcolor'}>
                 <Download size={20} />
               </Button>
             </DropdownMenuTrigger>

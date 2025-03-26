@@ -16,7 +16,7 @@ export function NetworkAnalysis() {
   };
 
   return (
-    <Collapsible defaultOpen className='text-xs'>
+    <Collapsible defaultOpen className='text-xs mb-2'>
       <div className='flex items-center justify-between w-full p-2 bg-primary'>
         <p className='font-bold text-white '>Network Analysis</p>
         <CollapsibleTrigger asChild>
@@ -25,7 +25,7 @@ export function NetworkAnalysis() {
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='mt-1 p-4'>
+      <CollapsibleContent className='mt-1 p-4 -mb-2'>
         <RadioGroup defaultValue='None' className='mb-2'>
           {algorithms.map(({ name, parameters }) => (
             <Popover key={name}>

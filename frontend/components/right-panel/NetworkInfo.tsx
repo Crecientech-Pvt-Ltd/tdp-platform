@@ -35,7 +35,7 @@ export function NetworkInfo() {
 
   return (
     <div className=''>
-      <p className='font-bold p-2 bg-primary text-white'>Network Info</p>
+      <p className='font-bold p-2 py-3 bg-primary text-white'>Network Info</p>
       <div className='flex justify-between p-4'>
         <div className='flex flex-col gap-1'>
           <span>Total Nodes: {totalNodes}</span>

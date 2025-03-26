@@ -33,7 +33,7 @@ export function NetworkLayout() {
     });
   };
   return (
-    <Collapsible defaultOpen className=''>
+    <Collapsible defaultOpen className='text-xs'>
       <div className='flex items-center justify-between w-full p-2 bg-primary'>
         <p className='font-bold text-white'>Network Layout</p>
         <CollapsibleTrigger asChild>
@@ -42,15 +42,15 @@ export function NetworkLayout() {
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='flex flex-col gap-2 p-4'>
-        <div className='flex items-center gap-2'>
+      <CollapsibleContent className='flex flex-col gap-2 p-1'>
+        <div className='flex items-center gap-2 p-3'>
           <Label htmlFor='network-animation-control' className='text-xs font-semibold'>
             Animation
           </Label>
           <Switch id='network-animation-control' defaultChecked onCheckedChange={handleGraphAnimation} />
         </div>
         {forceLayoutOptions.map(option => (
-          <div key={option.key} className='flex space-x-2 items-center'>
+          <div key={option.key} className='flex space-x-2 items-center px-3 pb-2'>
             <div className='flex flex-col space-y-2 w-full'>
               <Label htmlFor={option.key} className='text-xs font-semibold flex gap-1 items-center'>
                 {option.label}
@@ -75,7 +75,7 @@ export function NetworkLayout() {
             </div>
             <Input
               type='number'
-              className='w-16 h-8'
+              className='w-16'
               min={option.min}
               max={option.max}
               step={option.step}

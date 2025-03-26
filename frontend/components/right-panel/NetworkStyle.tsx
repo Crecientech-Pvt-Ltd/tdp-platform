@@ -49,8 +49,8 @@ export function NetworkStyle() {
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='flex flex-col gap-2 p-4'>
-        <div className='flex space-x-2 items-center'>
+      <CollapsibleContent className='flex flex-col gap-2 p-1'>
+        <div className='flex space-x-2 items-center p-3'>
           <div className='flex flex-col space-y-1 w-full'>
             <Label htmlFor='defaultNodeSize' className='text-xs font-semibold'>
               Node Size
@@ -75,7 +75,7 @@ export function NetworkStyle() {
             onChange={e => handleDefaultChange(Number.parseInt(e.target.value), 'defaultNodeSize')}
           />
         </div>
-        <div className='flex space-x-2 items-center'>
+        <div className='flex space-x-2 items-center px-3'>
           <div className='flex flex-col space-y-1 w-full'>
             <Label htmlFor='defaultLabelSize' className='text-xs font-semibold'>
               Node Label Size
@@ -100,7 +100,7 @@ export function NetworkStyle() {
             onChange={e => handleDefaultChange(Number.parseInt(e.target.value), 'defaultLabelSize')}
           />
         </div>
-        <div className='flex space-x-2 items-center'>
+        <div className='flex space-x-2 items-center p-3'>
           <div className='flex flex-col space-y-1 w-full'>
             <Label htmlFor='defaultLabelDensity' className='text-xs font-semibold flex gap-1 items-center'>
               Label Density
@@ -134,7 +134,7 @@ export function NetworkStyle() {
           />
         </div>
         <hr />
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2 p-3'>
           <div className='flex items-center gap-2'>
             <Checkbox
               id='showEdgeLabel'
@@ -200,7 +200,7 @@ export function NetworkStyle() {
             </Label>
           </div>
         </div>
-        <div>
+        <div className='p-3'>
           <Label htmlFor='edgeOpacity' className='text-xs font-semibold'>
             Edge Opacity
           </Label>
@@ -224,7 +224,7 @@ export function NetworkStyle() {
             />
           </div>
         </div>
-        <div>
+        <div className='p-3'>
           <Label htmlFor='defaultNodeColor' className='text-xs font-semibold'>
             Node Color
           </Label>

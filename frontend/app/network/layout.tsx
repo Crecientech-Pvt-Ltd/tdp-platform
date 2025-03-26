@@ -13,13 +13,13 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   const [rightSidebar, setRightSidebar] = React.useState<boolean>(true);
 
   return (
-    <div className='h-screen flex flex-col bg-gray-100'>
-      <div className='bg-gray-200 h-8 flex items-center justify-between'>
-        <Button variant='ghost' size='icon' className='h-full' onClick={() => setLeftSidebar(!leftSidebar)}>
+    <div className='h-screen flex flex-col'>
+      <div className='bg-primary h-12 flex items-center justify-between p-2'>
+        <Button variant='oldtool' size='icon' className='h-full' onClick={() => setLeftSidebar(!leftSidebar)}>
           {leftSidebar ? <ChevronLeft className='h-4 w-4' /> : <ChevronRight className='h-4 w-4' />}
         </Button>
         <AppBar />
-        <Button variant='ghost' size='icon' className='h-full' onClick={() => setRightSidebar(!rightSidebar)}>
+        <Button variant='oldtool' size='icon' className='h-full' onClick={() => setRightSidebar(!rightSidebar)}>
           {rightSidebar ? <ChevronRight className='h-4 w-4' /> : <ChevronLeft className='h-4 w-4' />}
         </Button>
       </div>

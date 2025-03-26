@@ -15,16 +15,16 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
   const selectedNodeSizeProperty = useStore(state => state.selectedNodeSizeProperty);
 
   return (
-    <Collapsible defaultOpen className='mb-2 border p-2 rounded shadow'>
-      <div className='flex items-center justify-between w-full'>
-        <Label className='font-bold'>Node Size</Label>
+    <Collapsible defaultOpen className='mb-2'>
+      <div className='flex items-center justify-between w-full bg-primary p-2'>
+        <Label className='font-bold text-white'>Node Size</Label>
         <div className='space-x-1 flex items-center'>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 onClick={() => useStore.setState({ selectedRadioNodeSize: undefined })}
                 type='button'
-                variant='outline'
+                variant='oldtool'
                 size='icon'
                 className='w-6 h-6'
               >
@@ -36,13 +36,13 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
             </TooltipContent>
           </Tooltip>
           <CollapsibleTrigger asChild>
-            <Button type='button' variant='outline' size='icon' className='w-6 h-6'>
+            <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
               <ChevronsUpDown size={15} />
             </Button>
           </CollapsibleTrigger>
         </div>
       </div>
-      <CollapsibleContent className='mt-2'>
+      <CollapsibleContent className='mt-2 p-4'>
         <RadioGroup
           value={radioValue ?? ''}
           onValueChange={value =>
@@ -73,7 +73,7 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
             <VirtualizedCombobox
               key={radioValue}
               data={[...radioOptions.database[radioValue], ...radioOptions.user[radioValue]]}
-              className='mt-2 w-full'
+              className='mt-2 w-full text-black'
               value={selectedNodeSizeProperty}
               onChange={onPropChange}
               width='550px'
@@ -82,7 +82,7 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
             <Combobox
               key={radioValue}
               data={[...radioOptions.database[radioValue], ...radioOptions.user[radioValue]]}
-              className='mt-2 w-full'
+              className='mt-2 w-full text-black'
               value={selectedNodeSizeProperty}
               onChange={onPropChange}
             />

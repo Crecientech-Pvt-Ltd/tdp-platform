@@ -11,9 +11,9 @@ export function Export() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant='outline'
+          variant='oldtool'
           size='sm'
-          className='text-xs hover:bg-zinc-300 border-none bg-zinc-200 hover:text-black rounded-sm '
+          className='text-xs hover:opacity-80 border-none bg-primary rounded-sm '
         >
           <FolderUp className='h-3 w-3 mr-1' />
           Export

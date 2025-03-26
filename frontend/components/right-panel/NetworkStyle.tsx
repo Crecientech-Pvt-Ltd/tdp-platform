@@ -40,16 +40,16 @@ export function NetworkStyle() {
   };
 
   return (
-    <Collapsible defaultOpen className='mb-2 border p-2 rounded shadow text-xs'>
-      <div className='flex items-center justify-between w-full'>
-        <p className='font-bold'>Network Style</p>
+    <Collapsible defaultOpen className=''>
+      <div className='flex items-center justify-between w-full bg-primary p-2'>
+        <p className='font-bold text-white'>Network Style</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='outline' size='icon' className='w-6 h-6'>
+          <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='flex flex-col gap-2'>
+      <CollapsibleContent className='flex flex-col gap-2 p-4'>
         <div className='flex space-x-2 items-center'>
           <div className='flex flex-col space-y-1 w-full'>
             <Label htmlFor='defaultNodeSize' className='text-xs font-semibold'>
@@ -228,7 +228,7 @@ export function NetworkStyle() {
           <Label htmlFor='defaultNodeColor' className='text-xs font-semibold'>
             Node Color
           </Label>
-          <ColorPicker color={defaultNodeColor} property='defaultNodeColor' className='w-full' />
+          <ColorPicker color={defaultNodeColor} property='defaultNodeColor' className='w-full mt-2' />
         </div>
       </CollapsibleContent>
     </Collapsible>

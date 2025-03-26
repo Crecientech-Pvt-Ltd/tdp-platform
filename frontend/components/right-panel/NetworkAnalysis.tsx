@@ -16,16 +16,16 @@ export function NetworkAnalysis() {
   };
 
   return (
-    <Collapsible defaultOpen className='mb-2 border p-2 rounded shadow text-xs'>
-      <div className='flex items-center justify-between w-full'>
-        <p className='font-bold'>Network Analysis</p>
+    <Collapsible defaultOpen className='text-xs'>
+      <div className='flex items-center justify-between w-full p-2 bg-primary'>
+        <p className='font-bold text-white '>Network Analysis</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='outline' size='icon' className='w-6 h-6'>
+          <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='mt-1'>
+      <CollapsibleContent className='mt-1 p-4'>
         <RadioGroup defaultValue='None' className='mb-2'>
           {algorithms.map(({ name, parameters }) => (
             <Popover key={name}>

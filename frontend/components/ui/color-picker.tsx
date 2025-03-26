@@ -34,7 +34,7 @@ export function ColorPicker({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant={'outline'}
+          variant={'oldtoolcolor'}
           className={cn('w-[220px] justify-start text-left font-normal', !color && 'text-muted-foreground', className)}
         >
           <div className='w-full flex items-center gap-2'>

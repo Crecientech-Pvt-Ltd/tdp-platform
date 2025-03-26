@@ -29,6 +29,8 @@
     --chart-4: 190 65% 55%; /* Light teal */
     --chart-5: 160 87% 40%; /* Soft greenish-teal */
     --radius: 0.5rem; /* Border radius */
+    --old-tool-primary: 200 36% 38%; /* Old tool blue-ish teal */
+    --old-tool-secondary: 198 39% 64%; /* Old tool light blue-ish teal */
   }
 
   .dark {

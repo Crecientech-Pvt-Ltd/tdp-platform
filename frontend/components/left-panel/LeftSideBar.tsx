@@ -196,10 +196,10 @@ export function LeftSideBar() {
   }
 
   return (
-    <ScrollArea className='border-r p-2 flex flex-col h-[98vh]'>
+    <ScrollArea className='border-r bg-secondary flex flex-col h-[98vh]'>
       <div className='flex flex-col'>
-        <Label className='font-bold mb-2'>Disease Map</Label>
-        <div className='flex items-center gap-2'>
+        <Label className='font-bold mb-2 pt-4 pl-4'>Disease Map</Label>
+        <div className='flex items-center gap-2 p-2'>
           <motion.div layout transition={{ duration: 0.1, ease: 'easeInOut' }} initial={{ width: '100%' }} animate>
             <Combobox
               value={diseaseName}
@@ -228,7 +228,7 @@ export function LeftSideBar() {
       <NodeColor onPropChange={val => handlePropChange(val, 'color')} />
       <NodeSize onPropChange={val => handlePropChange(val, 'size')} />
       <RadialAnalysis />
-      <div className='flex flex-col space-y-2 mb-6'>
+      <div className='flex flex-col space-y-2 mb-6 px-4'>
         <GeneSearch />
         <FileSheet />
         <Export />

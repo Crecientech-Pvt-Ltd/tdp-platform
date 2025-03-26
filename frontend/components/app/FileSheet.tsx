@@ -235,7 +235,7 @@ export function FileSheet() {
       <div className='flex flex-col lg:flex-row gap-2 justify-between'>
         <Sheet>
           <SheetTrigger asChild>
-            <Button size='sm' className='text-xs w-full'>
+            <Button size='sm' className='text-xs text-white w-full'>
               <Upload className='h-3 w-3 mr-1' />
               Upload Files
             </Button>
@@ -337,7 +337,7 @@ export function FileSheet() {
           Reset Uploads
         </Button>
       </div>
-      <div className='text-xs text-gray-500 italic mt-2'>
+      <div className='text-xs text-gray-300 italic mt-2'>
         <b>NOTE:</b> The uploaded files will be stored in your browser&apos;s local storage and is not shared with
         anyone.
       </div>

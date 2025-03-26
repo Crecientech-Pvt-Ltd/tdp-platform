@@ -45,7 +45,7 @@ export function Combobox({
                 : placeholder
               : value || placeholder}
           </span>
-          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0' />
         </Button>
       </PopoverTrigger>
       <PopoverContent align={align} className={cn('p-0 w-full', className)}>

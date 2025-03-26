@@ -33,16 +33,16 @@ export function NetworkLayout() {
     });
   };
   return (
-    <Collapsible defaultOpen className='mb-2 border p-2 rounded shadow'>
-      <div className='flex items-center justify-between w-full'>
-        <p className='font-bold'>Network Layout</p>
+    <Collapsible defaultOpen className=''>
+      <div className='flex items-center justify-between w-full p-2 bg-primary'>
+        <p className='font-bold text-white'>Network Layout</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='outline' size='icon' className='w-6 h-6'>
+          <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
             <ChevronsUpDown size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='flex flex-col gap-2'>
+      <CollapsibleContent className='flex flex-col gap-2 p-4'>
         <div className='flex items-center gap-2'>
           <Label htmlFor='network-animation-control' className='text-xs font-semibold'>
             Animation

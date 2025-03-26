@@ -17,39 +17,41 @@ const config: Config = {
   				foreground: 'hsl(var(--card-foreground))'
   			},
   			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
+  				DEFAULT: 'white',
+  				foreground: 'hsl(var(--old-tool-primary))',
   			},
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
+  				DEFAULT: 'hsl(var(--old-tool-primary))',
+  				foreground: 'black'
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
+  				DEFAULT: 'hsl(var(--old-tool-secondary))',
+  				foreground: 'black'
   			},
   			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
+  				DEFAULT: 'hsl(var(--old-tool-secondary))',
+  				foreground: 'hsl(var(--old-tool-primary))',
   			},
   			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
+  				DEFAULT: 'hsl(var(--old-tool-primary))',
+  				foreground: 'white'
   			},
   			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
+  				DEFAULT: 'hsl(var(--old-tool-primary))',
+  				foreground: 'hsl(var(--old-tool-secondary))',
   			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
+  			border: 'hsl(var(--old-tool-primary))',
+  			input: 'hsl(var(--old-tool-primary))',
+  			ring: 'hsl(var(--old-tool-primary))',
   			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
+  				'1': 'hsl(var(--old-tool-primary))',
+  				'2': 'hsl(var(--old-tool-primary))',
+  				'3': 'hsl(var(--old-tool-primary))',
+  				'4': 'hsl(var(--old-tool-primary))',
+  				'5': 'hsl(var(--old-tool-primary))',
+  			},
+			// oldtoolprimary: 'hsl(var(--old-tool-primary))',
+			// oldtoolsecondary: 'hsl(var(--old-tool-secondary))',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

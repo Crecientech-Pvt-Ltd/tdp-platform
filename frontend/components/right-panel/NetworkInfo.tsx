@@ -42,7 +42,7 @@ export function NetworkInfo() {
           <span>Total Edges: {totalEdges}</span>
         </div>
         <Button
-          disabled={selectedNodes.length === 1}
+          disabled={selectedNodes.length === 0}
           variant='outline'
           size='sm'
           className='font-semibold'

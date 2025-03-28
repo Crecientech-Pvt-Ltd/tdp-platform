@@ -14,14 +14,15 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
           <div className='absolute inset-0 bg-black/40 rounded-md z-10' />
           <Image src='/image/sideBarBg.jpg' alt='sideBarBg' priority className='rounded-md object-cover' fill />
           <ul className='relative z-10 p-4 grid overflow-scroll gap-2 font-semibold text-white'>
-            <li className={`transition-colors p-2 rounded hover:font-bold ${pathname === '/' && 'bg-primary'}`}>
+            <li className={`transition-colors p-2 rounded border border-transparent hover:border-white
+ ${pathname === '/' && 'bg-white text-primary'}`}>
               <Link href='/' className='flex items-center'>
                 <Search size={20} className='mr-2' /> Search By Proteins
               </Link>
             </li>
             <li
-              className={`transition-colors p-2 rounded hover:font-bold ${
-                pathname === '/upload-network' && 'bg-primary'
+              className={`transition-colors border border-transparent p-2 rounded hover:border-white ${
+                pathname === '/upload-network' && 'bg-white text-primary'
               }`}
             >
               <Link href='/upload-network' className='flex items-center'>
@@ -29,15 +30,15 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
               </Link>
             </li>
             <li
-              className={`transition-colors p-2 rounded hover:font-bold ${
-                pathname === '/tutorial-video' && 'bg-primary'
+              className={`transition-colors p-2 rounded border border-transparent hover:border-white ${
+                pathname === '/tutorial-video' && 'bg-white text-primary'
               }`}
             >
               <Link href='/tutorial-video' className='flex items-center'>
                 <Video size={20} className='mr-2' /> Tutorial Video
               </Link>
             </li>
-            <li className='transition-colors p-2 rounded hover:font-bold'>
+            <li className='transition-colors p-2 rounded border border-transparent hover:border-white'>
               <Link href='/docs' className='flex items-center'>
                 <Clipboard size={20} className='mr-2' /> Documentation
               </Link>

@@ -108,7 +108,7 @@ export function NetworkStyle() {
                 <TooltipTrigger asChild>
                   <Info className='shrink-0' size={12} />
                 </TooltipTrigger>
-                <TooltipContent className='max-w-60' align='end'>
+                <TooltipContent className='max-w-60 text-white' align='end'>
                   Change the density of the node/edge labels in the network
                 </TooltipContent>
               </Tooltip>
@@ -147,7 +147,7 @@ export function NetworkStyle() {
                 <TooltipTrigger asChild>
                   <Info className='shrink-0' size={12} />
                 </TooltipTrigger>
-                <TooltipContent className='max-w-60' align='end'>
+                <TooltipContent className='max-w-60 text-white' align='end'>
                   For larger graphs, it is recommended to zoom before turn on edge labels to improve performance
                 </TooltipContent>
               </Tooltip>
@@ -175,7 +175,7 @@ export function NetworkStyle() {
                 <TooltipTrigger asChild>
                   <Info className='shrink-0' size={12} />
                 </TooltipTrigger>
-                <TooltipContent className='max-w-60' align='end'>
+                <TooltipContent className='max-w-60 text-white' align='end'>
                   Upon checked, Highlights the neighbors of the hovered genes
                 </TooltipContent>
               </Tooltip>
@@ -193,7 +193,7 @@ export function NetworkStyle() {
                 <TooltipTrigger asChild>
                   <Info className='shrink-0' size={12} />
                 </TooltipTrigger>
-                <TooltipContent className='max-w-60' align='end'>
+                <TooltipContent className='max-w-60 text-white' align='end'>
                   When checked, highlights seed genes in the network visualization.
                 </TooltipContent>
               </Tooltip>

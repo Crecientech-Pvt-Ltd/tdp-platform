@@ -58,7 +58,7 @@ export function NetworkLayout() {
                   <TooltipTrigger asChild>
                     <Info className='shrink-0' size={12} />
                   </TooltipTrigger>
-                  <TooltipContent className='max-w-60' align='end'>
+                  <TooltipContent className='max-w-60 text-white' align='end'>
                     {option.tooltip}
                   </TooltipContent>
                 </Tooltip>

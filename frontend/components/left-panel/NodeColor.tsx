@@ -60,7 +60,7 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
               </div>
               {tooltipContent && (
                 <TooltipContent align='start'>
-                  <p className='max-w-80'>{tooltipContent}</p>
+                  <p className='max-w-80 text-white'>{tooltipContent}</p>
                 </TooltipContent>
               )}
             </Tooltip>

@@ -337,7 +337,7 @@ export function FileSheet() {
           Reset Uploads
         </Button>
       </div>
-      <div className='text-xs text-gray-300 italic mt-2'>
+      <div className='text-xs text-primary italic mt-2'>
         <b>NOTE:</b> The uploaded files will be stored in your browser&apos;s local storage and is not shared with
         anyone.
       </div>

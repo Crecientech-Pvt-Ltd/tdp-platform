@@ -61,7 +61,7 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
                 </div>
                 {tooltipContent && (
                   <TooltipContent align='start'>
-                    <p className='max-w-80'>{tooltipContent}</p>
+                    <p className='max-w-80 text-white'>{tooltipContent}</p>
                   </TooltipContent>
                 )}
               </Tooltip>

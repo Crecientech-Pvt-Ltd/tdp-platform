@@ -17,6 +17,7 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
         oldtool: 'text-white',
         oldtoolcolor: 'bg-white hover:bg-gray-100',
+        basic: 'text-primary hover:text-black',
       },
       size: {
         default: 'h-9 px-4 py-2',

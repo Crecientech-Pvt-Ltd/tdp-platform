@@ -3,14 +3,12 @@ import { ScrollArea } from '../ui/scroll-area';
 
 export function RightSideBar() {
   return (
-    <ScrollArea className='border-l text-xs flex flex-col h-[98vh] bg-secondary overflow-auto'>
-      <div className="flex flex-col flex-grow">
-        <NetworkLayout />
-        <NetworkAnalysis />
-        <NetworkStyle />
-        <NetworkInfo />
-        <Legend />
-      </div>
+    <ScrollArea className='border-l text-xs flex flex-col h-[calc(96vh-1.5px)] bg-secondary'>
+      <NetworkLayout />
+      <NetworkAnalysis />
+      <NetworkStyle />
+      <NetworkInfo />
+      <Legend />
     </ScrollArea>
   );
 }

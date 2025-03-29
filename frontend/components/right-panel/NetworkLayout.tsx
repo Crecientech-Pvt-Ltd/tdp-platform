@@ -51,7 +51,7 @@ export function NetworkLayout() {
         </div>
         {forceLayoutOptions.map(option => (
           <div key={option.key} className='flex space-x-2 items-center px-3 pb-2'>
-            <div className='flex flex-col space-y-2 w-full'>
+            <div className='flex flex-col space-y-1 w-full'>
               <Label htmlFor={option.key} className='text-xs font-semibold flex gap-1 items-center'>
                 {option.label}
                 <Tooltip>
@@ -75,7 +75,7 @@ export function NetworkLayout() {
             </div>
             <Input
               type='number'
-              className='w-16'
+              className='w-16 pr-0'
               min={option.min}
               max={option.max}
               step={option.step}

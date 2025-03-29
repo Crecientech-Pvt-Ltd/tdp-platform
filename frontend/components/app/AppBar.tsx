@@ -16,9 +16,9 @@ export function AppBar() {
               <span className='relative inline-flex size-2.5 rounded-full bg-sky-500' />
             </span>
           )}
-          <SquareDashedMousePointer className='h-4 w-4' />
+          <SquareDashedMousePointer className='text-white h-4 w-4' />
         </TooltipTrigger>
-        <TooltipContent align='start' className='max-w-96 text-sm'>
+        <TooltipContent align='start' className='text-white max-w-96 text-sm'>
           <ol>
             <li>
               • To select multiple genes and export details or perform GSEA analysis, use the mouse to select the genes
@@ -26,7 +26,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className='border rounded-md px-1'> Shift(⇧) + Click</kbd> & Drag
+              <kbd className='border-white border rounded-md px-1'> Shift(⇧) + Click</kbd> & Drag
             </li>
             <br />
             <li>
@@ -36,7 +36,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className='border rounded-md px-1'>Cmd/Ctrl(⌘) + Hover</kbd>
+              <kbd className='border-white border rounded-md px-1'>Cmd/Ctrl(⌘) + Hover</kbd>
             </li>
             <br />
             <li>
@@ -45,7 +45,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className='border rounded-md px-1'>Cmd/Ctrl(⌘) + Click</kbd>
+              <kbd className='border-white border rounded-md px-1'>Cmd/Ctrl(⌘) + Click</kbd>
             </li>
           </ol>
         </TooltipContent>

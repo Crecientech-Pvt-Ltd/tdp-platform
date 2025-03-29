@@ -2,7 +2,6 @@
 
 import { useStore } from '@/lib/hooks';
 import { Events, eventEmitter } from '@/lib/utils';
-import { SquareArrowOutUpRight } from 'lucide-react';
 import type React from 'react';
 import { createRef, useEffect, useState } from 'react';
 import { Textarea } from '../ui/textarea';
@@ -54,9 +53,9 @@ export function GeneSearch() {
         };
       });
     };
-    eventEmitter.on('toggleSeedGenes', handleSeedGenesToggle);
+    eventEmitter.on(Events.TOGGLE_SEED_GENES, handleSeedGenesToggle);
     return () => {
-      eventEmitter.off('toggleSeedGenes', handleSeedGenesToggle);
+      eventEmitter.off(Events.TOGGLE_SEED_GENES, handleSeedGenesToggle);
     };
   }, [geneIDs]); // ✅ Dependency ensures latest values
 

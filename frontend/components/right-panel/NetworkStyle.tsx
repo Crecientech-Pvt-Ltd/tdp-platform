@@ -66,7 +66,7 @@ export function NetworkStyle() {
           </div>
           <Input
             type='number'
-            className='w-16 h-8'
+            className='w-16'
             min={1}
             max={50}
             step={1}
@@ -91,7 +91,7 @@ export function NetworkStyle() {
           </div>
           <Input
             type='number'
-            className='w-16 h-8'
+            className='w-16'
             min={1}
             max={50}
             step={1}
@@ -124,7 +124,7 @@ export function NetworkStyle() {
           </div>
           <Input
             type='number'
-            className='w-16 h-8'
+            className='w-16 pr-0'
             min={0}
             max={10}
             step={0.1}
@@ -198,10 +198,10 @@ export function NetworkStyle() {
               type='number'
               min={0}
               max={1}
-              step={10}
+              step={0.1}
               value={edgeOpacity}
               onChange={e => handleDefaultChange(Number(e.target.value), 'edgeOpacity')}
-              className='w-16'
+              className='w-16 pr-1.5'
             />
           </div>
         </div>

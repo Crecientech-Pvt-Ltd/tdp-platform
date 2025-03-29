@@ -326,7 +326,7 @@ export function FileSheet() {
             </div>
             <SheetFooter>
               <SheetTrigger asChild>
-                <Button onClick={handleUniversalUpdate} className='w-full'>
+                <Button onClick={handleUniversalUpdate} className='w-full text-white'>
                   Submit
                 </Button>
               </SheetTrigger>

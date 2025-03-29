@@ -31,9 +31,7 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
                 <RefreshCcw size={15} />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Reset</p>
-            </TooltipContent>
+            <TooltipContent className='text-white'>Reset</TooltipContent>
           </Tooltip>
           <CollapsibleTrigger asChild>
             <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
@@ -59,8 +57,8 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
                 <TooltipTrigger asChild>{tooltipContent && <Info size={12} className='shrink-0' />}</TooltipTrigger>
               </div>
               {tooltipContent && (
-                <TooltipContent align='start'>
-                  <p className='max-w-80 text-white'>{tooltipContent}</p>
+                <TooltipContent align='start' className='max-w-80 text-white'>
+                  {tooltipContent}
                 </TooltipContent>
               )}
             </Tooltip>

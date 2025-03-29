@@ -196,34 +196,38 @@ export function LeftSideBar() {
   }
 
   return (
-    <ScrollArea className='border-r bg-secondary flex flex-col h-[98vh]'>
+    <ScrollArea className='border-r bg-secondary flex flex-col h-[calc(96vh-1.5px)]'>
       <div className='flex flex-col'>
-        <Label className='font-bold mb-2 pt-4 pl-4'>Disease Map</Label>
-        <div className='flex items-center gap-2 p-2'>
-          <motion.div layout transition={{ duration: 0.1, ease: 'easeInOut' }} initial={{ width: '100%' }} animate>
-            <Combobox
-              value={diseaseName}
-              onChange={value => typeof value === 'string' && useStore.setState({ diseaseName: value })}
-              data={graphConfig[0].options.map(option => ({
-                name: option.label,
-                description: diseaseTooltip[option.label],
-              }))}
-              className='w-full'
-            />
-          </motion.div>
-          <AnimatePresence>
-            {(!called || (called && loading) || universalLoading) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ duration: 0.1 }}
-              >
-                <Spinner size='small' />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <Label className='font-bold mb-2 pt-4 pl-2'>Disease Map</Label>
+        <motion.div
+          layout
+          className='px-2'
+          transition={{ duration: 0.1, ease: 'easeInOut' }}
+          initial={{ width: '100%' }}
+          animate
+        >
+          <Combobox
+            value={diseaseName}
+            onChange={value => typeof value === 'string' && useStore.setState({ diseaseName: value })}
+            data={graphConfig[0].options.map(option => ({
+              name: option.label,
+              description: diseaseTooltip[option.label],
+            }))}
+            className='w-full'
+          />
+        </motion.div>
+        <AnimatePresence>
+          {(!called || (called && loading) || universalLoading) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{ duration: 0.1 }}
+            >
+              <Spinner size='small' />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <NodeColor onPropChange={val => handlePropChange(val, 'color')} />
       <NodeSize onPropChange={val => handlePropChange(val, 'size')} />

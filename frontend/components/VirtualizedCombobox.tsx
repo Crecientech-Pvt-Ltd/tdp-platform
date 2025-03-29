@@ -65,7 +65,7 @@ const VirtualizedCommand = ({
                 <ListCheck className='h-4 w-4 text-black' />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Select all (only first 50 items are selected at max)</TooltipContent>
+            <TooltipContent className='text-white'>Select all (only first 50 items are selected at max)</TooltipContent>
           </Tooltip>
         )}
       </CommandInput>
@@ -108,7 +108,7 @@ const VirtualizedCommand = ({
                       <TooltipTrigger asChild>
                         <Info className='h-4 w-4 ml-2 cursor-pointer' />
                       </TooltipTrigger>
-                      <TooltipContent side='left' align='start' className='max-w-48'>
+                      <TooltipContent side='left' align='start' className='max-w-48 text-white'>
                         {option.description}
                       </TooltipContent>
                     </Tooltip>
@@ -155,7 +155,10 @@ export function VirtualizedCombobox({
           variant='oldtool'
           role='combobox'
           aria-expanded={open}
-          className={cn('w-[200px] justify-between text-ellipsis text-wrap break-words h-9 bg-white text-black', className)}
+          className={cn(
+            'w-[200px] border justify-between text-ellipsis text-wrap break-words h-9 bg-white text-black',
+            className,
+          )}
         >
           <span className='truncate'>
             {multiselect && value instanceof Set

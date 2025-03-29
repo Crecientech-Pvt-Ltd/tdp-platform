@@ -28,7 +28,7 @@ export function Legend() {
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='flex flex-col gap-2 p-4 items-center'>
+      <CollapsibleContent className='flex flex-col gap-2 p-8 items-center'>
         {selectedRadioNodeColor ? (
           selectedRadioNodeColor === 'Pathway' || selectedRadioNodeColor === 'Database' ? (
             <BinaryLegend />

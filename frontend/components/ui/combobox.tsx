@@ -86,7 +86,7 @@ export function Combobox({
                         <TooltipTrigger asChild>
                           <Info className='h-4 w-4 ml-4 cursor-pointer' />
                         </TooltipTrigger>
-                        <TooltipContent side='right' align='start' className='max-w-80'>
+                        <TooltipContent side='right' align='start' className='max-w-80 text-white'>
                           {item.description}
                         </TooltipContent>
                       </Tooltip>

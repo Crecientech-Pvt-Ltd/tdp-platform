@@ -13,7 +13,8 @@ import { Trie } from '@/lib/trie';
 import { cn } from '@/lib/utils';
 import { useCamera, useRegisterEvents, useSigma } from '@react-sigma/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { drawSelectionBox, findNodesInSelection } from './canvas-brush';
+import { drawSelectionBox, findNodesInSelection } from '@/lib/graph';
+import drawEdgeHover from '@/lib/graph/canvas-edge-hover';
 
 export function GraphEvents({
   clickedNodesRef,
@@ -169,6 +170,7 @@ export function GraphEvents({
   //   biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!canvasRef.current) canvasRef.current = sigma.getCanvases().mouse;
+    const context = canvasRef.current?.getContext('2d');
     const graph = sigma.getGraph();
     registerEvents({
       /* Node Hover Program */
@@ -187,8 +189,26 @@ export function GraphEvents({
             return attr;
           });
         }
+        if (context) {
+          context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+          const edgeAttr = graph.getEdgeAttributes(e.edge);
+          const [source, target] = graph.extremities(e.edge);
+          drawEdgeHover(
+            context,
+            {
+              key: e.edge,
+              ...edgeAttr,
+              hidden:
+                edgeAttr.hidden || graph.getNodeAttribute(source, 'hidden') || graph.getNodeAttribute(target, 'hidden'),
+              x: e.event.x,
+              y: e.event.y,
+            },
+            sigma.getSettings(),
+          );
+        }
       },
       leaveEdge: e => {
+        context?.clearRect(0, 0, context.canvas.width, context.canvas.height);
         graph.updateEdgeAttributes(e.edge, attr => {
           attr.color = attr.altColor;
           attr.forceLabel = false;

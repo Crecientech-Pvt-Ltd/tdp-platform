@@ -39,14 +39,15 @@ export function SizeAnalysis() {
           const valString = cur[userOrCommonIdentifier].Druggability[selectedNodeSizeProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [1, 0],
       );
       const sizeScale = scaleLinear<number, number>(minMax, [3, defaultNodeSize + 10]);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +universalData[node]?.[userOrCommonIdentifier].Druggability[selectedNodeSizeProperty];
-        if (!Number.isNaN(val)) attr.size = sizeScale(val);
+        const val = universalData[node]?.[userOrCommonIdentifier].Druggability[selectedNodeSizeProperty];
+        if (val != null && !Number.isNaN(+val)) attr.size = sizeScale(+val);
         else attr.size = 0.5;
         return attr;
       });
@@ -82,17 +83,16 @@ export function SizeAnalysis() {
         (acc, cur) => {
           const valString = cur[userOrCommonIdentifier].TE[selectedNodeSizeProperty];
           if (!valString) return acc;
-          const value = Number.parseFloat(valString);
+          const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [Number.POSITIVE_INFINITY, 0],
       );
       const sizeScale = scaleLinear<number, number>(minMax, [3, defaultNodeSize + 10]);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = Number.parseFloat(
-          universalData[node]?.[userOrCommonIdentifier].TE[selectedNodeSizeProperty] ?? Number.NaN,
-        );
-        if (!Number.isNaN(val)) attr.size = sizeScale(val);
+        const val = universalData[node]?.[userOrCommonIdentifier].TE[selectedNodeSizeProperty];
+        if (val != null || !Number.isNaN(+val)) attr.size = sizeScale(+val);
         else attr.size = 0.5;
         return attr;
       });
@@ -101,14 +101,15 @@ export function SizeAnalysis() {
         const valString = (cur[userOrDiseaseIdentifier] as OtherSection).LogFC?.[selectedNodeSizeProperty];
         if (!valString) return acc;
         const value = Math.abs(+valString);
+        if (Number.isNaN(value)) return acc;
         return Math.max(acc, value);
       }, 0);
       const sizeScale = scaleLinear<number, number>([0, max], [3, defaultNodeSize + 10]);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +(universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeSize][
+        const val = (universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeSize][
           selectedNodeSizeProperty
         ];
-        if (!Number.isNaN(val)) attr.size = sizeScale(Math.abs(val));
+        if (val != null && !Number.isNaN(+val)) attr.size = sizeScale(Math.abs(+val));
         else attr.size = 0.5;
         return attr;
       });
@@ -118,16 +119,17 @@ export function SizeAnalysis() {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).GWAS?.[selectedNodeSizeProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [1, -1],
       );
       const sizeScale = scaleLinear<number, number>(minMax, [3, defaultNodeSize + 10]);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +(universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeSize][
+        const val = (universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeSize][
           selectedNodeSizeProperty
         ];
-        if (!Number.isNaN(val)) attr.size = sizeScale(val);
+        if (val != null && !Number.isNaN(val)) attr.size = sizeScale(+val);
         else attr.size = 0.5;
         return attr;
       });
@@ -137,16 +139,17 @@ export function SizeAnalysis() {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).GDA?.[selectedNodeSizeProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [1, 0],
       );
       const sizeScale = scaleLinear<number, number>(minMax, [3, defaultNodeSize + 10]);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +(universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeSize][
+        const val = (universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeSize][
           selectedNodeSizeProperty
         ];
-        if (!Number.isNaN(val)) attr.size = sizeScale(val);
+        if (val != null && !Number.isNaN(+val)) attr.size = sizeScale(+val);
         else attr.size = 0.5;
         return attr;
       });

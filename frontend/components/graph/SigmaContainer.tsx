@@ -1,6 +1,6 @@
 'use client';
 
-import NodeGradientProgram from '@/lib/NodeGradientProgram';
+import { NodeGradientProgram } from '@/lib/graph';
 import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import {
   ControlsContainer,

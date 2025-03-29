@@ -64,7 +64,7 @@ export function Legend() {
             title='Edge Color'
             range={['yellow', 'red']}
             domain={[minScore ?? 0, 1]}
-            divisions={(1 - (minScore ?? 0)) * 10}
+            divisions={Math.round((1 - (minScore ?? 0)) * 10)}
           />
         )}
       </CollapsibleContent>

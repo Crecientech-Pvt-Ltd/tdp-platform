@@ -31,6 +31,8 @@ export function HeatmapLegend({
     const gradientId = `${range.map(color => color.replace(/[#()]/g, '')).join('-')}-gradient`;
     const legendHeight = height / 3;
 
+    console.log(domain, divisions, range);
+
     // Clear any existing content
     svg.innerHTML = '';
 
@@ -43,9 +45,9 @@ export function HeatmapLegend({
     linearGradient.setAttribute('x2', '100%');
     linearGradient.setAttribute('y2', '0%');
 
-    colorScale.ticks(divisions).forEach((num, index) => {
+    colorScale.ticks(10).forEach((num, index) => {
       const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-      stop.setAttribute('offset', `${(index / (divisions - 1)) * 100}%`);
+      stop.setAttribute('offset', `${(index / (10 - 1)) * 100}%`);
       stop.setAttribute('stop-color', colorScale(num));
       linearGradient.appendChild(stop);
     });

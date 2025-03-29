@@ -21,7 +21,6 @@ export const useStore = create<GraphStore>(() => ({
   selectedNodes: [],
   selectedRadioNodeColor: undefined,
   selectedRadioNodeSize: undefined,
-  showEdgeLabel: false,
   showEdgeColor: false,
   totalNodes: 0,
   totalEdges: 0,

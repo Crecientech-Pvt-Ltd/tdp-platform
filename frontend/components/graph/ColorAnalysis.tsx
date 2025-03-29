@@ -59,16 +59,17 @@ export function ColorAnalysis() {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).GDA?.[selectedNodeColorProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [1, 0],
       );
       const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +(universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
+        const val = (universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
           selectedNodeColorProperty
         ];
-        if (!Number.isNaN(val)) attr.color = colorScale(val);
+        if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
       });
@@ -78,6 +79,7 @@ export function ColorAnalysis() {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).LogFC?.[selectedNodeColorProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
@@ -85,10 +87,10 @@ export function ColorAnalysis() {
 
       const colorScale = scaleLinear<string>([min, 0, max], ['green', '#E2E2E2', 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +(universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
+        const val = (universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
           selectedNodeColorProperty
         ];
-        if (!Number.isNaN(val)) attr.color = colorScale(val);
+        if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
       });
@@ -98,16 +100,17 @@ export function ColorAnalysis() {
           const valString = (cur[userOrDiseaseIdentifier] as OtherSection).GWAS?.[selectedNodeColorProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [1, -1],
       );
       const colorScale = scaleLinear<string>([min, 0, max], ['green', defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +(universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
+        const val = (universalData[node]?.[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
           selectedNodeColorProperty
         ];
-        if (!Number.isNaN(val)) attr.color = colorScale(val);
+        if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
       });
@@ -126,10 +129,9 @@ export function ColorAnalysis() {
       // ******************************************
 
       graph.updateEachNodeAttributes((node, attr) => {
-        attr.color =
-          Number.parseInt(universalData[node]?.[userOrCommonIdentifier].Pathway[selectedNodeColorProperty] ?? 0) === 1
-            ? 'red'
-            : defaultNodeColor;
+        attr.color = +universalData[node]?.[userOrCommonIdentifier].Pathway[selectedNodeColorProperty]
+          ? 'red'
+          : defaultNodeColor;
         return attr;
       });
     } else if (selectedRadioNodeColor === 'Druggability' && typeof selectedNodeColorProperty === 'string') {
@@ -138,14 +140,15 @@ export function ColorAnalysis() {
           const valString = cur[userOrCommonIdentifier].Druggability[selectedNodeColorProperty];
           if (!valString) return acc;
           const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [1, 0],
       );
       const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +universalData[node]?.[userOrCommonIdentifier].Druggability[selectedNodeColorProperty];
-        if (!Number.isNaN(val)) attr.color = colorScale(val);
+        const val = universalData[node]?.[userOrCommonIdentifier].Druggability[selectedNodeColorProperty];
+        if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
       });
@@ -181,17 +184,17 @@ export function ColorAnalysis() {
         (acc, cur) => {
           const valString = cur?.[userOrCommonIdentifier].TE[selectedNodeColorProperty];
           if (!valString) return acc;
-          const value = Number.parseFloat(valString);
+          const value = +valString;
+          if (Number.isNaN(value)) return acc;
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [Number.POSITIVE_INFINITY, 0],
       );
       const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = Number.parseFloat(
-          universalData[node]?.[userOrCommonIdentifier].TE[selectedNodeColorProperty] ?? Number.NaN,
-        );
-        if (!Number.isNaN(val)) attr.color = colorScale(val);
+        const val = universalData[node]?.[userOrCommonIdentifier].TE[selectedNodeColorProperty];
+        // if (!Number.isNaN(val)) attr.color = colorScale(val);
+        if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
       });
@@ -203,8 +206,9 @@ export function ColorAnalysis() {
       });
     } else if (selectedRadioNodeColor === 'Database' && typeof selectedNodeColorProperty === 'string') {
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = +universalData[node]?.[userOrCommonIdentifier].Database[selectedNodeColorProperty];
-        attr.color = val ? 'red' : defaultNodeColor;
+        attr.color = +universalData[node]?.[userOrCommonIdentifier].Database[selectedNodeColorProperty]
+          ? 'red'
+          : defaultNodeColor;
         return attr;
       });
     }

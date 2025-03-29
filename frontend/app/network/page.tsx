@@ -27,7 +27,7 @@ export default function NetworkPage() {
         labelDensity: 0.2,
         defaultEdgeColor: DEFAULT_EDGE_COLOR,
         labelSize: 10,
-        defaultNodeColor: 'blue',
+        defaultNodeColor: 'skyblue',
         zoomingRatio: 1.2,
         zIndex: true,
       }}

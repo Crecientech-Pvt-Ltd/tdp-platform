@@ -12,11 +12,6 @@ export interface EdgeAttributes extends Attributes {
   score?: number;
 
   /**
-   * size of the edge
-   */
-  size?: number;
-
-  /**
    * color of the edge
    */
   color?: string;

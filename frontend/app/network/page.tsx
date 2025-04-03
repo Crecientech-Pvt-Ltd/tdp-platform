@@ -2,7 +2,7 @@
 
 import { Spinner } from '@/components/ui/spinner';
 import { DEFAULT_EDGE_COLOR } from '@/lib/data';
-import '@react-sigma/core/lib/react-sigma.min.css';
+import "@react-sigma/core/lib/style.css";
 import dynamic from 'next/dynamic';
 
 const SigmaContainer = dynamic(() => import('@/components/graph').then(module => module.SigmaContainer), {

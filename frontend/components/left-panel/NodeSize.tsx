@@ -75,6 +75,8 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
               value={selectedNodeSizeProperty}
               onChange={onPropChange}
               width='550px'
+              radioOptions={radioOptions}
+              selectedRadio={radioValue}
             />
           ) : (
             <Combobox
@@ -89,3 +91,4 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
     </Collapsible>
   );
 }
+

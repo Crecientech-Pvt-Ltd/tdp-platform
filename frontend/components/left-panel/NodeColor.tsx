@@ -73,6 +73,8 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
               value={selectedNodeColorProperty}
               onChange={onPropChange}
               width={radioValue === 'TE' ? '550px' : '800px'}
+              radioOptions={radioOptions}
+              selectedRadio={radioValue}
             />
           ) : (
             <Combobox
@@ -81,9 +83,12 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
               className='mt-2 w-full text-black'
               value={selectedNodeColorProperty}
               onChange={onPropChange}
+              radioOptions={radioOptions}
+              selectedRadio={radioValue}
             />
           ))}
       </CollapsibleContent>
     </Collapsible>
   );
 }
+

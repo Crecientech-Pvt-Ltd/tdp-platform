@@ -342,27 +342,32 @@ export function GraphEvents({
         : 'common';
       const userRadioArr = radioOptions.user[selectedRadio];
       if (typeof selectedProperty === 'string') {
+        const isUserProperty = userRadioArr?.includes(selectedProperty);
         const value = (
-          universalData[node]?.[
-            userRadioArr?.includes(selectedProperty) ? 'user' : diseaseNameOrCommon
-          ] as OtherSection & CommonSection
+          universalData[node]?.[isUserProperty ? 'user' : diseaseNameOrCommon] as OtherSection & CommonSection
         )?.[selectedRadio]?.[selectedProperty];
         return (
           <div>
-            <h3 className='font-bold break-words'>{selectedProperty}</h3>
+            <h3 className='font-bold break-words'>
+              {selectedProperty}
+              {isUserProperty && <span className='ml-1 text-xs text-muted-foreground'>[USER]</span>}
+            </h3>
             <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
           </div>
         );
       }
       const values = selectedProperty.size
         ? Array.from(selectedProperty).map(prop => {
+            const isUserProperty = userRadioArr?.includes(prop);
             const value = (
-              universalData[node]?.[userRadioArr?.includes(prop) ? 'user' : diseaseNameOrCommon] as OtherSection &
-                CommonSection
+              universalData[node]?.[isUserProperty ? 'user' : diseaseNameOrCommon] as OtherSection & CommonSection
             )?.[selectedRadio]?.[prop];
             return (
               <div key={prop}>
-                <h3 className='font-bold break-words'>{prop}</h3>
+                <h3 className='font-bold break-words'>
+                  {prop}
+                  {isUserProperty && <span className='ml-1 text-xs text-muted-foreground'>[USER]</span>}
+                </h3>
                 <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
               </div>
             );
@@ -396,3 +401,4 @@ export function GraphEvents({
     </>
   );
 }
+

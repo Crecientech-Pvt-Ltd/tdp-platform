@@ -31,8 +31,6 @@ export function HeatmapLegend({
     const gradientId = `${range.map(color => color.replace(/[#()]/g, '')).join('-')}-gradient`;
     const legendHeight = height / 3;
 
-    console.log(domain, divisions, range);
-
     // Clear any existing content
     svg.innerHTML = '';
 

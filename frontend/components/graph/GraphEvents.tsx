@@ -237,7 +237,7 @@ export function GraphEvents({
       mousemovebody: e => {
         if (!isSelecting && !draggedNode) return;
         if (isSelecting) {
-          handleMouseMove(e.original);
+          handleMouseMove(e.original as MouseEvent);
         } else if (draggedNode) {
           const pos = sigma.viewportToGraph(e);
           // Get new position of node
@@ -276,7 +276,7 @@ export function GraphEvents({
       },
       // Disable the autoscale at the first down interaction
       mousedown: e => {
-        if (e.original.shiftKey) handleMouseDown(e.original);
+        if (e.original.shiftKey) handleMouseDown(e.original as MouseEvent);
         else {
           for (const node of _selectedNodes) {
             if (highlightedNodesRef.current.has(node)) continue;

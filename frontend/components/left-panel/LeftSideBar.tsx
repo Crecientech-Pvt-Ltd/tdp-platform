@@ -19,7 +19,7 @@ import type {
   RadioOptions,
 } from '@/lib/interface';
 import { useLazyQuery } from '@apollo/client';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { redirect } from 'next/navigation';
 import React, { useEffect, useRef } from 'react';
 import { GeneSearch, NodeColor, NodeSize } from '.';

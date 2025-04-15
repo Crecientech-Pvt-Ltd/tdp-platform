@@ -15,9 +15,8 @@ import type {
 import { openDB } from '@/lib/utils';
 import { useLazyQuery } from '@apollo/client';
 import { useLoadGraph } from '@react-sigma/core';
-import Graph from 'graphology';
-import { circlepack } from 'graphology-layout';
-import type { SerializedGraph } from 'graphology-types';
+import type Graph from 'graphology';
+import type { SerializedEdge, SerializedGraph } from 'graphology-types';
 import { AlertTriangle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Papa from 'papaparse';
@@ -37,7 +36,6 @@ import { Spinner } from '../ui/spinner';
 
 export function LoadGraph() {
   const searchParams = useSearchParams();
-
   const loadGraph = useLoadGraph();
   const variable = JSON.parse(localStorage.getItem('graphConfig') || '{}');
   const [fetchData, { data: response, loading, error }] = useLazyQuery<GeneGraphData, GeneGraphVariables>(
@@ -56,9 +54,6 @@ export function LoadGraph() {
   const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    const graph = new Graph<NodeAttributes, EdgeAttributes>({
-      type: 'directed',
-    });
     const fileName = searchParams?.get('file');
     (async () => {
       if (fileName) {
@@ -118,27 +113,43 @@ export function LoadGraph() {
             });
             return;
           }
-          if (!result) return;
+          if (!result || !result.data) return;
           const geneNameToID = new Map<string, string>();
-          for (const gene of result.data?.genes ?? []) {
+          const nodes = result.data.genes.map(gene => {
             if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
-            graph.addNode(gene.ID, {
-              label: gene.Gene_name,
-              ID: gene.ID,
-              description: gene.Description,
-            });
-          }
-          for (const gene of fileData) {
-            const source = geneNameToID.get(gene[fields?.[0]] as string);
-            const target = geneNameToID.get(gene[fields?.[1]] as string);
-            if (!source || !target) continue;
-            graph.mergeEdgeWithKey(`${source}-${target}`, source, target, {
-              score: gene[fields?.[2]] as number,
-              label: gene[fields?.[2]].toString(),
-            });
-          }
-          circlepack.assign(graph);
-          loadGraph(graph);
+            return {
+              key: gene.ID,
+              attributes: {
+                label: gene.Gene_name || '',
+                ID: gene.ID,
+                description: gene.Description || '',
+              },
+            };
+          });
+          const serializedGraph: Partial<SerializedGraph<NodeAttributes, EdgeAttributes>> = {
+            nodes,
+            edges: fileData
+              .map(gene => {
+                const source = geneNameToID.get(gene[fields?.[0]] as string);
+                const target = geneNameToID.get(gene[fields?.[1]] as string);
+                if (!source || !target) return null;
+                return {
+                  key: `${source}-${target}`,
+                  source,
+                  target,
+                  attributes: {
+                    score: gene[fields?.[2]] as number,
+                    label: gene[fields?.[2]].toString(),
+                  },
+                };
+              })
+              .filter(Boolean) as Array<SerializedEdge<EdgeAttributes>>,
+            options: {
+              type: 'directed',
+            },
+          };
+          // Forcefully made this as it was only way to successfuly load graph in this version (don't try to solve it)
+          loadGraph(serializedGraph as unknown as Graph<NodeAttributes, EdgeAttributes>);
           useStore.setState({ geneIDs: geneIDArray, totalNodes: geneIDs.size, totalEdges: fileData.length });
         };
       } else {
@@ -185,19 +196,21 @@ export function LoadGraph() {
                 label: link.score.toString(),
               },
             })),
+            options: {
+              type: 'directed',
+            },
           };
           if (transformedData) {
-            graph.import(transformedData);
-            circlepack.assign(graph);
-            loadGraph(graph);
+            // Forcefully made this as it was only way to successfuly load graph in this version (don't try to solve it)
+            loadGraph(transformedData as unknown as Graph<NodeAttributes, EdgeAttributes>);
             const geneNameToID = new Map<string, string>();
             for (const gene of genes) {
               if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
             }
             useStore.setState({
               geneIDs: transformedData.nodes?.map(node => node.key) || [],
-              totalNodes: graph.order || 0,
-              totalEdges: graph.directedSize || 0,
+              totalNodes: transformedData.nodes?.length || 0,
+              totalEdges: transformedData.edges?.length || 0,
               geneNameToID,
             });
           }

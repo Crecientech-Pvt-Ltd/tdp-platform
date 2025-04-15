@@ -13,7 +13,7 @@ export default function drawEdgeHover(
   const weight = settings.edgeLabelWeight;
 
   // Draw the edge label with an improved design
-  const text = `Score ${data.label || ''}`;
+  const text = `Score ${data.score || ''}`;
   const textWidth = context.measureText(text).width;
   const textHeight = size;
   const padding = 8;

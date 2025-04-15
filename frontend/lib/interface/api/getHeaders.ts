@@ -13,10 +13,6 @@ export type GenePropertyMetadata = {
    * Property description
    */
   description?: string;
-  /**
-   * Whether this property was uploaded by a user
-   */
-  isUserProperty?: boolean;
 };
 
 /**
@@ -51,4 +47,3 @@ export interface GetHeadersVariables {
    */
   disease: string;
 }
-

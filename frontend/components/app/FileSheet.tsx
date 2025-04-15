@@ -177,7 +177,7 @@ export function FileSheet() {
               for (const field of [...DISEASE_DEPENDENT_PROPERTIES, ...DISEASE_INDEPENDENT_PROPERTIES]) {
                 const fieldRegex = new RegExp(`^${field}_`, 'i');
                 if (fieldRegex.test(prop)) {
-                  universalData[geneID].user[field][prop.replace(fieldRegex, '')] = row[prop];
+                  universalData[geneID].user[field][`[USER] ${prop.replace(fieldRegex, '')}`] = row[prop];
                   break;
                 }
               }
@@ -186,8 +186,9 @@ export function FileSheet() {
           for (const prop of parsedData.meta.fields ?? []) {
             if (prop === IDHeaderName) continue;
             for (const field of [...DISEASE_DEPENDENT_PROPERTIES, ...DISEASE_INDEPENDENT_PROPERTIES]) {
-              if (new RegExp(`^${field}_`, 'i').test(prop)) {
-                radioOptions.user[field].push(prop.replace(new RegExp(`^${field}_`, 'i'), ''));
+              const fieldRegex = new RegExp(`^${field}_`, 'i');
+              if (fieldRegex.test(prop)) {
+                radioOptions.user[field].push(`[USER] ${prop.replace(fieldRegex, '')}`);
                 break;
               }
             }

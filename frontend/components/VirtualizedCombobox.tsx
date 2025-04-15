@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import type { GenePropertyMetadata, RadioOptions } from '@/lib/interface';
-import type { GeneProperties } from '@/lib/data';
+import type { GenePropertyMetadata } from '@/lib/interface';
 import { cn, getProperty } from '@/lib/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Check, ChevronsUpDown, Info, ListCheck } from 'lucide-react';
@@ -18,8 +17,6 @@ interface VirtualizedCommandProps {
   loading?: boolean;
   width?: string;
   multiselect?: boolean;
-  radioOptions: RadioOptions;
-  selectedRadio: GeneProperties;
 }
 
 const VirtualizedCommand = ({
@@ -30,8 +27,6 @@ const VirtualizedCommand = ({
   loading,
   width,
   multiselect = false,
-  radioOptions,
-  selectedRadio,
 }: VirtualizedCommandProps) => {
   const [filteredOptions, setFilteredOptions] = React.useState<(string | GenePropertyMetadata)[]>(options);
   const parentRef = React.useRef<HTMLDivElement>(null);
@@ -87,8 +82,6 @@ const VirtualizedCommand = ({
             {virtualOptions.map(virtualOption => {
               const option = filteredOptions[virtualOption.index];
               const value = getProperty(option);
-              const isUserProperty =
-                typeof option === 'string' ? radioOptions.user[selectedRadio]?.includes(value) : option.isUserProperty;
               return (
                 <CommandItem
                   className='absolute flex justify-between w-full overflow-visible'
@@ -108,10 +101,8 @@ const VirtualizedCommand = ({
                           : 'opacity-0',
                       )}
                     />
-                    <div className='flex items-center gap-1'>
-                      <span>{value}</span>
-                      <span className='text-xs'>{isUserProperty ? '[USER]' : ''}</span>
-                    </div>
+                    {value.startsWith('[USER]') && <b className='mr-1'>[USER]</b>}
+                    {value.replace('[USER]', '')}
                   </div>
                   {typeof option !== 'string' && option.description && (
                     <Tooltip>
@@ -143,8 +134,6 @@ interface VirtualizedComboboxProps {
   onChange: (value: string | Set<string>) => void;
   align?: 'start' | 'end' | 'center';
   multiselect?: boolean;
-  radioOptions: RadioOptions;
-  selectedRadio: GeneProperties;
 }
 
 export function VirtualizedCombobox({
@@ -157,21 +146,8 @@ export function VirtualizedCombobox({
   onChange,
   align = 'start',
   multiselect = false,
-  radioOptions,
-  selectedRadio,
 }: VirtualizedComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false);
-
-  const selectedItem = data?.find(item => {
-    const propertyName = typeof item === 'string' ? item : item.name;
-    return multiselect && value instanceof Set ? value.has(propertyName) : value === propertyName;
-  });
-
-  const isSelectedUserProperty = selectedItem
-    ? typeof selectedItem === 'string'
-      ? selectedRadio && radioOptions?.user[selectedRadio]?.includes(selectedItem)
-      : selectedItem.isUserProperty
-    : false;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -185,20 +161,13 @@ export function VirtualizedCombobox({
             className,
           )}
         >
-          {selectedItem ? (
-            <div className='flex items-center gap-2'>
-              <span className='truncate'>{typeof selectedItem === 'string' ? selectedItem : selectedItem.name}</span>
-              <span className='text-xs'>{isSelectedUserProperty ? '[USER]' : ''}</span>
-            </div>
-          ) : (
-            <span className='truncate'>
-              {multiselect && value instanceof Set
-                ? value.size
-                  ? `${value.size} selected`
-                  : searchPlaceholder
-                : value || searchPlaceholder}
-            </span>
-          )}
+          <span className='truncate'>
+            {multiselect && value instanceof Set
+              ? value.size
+                ? `${value.size} selected`
+                : searchPlaceholder
+              : value || searchPlaceholder}
+          </span>
           <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0' />
         </Button>
       </PopoverTrigger>
@@ -234,11 +203,8 @@ export function VirtualizedCombobox({
           }}
           loading={loading}
           width={width}
-          radioOptions={radioOptions}
-          selectedRadio={selectedRadio}
         />
       </PopoverContent>
     </Popover>
   );
 }
-

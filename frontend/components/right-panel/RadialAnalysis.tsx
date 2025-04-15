@@ -77,8 +77,6 @@ export function RadialAnalysis() {
                       setIsGeneDegree(value === 'Gene Degree');
                       updateRadialAnalysis(value, 'nodeDegreeProperty');
                     }}
-                    radioOptions={radioOptions}
-                    selectedRadio='TE'
                   />
                 )}
               </div>
@@ -101,4 +99,3 @@ export function RadialAnalysis() {
     </Collapsible>
   );
 }
-

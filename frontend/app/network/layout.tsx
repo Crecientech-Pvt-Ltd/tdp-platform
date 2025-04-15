@@ -29,7 +29,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           <LeftSideBar />
         </ResizablePanel>
         <ResizableHandle withHandle className={leftSidebar ? 'flex' : 'hidden'} />
-        <ResizablePanel defaultSize={68} className='bg-white h-full'>
+        <ResizablePanel defaultSize={68} className='bg-white h-full w-full'>
           {children}
         </ResizablePanel>
         <ResizableHandle withHandle className={rightSidebar ? 'flex' : 'hidden'} />

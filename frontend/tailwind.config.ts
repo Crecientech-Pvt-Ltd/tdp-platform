@@ -1,65 +1,63 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
-    darkMode: ["class"],
-    content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  darkMode: ['class'],
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-  	extend: {
-  		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'white',
-  				foreground: 'hsl(var(--old-tool-primary))',
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--old-tool-primary))',
-  				foreground: 'black'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--old-tool-secondary))',
-  				foreground: 'black'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--old-tool-secondary))',
-  				foreground: 'hsl(var(--old-tool-primary))',
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--old-tool-primary))',
-  				foreground: 'white'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--old-tool-primary))',
-  				foreground: 'hsl(var(--old-tool-secondary))',
-  			},
-  			border: 'hsl(var(--old-tool-primary))',
-  			input: 'hsl(var(--old-tool-primary))',
-  			ring: 'hsl(var(--old-tool-primary))',
-  			chart: {
-  				'1': 'hsl(var(--old-tool-primary))',
-  				'2': 'hsl(var(--old-tool-primary))',
-  				'3': 'hsl(var(--old-tool-primary))',
-  				'4': 'hsl(var(--old-tool-primary))',
-  				'5': 'hsl(var(--old-tool-primary))',
-  			},
-			// oldtoolprimary: 'hsl(var(--old-tool-primary))',
-			// oldtoolsecondary: 'hsl(var(--old-tool-secondary))',
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		}
-  	}
+    extend: {
+      colors: {
+        background: 'white',
+        foreground: '#273386',
+        card: {
+          DEFAULT: 'white',
+          foreground: '#273386',
+        },
+        popover: {
+          DEFAULT: 'white',
+          foreground: '#273386',
+        },
+        primary: {
+          DEFAULT: '#273386',
+          foreground: 'white',
+        },
+        secondary: {
+          DEFAULT: 'white',
+          foreground: '#273386',
+        },
+        muted: {
+          DEFAULT: '#f3f4f6',
+          foreground: '#273386',
+        },
+        accent: {
+          DEFAULT: '#EFAB00',
+          foreground: '#273386',
+        },
+        destructive: {
+          DEFAULT: '#273386',
+          foreground: 'white',
+        },
+        border: '#273386',
+        input: '#273386',
+        ring: '#273386',
+        chart: {
+          '1': '#273386',
+          '2': '#C50F23',
+          '3': '#8A0051',
+          '4': '#EFAB00',
+          '5': '#273386',
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+    },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require('tailwindcss-animate')],
 };
 export default config;

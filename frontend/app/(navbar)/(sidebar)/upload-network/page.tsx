@@ -101,7 +101,7 @@ export default function UploadFile() {
     <div className='mx-auto border rounded-lg shadow-md h-full'>
       <h2
         style={{
-          background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+          background: '#273386',
         }}
         className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
       >
@@ -110,7 +110,9 @@ export default function UploadFile() {
       <form action={handleSubmit}>
         <div className='space-y-4 px-8'>
           <div>
-            <Label htmlFor='fileType'>Select File Type</Label>
+            <Label htmlFor='fileType' className='text-gray-900'>
+              Select File Type
+            </Label>
             <Select value={fileType} onValueChange={val => setFileType(val as 'csv' | 'json')}>
               <SelectTrigger id='fileType'>
                 <SelectValue placeholder='Select file type' />
@@ -123,15 +125,17 @@ export default function UploadFile() {
           </div>
           <div>
             <div className='flex justify-between items-center'>
-              <Label htmlFor='fileUpload'>Upload {fileType.toUpperCase()}</Label>
-              <p className='text-zinc-500 lg:text-base sm:text-sm text-xs'>
+              <Label htmlFor='fileUpload' className='text-gray-900'>
+                Upload {fileType.toUpperCase()}
+              </Label>
+              <p className='text-gray-600 lg:text-base sm:text-sm text-xs'>
                 (1st & 2nd columns need to be ENSG IDs or Gene name,
                 <br />
                 while 3rd column should be interaction score; examples:{' '}
-                <a href={'/example1.csv'} download className='underline'>
+                <a href={'/example1.csv'} download className='underline text-gray-600 hover:text-gray-900'>
                   #1
                 </a>{' '}
-                <a href={'/example2.csv'} download className='underline'>
+                <a href={'/example2.csv'} download className='underline text-gray-600 hover:text-gray-900'>
                   #2
                 </a>
                 )
@@ -143,15 +147,15 @@ export default function UploadFile() {
               accept='.csv,.json'
               onChange={handleFileChange}
               required
-              className='border-2 hover:border-dashed cursor-pointer h-9'
+              className='border-2 hover:border-dashed cursor-pointer h-9 text-gray-900'
             />
           </div>
           <Button
             style={{
-              background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+              background: '#273386',
             }}
             type='submit'
-            className='w-full'
+            className='w-full hover:opacity-90 transition-opacity text-white'
           >
             {loading && <Loader className='animate-spin mr-2' size={20} />} Submit
           </Button>
@@ -165,7 +169,7 @@ export default function UploadFile() {
         handleGenerateGraph={handleGenerateGraph}
       />
       <div className='mt-6 px-8'>
-        <h3 className='text-lg font-semibold mb-2'>File Format</h3>
+        <h3 className='text-lg font-semibold mb-2 text-gray-900'>File Format</h3>
         <Image
           src={'/image/uploadFormat.png'}
           width={400}

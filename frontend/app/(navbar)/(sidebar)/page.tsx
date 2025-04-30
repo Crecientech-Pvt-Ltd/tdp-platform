@@ -159,7 +159,7 @@ export default function Home() {
     <div className='mx-auto border rounded-lg shadow-md h-full'>
       <h2
         style={{
-          background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+          background: '#273386',
         }}
         className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
       >
@@ -169,11 +169,13 @@ export default function Home() {
         <div className='space-y-4 px-8'>
           <div>
             <div className='flex justify-between'>
-              <Label htmlFor='seedGenes'>Seed Genes</Label>
-              <p className='text-zinc-500'>
+              <Label htmlFor='seedGenes' className='text-gray-900'>
+                Seed Genes
+              </Label>
+              <p className='text-gray-600'>
                 (one-per-line or CSV; examples: {/* biome-ignore lint/a11y/useKeyWithClickEvents: required */}
                 <span
-                  className='underline cursor-pointer'
+                  className='underline cursor-pointer text-gray-600 hover:text-gray-900'
                   onClick={() => {
                     setFormData({
                       ...formData,
@@ -185,7 +187,7 @@ export default function Home() {
                 </span>{' '}
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <span
-                  className='underline cursor-pointer'
+                  className='underline cursor-pointer text-gray-600 hover:text-gray-900'
                   onClick={() => {
                     setFormData({
                       ...formData,
@@ -202,7 +204,7 @@ ENSG00000162063`,
                 </span>{' '}
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <span
-                  className='underline cursor-pointer'
+                  className='underline cursor-pointer text-gray-600 hover:text-gray-900'
                   onClick={() => {
                     setFormData({
                       ...formData,
@@ -224,30 +226,34 @@ FIG4`,
               rows={6}
               id='seedGenes'
               placeholder='Type seed genes in either , or new line separated format'
-              className='mt-1'
+              className='mt-1 text-gray-900'
               value={formData.seedGenes}
               onChange={handleSeedGenesChange}
               required
             />
-            <center>OR</center>
-            <Label htmlFor='seedFile'>Upload Text File</Label>
+            <center className='text-gray-600'>OR</center>
+            <Label htmlFor='seedFile' className='text-gray-900'>
+              Upload Text File
+            </Label>
             <Input
               id='seedFile'
               type='file'
               accept='.txt'
-              className='border-2 hover:border-dashed cursor-pointer h-9'
+              className='border-2 hover:border-dashed cursor-pointer h-9 text-gray-900'
               onChange={handleFileRead}
             />
           </div>
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
             <div className='space-y-1'>
               <div className='flex items-end gap-1'>
-                <Label htmlFor='diseaseMap'>Disease Map</Label>
+                <Label htmlFor='diseaseMap' className='text-gray-900'>
+                  Disease Map
+                </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info size={12} />
+                    <Info size={12} className='text-gray-600' />
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent className='text-gray-900'>
                     Contains the disease name to be mapped taken from OpenTargets Portal. <br />
                     <b>Note:</b> To search disease using its ID, type disease ID in parentheses.
                   </TooltipContent>
@@ -259,27 +265,29 @@ FIG4`,
                 onChange={val => typeof val === 'string' && handleSelect(val, 'diseaseMap')}
                 placeholder='Search Disease...'
                 loading={diseaseData === null}
-                className='w-full'
+                className='w-full text-gray-900'
               />
             </div>
             {graphConfig.map(config => (
               <div key={config.id} className='space-y-1'>
                 <div className='flex items-end gap-1'>
-                  <Label htmlFor={config.id}>{config.name}</Label>
+                  <Label htmlFor={config.id} className='text-gray-900'>
+                    {config.name}
+                  </Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info size={12} />
+                      <Info size={12} className='text-gray-600' />
                     </TooltipTrigger>
-                    <TooltipContent>{config.tooltipContent}</TooltipContent>
+                    <TooltipContent className='text-gray-900'>{config.tooltipContent}</TooltipContent>
                   </Tooltip>
                 </div>
                 <Select required value={formData[config.id]} onValueChange={val => handleSelect(val, config.id)}>
-                  <SelectTrigger id={config.id}>
+                  <SelectTrigger id={config.id} className='text-gray-900'>
                     <SelectValue placeholder='Select...' />
                   </SelectTrigger>
                   <SelectContent>
                     {config.options.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem key={option.value} value={option.value} className='text-gray-900'>
                         {option.label}
                       </SelectItem>
                     ))}
@@ -292,9 +300,9 @@ FIG4`,
             <Button
               type='submit'
               style={{
-                background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+                background: '#273386',
               }}
-              className='w-3/4 mb-4'
+              className='w-3/4 mb-4 hover:opacity-90 transition-opacity text-white'
             >
               {loading ? (
                 <>

@@ -11,44 +11,44 @@ const config: Config = {
     extend: {
       colors: {
         background: 'white',
-        foreground: '#273386',
+        foreground: 'black',
         card: {
           DEFAULT: 'white',
-          foreground: '#273386',
+          foreground: 'black',
         },
         popover: {
           DEFAULT: 'white',
-          foreground: '#273386',
+          foreground: 'black',
         },
         primary: {
-          DEFAULT: '#273386',
+          DEFAULT: '#5EA7CC',
           foreground: 'white',
         },
         secondary: {
           DEFAULT: 'white',
-          foreground: '#273386',
+          foreground: 'black',
         },
         muted: {
           DEFAULT: '#f3f4f6',
-          foreground: '#273386',
+          foreground: 'black',
         },
         accent: {
           DEFAULT: '#EFAB00',
-          foreground: '#273386',
+          foreground: 'black',
         },
         destructive: {
-          DEFAULT: '#273386',
+          DEFAULT: '#5EA7CC',
           foreground: 'white',
         },
-        border: '#273386',
-        input: '#273386',
-        ring: '#273386',
+        border: '#5EA7CC',
+        input: '#5EA7CC',
+        ring: '#5EA7CC',
         chart: {
-          '1': '#273386',
+          '1': '#5EA7CC',
           '2': '#C50F23',
           '3': '#8A0051',
           '4': '#EFAB00',
-          '5': '#273386',
+          '5': '#5EA7CC',
         },
       },
       borderRadius: {

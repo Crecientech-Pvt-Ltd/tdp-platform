@@ -1,5 +1,4 @@
 import tdp_logo from '@/public/image/tdp_logo.png';
-import logo from '@/public/image/logo.png';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
 
@@ -21,8 +20,6 @@ export default function Navbar() {
           <Link href={'/docs/CHANGELOG'} className='text-xs sm:text-sm hover:text-gray-200 transition-colors'>
             Version: 2.0.0-beta
           </Link>
-
-          <Image src={logo} alt='logo' className='w-32 sm:w-40 h-auto bg-white rounded-lg shadow-sm' />
         </div>
       </div>
     </header>

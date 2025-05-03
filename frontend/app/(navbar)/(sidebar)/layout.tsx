@@ -9,13 +9,13 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
   return (
     <div className='container mx-auto p-4'>
       <div className='w-full flex gap-8 flex-col md:flex-row'>
-        <div className='md:w-[280px] w-full bg-[#273386] rounded-lg shadow-sm'>
+        <div className='md:w-[280px] w-full bg-[#5EA7CC] rounded-lg shadow-sm'>
           <ul className='p-4 grid gap-1 font-medium'>
             <li>
               <Link
                 href='/'
                 className={`flex items-center p-3 rounded-lg transition-all duration-200
-                  ${pathname === '/' ? 'bg-white text-[#273386] shadow-sm' : 'text-white hover:bg-white/10'}`}
+                  ${pathname === '/' ? 'bg-white text-[#5EA7CC] shadow-sm' : 'text-white hover:bg-white/10'}`}
               >
                 <Search size={20} className='mr-3' /> Search By Proteins
               </Link>
@@ -26,7 +26,7 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
                 className={`flex items-center p-3 rounded-lg transition-all duration-200
                   ${
                     pathname === '/upload-network'
-                      ? 'bg-white text-[#273386] shadow-sm'
+                      ? 'bg-white text-[#5EA7CC] shadow-sm'
                       : 'text-white hover:bg-white/10'
                   }`}
               >
@@ -39,7 +39,7 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
                 className={`flex items-center p-3 rounded-lg transition-all duration-200
                   ${
                     pathname === '/tutorial-video'
-                      ? 'bg-white text-[#273386] shadow-sm'
+                      ? 'bg-white text-[#5EA7CC] shadow-sm'
                       : 'text-white hover:bg-white/10'
                   }`}
               >
@@ -50,7 +50,7 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
               <Link
                 href='/docs'
                 className={`flex items-center p-3 rounded-lg transition-all duration-200
-                  ${pathname === '/docs' ? 'bg-white text-[#273386] shadow-sm' : 'text-white hover:bg-white/10'}`}
+                  ${pathname === '/docs' ? 'bg-white text-[#5EA7CC] shadow-sm' : 'text-white hover:bg-white/10'}`}
               >
                 <Clipboard size={20} className='mr-3' /> Documentation
               </Link>

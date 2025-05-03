@@ -101,7 +101,7 @@ export default function UploadFile() {
     <div className='mx-auto border rounded-lg shadow-md h-full'>
       <h2
         style={{
-          background: '#273386',
+          background: '#5EA7CC',
         }}
         className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
       >
@@ -110,7 +110,7 @@ export default function UploadFile() {
       <form action={handleSubmit}>
         <div className='space-y-4 px-8'>
           <div>
-            <Label htmlFor='fileType' className='text-gray-900'>
+            <Label htmlFor='fileType' className='text-black'>
               Select File Type
             </Label>
             <Select value={fileType} onValueChange={val => setFileType(val as 'csv' | 'json')}>
@@ -125,17 +125,17 @@ export default function UploadFile() {
           </div>
           <div>
             <div className='flex justify-between items-center'>
-              <Label htmlFor='fileUpload' className='text-gray-900'>
+              <Label htmlFor='fileUpload' className='text-black'>
                 Upload {fileType.toUpperCase()}
               </Label>
-              <p className='text-gray-600 lg:text-base sm:text-sm text-xs'>
+              <p className='text-black lg:text-base sm:text-sm text-xs'>
                 (1st & 2nd columns need to be ENSG IDs or Gene name,
                 <br />
                 while 3rd column should be interaction score; examples:{' '}
-                <a href={'/example1.csv'} download className='underline text-gray-600 hover:text-gray-900'>
+                <a href={'/example1.csv'} download className='underline text-black hover:text-black/80'>
                   #1
                 </a>{' '}
-                <a href={'/example2.csv'} download className='underline text-gray-600 hover:text-gray-900'>
+                <a href={'/example2.csv'} download className='underline text-black hover:text-black/80'>
                   #2
                 </a>
                 )
@@ -147,12 +147,12 @@ export default function UploadFile() {
               accept='.csv,.json'
               onChange={handleFileChange}
               required
-              className='border-2 hover:border-dashed cursor-pointer h-9 text-gray-900'
+              className='border-2 hover:border-dashed cursor-pointer h-9 text-black'
             />
           </div>
           <Button
             style={{
-              background: '#273386',
+              background: '#5EA7CC',
             }}
             type='submit'
             className='w-full hover:opacity-90 transition-opacity text-white'
@@ -169,7 +169,7 @@ export default function UploadFile() {
         handleGenerateGraph={handleGenerateGraph}
       />
       <div className='mt-6 px-8'>
-        <h3 className='text-lg font-semibold mb-2 text-gray-900'>File Format</h3>
+        <h3 className='text-lg font-semibold mb-2 text-black'>File Format</h3>
         <Image
           src={'/image/uploadFormat.png'}
           width={400}

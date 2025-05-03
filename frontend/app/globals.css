@@ -5,44 +5,44 @@
 @layer base {
   :root {
     --background: white;
-    --foreground: #273386;
+    --foreground: black;
     --card: white;
-    --card-foreground: #273386;
+    --card-foreground: black;
     --popover: white;
-    --popover-foreground: #273386;
-    --primary: #273386;
+    --popover-foreground: black;
+    --primary: #5ea7cc;
     --primary-foreground: white;
     --secondary: white;
-    --secondary-foreground: #273386;
+    --secondary-foreground: black;
     --muted: #f3f4f6;
-    --muted-foreground: #273386;
+    --muted-foreground: black;
     --accent: #efab00;
-    --accent-foreground: #273386;
-    --destructive: #273386;
+    --accent-foreground: black;
+    --destructive: #5ea7cc;
     --destructive-foreground: white;
-    --border: #273386;
-    --input: #273386;
-    --ring: #273386;
+    --border: #5ea7cc;
+    --input: #5ea7cc;
+    --ring: #5ea7cc;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: #273386;
+    --background: #5ea7cc;
     --foreground: white;
     --card: #1e2968;
     --card-foreground: white;
     --popover: #1e2968;
     --popover-foreground: white;
     --primary: white;
-    --primary-foreground: #273386;
+    --primary-foreground: black;
     --secondary: #1e2968;
     --secondary-foreground: white;
     --muted: #1e2968;
     --muted-foreground: white;
     --accent: #efab00;
-    --accent-foreground: #273386;
+    --accent-foreground: black;
     --destructive: white;
-    --destructive-foreground: #273386;
+    --destructive-foreground: black;
     --border: white;
     --input: #1e2968;
     --ring: #efab00;

@@ -3,10 +3,12 @@ import Footer from '@/components/Footer';
 
 export default function NavbarLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className='flex flex-col min-h-screen'>
+    <div className='h-screen flex flex-col overflow-hidden'>
       <Navbar />
-      <main className='flex-1'>{children}</main>
-      <Footer />
+      <div className='flex-1 flex flex-col'>
+        <main className='flex-1'>{children}</main>
+        <Footer />
+      </div>
     </div>
   );
 }

@@ -185,7 +185,7 @@ export default function Home() {
       >
         Search by Multiple Proteins
       </h2>
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 px-8'>
+      <div className='grid grid-cols-1 xl:grid-cols-2 gap-6 px-8'>
         <div>
           <form onSubmit={handleSubmit}>
             <div className='space-y-4'>
@@ -264,17 +264,17 @@ FIG4`,
                   onChange={handleFileRead}
                 />
               </div>
-              <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
-                <div className='space-y-1'>
-                  <div className='flex items-end gap-1'>
-                    <Label htmlFor='diseaseMap' className='text-black'>
+              <div className='grid grid-cols-2 gap-6 mb-8'>
+                <div className='space-y-2 min-w-[200px]'>
+                  <div className='flex items-center gap-1 h-6'>
+                    <Label htmlFor='diseaseMap' className='text-black font-medium whitespace-nowrap'>
                       Disease Map
                     </Label>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info size={12} className='text-black' />
+                        <Info size={14} className='text-gray-500 shrink-0' />
                       </TooltipTrigger>
-                      <TooltipContent className='text-black'>
+                      <TooltipContent side='bottom' align='start' className='text-white w-[300px]'>
                         Contains the disease name to be mapped taken from OpenTargets Portal. <br />
                         <b>Note:</b> To search disease using its ID, type disease ID in parentheses.
                       </TooltipContent>
@@ -286,24 +286,30 @@ FIG4`,
                     onChange={val => typeof val === 'string' && handleSelect(val, 'diseaseMap')}
                     placeholder='Search Disease...'
                     loading={diseaseData === null}
-                    className='w-full text-black'
+                    className='w-full text-black bg-white rounded-md border border-gray-200'
+                    width='400px'
                   />
                 </div>
                 {graphConfig.map(config => (
-                  <div key={config.id} className='space-y-1'>
-                    <div className='flex items-end gap-1'>
-                      <Label htmlFor={config.id} className='text-black'>
+                  <div key={config.id} className='space-y-2'>
+                    <div className='flex items-center gap-1 h-6'>
+                      <Label htmlFor={config.id} className='text-black font-medium whitespace-nowrap'>
                         {config.name}
                       </Label>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info size={12} className='text-black' />
+                          <Info size={14} className='text-gray-500 shrink-0' />
                         </TooltipTrigger>
-                        <TooltipContent className='text-black'>{config.tooltipContent}</TooltipContent>
+                        <TooltipContent side='bottom' align='start' className='text-white w-[300px]'>
+                          {config.tooltipContent}
+                        </TooltipContent>
                       </Tooltip>
                     </div>
                     <Select required value={formData[config.id]} onValueChange={val => handleSelect(val, config.id)}>
-                      <SelectTrigger id={config.id} className='text-black'>
+                      <SelectTrigger
+                        id={config.id}
+                        className='text-black bg-white border border-gray-200 hover:border-gray-300 h-10'
+                      >
                         <SelectValue placeholder='Select...' />
                       </SelectTrigger>
                       <SelectContent>
@@ -320,10 +326,7 @@ FIG4`,
               <center>
                 <Button
                   type='submit'
-                  style={{
-                    background: '#5EA7CC',
-                  }}
-                  className='w-3/4 mb-4 hover:opacity-90 transition-opacity text-white'
+                  className='w-3/4 mb-4 bg-[#5EA7CC] hover:bg-[#4A96BB] transition-colors text-white rounded-xl py-3 text-lg font-medium'
                 >
                   {loading ? (
                     <>

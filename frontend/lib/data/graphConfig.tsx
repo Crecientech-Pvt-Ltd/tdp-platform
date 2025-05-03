@@ -39,7 +39,7 @@ export const graphConfig = [
     id: 'order',
     tooltipContent: (
       <>
-        <u>Control how graph is created</u> <br />
+        <u>Control how the graph is created</u> <br />
         <b>0 order:</b> only interconnections between seed genes
         <br />
         <b>1st order:</b> connections between seed genes and their first neighbors

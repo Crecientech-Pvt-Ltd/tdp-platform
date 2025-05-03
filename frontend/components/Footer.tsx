@@ -14,7 +14,7 @@ export default function Footer() {
               className='hover:opacity-80 transition-opacity'
             >
               <Image
-                src='/image/AstraZeneca.png'
+                src='/image/astrazeneca.png'
                 alt='AstraZeneca Logo'
                 width={180}
                 height={40}

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { GenePropertyMetadata } from '@/lib/interface';
 import { cn, getProperty } from '@/lib/utils';
@@ -70,56 +70,54 @@ const VirtualizedCommand = ({
         )}
       </CommandInput>
       {loading ? <Spinner variant={1} size={'small'} /> : <CommandEmpty>No Result Found.</CommandEmpty>}
-      <CommandGroup>
-        <CommandList ref={parentRef}>
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {virtualOptions.map(virtualOption => {
-              const option = filteredOptions[virtualOption.index];
-              const value = getProperty(option);
-              return (
-                <CommandItem
-                  className='absolute flex justify-between w-full overflow-visible'
-                  style={{
-                    transform: `translateY(${virtualOption.start}px)`,
-                  }}
-                  key={value}
-                  value={value}
-                  onSelect={onSelectOption}
-                >
-                  <div className='flex items-center'>
-                    <Check
-                      className={cn(
-                        'mr-2 h-4 w-4',
-                        (selectedOption instanceof Set ? selectedOption.has(value) : selectedOption === value)
-                          ? 'opacity-100'
-                          : 'opacity-0',
-                      )}
-                    />
-                    {value.startsWith('[USER]') && <b className='mr-1'>[USER]</b>}
-                    {value.replace('[USER]', '')}
-                  </div>
-                  {typeof option !== 'string' && option.description && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className='h-4 w-4 ml-2 cursor-pointer' />
-                      </TooltipTrigger>
-                      <TooltipContent side='left' align='start' className='max-w-48 text-white'>
-                        {option.description}
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </CommandItem>
-              );
-            })}
-          </div>
-        </CommandList>
-      </CommandGroup>
+      <CommandList ref={parentRef} className='max-h-[200px] overflow-auto'>
+        <div
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualOptions.map(virtualOption => {
+            const option = filteredOptions[virtualOption.index];
+            const value = getProperty(option);
+            return (
+              <CommandItem
+                className='absolute flex justify-between w-full overflow-visible'
+                style={{
+                  transform: `translateY(${virtualOption.start}px)`,
+                }}
+                key={value}
+                value={value}
+                onSelect={onSelectOption}
+              >
+                <div className='flex items-center'>
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      (selectedOption instanceof Set ? selectedOption.has(value) : selectedOption === value)
+                        ? 'opacity-100'
+                        : 'opacity-0',
+                    )}
+                  />
+                  {value.startsWith('[USER]') && <b className='mr-1'>[USER]</b>}
+                  {value.replace('[USER]', '')}
+                </div>
+                {typeof option !== 'string' && option.description && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className='h-4 w-4 ml-2 cursor-pointer' />
+                    </TooltipTrigger>
+                    <TooltipContent side='left' align='start' className='max-w-48 text-white'>
+                      {option.description}
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </CommandItem>
+            );
+          })}
+        </div>
+      </CommandList>
     </Command>
   );
 };
@@ -171,7 +169,10 @@ export function VirtualizedCombobox({
           <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align={align} className={cn(`w-[${width || '200px'}] p-0`, className)}>
+      <PopoverContent
+        align={align}
+        className='p-0 w-[var(--radix-popover-trigger-width)] max-h-[300px] overflow-hidden'
+      >
         <VirtualizedCommand
           multiselect={multiselect}
           options={data}

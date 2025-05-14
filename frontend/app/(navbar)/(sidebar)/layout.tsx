@@ -9,14 +9,14 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
   return (
     <div className='container mx-auto p-4'>
       <div className='w-full flex gap-8 flex-col md:flex-row'>
-        <div className='md:w-[280px] w-full bg-[#5EA7CC] rounded-lg shadow-sm bg-[url("/image/dna.png")] bg-cover bg-center bg-no-repeat relative'>
+        <div className='md:w-[280px] md:h-screen md:sticky md:top-4 w-full bg-[#5EA7CC] rounded-lg shadow-sm bg-[url("/image/dna.png")] bg-cover bg-center bg-no-repeat relative'>
           <div className='absolute inset-0 bg-[#5EA7CC]/50 rounded-lg'></div>
           <ul className='p-4 grid gap-1 font-medium relative z-10'>
             <li>
               <Link
                 href='/'
                 className={`flex items-center p-3 rounded-lg transition-all duration-200
-                  ${pathname === '/' ? 'bg-white text-[#2B5876] shadow-sm' : 'text-white hover:bg-white/10'}`}
+                  ${pathname === '/' ? 'bg-white text-[#2B5876] shadow-sm' : 'text-white border border-white border-opacity-70 hover:bg-white/10'}`}
               >
                 <Search size={20} className='mr-3' /> Search By Proteins
               </Link>
@@ -28,7 +28,7 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
                   ${
                     pathname === '/upload-network'
                       ? 'bg-white text-[#2B5876] shadow-sm'
-                      : 'text-white hover:bg-white/10'
+                      : 'text-white border border-white border-opacity-70 hover:bg-white/10'
                   }`}
               >
                 <Upload size={20} className='mr-3' /> Upload Network
@@ -41,7 +41,7 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
                   ${
                     pathname === '/tutorial-video'
                       ? 'bg-white text-[#2B5876] shadow-sm'
-                      : 'text-white hover:bg-white/10'
+                      : 'text-white border border-white border-opacity-70 hover:bg-white/10'
                   }`}
               >
                 <Video size={20} className='mr-3' /> Tutorial Video
@@ -51,7 +51,11 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
               <Link
                 href='/docs'
                 className={`flex items-center p-3 rounded-lg transition-all duration-200
-                  ${pathname === '/docs' ? 'bg-white text-[#2B5876] shadow-sm' : 'text-white hover:bg-white/10'}`}
+                  ${
+                    pathname === '/docs'
+                      ? 'bg-white text-[#2B5876] shadow-sm'
+                      : 'text-white border border-white border-opacity-70 hover:bg-white/10'
+                  }`}
               >
                 <Clipboard size={20} className='mr-3' /> Documentation
               </Link>

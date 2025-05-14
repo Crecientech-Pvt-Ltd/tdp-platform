@@ -3,7 +3,7 @@ import { Link } from 'next-view-transitions';
 
 export default function Footer() {
   return (
-    <footer className='bg-primary text-white py-6 mt-auto'>
+    <footer className='bg-nav text-white py-6 mt-auto'>
       <div className='container mx-auto px-4'>
         <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
           <div className='flex items-center gap-8'>

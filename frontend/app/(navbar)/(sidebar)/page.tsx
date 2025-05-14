@@ -191,7 +191,7 @@ export default function Home() {
     <div className='mx-auto border rounded-lg shadow-md min-h-screen overflow-y-auto'>
       <h2
         style={{
-          background: '#5EA7CC',
+          background: '#2B5876',
         }}
         className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
       >
@@ -348,7 +348,7 @@ FIG4`,
               <center>
                 <Button
                   type='submit'
-                  className='w-3/4 mb-4 bg-[#5EA7CC] hover:bg-[#4A96BB] transition-colors text-white rounded-xl py-3 text-lg font-medium'
+                  className='w-3/4 mb-4 bg-[#2B5876] hover:bg-[#1A365D] transition-colors text-white rounded-xl py-3 text-lg font-medium'
                 >
                   {loading ? (
                     <>
@@ -400,7 +400,7 @@ FIG4`,
                 handleGenerateGraph(true);
                 document.body.removeAttribute('style');
               }}
-              className='bg-[#5EA7CC] hover:bg-[#4A96BB] text-white'
+              className='bg-[#2B5876] hover:bg-[#1A365D] text-white'
             >
               Continue
             </AlertDialogAction>

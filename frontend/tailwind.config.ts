@@ -24,6 +24,10 @@ const config: Config = {
           DEFAULT: '#5EA7CC',
           foreground: 'white',
         },
+        nav: {
+          DEFAULT: '#2B5876',
+          foreground: 'white',
+        },
         secondary: {
           DEFAULT: 'white',
           foreground: 'black',
@@ -37,18 +41,18 @@ const config: Config = {
           foreground: 'black',
         },
         destructive: {
-          DEFAULT: '#5EA7CC',
+          DEFAULT: '#1A365D',
           foreground: 'white',
         },
-        border: '#5EA7CC',
-        input: '#5EA7CC',
-        ring: '#5EA7CC',
+        border: '#2B5876',
+        input: '#2B5876',
+        ring: '#2B5876',
         chart: {
-          '1': '#5EA7CC',
+          '1': '#2B5876',
           '2': '#C50F23',
           '3': '#8A0051',
           '4': '#EFAB00',
-          '5': '#5EA7CC',
+          '5': '#2B5876',
         },
       },
       borderRadius: {

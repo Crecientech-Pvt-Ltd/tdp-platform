@@ -101,7 +101,7 @@ export default function UploadFile() {
     <div className='mx-auto border rounded-lg shadow-md h-full'>
       <h2
         style={{
-          background: '#5EA7CC',
+          background: '#2B5876',
         }}
         className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
       >
@@ -152,10 +152,10 @@ export default function UploadFile() {
           </div>
           <Button
             style={{
-              background: '#5EA7CC',
+              background: '#2B5876',
             }}
             type='submit'
-            className='w-full hover:opacity-90 transition-opacity text-white'
+            className='w-full hover:bg-[#1A365D] transition-colors text-white'
           >
             {loading && <Loader className='animate-spin mr-2' size={20} />} Submit
           </Button>

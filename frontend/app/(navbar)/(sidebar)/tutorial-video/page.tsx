@@ -2,7 +2,7 @@ import tutorialVideos from '@/lib/data/tutorial-video.json';
 
 export default function TutorialVideoPage() {
   return (
-    <div className='rounded-md shadow-md p-4'>
+    <div className='rounded-md shadow-md p-4 text-black'>
       <div className='space-y-8'>
         {tutorialVideos.map(video => (
           <div key={video.title} className='flex flex-col lg:flex-row gap-4'>

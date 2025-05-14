@@ -4,60 +4,48 @@
 
 @layer base {
   :root {
-    --background: 180 25% 95%; /* Light teal background */
-    --foreground: 180 28% 20%; /* Dark teal for text */
-    --card: 180 25% 95%; /* Matching card background */
-    --card-foreground: 180 28% 20%; /* Text on cards */
-    --popover: 180 25% 95%;
-    --popover-foreground: 180 28% 20%;
-    --primary: 180 60% 35%; /* Teal for primary elements */
-    --primary-foreground: 180 100% 98%; /* White text on primary */
-    --secondary: 180 25% 80%; /* Lighter teal for secondary elements */
-    --secondary-foreground: 180 28% 20%; /* Darker text on secondary */
-    --muted: 180 25% 80%;
-    --muted-foreground: 180 28% 45%;
-    --accent: 180 60% 40%; /* Accent with a darker teal */
-    --accent-foreground: 180 100% 98%; /* White text for accents */
-    --destructive: 0 80% 60%; /* Red for destructive actions */
-    --destructive-foreground: 0 0% 98%;
-    --border: 180 25% 70%; /* Soft teal for borders */
-    --input: 180 25% 70%; /* Input background */
-    --ring: 180 60% 35%; /* Teal outline for focus rings */
-    --chart-1: 174 76% 60%; /* Teal-based chart color */
-    --chart-2: 167 58% 45%; /* Slightly darker teal */
-    --chart-3: 184 40% 30%; /* Dark teal */
-    --chart-4: 190 65% 55%; /* Light teal */
-    --chart-5: 160 87% 40%; /* Soft greenish-teal */
-    --radius: 0.5rem; /* Border radius */
-    --old-tool-primary: 200 36% 38%; /* Old tool blue-ish teal */
-    --old-tool-secondary: 200 67% 90%; /* Old tool light blue-ish teal */
+    --background: white;
+    --foreground: black;
+    --card: white;
+    --card-foreground: black;
+    --popover: white;
+    --popover-foreground: black;
+    --primary: #2b5876;
+    --primary-foreground: white;
+    --secondary: white;
+    --secondary-foreground: black;
+    --muted: #f3f4f6;
+    --muted-foreground: black;
+    --accent: #efab00;
+    --accent-foreground: black;
+    --destructive: #1a365d;
+    --destructive-foreground: white;
+    --border: #2b5876;
+    --input: #2b5876;
+    --ring: #2b5876;
+    --radius: 0.5rem;
   }
-  
+
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: #1a365d;
+    --foreground: white;
+    --card: #2b5876;
+    --card-foreground: white;
+    --popover: #2b5876;
+    --popover-foreground: white;
+    --primary: white;
+    --primary-foreground: black;
+    --secondary: #1a365d;
+    --secondary-foreground: white;
+    --muted: #1a365d;
+    --muted-foreground: white;
+    --accent: #efab00;
+    --accent-foreground: black;
+    --destructive: white;
+    --destructive-foreground: black;
+    --border: white;
+    --input: #1a365d;
+    --ring: #efab00;
   }
 }
 
@@ -70,14 +58,15 @@
     @apply bg-background text-foreground;
   }
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  input[type="number"] {
+  input[type='number'] {
     -moz-appearance: textfield;
     appearance: textfield;
   }
 }
+

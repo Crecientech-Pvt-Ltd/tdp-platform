@@ -41,27 +41,6 @@ export function FileSheet() {
   const [checkedOptions, setCheckedOptions] = React.useState<Record<string, boolean>>({});
   const geneNameToID = useStore(state => state.geneNameToID);
 
-  React.useEffect(() => {
-    openDB('files', 'readonly').then(store => {
-      if (!store) {
-        toast.error('Failed to open IndexedDB database', {
-          cancel: { label: 'Close', onClick() {} },
-          description: 'Please make sure you have enabled IndexedDB in your browser',
-        });
-        return;
-      }
-      const request = store.getAll();
-      request.onsuccess = () => {
-        setUploadedFiles(request.result);
-        const checkedOptions: Record<string, boolean> = {};
-        for (const file of request.result) {
-          checkedOptions[file.name] = false;
-        }
-        setCheckedOptions(checkedOptions);
-      };
-    });
-  }, []);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: async (acceptedFiles, fileRejections) => {
       const store = await openDB('files', 'readwrite');

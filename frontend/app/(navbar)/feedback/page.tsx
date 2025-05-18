@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
+import { cn, envURL } from '@/lib/utils';
 import { CheckCircle, CircleX } from 'lucide-react';
-import { Link } from 'next-view-transitions';
 import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -34,7 +33,7 @@ export default function AboutPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = {
       name: !formData.name,
@@ -44,26 +43,30 @@ export default function AboutPage() {
     setErrors(newErrors);
     if (!newErrors.name && !newErrors.email && !newErrors.feedback) {
       setLoading(true);
-      const { name, email, feedback } = formData;
-      const url = `https://docs.google.com/forms/d/e/1FAIpQLSfLpykHI6BM14dvcwLgz7E2B0DHyE840UlZI3HX-MZxoaDxYA/formResponse?&submit=Submit?usp=pp_url&entry.1768585926=${encodeURIComponent(name)}&entry.711917196=${encodeURIComponent(email)}&entry.2088696203=${encodeURIComponent(feedback)}`;
-      fetch(url, { mode: 'no-cors', method: 'POST' })
-        .then(() => {
-          setFormData({ name: '', email: '', feedback: '' });
-          setLoading(false);
-          setSubmitted(true);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          toast('Message failed to send', {
-            cancel: { label: 'Close', onClick() {} },
-            description: 'Please try again later',
-            icon: <CircleX color='red' size={16} />,
-          });
-          setFormData({ name: '', email: '', feedback: '' });
-          setLoading(false);
+      try {
+        const res = await fetch(`${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/api/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
         });
+        if (!res.ok) throw new Error('Failed to submit feedback');
+        setFormData({ name: '', email: '', feedback: '' });
+        setLoading(false);
+        setSubmitted(true);
+      } catch (error) {
+        console.error('Error:', error);
+        toast('Message failed to send', {
+          cancel: { label: 'Close', onClick() {} },
+          description: 'Please try again later',
+          icon: <CircleX color='red' size={16} />,
+        });
+        setFormData({ name: '', email: '', feedback: '' });
+        setLoading(false);
+        setSubmitted('failed');
+      }
     }
   };
+
   return (
     <div className='w-full max-w-5xl my-8 mx-auto'>
       <Card className='border grid md:grid-cols-2'>
@@ -95,10 +98,14 @@ export default function AboutPage() {
                     <CircleX className='h-8 w-8 text-red-600 dark:text-red-400' />
                   </div>
                   <h3 className='text-xl font-medium'>Submission Failed</h3>
-                  <p>Please try submitting your feedback using the alternative form.</p>
-                  <Link href='https://forms.gle/qtNssDeVEW24gRVg8' target='_blank' className='text-accent underline'>
-                    Open Alternative Form
-                  </Link>
+                  <p>Please try submitting your feedback again later.</p>
+                  <Button
+                    variant='outline'
+                    className='mt-4 border hover:text-gray-600 text-teal-700 hover:bg-teal-50 dark:text-teal-300 dark:hover:bg-teal-900/20'
+                    onClick={() => setSubmitted(false)}
+                  >
+                    Try Again
+                  </Button>
                 </div>
               )
             ) : (
@@ -146,17 +153,15 @@ export default function AboutPage() {
                   />
                   {errors.feedback && <p className='text-red-500 text-xs'>Feedback is required</p>}
                 </div>
+                <CardFooter>
+                  <Button type='submit' className='w-full bg-teal-700 hover:bg-teal-800 text-white'>
+                    {loading && <Spinner variant={1} className='text-white mr-2' size={'small'} />}
+                    Submit Feedback
+                  </Button>
+                </CardFooter>
               </form>
             )}
           </CardContent>
-          {!submitted && (
-            <CardFooter>
-              <Button onClick={handleSubmit} className='w-full bg-teal-700 hover:bg-teal-800 text-white'>
-                {loading && <Spinner variant={1} className='text-white mr-2' size={'small'} />}
-                Submit Feedback
-              </Button>
-            </CardFooter>
-          )}
         </div>
         <Image
           src='/image/feedback.png'

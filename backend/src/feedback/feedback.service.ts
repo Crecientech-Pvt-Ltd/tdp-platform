@@ -10,26 +10,47 @@ export class FeedbackService {
   async createFeedback(dto: CreateFeedbackDto) {
     const session = this.neo4jService.getSession('WRITE');
     const id = uuidv4();
+    const createdAt = new Date().toISOString();
     const params = {
       id,
       name: dto.name,
       email: dto.email,
-      text: dto.feedback, // <-- map feedback to text
+      text: dto.feedback,
+      createdAt,
     };
     await session.run(
-      `CREATE (f:Feedback {id: $id, name: $name, email: $email, text: $text, status: 'pending'}) RETURN f`,
+      `CREATE (f:Feedback {id: $id, name: $name, email: $email, text: $text, status: 'pending', createdAt: $createdAt}) RETURN f`,
       params,
     );
     await this.neo4jService.releaseSession(session, 'WRITE');
-    return { id, ...dto, status: 'pending' };
+    return { id, ...dto, status: 'pending', createdAt };
   }
 
   async getAllFeedbacks(status?: string) {
     const session = this.neo4jService.getSession();
-    let query = 'MATCH (f:Feedback)';
-    if (status) query += ' WHERE f.status = $status';
-    query += ' RETURN f ORDER BY f.id DESC';
-    const result = await session.run(query, status ? { status } : {});
+    let query: string;
+    let params: any = {};
+    if (status) {
+      query = `
+        MATCH (f:Feedback)
+        WHERE f.status = $status
+        RETURN f
+        ORDER BY 
+          CASE WHEN f.createdAt IS NOT NULL THEN 0 ELSE 1 END, 
+          f.createdAt DESC
+      `;
+      params = { status };
+    } else {
+      query = `
+        MATCH (f:Feedback)
+        RETURN f
+        ORDER BY 
+          CASE f.status WHEN 'pending' THEN 0 ELSE 1 END,
+          CASE WHEN f.createdAt IS NOT NULL THEN 0 ELSE 1 END,
+          f.createdAt DESC
+      `;
+    }
+    const result = await session.run(query, params);
     await this.neo4jService.releaseSession(session);
     return result.records.map((r) => r.get('f').properties);
   }

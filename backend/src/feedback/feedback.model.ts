@@ -6,4 +6,5 @@ export interface Feedback {
   email: string;
   text: string;
   status: FeedbackStatus;
+  createdAt: string;
 }

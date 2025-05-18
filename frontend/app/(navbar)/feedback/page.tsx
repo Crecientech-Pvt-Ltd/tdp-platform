@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn, envURL } from '@/lib/utils';
 import { CheckCircle, CircleX } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -69,6 +70,14 @@ export default function AboutPage() {
 
   return (
     <div className='w-full max-w-5xl my-8 mx-auto'>
+      {/* View All Feedbacks Button */}
+      <div className='flex justify-end mb-4'>
+        <Link href='/feedback/view-feedback'>
+          <Button variant='outline' className='font-medium'>
+            View All Feedbacks
+          </Button>
+        </Link>
+      </div>
       <Card className='border grid md:grid-cols-2'>
         <div>
           <CardHeader>

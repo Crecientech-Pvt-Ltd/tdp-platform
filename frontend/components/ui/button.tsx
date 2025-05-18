@@ -18,6 +18,7 @@ const buttonVariants = cva(
         oldtool: 'text-white',
         oldtoolcolor: 'bg-white hover:bg-gray-100',
         basic: 'text-primary hover:text-black',
+        navbar: 'hover:bg-teal-500 hover:text-accent-foreground',
       },
       size: {
         default: 'h-9 px-4 py-2',

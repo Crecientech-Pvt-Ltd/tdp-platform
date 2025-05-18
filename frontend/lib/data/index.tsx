@@ -7,6 +7,7 @@ export * from './graphConfig';
 export * from './nodeColor';
 export * from './nodeSize';
 export * from './radialAnalysisOptions';
+export * from './homeData';
 /**
  * Default edge color
  * PS: Use rgba color format only for this variable

@@ -25,7 +25,7 @@ services:
     # Change this if running on local to avoid restarting on failure
     restart: on-failure
     ports:
-      - "4000:4000"
+      - "4010:4010"
     depends_on:
       - neo4j
     env_file:
@@ -47,7 +47,7 @@ services:
       dockerfile: Dockerfile
     container_name: gsea
     ports:
-      - "5000:5000"
+      - "5050:5000"
 
   redis:
     image: redis:7.4-alpine

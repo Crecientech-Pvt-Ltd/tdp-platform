@@ -157,7 +157,7 @@ export function VirtualizedCombobox({
           role='combobox'
           aria-expanded={open}
           className={cn(
-            'w-[200px] border justify-between text-ellipsis text-wrap break-words h-9 bg-white text-black',
+            'w-[200px] border justify-between text-ellipsis text-wrap break-words h-9 text-black',
             className,
           )}
         >

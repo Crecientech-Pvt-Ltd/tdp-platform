@@ -1,9 +1,13 @@
 {
   "name": "tdp-platform",
   "version": "1.0.0",
+  "private": true,
+  "description": "TDP Platform Monorepo",
   "scripts": {
     "prepare": "husky || true",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "frontend": "npm run dev:turbo -w frontend",
+    "backend": "npm run start:dev -w backend"
   },
   "workspaces": [
     "frontend",

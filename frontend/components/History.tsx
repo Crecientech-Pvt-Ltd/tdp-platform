@@ -97,7 +97,7 @@ export default function History({
       </AlertDialog>
       {history.length > 0 ? (
         <ScrollArea className='h-full'>
-          <div className='space-y-4 pr-2 flex flex-col pb-4'>
+          <div className='space-y-4 pr-2 flex flex-col'>
             {history.map((item, index) => (
               <Card key={`${item.title}-${item.createdAt ?? index}`}>
                 <CardHeader className='p-2'>
@@ -116,16 +116,9 @@ export default function History({
                       }}
                     />
                   </CardTitle>
-                  {/* <div className='pl-1 text-xs text-muted-foreground'>
+                  <div className='pl-1 text-xs text-muted-foreground'>
                     <p>{item.seedGenes.slice(0, 30) + (item.seedGenes.length > 30 && '...')}</p>
                     <p>
-                      {item.diseaseMap.split(' ').at(-1)?.slice(1, -1)} : Order - {item.order} : {item.interactionType}{' '}
-                      : {item.minScore}
-                    </p>
-                  </div> */}
-                  <div className='pl-1 text-xs text-muted-foreground break-words max-w-full'>
-                    <p className='truncate'>{item.seedGenes}</p>
-                    <p className='break-words'>
                       {item.diseaseMap.split(' ').at(-1)?.slice(1, -1)} : Order - {item.order} : {item.interactionType}{' '}
                       : {item.minScore}
                     </p>

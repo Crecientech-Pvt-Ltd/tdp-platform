@@ -14,7 +14,7 @@ export function GET_GENES_QUERY(
 ): string {
   if (properties?.length) {
     return `MATCH (g:Gene)
-    WHERE g.ID IN $geneIDs OR g.Gene_name IN $geneIDs
+    WHERE g.ID IN $geneIDs
     RETURN g { ${properties ? `${properties.map((prop) => `.\`${prop}\``).join(', ')},` : ''} ${bringMeta ? '.Gene_name, .Description, .hgnc_gene_id, .Aliases,' : ''} .ID } AS genes`;
   }
   return `MATCH (g:Gene)

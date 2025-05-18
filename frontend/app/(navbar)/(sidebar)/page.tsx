@@ -176,9 +176,16 @@ export default function Home() {
   };
 
   return (
-    <div className='mx-auto rounded-lg shadow-md p-4 min-h-[60vh]'>
-      <h2 className='text-2xl font-semibold mb-6'>Search by Multiple Proteins</h2>
-      <ResizablePanelGroup direction='horizontal' className='gap-4'>
+    <div className='mx-auto rounded-lg shadow-md border min-h-[80vh]'>
+      <h2
+        style={{
+          background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+        }}
+        className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
+      >
+        Search by Multiple Proteins
+      </h2>
+      <ResizablePanelGroup direction='horizontal' className='gap-4 p-4'>
         <ResizablePanel defaultSize={75} minSize={65}>
           <form onSubmit={handleSubmit}>
             <div className='space-y-4'>
@@ -186,7 +193,7 @@ export default function Home() {
                 <div className='flex justify-between'>
                   <Label htmlFor='seedGenes'>Seed Genes</Label>
                   <p className='text-zinc-500'>
-                    (one-per-line or CSV; examples: {/* biome-ignore lint/a11y/useKeyWithClickEvents: required */}
+                    (one-per-line or CSV; examples:
                     <span
                       className='underline cursor-pointer'
                       onClick={() => {
@@ -198,7 +205,6 @@ export default function Home() {
                     >
                       #1
                     </span>{' '}
-                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                     <span
                       className='underline cursor-pointer'
                       onClick={() => {
@@ -215,7 +221,6 @@ ENSG00000162063`,
                     >
                       #2
                     </span>{' '}
-                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                     <span
                       className='underline cursor-pointer'
                       onClick={() => {
@@ -274,7 +279,7 @@ FIG4`,
                     onChange={val => typeof val === 'string' && handleSelect(val, 'diseaseMap')}
                     placeholder='Search Disease...'
                     loading={diseaseData === null}
-                    className='w-full'
+                    className='w-full hover:bg-transparent hover:text-current'
                   />
                 </div>
                 {graphConfig.map(config => (
@@ -304,7 +309,14 @@ FIG4`,
                 ))}
               </div>
               <center>
-                <Button type='submit' className='w-3/4 bg-teal-600 hover:bg-teal-700 text-white'>
+                <Button
+                  type='submit'
+                  style={{
+                    background:
+                      'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+                  }}
+                  className='w-3/4 mb-4'
+                >
                   {loading ? (
                     <>
                       <Loader className='animate-spin mr-2' size={20} />
@@ -353,7 +365,7 @@ FIG4`,
           </form>
         </ResizablePanel>
         <ResizableHandle withHandle className='hidden md:flex' />
-        <ResizablePanel className='h-[55vh] hidden md:block' defaultSize={25} minSize={15}>
+        <ResizablePanel className='h-[65vh] hidden md:block' defaultSize={25} minSize={15}>
           <History history={history} setHistory={setHistory} setFormData={setFormData} />
         </ResizablePanel>
       </ResizablePanelGroup>

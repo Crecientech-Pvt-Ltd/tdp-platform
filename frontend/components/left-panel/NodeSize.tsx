@@ -75,6 +75,7 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
               value={selectedNodeSizeProperty}
               onChange={onPropChange}
               width='550px'
+              multiselect
             />
           ) : (
             <Combobox

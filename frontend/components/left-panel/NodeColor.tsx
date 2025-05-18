@@ -73,6 +73,7 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
               value={selectedNodeColorProperty}
               onChange={onPropChange}
               width={radioValue === 'TE' ? '550px' : '800px'}
+              multiselect
             />
           ) : (
             <Combobox

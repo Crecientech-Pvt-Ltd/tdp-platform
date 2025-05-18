@@ -51,48 +51,36 @@ export function SizeAnalysis() {
         else attr.size = 0.5;
         return attr;
       });
-    } else if (selectedRadioNodeSize === 'TE' && typeof selectedNodeSizeProperty === 'string') {
-      // ************ Multiselect code **********************
-      // const propertyArray = Array.from(selectedNodeSizeProperty);
-      // const userTEArray = radioOptions.user.TE;
-      // const minMax = Object.values(universalData).reduce(
-      //   (acc, cur) => {
-      //     const value = propertyArray.reduce((acc2, property) => {
-      //       const val = +cur[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
-      //       if (Number.isNaN(val)) return acc2;
-      //       return Math.max(acc2, val);
-      //     }, Number.NEGATIVE_INFINITY);
-      //     return [Math.min(acc[0], value), Math.max(acc[1], value)];
-      //   },
-      //   [Number.POSITIVE_INFINITY, 0],
-      // );
-      // const sizeScale = scaleLinear<number, number>(minMax, [3, defaultNodeSize + 10]);
-      // graph.updateEachNodeAttributes((node, attr) => {
-      //   const val = propertyArray.reduce((acc, property) => {
-      //     const value = +universalData[node]?.[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
-      //     if (Number.isNaN(value)) return acc;
-      //     return Math.max(acc, value);
-      //   }, Number.NEGATIVE_INFINITY);
-      //   if (!Number.isNaN(val)) attr.size = sizeScale(val);
-      //   else attr.size = 0.5;
-      //   return attr;
-      // });
-      // ***************************************************
-
+    } else if (selectedRadioNodeSize === 'TE' && typeof selectedNodeSizeProperty !== 'string') {
+      const propertyArray = Array.from(selectedNodeSizeProperty);
+      if (propertyArray.length === 0) {
+        graph.updateEachNodeAttributes((node, attr) => {
+          attr.size = defaultNodeSize;
+          return attr;
+        });
+        return;
+      }
+      const userTEArray = radioOptions.user.TE;
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
-          const valString = cur[userOrCommonIdentifier].TE[selectedNodeSizeProperty];
-          if (!valString) return acc;
-          const value = +valString;
-          if (Number.isNaN(value)) return acc;
+          const value = propertyArray.reduce((acc2, property) => {
+            const val = cur[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
+            if (val == null || Number.isNaN(val)) return acc2;
+            return Math.max(acc2, +val);
+          }, 0);
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [Number.POSITIVE_INFINITY, 0],
       );
       const sizeScale = scaleLinear<number, number>(minMax, [3, defaultNodeSize + 10]);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = universalData[node]?.[userOrCommonIdentifier].TE[selectedNodeSizeProperty];
-        if (val != null || !Number.isNaN(+val)) attr.size = sizeScale(+val);
+        const val = propertyArray.reduce((acc, property) => {
+          const value = universalData[node]?.[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
+          if (value == null || Number.isNaN(+value)) return acc;
+          return Math.max(acc, +value);
+        }, Number.NEGATIVE_INFINITY);
+        console.log(val);
+        if (Number.isFinite(val)) attr.size = sizeScale(val);
         else attr.size = 0.5;
         return attr;
       });

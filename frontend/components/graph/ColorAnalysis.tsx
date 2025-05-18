@@ -114,22 +114,13 @@ export function ColorAnalysis() {
         else attr.color = undefined;
         return attr;
       });
-    } else if (selectedRadioNodeColor === 'Pathway' && typeof selectedNodeColorProperty === 'string') {
-      // ***************** Multiselect code *********
-      // const propertyArray = Array.from(selectedNodeColorProperty);
-      // const userPathwayArray = radioOptions.user.Pathway;
-      // graph.updateEachNodeAttributes((node, attr) => {
-      //   attr.color = propertyArray.some(
-      //     property => +universalData[node]?.[userPathwayArray.includes(property) ? 'user' : 'common'].Pathway[property],
-      //   )
-      //     ? 'red'
-      //     : defaultNodeColor;
-      //   return attr;
-      // });
-      // ******************************************
-
+    } else if (selectedRadioNodeColor === 'Pathway' && typeof selectedNodeColorProperty !== 'string') {
+      const propertyArray = Array.from(selectedNodeColorProperty);
+      const userPathwayArray = radioOptions.user.Pathway;
       graph.updateEachNodeAttributes((node, attr) => {
-        attr.color = +universalData[node]?.[userOrCommonIdentifier].Pathway[selectedNodeColorProperty]
+        attr.color = propertyArray.some(
+          property => +universalData[node]?.[userPathwayArray.includes(property) ? 'user' : 'common'].Pathway[property],
+        )
           ? 'red'
           : defaultNodeColor;
         return attr;
@@ -152,49 +143,35 @@ export function ColorAnalysis() {
         else attr.color = undefined;
         return attr;
       });
-    } else if (selectedRadioNodeColor === 'TE' && typeof selectedNodeColorProperty === 'string') {
-      // ***************** Multiselect code *********
-      // const propertyArray = Array.from(selectedNodeColorProperty);
-      // const userTEArray = radioOptions.user.TE;
-      // const minMax = Object.values(universalData).reduce(
-      //   (acc, cur) => {
-      //     const value = propertyArray.reduce((acc2, property) => {
-      //       const val = +cur[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
-      //       if (Number.isNaN(val)) return acc2;
-      //       return Math.max(acc2, val);
-      //     }, Number.NEGATIVE_INFINITY);
-      //     return [Math.min(acc[0], value), Math.max(acc[1], value)];
-      //   },
-      //   [Number.POSITIVE_INFINITY, 0],
-      // );
-      // const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
-      // graph.updateEachNodeAttributes((node, attr) => {
-      //   const val = propertyArray.reduce((acc, property) => {
-      //     const value = +universalData[node]?.[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
-      //     if (Number.isNaN(value)) return acc;
-      //     return Math.max(acc, value);
-      //   }, Number.NEGATIVE_INFINITY);
-      //   if (Number.isFinite(val)) attr.color = colorScale(val);
-      //   else attr.color = undefined;
-      //   return attr;
-      // });
-      // ****************************************
-
+    } else if (selectedRadioNodeColor === 'TE' && typeof selectedNodeColorProperty !== 'string') {
+      const propertyArray = Array.from(selectedNodeColorProperty);
+      if (propertyArray.length === 0) {
+        graph.updateEachNodeAttributes((_node, attr) => {
+          attr.color = defaultNodeColor;
+          return attr;
+        });
+        return;
+      }
+      const userTEArray = radioOptions.user.TE;
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
-          const valString = cur?.[userOrCommonIdentifier].TE[selectedNodeColorProperty];
-          if (!valString) return acc;
-          const value = +valString;
-          if (Number.isNaN(value)) return acc;
+          const value = propertyArray.reduce((acc2, property) => {
+            const val = cur[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
+            if (val == null || Number.isNaN(+val)) return acc2;
+            return Math.max(acc2, +val);
+          }, 0);
           return [Math.min(acc[0], value), Math.max(acc[1], value)];
         },
         [Number.POSITIVE_INFINITY, 0],
       );
       const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = universalData[node]?.[userOrCommonIdentifier].TE[selectedNodeColorProperty];
-        // if (!Number.isNaN(val)) attr.color = colorScale(val);
-        if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
+        const val = propertyArray.reduce((acc, property) => {
+          const value = universalData[node]?.[userTEArray.includes(property) ? 'user' : 'common'].TE[property];
+          if (value == null && Number.isNaN(+value)) return acc;
+          return Math.max(acc, +value);
+        }, Number.NEGATIVE_INFINITY);
+        if (Number.isFinite(val)) attr.color = colorScale(val);
         else attr.color = undefined;
         return attr;
       });

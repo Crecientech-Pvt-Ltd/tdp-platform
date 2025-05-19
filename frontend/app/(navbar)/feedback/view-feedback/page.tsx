@@ -24,13 +24,13 @@ export default function ViewFeedbacks() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'taken'>('all');
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const PAGE_SIZE = 10;
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        let url = `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/api/feedback?page=${page}&pageSize=${pageSize}`;
+        let url = `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/api/feedback?page=${page}&pageSize=${PAGE_SIZE}`;
         if (filter !== 'all') {
           url += `&status=${filter}`;
         }
@@ -50,7 +50,7 @@ export default function ViewFeedbacks() {
     setLoading(true);
     setError(null);
     fetchFeedbacks();
-  }, [filter, page, pageSize]);
+  }, [filter, page, PAGE_SIZE]);
 
   const copyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -60,11 +60,11 @@ export default function ViewFeedbacks() {
     });
   };
 
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className='w-full max-w-5xl my-8 mx-auto'>
-      <div className='flex items-center justify-between mb-6'>
+    <div className='w-full max-w-5xl my-8 container mx-auto'>
+      <div className='flex items-center justify-between mb-6 mx-8'>
         <Link href='/feedback'>
           <Button variant='outline' className='flex items-center gap-2'>
             <ArrowLeft size={16} />
@@ -73,7 +73,7 @@ export default function ViewFeedbacks() {
         </Link>
       </div>
 
-      <div className='flex gap-2 mb-4'>
+      <div className='flex gap-2 mb-4 mx-8'>
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           onClick={() => {
@@ -103,7 +103,7 @@ export default function ViewFeedbacks() {
         </Button>
       </div>
 
-      <Card>
+      <Card className='shadow-md mx-8'>
         <CardHeader>
           <CardTitle className='text-2xl font-bold'>All Feedbacks</CardTitle>
         </CardHeader>
@@ -133,14 +133,21 @@ export default function ViewFeedbacks() {
             </div>
           ) : (
             feedbacks.map(feedback => (
-              <div key={feedback.id} className='mb-4 p-4 border rounded-lg'>
+              <div key={feedback.id} className='mb-4 p-4 shadow-md border rounded-lg'>
                 <div className='flex justify-between items-start mb-3'>
                   <div>
-                    <div className='font-medium'>Name: {feedback.name}</div>
-                    <div className='font-medium'>Email: {feedback.email}</div>
-                    <div className='text-xs text-muted-foreground'>
+                    <p className='font-medium'>
+                      <b>Name:</b> {feedback.name}
+                    </p>
+                    <p className='font-medium'>
+                      <b>Email:</b>{' '}
+                      <a href={`mailto:${feedback.email}`} className='hover:underline'>
+                        {feedback.email}
+                      </a>
+                    </p>
+                    <p className='text-xs text-muted-foreground'>
                       Created: {new Date(feedback.createdAt).toLocaleString()}
-                    </div>
+                    </p>
                   </div>
                   <div className='flex flex-col items-end'>
                     <Badge
@@ -174,7 +181,7 @@ export default function ViewFeedbacks() {
                     </Button>
                   </div>
                 </div>
-                <div className='bg-gray-50 dark:bg-gray-900 p-3 rounded-md mb-3 whitespace-pre-wrap'>
+                <div className='bg-gray-50 shadow shadow-primary dark:bg-gray-900 p-3 rounded-md mb-3 whitespace-pre-wrap'>
                   {feedback.text}
                 </div>
               </div>

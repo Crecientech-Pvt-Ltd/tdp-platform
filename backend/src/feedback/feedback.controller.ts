@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto, UpdateFeedbackStatusDto } from './feedback.dto';
+import { FeedbackStatus } from './feedback.model';
 
 @Controller('api/feedback')
 export class FeedbackController {
@@ -20,7 +21,7 @@ export class FeedbackController {
   }
 
   @Get()
-  findAll(@Query('status') status?: string) {
+  findAll(@Query('status') status?: FeedbackStatus) {
     return this.feedbackService.getAllFeedbacks(status);
   }
 

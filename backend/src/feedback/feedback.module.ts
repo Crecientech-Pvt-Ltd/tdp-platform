@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { FeedbackController } from './feedback.controller';
 import { FeedbackService } from './feedback.service';
-import { Neo4jModule } from '@/neo4j/neo4j.module';
+import { Feedback } from './feedback.model';
 
 @Module({
-  imports: [Neo4jModule],
+  imports: [TypeOrmModule.forFeature([Feedback])],
   controllers: [FeedbackController],
   providers: [FeedbackService],
 })

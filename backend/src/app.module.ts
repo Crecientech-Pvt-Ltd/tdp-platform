@@ -8,6 +8,8 @@ import { AlgorithmModule } from './algorithm/algorithm.module';
 import { RedisModule } from './redis/redis.module';
 import { RedisService } from './redis/redis.service';
 import { FeedbackModule } from './feedback/feedback.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Feedback } from './feedback/feedback.model';
 
 @Module({
   imports: [
@@ -36,6 +38,17 @@ import { FeedbackModule } from './feedback/feedback.module';
       exports: [RedisService],
     },
     FeedbackModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.POSTGRES_HOST || 'localhost',
+      port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
+      username: process.env.POSTGRES_USER || 'pdnetuser',
+      password: process.env.POSTGRES_PASSWORD || 'pdnetpass',
+      database: process.env.POSTGRES_DB || 'pdnet',
+      entities: [Feedback],
+      synchronize: true,
+      autoLoadEntities: true,
+    }),
   ],
   controllers: [AppController],
 })

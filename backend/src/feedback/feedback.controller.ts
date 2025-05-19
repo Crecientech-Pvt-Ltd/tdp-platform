@@ -6,6 +6,8 @@ import {
   Body,
   Param,
   Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto, UpdateFeedbackStatusDto } from './feedback.dto';
@@ -21,8 +23,12 @@ export class FeedbackController {
   }
 
   @Get()
-  findAll(@Query('status') status?: FeedbackStatus) {
-    return this.feedbackService.getAllFeedbacks(status);
+  findAll(
+    @Query('status') status?: FeedbackStatus,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('pageSize', new DefaultValuePipe(10), ParseIntPipe) pageSize = 10,
+  ) {
+    return this.feedbackService.getAllFeedbacks(status, page, pageSize);
   }
 
   @Patch(':id/status')

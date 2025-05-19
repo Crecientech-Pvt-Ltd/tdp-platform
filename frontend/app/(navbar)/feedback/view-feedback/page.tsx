@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { envURL } from '@/lib/utils';
-import { ArrowLeft, CheckCircle, Clock, Copy } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,18 +23,22 @@ export default function ViewFeedbacks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'taken'>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        let url = `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/api/feedback`;
+        let url = `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/api/feedback?page=${page}&pageSize=${pageSize}`;
         if (filter !== 'all') {
-          url += `?status=${filter}`;
+          url += `&status=${filter}`;
         }
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch feedbacks');
         const data = await res.json();
-        setFeedbacks(data);
+        setFeedbacks(data.data || []);
+        setTotal(data.total || 0);
       } catch (error) {
         console.error('Error fetching feedbacks:', error);
         setError('Failed to load feedbacks. Please try again later.');
@@ -46,7 +50,7 @@ export default function ViewFeedbacks() {
     setLoading(true);
     setError(null);
     fetchFeedbacks();
-  }, [filter]);
+  }, [filter, page, pageSize]);
 
   const copyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -55,6 +59,8 @@ export default function ViewFeedbacks() {
       duration: 3000,
     });
   };
+
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className='w-full max-w-5xl my-8 mx-auto'>
@@ -68,13 +74,31 @@ export default function ViewFeedbacks() {
       </div>
 
       <div className='flex gap-2 mb-4'>
-        <Button variant={filter === 'all' ? 'default' : 'outline'} onClick={() => setFilter('all')}>
+        <Button
+          variant={filter === 'all' ? 'default' : 'outline'}
+          onClick={() => {
+            setFilter('all');
+            setPage(1);
+          }}
+        >
           All
         </Button>
-        <Button variant={filter === 'pending' ? 'default' : 'outline'} onClick={() => setFilter('pending')}>
+        <Button
+          variant={filter === 'pending' ? 'default' : 'outline'}
+          onClick={() => {
+            setFilter('pending');
+            setPage(1);
+          }}
+        >
           Pending
         </Button>
-        <Button variant={filter === 'taken' ? 'default' : 'outline'} onClick={() => setFilter('taken')}>
+        <Button
+          variant={filter === 'taken' ? 'default' : 'outline'}
+          onClick={() => {
+            setFilter('taken');
+            setPage(1);
+          }}
+        >
           Taken
         </Button>
       </div>
@@ -155,6 +179,34 @@ export default function ViewFeedbacks() {
                 </div>
               </div>
             ))
+          )}
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className='flex justify-center items-center gap-4 mt-6'>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={page === 1}
+                onClick={() => setPage(page - 1)}
+                className='flex items-center gap-1'
+              >
+                <ChevronLeft size={16} />
+                Prev
+              </Button>
+              <span className='text-sm'>
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+                className='flex items-center gap-1'
+              >
+                Next
+                <ChevronRight size={16} />
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -25,19 +25,22 @@ export class FeedbackService {
     return feedback;
   }
 
-  async getAllFeedbacks(status?: FeedbackStatus) {
+  async getAllFeedbacks(status?: FeedbackStatus, page = 1, pageSize = 10) {
     const where = status ? { status } : {};
-    const feedbacks = await this.feedbackRepo.find({
+    const [feedbacks, total] = await this.feedbackRepo.findAndCount({
       where,
       order: {
         status: 'ASC',
         createdAt: 'DESC',
       },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
-    return [
+    const sorted = [
       ...feedbacks.filter((f) => f.createdAt),
       ...feedbacks.filter((f) => !f.createdAt),
     ];
+    return { data: sorted, total };
   }
 
   async markFeedbackTaken(id: string, status: FeedbackStatus) {

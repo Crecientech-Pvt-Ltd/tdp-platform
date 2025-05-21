@@ -109,7 +109,7 @@ async function promptForDetails(answer) {
       required: true,
     },
     !answer.idType && {
-      type: "input",
+      type: "list",
       name: "idType",
       message: "Select the ID type:",
       choices: ID_TYPE,

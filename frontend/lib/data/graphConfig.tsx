@@ -71,17 +71,23 @@ export const graphConfig = [
         <br />
         <b>PPI:</b> Protein-Protein Interactions
         <br />
-        <b>FunPPI:</b> Functional PPI
+        <b>IntAct:</b> Molecular Interaction Database
+        <br />
+        <b>BioGrid:</b> Biological General Repository for Interaction Datasets
       </>
     ),
     options: [
       {
         value: 'PPI',
-        label: 'PPI',
+        label: 'STRING',
       },
       {
-        value: 'FUN_PPI',
-        label: 'FunPPI',
+        value: 'INT_ACT',
+        label: 'IntAct',
+      },
+      {
+        value: 'BIO_GRID',
+        label: 'BioGRID',
       },
     ],
   },

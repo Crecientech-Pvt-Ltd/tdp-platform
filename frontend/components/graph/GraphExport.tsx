@@ -64,9 +64,9 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
               : DISEASE_DEPENDENT_PROPERTIES.includes(radio as DiseaseDependentProperties)
                 ? diseaseName
                 : 'common';
-
-          const data = unparse(
-            (all ? sigma.getGraph().nodes() : Array.from(highlightedNodesRef?.current ?? [])).map(nodeId => {
+          const nodeIds = all ? sigma.getGraph().nodes() : Array.from(highlightedNodesRef?.current ?? []);
+          const universalCsv = unparse(
+            nodeIds.map(nodeId => {
               const universalProperties: Record<string, string> = {};
               if (selectedRadioNodeColor) {
                 if (typeof selectedNodeColorProperty === 'string') {
@@ -110,7 +110,23 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
               };
             }),
           );
-          downloadFile(data, 'application/csv;charset=utf-8', `${projectTitle}-selected.csv`);
+          downloadFile(universalCsv, 'application/csv;charset=utf-8', `${projectTitle}-universal.csv`);
+          const nodeSet = new Set(nodeIds);
+          const interactionRows: string[] = [];
+          graph.forEachEdge((edgeId, attributes, source, target) => {
+            if (nodeSet.has(source) && nodeSet.has(target)) {
+              interactionRows.push(`${source},${target},${attributes.score ?? ''}`);
+            }
+          });
+
+          if (interactionRows.length > 0) {
+            const interactionCsv = interactionRows.join('\n');
+            downloadFile(interactionCsv, 'application/csv;charset=utf-8', `${projectTitle}-interaction.csv`);
+          } else {
+            toast.info('No interactions found for selected nodes.', {
+              cancel: { label: 'Close', onClick() {} },
+            });
+          }
           break;
         }
         default: {

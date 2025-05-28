@@ -163,7 +163,13 @@ export function GraphEvents({
     if (!canvas) return;
     canvas.style.cursor = 'default';
     const ctx = canvas.getContext('2d');
-    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+
+    /* Fix for Chromium-based browsers for clearing the canvas */
+    requestAnimationFrame(() => {
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    });
+    // End of fix
+
     if (_selectedNodes.length) handleSelectedNodes(_selectedNodes);
   }, [handleSelectedNodes, _selectedNodes]);
 

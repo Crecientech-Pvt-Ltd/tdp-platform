@@ -74,117 +74,42 @@ export default function Home() {
   const [geneIDs, setGeneIDs] = React.useState<string[]>([]);
   const [showAlert, setShowAlert] = React.useState(false);
 
-  //replace with api call
-  const mockGeneData = React.useMemo(
-    () => ({
-      '#1': [
-        'FAKEGENE1',
-        'FAKEGENE2',
-        'FAKEGENE3',
-        'FAKEGENE4',
-        'FAKEGENE5',
-        'FAKEGENE6',
-        'FAKEGENE7',
-        'FAKEGENE8',
-        'FAKEGENE9',
-        'FAKEGENE10',
-        'FAKEGENE11',
-        'FAKEGENE12',
-        'FAKEGENE13',
-        'FAKEGENE14',
-        'FAKEGENE15',
-        'FAKEGENE16',
-        'FAKEGENE17',
-        'FAKEGENE18',
-        'FAKEGENE19',
-        'FAKEGENE20',
-      ],
-      '#2': [
-        'FAKEID0001',
-        'FAKEID0002',
-        'FAKEID0003',
-        'FAKEID0004',
-        'FAKEID0005',
-        'FAKEID0006',
-        'FAKEID0007',
-        'FAKEID0008',
-        'FAKEID0009',
-        'FAKEID0010',
-        'FAKEID0011',
-        'FAKEID0012',
-        'FAKEID0013',
-        'FAKEID0014',
-        'FAKEID0015',
-        'FAKEID0016',
-        'FAKEID0017',
-        'FAKEID0018',
-        'FAKEID0019',
-        'FAKEID0020',
-      ],
-      '#3': [
-        'ALIASGENE1',
-        'ALIASGENE2',
-        'ALIASGENE3',
-        'ALIASGENE4',
-        'ALIASGENE5',
-        'ALIASGENE6',
-        'ALIASGENE7',
-        'ALIASGENE8',
-        'ALIASGENE9',
-        'ALIASGENE10',
-        'ALIASGENE11',
-        'ALIASGENE12',
-        'ALIASGENE13',
-        'ALIASGENE14',
-        'ALIASGENE15',
-        'ALIASGENE16',
-        'ALIASGENE17',
-        'ALIASGENE18',
-        'ALIASGENE19',
-        'ALIASGENE20',
-      ],
-    }),
-    [],
-  );
-
   const [autofill, setAutofill] = React.useState(false);
-  const [autofillType, setAutofillType] = React.useState<'#1' | '#2' | '#3'>('#1');
   const [autofillNum, setAutofillNum] = React.useState<string>('25');
-  const lastAutofill = React.useRef<{ type: string; num: number }>({ type: '#1', num: 0 });
+  const [autofillLoading, setAutofillLoading] = React.useState(false);
 
-  React.useEffect(() => {
-    if (!autofill) return;
+  const handleAutofill = async () => {
     const num = parseInt(autofillNum, 10);
     if (!autofillNum || isNaN(num) || num <= 0) {
       setFormData(f => ({ ...f, seedGenes: '' }));
       return;
     }
-    const genes = mockGeneData[autofillType].slice(0, num);
-    let value = '';
-    if (autofillType === '#1') {
-      value = genes.join(', ');
-    } else {
-      value = genes.join('\n');
+    const match = formData.diseaseMap.match(/\(([^)]+)\)$/);
+    const diseaseId = match ? match[1] : '';
+    if (!diseaseId) {
+      setFormData(f => ({ ...f, seedGenes: '' }));
+      return;
     }
-    setFormData(f => ({ ...f, seedGenes: value }));
-    lastAutofill.current = { type: autofillType, num };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autofillType, autofillNum, autofill]);
+    setAutofillLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/clickhouse/top-genes?diseaseId=${encodeURIComponent(diseaseId)}&limit=${num}`,
+      );
+      const genes: string[] = await res.json();
+      setFormData(f => ({ ...f, seedGenes: genes.join(', ') }));
+    } catch {
+      setFormData(f => ({ ...f, seedGenes: '' }));
+      toast.error('Failed to autofill genes from API', {
+        cancel: { label: 'Close', onClick() {} },
+      });
+    } finally {
+      setAutofillLoading(false);
+    }
+  };
 
   React.useEffect(() => {
-    if (!autofill) return;
-    if (lastAutofill.current.num && autofillNum === '') {
-      setAutofillNum(lastAutofill.current.num.toString());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autofillType]);
-
-  React.useEffect(() => {
-    if (autofill) {
-      if (!autofillNum) setAutofillNum('25');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autofill]);
+    setGeneIDs(distinct(formData.seedGenes.split(/[,|\n]/).map(gene => gene.trim().toUpperCase())).filter(Boolean));
+  }, [formData.seedGenes]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -320,36 +245,50 @@ export default function Home() {
                         </div>
                         <div>Genes are ranked by overall association score from the OpenTargets platform.</div>
                         <div>
-                          <b>Note:</b> Switch between gene identifier types (#1, #2, #3) using the links below.
+                          <b>Note:</b> Autofill uses only one type of gene identifier as returned by the API.
                         </div>
                       </div>
                     </TooltipContent>
                   </Tooltip>
                 </span>
-                <div
-                  className={`flex items-center gap-1 ml-4 transition-opacity duration-200`}
-                  style={{
-                    minWidth: 160,
-                    opacity: autofill ? 1 : 0,
-                    visibility: autofill ? 'visible' : 'hidden',
-                    height: 'auto',
-                  }}
-                >
-                  <Label htmlFor='autofill-num'>No. of genes</Label>
-                  <Input
-                    id='autofill-num'
-                    type='number'
-                    min={1}
-                    value={autofillNum}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (val === '' || /^[0-9\b]+$/.test(val)) setAutofillNum(val);
-                    }}
-                    className='w-20'
-                    placeholder='e.g. 25'
-                    onWheel={e => e.currentTarget.blur()}
-                  />
-                </div>
+                {autofill && (
+                  <div className='flex items-center gap-1 ml-4'>
+                    <Label htmlFor='autofill-num'>No. of genes</Label>
+                    <Input
+                      id='autofill-num'
+                      type='number'
+                      min={1}
+                      value={autofillNum}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '' || /^[0-9\b]+$/.test(val)) setAutofillNum(val);
+                      }}
+                      className='w-20'
+                      placeholder='e.g. 25'
+                      onWheel={e => e.currentTarget.blur()}
+                      disabled={autofillLoading}
+                    />
+                    <Button
+                      type='button'
+                      onClick={handleAutofill}
+                      disabled={autofillLoading}
+                      className='ml-2'
+                      style={{
+                        background:
+                          'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+                      }}
+                    >
+                      {autofillLoading ? (
+                        <>
+                          <Loader className='animate-spin mr-2' size={16} />
+                          Autofilling...
+                        </>
+                      ) : (
+                        'Autofill'
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
               <div>
                 <div className='flex justify-between'>
@@ -359,16 +298,10 @@ export default function Home() {
                     <span
                       className='underline cursor-pointer'
                       onClick={() => {
-                        if (autofill) {
-                          setAutofillType('#1');
-                        } else {
-                          setFormData({
-                            ...formData,
-                            seedGenes: 'MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2',
-                          });
-                          setAutofillType('#1');
-                          setAutofill(false);
-                        }
+                        setFormData({
+                          ...formData,
+                          seedGenes: 'MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2',
+                        });
                       }}
                     >
                       #1
@@ -376,21 +309,15 @@ export default function Home() {
                     <span
                       className='underline cursor-pointer'
                       onClick={() => {
-                        if (autofill) {
-                          setAutofillType('#2');
-                        } else {
-                          setFormData({
-                            ...formData,
-                            seedGenes: `ENSG00000122359
+                        setFormData({
+                          ...formData,
+                          seedGenes: `ENSG00000122359
 ENSG00000100823
 ENSG00000214944
 ENSG00000172995
 ENSG00000147894
 ENSG00000162063`,
-                          });
-                          setAutofillType('#2');
-                          setAutofill(false);
-                        }
+                        });
                       }}
                     >
                       #2
@@ -398,21 +325,15 @@ ENSG00000162063`,
                     <span
                       className='underline cursor-pointer'
                       onClick={() => {
-                        if (autofill) {
-                          setAutofillType('#3');
-                        } else {
-                          setFormData({
-                            ...formData,
-                            seedGenes: `DCTN1
+                        setFormData({
+                          ...formData,
+                          seedGenes: `DCTN1
 DNAJC7
 ERBB4
 ERLIN1
 EWSR1
 FIG4`,
-                          });
-                          setAutofillType('#3');
-                          setAutofill(false);
-                        }
+                        });
                       }}
                     >
                       #3
@@ -428,6 +349,7 @@ FIG4`,
                   value={formData.seedGenes}
                   onChange={handleSeedGenesChange}
                   required
+                  disabled={autofillLoading}
                 />
                 <center>OR</center>
                 <Label htmlFor='seedFile'>Upload Text File</Label>
@@ -437,6 +359,7 @@ FIG4`,
                   accept='.txt'
                   className='border-2 hover:border-dashed cursor-pointer h-9'
                   onChange={handleFileRead}
+                  disabled={autofillLoading}
                 />
               </div>
               <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>

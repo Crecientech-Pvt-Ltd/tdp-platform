@@ -93,7 +93,7 @@ export default function Home() {
     setAutofillLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:4000/api/clickhouse/top-genes?diseaseId=${encodeURIComponent(diseaseId)}&limit=${num}`,
+        `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/api/clickhouse/top-genes?diseaseId=${encodeURIComponent(diseaseId)}&limit=${num}`,
       );
       const genes: string[] = await res.json();
       setFormData(f => ({ ...f, seedGenes: genes.join(', ') }));

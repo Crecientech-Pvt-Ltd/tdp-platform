@@ -10,6 +10,7 @@ import { RedisService } from './redis/redis.service';
 import { FeedbackModule } from './feedback/feedback.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feedback } from './feedback/feedback.model';
+import { ClickhouseModule } from './clickhouse/clickhouse.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { Feedback } from './feedback/feedback.model';
       exports: [RedisService],
     },
     FeedbackModule,
+    ClickhouseModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -28,6 +28,7 @@ import React, { type ChangeEvent } from 'react';
 import { toast } from 'sonner';
 import History, { type HistoryItem } from '@/components/History';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { Switch } from '@/components/ui/switch';
 
 export default function Home() {
   const [verifyGenes, { data, loading }] = useLazyQuery<GeneVerificationData, GeneVerificationVariables>(
@@ -73,6 +74,43 @@ export default function Home() {
   const [geneIDs, setGeneIDs] = React.useState<string[]>([]);
   const [showAlert, setShowAlert] = React.useState(false);
 
+  const [autofill, setAutofill] = React.useState(false);
+  const [autofillNum, setAutofillNum] = React.useState<string>('25');
+  const [autofillLoading, setAutofillLoading] = React.useState(false);
+
+  const handleAutofill = async () => {
+    const num = parseInt(autofillNum, 10);
+    if (!autofillNum || isNaN(num) || num <= 0) {
+      setFormData(f => ({ ...f, seedGenes: '' }));
+      return;
+    }
+    const match = formData.diseaseMap.match(/\(([^)]+)\)$/);
+    const diseaseId = match ? match[1] : '';
+    if (!diseaseId) {
+      setFormData(f => ({ ...f, seedGenes: '' }));
+      return;
+    }
+    setAutofillLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/clickhouse/top-genes?diseaseId=${encodeURIComponent(diseaseId)}&limit=${num}`,
+      );
+      const genes: string[] = await res.json();
+      setFormData(f => ({ ...f, seedGenes: genes.join(', ') }));
+    } catch {
+      setFormData(f => ({ ...f, seedGenes: '' }));
+      toast.error('Failed to autofill genes from API', {
+        cancel: { label: 'Close', onClick() {} },
+      });
+    } finally {
+      setAutofillLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    setGeneIDs(distinct(formData.seedGenes.split(/[,|\n]/).map(gene => gene.trim().toUpperCase())).filter(Boolean));
+  }, [formData.seedGenes]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { seedGenes } = formData;
@@ -116,6 +154,7 @@ export default function Home() {
 
   const handleSeedGenesChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setFormData({ ...formData, seedGenes: event.target.value });
+    if (autofill) setAutofill(false);
   };
 
   const handleGenerateGraph = (skipWarning = false) => {
@@ -189,6 +228,68 @@ export default function Home() {
         <ResizablePanel defaultSize={75} minSize={65}>
           <form onSubmit={handleSubmit}>
             <div className='space-y-4'>
+              <div className='flex items-center gap-2 mb-2 flex-wrap'>
+                <Switch checked={autofill} onCheckedChange={setAutofill} id='autofill-toggle' />
+                <Label htmlFor='autofill-toggle' className='whitespace-nowrap'>
+                  Autofill Seed Genes
+                </Label>
+                <span className='flex items-center'>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info size={12} />
+                    </TooltipTrigger>
+                    <TooltipContent className='max-w-s'>
+                      <div>
+                        <div>
+                          <b>Autofills</b> the seed genes box with the top <b>n</b> genes for the selected disease.
+                        </div>
+                        <div>Genes are ranked by overall association score from the OpenTargets platform.</div>
+                        <div>
+                          <b>Note:</b> Autofill uses only one type of gene identifier as returned by the API.
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+                {autofill && (
+                  <div className='flex items-center gap-1 ml-4'>
+                    <Label htmlFor='autofill-num'>No. of genes</Label>
+                    <Input
+                      id='autofill-num'
+                      type='number'
+                      min={1}
+                      value={autofillNum}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '' || /^[0-9\b]+$/.test(val)) setAutofillNum(val);
+                      }}
+                      className='w-20'
+                      placeholder='e.g. 25'
+                      onWheel={e => e.currentTarget.blur()}
+                      disabled={autofillLoading}
+                    />
+                    <Button
+                      type='button'
+                      onClick={handleAutofill}
+                      disabled={autofillLoading}
+                      className='ml-2'
+                      style={{
+                        background:
+                          'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
+                      }}
+                    >
+                      {autofillLoading ? (
+                        <>
+                          <Loader className='animate-spin mr-2' size={16} />
+                          Autofilling...
+                        </>
+                      ) : (
+                        'Autofill'
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
               <div>
                 <div className='flex justify-between'>
                   <Label htmlFor='seedGenes'>Seed Genes</Label>
@@ -248,6 +349,7 @@ FIG4`,
                   value={formData.seedGenes}
                   onChange={handleSeedGenesChange}
                   required
+                  disabled={autofillLoading}
                 />
                 <center>OR</center>
                 <Label htmlFor='seedFile'>Upload Text File</Label>
@@ -257,6 +359,7 @@ FIG4`,
                   accept='.txt'
                   className='border-2 hover:border-dashed cursor-pointer h-9'
                   onChange={handleFileRead}
+                  disabled={autofillLoading}
                 />
               </div>
               <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>

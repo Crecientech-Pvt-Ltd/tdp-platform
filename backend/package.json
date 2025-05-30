@@ -26,6 +26,7 @@
     "prettier": "prettier --write"
   },
   "dependencies": {
+    "@clickhouse/client": "^1.11.1",
     "@nestjs/apollo": "^12.1.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",

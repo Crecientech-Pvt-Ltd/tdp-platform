@@ -1,5 +1,5 @@
 'use client';
-import { Clipboard, Search, Upload, Video } from 'lucide-react';
+import { Clipboard, Search, Upload, Video, ChartColumn } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -44,6 +44,14 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
             >
               <Link href='/docs' className='flex items-center outline-none'>
                 <Clipboard size={20} className='mr-2' /> Documentation
+              </Link>
+            </li>
+            <li
+              className={`transition-colors p-2 rounded border border-transparent 
+              ${pathname === '/pdcs' ? 'bg-white text-primary' : 'hover:bg-white/20 focus:bg-white/30'}`}
+            >
+              <Link href='/pdcs' className='flex items-center outline-none'>
+                <ChartColumn size={20} className='mr-2' /> PDCS
               </Link>
             </li>
           </ul>

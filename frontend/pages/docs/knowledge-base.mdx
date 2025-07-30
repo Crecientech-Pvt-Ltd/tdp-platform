@@ -13,17 +13,18 @@ We also have different kinds of data available on the left panel of network visu
 
 Data types are transformed to defined representations, so that they can be handled consistently and displayed intuitively by the frontend.
 
-- **Disease-dependent** data varies with different diseases, including [LogFC](knowledge-base/disease-dependent-data/logfc.mdx) (_Differential expression in Log2 fold change_), [GDA](knowledge-base/disease-dependent-data/gda.mdx)(_Gene Disease Association score_) and [Genetics](knowledge-base/disease-dependent-data/genetics.mdx) (_Odd ratio or Beta-values from population studies_). Currently, you can switch among 4 different diseases — ALS (Amyotrophic lateral sclerosis), FTD (Frontotemporal dementia), OI (Osteogenesis imperfecta) and PSP (Progressive Supranuclear Palsy).
+- **Disease-dependent** data varies with different diseases, including [LogFC](knowledge-base/disease-dependent-data/logfc.mdx) (_Differential expression in Log2 fold change_), [GDA](knowledge-base/disease-dependent-data/gda.mdx)(_Gene Disease Association score_) and [Genetics](knowledge-base/disease-dependent-data/genetics.mdx) (_Odd ratio or Beta-values from population studies_).
 
-- **Disease-independent** data DO NOT vary with different diseases, including [Pathway](knowledge-base/disease-independent-data/pathway.mdx) (_Pathway membership from KEGG and Reactome_), [Druggability](knowledge-base/disease-independent-data/druggability.mdx) (_Druggability score form Open Targets_), [Tissue Enrichment](knowledge-base/disease-independent-data/tissue-enrichment.mdx) (_Tissue-specific expression from GTEX and HPA_).
+- **Disease-independent** data DO NOT vary with different diseases, including [Target Prioritization Factors](knowledge-base/disease-independent-data/target-prioritization-factors.mdx) (_Rank and prioritize biological targets_), [Pathway](knowledge-base/disease-independent-data/pathway.mdx) (_Pathway membership from KEGG and Reactome_), [Druggability](knowledge-base/disease-independent-data/druggability.mdx) (_Derived from DrugnomeAI_), [Tissue Enrichment](knowledge-base/disease-independent-data/tissue-enrichment.mdx) (_Tissue-specific expression from GTEX and HPA_).
 
 ### Knowledge Base Summary
 
-| Data type         | Representation | Experiment types                             | Sources                            |
-| ----------------- | -------------- | -------------------------------------------- | ---------------------------------- |
-| LogFC             | [-Inf, +Inf]   | RNAseq, Proteomics                           | Verge, AD (Mayo, ROSMAP, MSBB)     |
-| GDA               | [0, 1]         | AI, Meta-scores                              | Open Targets (v25.03)              |
-| Genetics          | [-1, 1]        | GWAS w/ eQTL (OR/Beta), GeneBurden (OR/Beta) | Open Targets Genetics              |
-| Pathway           | Binary         | Curation                                     | KEGG (release 112), Reactome (v90) |
-| Druggability      | [0, 1]         | AI, Meta-scores                              | DrugnomeAI                         |
-| Tissue Enrichment | [0, +Inf]      | single cell RNAseq & single cell databases   | GTEx, HPA (v23.0)                  |
+| Data type                          | Representation | Experiment types                             | Sources                            |
+| ---------------------------------- | -------------- | -------------------------------------------- | ---------------------------------- |
+| LogFC                              | [-Inf, +Inf]   | RNAseq, Proteomics                           | Verge, AD (Mayo, ROSMAP, MSBB)     |
+| GDA                                | [0, 1]         | AI, Meta-scores                              | Open Targets (v25.03)              |
+| Genetics                           | [-1, 1]        | GWAS w/ eQTL (OR/Beta), GeneBurden (OR/Beta) | Open Targets Genetics              |
+| Target Prioritization Factors      | [-1, 1]        |                                              | Open Targets (v24.04)               |
+| Pathway                            | Binary         | Curation                                     | KEGG (release 112), Reactome (v90) |
+| Druggability                       | [0, 1]         | AI, Meta-scores                              | DrugnomeAI                         |
+| Tissue Enrichment                  | [0, +Inf]      | single cell RNAseq & single cell databases   | GTEx, HPA (v23.0)                  |

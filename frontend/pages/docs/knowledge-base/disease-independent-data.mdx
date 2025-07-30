@@ -1,9 +1,10 @@
 # Disease-independent data
 
-**Disease-independent** data DO NOT vary with different diseases, including [Pathway](disease-independent-data/pathway.mdx) (_Pathway membership from MSigDB_), [Druggability](disease-independent-data/druggability.mdx) (_Druggability score form MantisML and Open Target_), [Tissue Enrichment](disease-independent-data/tissue-enrichment.mdx) (_Tissue-specific expression from GTEX and HPA_).
+**Disease-independent** data DO NOT vary with different diseases, including [Target Prioritization Factors](knowledge-base/disease-independent-data/target-prioritization-factors.mdx) (_Rank and prioritize biological targets_), [Pathway](disease-independent-data/pathway.mdx) (_Pathway membership from MSigDB_), [Druggability](disease-independent-data/druggability.mdx) (_Derived from DrugnomeAI_), [Tissue Enrichment](disease-independent-data/tissue-enrichment.mdx) (_Tissue-specific expression from GTEX and HPA_).
 
-| Data type         | Representation | Experiment types                           | Sources        |
-| ----------------- | -------------- | ------------------------------------------ | -------------- |
-| Pathway           | Binary         | Curation                                   | KEGG, Reactome |
-| Druggability      | [0, 1]         | AI, Meta-scores                            | DrugnomeAI     |
-| Tissue Enrichment | [0, +Inf]      | single cell RNAseq & single cell databases | GTEx, HPA      |
+| Data type                       | Representation | Experiment types                           | Sources        |
+| ------------------------------- | -------------- | ------------------------------------------ | -------------- |
+| Target Prioritization Factors   | [-1, 1]        |                                            | Open Targets (v24.04)               |
+| Pathway                         | Binary         | Curation                                   | KEGG, Reactome |
+| Druggability                    | [0, 1]         | AI, Meta-scores                            | DrugnomeAI     |
+| Tissue Enrichment               | [0, +Inf]      | single cell RNAseq & single cell databases | GTEx, HPA      |

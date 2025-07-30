@@ -6,26 +6,10 @@ description: Gene Disease Association score, ranging from 0 to 1
 
 **Target disease association scores from Open Targets Platform, value ranging from `0` to `1`**
 
-Gene disease association score is from Open Targets portal. It qualifies the strength of the association between a gene and a disease. This score is derived using a combination of evidence from diverse data sources, e.g. genetic studies, transcriptomics, somatic mutations, drugs and pathways, etc.
+Gene disease association (target-disease association) score is from Open Targets portal.
 
-We have 4 different diseases — PSP, ALS, FTD and OI.
+The Open Targets Platform evaluates target-disease associations by aggregating diverse evidence types, such as genetic studies, clinical data, and scientific literature. Each unique target-disease pair is defined as an association, contextualizing all related information within the platform. To quantify the strength of these associations, the platform employs a scoring system that calculates a harmonic sum of evidence scores from various data sources, normalizing the result to ensure comparability. This approach provides a consensus view of the association’s strength, aiding researchers in prioritizing targets for further investigation.
 
-## PSP & FTD
+We use **{evidence-type}** as the format, for example, “Europe PMC”, shown as below:
 
-The PSP and FTD data in Open Targets is shown as below, where you can see the scores of different gene-disease association combinations.
-
-![PSP data in Open Targets platform](../../../../public/image/docs/psp-data-in-opentargets.png)
-
-We transformed the data from Open Targets into the CSV format below, then inserted into our knowledge base.
-
-![OpenTargets data in our knowledge base](../../../../public/image/docs/gda-data-csv.png)
-
-The naming convention of OpenTargets data in the knowledge base follows the format of **\{gene-disease association type\}**, for example, "OT Crispr validation", shown as below:
-
-![PSP & FTD OpenTargets data naming convention](../../../../public/image/docs/psp-ftd-gda-naming-convention.png)
-
-## ALS & OI
-
-ALS and OI OpenTargets data are also from Open Targets, but the name convention is slightly different from PSP and FTD data. We use **\{disease name\}\_\{"OpenTargets"\}\_\{"Score"\}\_\{"opentargets"\}\_\{gene-disease association type\}** as the format, for example, "ALS_GDA_Score_opentargets_overall_association_score", shown as below:
-
-![ALS & OI OpenTargets data naming convention](../../../../public/image/docs/als-oi-gda-naming-convention.png)
+![GDA evidence type naming convention](../../../../public/image/docs/gda-naming-convention.png)

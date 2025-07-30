@@ -19,19 +19,22 @@ const SigmaContainer = dynamic(() => import('@/components/graph').then(module =>
 
 export default function NetworkPage() {
   return (
-    <SigmaContainer
-      className='w-full h-full'
-      settings={{
-        enableEdgeEvents: true,
-        defaultNodeType: 'circle',
-        labelRenderedSizeThreshold: 0.75,
-        labelDensity: 0.2,
-        defaultEdgeColor: DEFAULT_EDGE_COLOR,
-        labelSize: 10,
-        defaultNodeColor: 'skyblue',
-        zoomingRatio: 1.2,
-        zIndex: true,
-      }}
-    />
+    <div className='w-full h-full'>
+      <SigmaContainer
+        className='w-full h-full'
+        settings={{
+          allowInvalidContainer: true,
+          enableEdgeEvents: true,
+          defaultNodeType: 'circle',
+          labelRenderedSizeThreshold: 0.75,
+          labelDensity: 0.2,
+          defaultEdgeColor: DEFAULT_EDGE_COLOR,
+          labelSize: 10,
+          defaultNodeColor: 'skyblue',
+          zoomingRatio: 1.2,
+          zIndex: true,
+        }}
+      />
+    </div>
   );
 }

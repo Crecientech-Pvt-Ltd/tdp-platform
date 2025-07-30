@@ -29,10 +29,11 @@ import { RadialAnalysis } from '../right-panel';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
 import { Spinner } from '../ui/spinner';
+import { useShallow } from 'zustand/react/shallow';
 
 export function LeftSideBar() {
   const diseaseName = useStore(state => state.diseaseName);
-  const geneIDs = useStore(state => state.geneIDs);
+  const geneIDs = useStore(useShallow(state => state.geneNames.map(g => state.geneNameToID.get(g) ?? g)));
   const bringCommon = useRef<boolean>(true);
   const [diseaseData, setDiseaseData] = React.useState<GetDiseaseData | undefined>(undefined);
   const [diseaseMap, setDiseaseMap] = React.useState<string>('MONDO_0004976');

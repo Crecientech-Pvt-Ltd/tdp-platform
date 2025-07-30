@@ -16,7 +16,7 @@ Before going over the functions on the left panel, you might want to have some b
 
 [Knowledge Base](../knowledge-base.mdx) integrated in our tool is build based on [disease-dependent data](../knowledge-base/disease-dependent-data.mdx) and [disease-independent data](../knowledge-base/disease-independent-data.mdx). Disease-dependent data indicates the data of specific features varies based on different diseases, while disease-independent data indicates the data remains the same once the disease changes.
 
-Disease-dependent data includes [LogFC](../knowledge-base/disease-dependent-data/logfc.mdx), [GDA](../knowledge-base/disease-dependent-data/gda.mdx)and [Genetics](../knowledge-base/disease-dependent-data/genetics.mdx), while disease-independent data includes [Pathway](../knowledge-base/disease-independent-data/pathway.mdx), [Druggability](../knowledge-base/disease-independent-data/druggability.mdx), [Tissue Enrichment](../knowledge-base/disease-independent-data/tissue-enrichment.mdx). We also call these data types as **features**.
+Disease-dependent data includes [LogFC](../knowledge-base/disease-dependent-data/logfc.mdx), [GDA](../knowledge-base/disease-dependent-data/gda.mdx)and [Genetics](../knowledge-base/disease-dependent-data/genetics.mdx), while disease-independent data includes [Target Prioritization Factors](../knowledge-base/disease-independent-data/target-prioritization-factors.mdx), [Pathway](../knowledge-base/disease-independent-data/pathway.mdx), [Druggability](../knowledge-base/disease-independent-data/druggability.mdx), [Tissue Enrichment](../knowledge-base/disease-independent-data/tissue-enrichment.mdx). We also call these data types as **features**.
 
 ### Disease Map
 
@@ -89,7 +89,6 @@ You can find nodes in the network.
 
 1. Locate the **Search Genes** search box.
 2. Enter the gene names or Ensemble IDs into the search box.
-   > **Note**: To find seed genes, simply click `#Seed Genes` above the search box.
 3. The nodes you are looking for will be highlighted in the network.
 
 ![Custom search](../../../public/image/docs/custom-search.png)
@@ -99,11 +98,15 @@ You can find nodes in the network.
 You can upload your own customized data to analyze the network, instead of using the existing data. Here is a [help video](../use-cases-and-short-help-videos.mdx#custom-upload).
 
 1. Upload a **CSV** file with your own data, please refer to the [File Format](left-panel.mdx#file-format) below.
+   > **Note**: We allow multiple files to be uploaded.
 2. Click Submit.
 3. Locate Node Color and/or Node Size section and select the corresponding uploaded feature name.
+   > **Note**: The uploaded data column name will be shown in the dropdown list of Node Color and Node Size section, with the prefix **[User]**.
 4. Select the column name of your customized data.
 
 ![Custom upload](../../../public/image/docs/custom-upload.png)
+
+If you don't need the customized data anymore, you can click the **Reset** button <Image width={30} height={30} src="/image/docs/reset_uploads.png" alt="Reset Uploads" className="inline aspect-square"/> to remove the data.
 
 #### File Format
 
@@ -126,3 +129,7 @@ You can upload your own customized data to analyze the network, instead of using
   - The prefix of columns is case-insensitive
 
 ![Example of a customized CSV file](../../../public/image/docs/custom-upload-csv-example.png)
+
+### Network Export
+You can export the network you created. Please refer to the [Network Export](network-visualization-board.mdx#network-export) section in the [Network Visualization Board](network-visualization-board.mdx) page for more details.
+

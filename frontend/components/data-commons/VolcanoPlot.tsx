@@ -5,7 +5,7 @@ import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import type { Shape } from 'plotly.js';
 import { MultiSelect } from '../ui/multiselect';
-
+import { Spinner } from '@/components/ui/spinner';
 type GenericRow = Record<string, string | number | null>;
 
 type Point = {
@@ -52,8 +52,14 @@ export default function VolcanoPlot({ deFiles }: VolcanoPlotProps) {
     }
     setLoading(true);
     const contrastNames = Object.keys(deFiles).map(filename => {
-      if (filename === 'DifferentialExpression.csv') return 'default';
-      const match = filename.match(/^DifferentialExpression-(.+)\.csv$/);
+      const lowerCaseFileName = filename.toLowerCase();
+      if (
+        lowerCaseFileName === 'differentialexpression.csv' ||
+        lowerCaseFileName === 'differentialexpression.tsv' ||
+        lowerCaseFileName === 'differentialexpression.txt'
+      )
+        return 'default';
+      const match = lowerCaseFileName.match(/^differentialexpression[-_](.+)\.(csv|tsv|txt)$/);
       return match ? match[1] : filename;
     });
     setAvailableContrasts(contrastNames);
@@ -75,12 +81,35 @@ export default function VolcanoPlot({ deFiles }: VolcanoPlotProps) {
 
     toFetch.forEach(contrast => {
       let csvText = '';
-      if (contrast === 'default' && deFiles['DifferentialExpression.csv']) {
-        csvText = deFiles['DifferentialExpression.csv'];
+      const deFileKeys = Object.keys(deFiles);
+      const lowerKeyMap = Object.fromEntries(deFileKeys.map(original => [original.toLowerCase(), original]));
+
+      if (
+        contrast === 'default' &&
+        (lowerKeyMap['differentialexpression.csv'] ||
+          lowerKeyMap['differentialexpression.tsv'] ||
+          lowerKeyMap['differentialexpression.txt'])
+      ) {
+        csvText =
+          deFiles[lowerKeyMap['differentialexpression.csv']] ||
+          deFiles[lowerKeyMap['differentialexpression.tsv']] ||
+          deFiles[lowerKeyMap['differentialexpression.txt']];
       } else {
-        const key = Object.keys(deFiles).find(k => k === `DifferentialExpression-${contrast}.csv`);
-        if (key) csvText = deFiles[key];
+        const extensions = ['csv', 'tsv', 'txt'];
+        let matchedKey: string | undefined;
+
+        for (const ext of extensions) {
+          const key1 = `differentialexpression_${contrast}.${ext}`.toLowerCase();
+          const key2 = `differentialexpression-${contrast}.${ext}`.toLowerCase();
+          matchedKey = lowerKeyMap[key1] || lowerKeyMap[key2];
+          if (matchedKey) break;
+        }
+
+        if (matchedKey) {
+          csvText = deFiles[matchedKey];
+        }
       }
+
       if (csvText) {
         Papa.parse<GenericRow>(csvText, {
           header: true,
@@ -88,22 +117,29 @@ export default function VolcanoPlot({ deFiles }: VolcanoPlotProps) {
           skipEmptyLines: true,
           complete: results => {
             const headers = results.meta.fields ?? [];
-            const idKey = headers[0];
-            const logFCKey = headers.find(h => h.toLowerCase() === 'logfc') || headers.find(h => /fc/i.test(h));
+
+            const idKey = headers[0] || 'id';
+            const logFCKey =
+              headers.find(h => h && h.toLowerCase() === 'logfc') || headers.find(h => h && /fc/i.test(h));
             const pvalKey =
-              headers.find(h => h.toLowerCase() === 'pvalue') || headers.find(h => /p[\s\-]?val/i.test(h));
+              headers.find(h => h && h.toLowerCase() === 'pvalue') || headers.find(h => h && /p[\s\-]?val/i.test(h));
+
             if (!logFCKey || !pvalKey) {
               console.warn(`Skipping file ${contrast} due to missing logFC or PValue columns`);
               return;
             }
-            const filtered = results.data.filter(
-              row =>
+
+            const filtered = results.data.filter(row => {
+              const idValue = idKey in row ? row[idKey] : row[''] || '';
+              return (
                 typeof row[logFCKey!] === 'number' &&
                 typeof row[pvalKey!] === 'number' &&
-                typeof row[idKey] === 'string',
-            );
+                (typeof idValue === 'string' || typeof idValue === 'number')
+              );
+            });
+
             newData[contrast] = filtered.map(row => ({
-              id: row[idKey] as string,
+              id: String(idKey in row ? row[idKey] : row[''] || ''),
               logFC: row[logFCKey!] as number,
               PValue: row[pvalKey!] as number,
             }));
@@ -296,8 +332,8 @@ export default function VolcanoPlot({ deFiles }: VolcanoPlotProps) {
     return (
       <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
         <div className='min-h-[60vh] flex flex-col items-center justify-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4' />
-          <p className='text-gray-500 text-lg'>Loading data...</p>
+          <Spinner />
+          <p className='text-gray-500 text-lg mt-4'>Loading data...</p>
         </div>
       </div>
     );

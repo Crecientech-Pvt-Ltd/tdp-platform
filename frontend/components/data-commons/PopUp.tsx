@@ -3,10 +3,9 @@ import React from 'react';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useRouter } from 'next/navigation';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { MultiSelect } from '@/components/ui/multiselect';
-
+import { Spinner } from '@/components/ui/spinner';
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 interface FileSelectionPopupProps {
@@ -22,10 +21,13 @@ interface FileOptions {
   transcript: string[];
   pca: string[];
   differentialexpression: string[];
+  samplesheet: string[];
 }
 
 const filterCsvTsv = (files: string[]) =>
-  files.filter(f => f.toLowerCase().endsWith('.csv') || f.toLowerCase().endsWith('.tsv'));
+  files.filter(
+    f => f.toLowerCase().endsWith('.csv') || f.toLowerCase().endsWith('.tsv') || f.toLowerCase().endsWith('.txt'),
+  );
 
 const truncateFilename = (filename: string, maxLength = 50) => {
   if (filename.length <= maxLength) return filename;
@@ -42,15 +44,16 @@ export default function FileSelectionPopup({
   selectedProgram,
   selectedProject,
 }: FileSelectionPopupProps) {
-  const router = useRouter();
-
   const [isEditing, setIsEditing] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [loadingProceed, setLoadingProceed] = React.useState(false);
+
   const [fileOptions, setFileOptions] = React.useState<FileOptions>({
     gene: [],
     transcript: [],
     pca: [],
     differentialexpression: [],
+    samplesheet: [],
   });
 
   const [selections, setSelections] = React.useState({
@@ -58,6 +61,7 @@ export default function FileSelectionPopup({
     transcript: '',
     pca: '',
     differentialexpression: [] as string[],
+    samplesheet: '',
   });
 
   const canProceed = !loading;
@@ -80,7 +84,7 @@ export default function FileSelectionPopup({
     if (isOpen && selectedGroup && selectedProgram && selectedProject) {
       setLoading(true);
 
-      const keys: (keyof FileOptions)[] = ['gene', 'transcript', 'pca', 'differentialexpression'];
+      const keys: (keyof FileOptions)[] = ['gene', 'transcript', 'pca', 'differentialexpression', 'samplesheet'];
 
       const fetchFileList = async (key: keyof FileOptions) => {
         const url = `${API_BASE}/data-commons/project/${encodeURIComponent(
@@ -104,6 +108,7 @@ export default function FileSelectionPopup({
           transcript: [],
           pca: [],
           differentialexpression: [],
+          samplesheet: [],
         };
         results.forEach(([key, files]) => {
           options[key] = filterCsvTsv(files);
@@ -114,6 +119,7 @@ export default function FileSelectionPopup({
           gene: options.gene.find(f => f.toLowerCase().includes('gene')) || '',
           transcript: options.transcript.find(f => f.toLowerCase().includes('transcript')) || '',
           pca: options.pca.find(f => f.toLowerCase().includes('pca')) || '',
+          samplesheet: options.samplesheet.find(f => f.toLowerCase().includes('sample')) || '',
           differentialexpression: options.differentialexpression.filter(f =>
             f.toLowerCase().includes('differentialexpression'),
           ),
@@ -132,6 +138,8 @@ export default function FileSelectionPopup({
   };
 
   const confirmProceed = () => {
+    setLoadingProceed(true);
+
     const params = new URLSearchParams({
       group: selectedGroup,
       program: selectedProgram,
@@ -140,9 +148,16 @@ export default function FileSelectionPopup({
       transcriptFile: selections.transcript,
       pcaFile: selections.pca,
       deFiles: selections.differentialexpression.join(','),
+      sampleFile: selections.samplesheet,
     });
-    router.push(`/data?${params.toString()}`);
-    onClose();
+
+    const url = `/data?${params.toString()}`;
+
+    setTimeout(() => {
+      window.open(url, '_blank');
+      setLoadingProceed(false);
+      onClose();
+    }, 600);
   };
 
   const renderRow = (label: string, type: keyof FileOptions) => {
@@ -155,7 +170,7 @@ export default function FileSelectionPopup({
           <div className='md:col-span-3 flex flex-col gap-3'>
             <div className='flex flex-col gap-2'>
               <span className='text-sm text-muted-foreground'>
-                Selected:{' '}
+                {' '}
                 <strong>
                   {selections.differentialexpression.length > 0
                     ? `${selections.differentialexpression.length} files`
@@ -175,7 +190,7 @@ export default function FileSelectionPopup({
               )}
               <MultiSelect
                 options={orderFiles(fileOptions.differentialexpression, 'differentialexpression').map(file => ({
-                  label: truncateFilename(file, 40),
+                  label: file,
                   value: file,
                 }))}
                 selectedValues={selections.differentialexpression}
@@ -199,7 +214,7 @@ export default function FileSelectionPopup({
         </div>
         <div className='md:col-span-3 flex flex-col gap-2'>
           <span className='text-sm text-muted-foreground'>
-            Selected:{' '}
+            {' '}
             <strong className='block truncate max-w-full' title={selectedFile}>
               {selectedFile ? truncateFilename(selectedFile, 60) : 'None'}
             </strong>
@@ -235,7 +250,7 @@ export default function FileSelectionPopup({
             {loading ? (
               <div className='flex items-center justify-center py-12'>
                 <div className='text-center text-gray-500'>
-                  <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4'></div>
+                  <Spinner className='mx-auto mb-4' />
                   Loading available files...
                 </div>
               </div>
@@ -244,6 +259,7 @@ export default function FileSelectionPopup({
                 <div className='grid gap-4'>
                   {renderRow('Gene File', 'gene')}
                   {renderRow('Transcript File', 'transcript')}
+                  {renderRow('Sample Sheet File', 'samplesheet')}
                   {renderRow('PCA File', 'pca')}
                   {renderRow('Differential Expression Files', 'differentialexpression')}
                 </div>
@@ -306,6 +322,19 @@ export default function FileSelectionPopup({
 
               <div className='grid grid-cols-1 md:grid-cols-4 gap-4 items-start'>
                 <div className='md:col-span-1 flex items-center justify-center min-h-[60px]'>
+                  <p className='font-semibold text-base'>Sample Sheet File:</p>
+                </div>
+                <div className='md:col-span-3'>
+                  <div className='bg-muted/50 rounded-md p-3 border'>
+                    <div className='text-sm break-words' title={selections.samplesheet}>
+                      {selections.samplesheet || 'No file selected'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-4 gap-4 items-start'>
+                <div className='md:col-span-1 flex items-center justify-center min-h-[60px]'>
                   <p className='font-semibold text-base'>PCA File:</p>
                 </div>
                 <div className='md:col-span-3'>
@@ -358,9 +387,16 @@ export default function FileSelectionPopup({
             <Button
               onClick={confirmProceed}
               className='bg-primary text-white hover:bg-primary/90 w-full sm:w-auto order-1 sm:order-3'
-              disabled={!canProceed}
+              disabled={!canProceed || loadingProceed}
             >
-              Submit
+              {loadingProceed ? (
+                <div className='flex items-center gap-2'>
+                  <Spinner className='h-4 w-4' />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                'Submit'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

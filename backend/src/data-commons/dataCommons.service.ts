@@ -121,68 +121,27 @@ export class DataCommonsService {
     filename: string,
     res: any,
   ) {
-    const allowedFiles = [
-      'samplesheet.valid.csv',
-      'contrastsheet.valid.csv',
-      'salmon.merged.gene_counts.tsv',
-      'salmon.merged.transcript_counts.tsv',
-      'PCA.csv',
-      'DifferentialExpression.csv',
-    ];
-    const allowedExtensions = [
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.gif',
-      '.bmp',
-      '.webp',
-    ];
     const projectPath = path.join(DATA_PATH, group, program, project);
+    const filePath = path.join(projectPath, filename);
 
-    if (filename === 'DifferentialExpression') {
-      let filesInProject: string[] = [];
-      try {
-        filesInProject = fs.readdirSync(projectPath);
-      } catch (e) {
-        res.status(404).send('Project folder not found');
-        return;
-      }
-      const deFiles = filesInProject.filter(
-        (f) =>
-          f === 'DifferentialExpression.csv' ||
-          (f.startsWith('DifferentialExpression-') && f.endsWith('.csv')),
-      );
-      if (deFiles.length === 0) {
-        res.status(404).send('No DifferentialExpression files found');
-        return;
-      }
-      const result: Record<string, string> = {};
-      for (const file of deFiles) {
-        const filePath = path.join(projectPath, file);
-        try {
-          result[file] = fs.readFileSync(filePath, 'utf8');
-        } catch (e) {
-          result[file] = '';
-        }
-      }
-      res.json(result);
+    if (!fs.existsSync(filePath)) {
+      res.status(404).send(`${filename} not found`);
       return;
     }
-
-    if (
-      allowedFiles.includes(filename) ||
-      allowedExtensions.some((ext) => filename.toLowerCase().endsWith(ext)) ||
-      (filename.startsWith('DifferentialExpression-') &&
-        filename.endsWith('.csv'))
-    ) {
-      const filePath = path.join(projectPath, filename);
-      if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-      } else {
-        res.status(404).send(`${filename} not found`);
+    const lowerCaseFileName = filename.toLowerCase();
+    if (lowerCaseFileName.includes('differentialexpression')) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        res.json({ [filename]: content });
+      } catch (e) {
+        res.status(500).send('Error reading file');
       }
     } else {
-      res.status(403).send('File not allowed');
+      try {
+        res.sendFile(filePath);
+      } catch (e) {
+        res.status(500).send('Error sending file');
+      }
     }
   }
 
@@ -202,7 +161,7 @@ export class DataCommonsService {
     ];
 
     const allowedKeysDetailed: Record<string, string[] | string> = {
-      samplesheet: ['samplesheet', 'samples'],
+      samplesheet: ['samplesheet', 'sample'],
       gene: ['gene'],
       transcript: ['transcript'],
       pca: ['pca'],

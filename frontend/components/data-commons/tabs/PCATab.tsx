@@ -1,19 +1,18 @@
 import PCA from '@/components/data-commons/PCA';
 
 export function PCATab({
-  files,
+  pcaFile,
   getFileUrl,
+  sampleFile,
 }: {
-  files: Record<string, boolean | string[]>;
+  pcaFile: string | null | undefined;
   getFileUrl: (filename: string) => string;
+  sampleFile: string | null | undefined;
 }) {
-  const samplesheetKey = Object.keys(files).find(key => key.toLowerCase().includes('sample'));
-  const pcaKey = Object.keys(files).find(key => key.toLowerCase().includes('pca'));
-
   return (
     <PCA
-      samplesheetUrl={samplesheetKey ? getFileUrl(samplesheetKey) : undefined}
-      pcaUrl={pcaKey ? getFileUrl(pcaKey) : undefined}
+      samplesheetUrl={sampleFile ? getFileUrl(sampleFile) : undefined}
+      pcaUrl={pcaFile ? getFileUrl(pcaFile) : undefined}
     />
   );
 }

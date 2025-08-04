@@ -6,6 +6,7 @@ import Papa from 'papaparse';
 import { VirtualizedCombobox } from '@/components/VirtualizedCombobox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 type GeneRow = {
   [key: string]: string | number;
@@ -42,15 +43,22 @@ export default function TranscriptExpression({
   const [sampleDataExists, setSampleDataExists] = useState(false);
 
   function getIdColName(row: GeneRow): string {
-    return Object.keys(row)[0];
-  }
-  function getSampleColNames(row: GeneRow): string[] {
-    return Object.keys(row).slice(1);
+    const keys = Object.keys(row);
+    return keys.length > 0 ? keys[0] : '0';
   }
 
-  function getSampleSheetColNames(row: SampleRow): [string, string] {
-    const keys = Object.keys(row);
-    return [keys[0], keys[1]];
+  function getSampleColNames(row: GeneRow): string[] {
+    const keys = Object.keys(row).filter(k => k !== '' && k !== '0' && k !== 'undefined');
+    return keys.length > 1 ? keys.slice(1) : [];
+  }
+
+  function normalizeSampleName(sample: string): string {
+    if (!sample) return '';
+    return String(sample)
+      .trim()
+      .toLowerCase()
+      .replace(/^sample[-_]?/i, '')
+      .replace(/[^a-z0-9]/g, '');
   }
 
   useEffect(() => {
@@ -68,9 +76,12 @@ export default function TranscriptExpression({
         return res.text();
       })
       .then(text => {
+        const isTabDelimited = text.indexOf('\t') !== -1;
+
         Papa.parse<SampleRow>(text, {
           header: true,
           skipEmptyLines: true,
+          delimiter: isTabDelimited ? '\t' : undefined,
           complete: results => {
             const rows = results.data as SampleRow[];
             if (!rows.length) {
@@ -79,13 +90,37 @@ export default function TranscriptExpression({
               setGroupToColor({});
               return;
             }
-            const [sampleCol, groupCol] = getSampleSheetColNames(rows[0]);
+
+            const sampleHeader = results.meta.fields ?? [];
+            if (sampleHeader.length < 2) {
+              setSampleDataExists(false);
+              setSampleToGroup({});
+              setGroupToColor({});
+              return;
+            }
+
+            const nameKey = sampleHeader[0] === '' || sampleHeader[0] === undefined ? '0' : sampleHeader[0];
+            const groupKey = sampleHeader[sampleHeader.length - 1] || String(sampleHeader.length - 1);
+
             const sampleGroup: Record<string, string> = {};
             const groupSet = new Set<string>();
+
             rows.forEach(row => {
-              sampleGroup[row[sampleCol]] = row[groupCol];
-              groupSet.add(row[groupCol]);
+              const sample = row[''] !== undefined ? row[''] : row[nameKey] !== undefined ? row[nameKey] : row['0'];
+              const group = row[groupKey] !== undefined ? row[groupKey] : row[String(sampleHeader.length - 1)];
+
+              if (sample && group) {
+                const normalizedSample = normalizeSampleName(String(sample));
+                sampleGroup[String(sample)] = String(group);
+
+                if (normalizedSample) {
+                  sampleGroup[normalizedSample] = String(group);
+                }
+
+                groupSet.add(String(group));
+              }
             });
+
             const groupArr = Array.from(groupSet).sort();
             const groupColor: Record<string, string> = {};
             groupArr.forEach((g, i) => {
@@ -114,9 +149,12 @@ export default function TranscriptExpression({
     fetch(geneCountsUrl)
       .then(res => res.text())
       .then(text => {
+        const isTabDelimited = text.indexOf('\t') !== -1;
+
         Papa.parse<GeneRow>(text, {
           header: true,
           skipEmptyLines: true,
+          delimiter: isTabDelimited ? '\t' : undefined,
           complete: results => {
             const data = results.data as GeneRow[];
             setGeneData(data);
@@ -134,12 +172,16 @@ export default function TranscriptExpression({
       setLoading(false);
       return;
     }
+
     fetch(transcriptCountsUrl)
       .then(res => res.text())
       .then(text => {
+        const isTabDelimited = text.indexOf('\t') !== -1;
+
         Papa.parse<GeneRow>(text, {
           header: true,
           skipEmptyLines: true,
+          delimiter: isTabDelimited ? '\t' : undefined,
           complete: results => {
             const data = results.data as GeneRow[];
             setTranscriptData(data);
@@ -157,7 +199,12 @@ export default function TranscriptExpression({
     const currentData = dataSource === 'gene' ? geneData : transcriptData;
     if (currentData.length > 0) {
       const idCol = getIdColName(currentData[0]);
-      const genes = currentData.map(row => row[idCol] as string).filter(Boolean);
+      const genes = currentData
+        .map(row => {
+          const id = row[idCol] !== undefined ? row[idCol] : row['0'];
+          return id as string;
+        })
+        .filter(Boolean);
       genes.sort();
       setGeneList(genes);
       setSelectedGenes(new Set());
@@ -177,10 +224,20 @@ export default function TranscriptExpression({
     const newGeneDataMap: Record<string, { x: string[]; y: number[] }> = {};
 
     selectedGenes.forEach(gene => {
-      const row = currentData.find(row => row[idCol] === gene);
+      const row = currentData.find(r => {
+        const rowId =
+          r[idCol] !== undefined ? r[idCol] : r[''] !== undefined ? r[''] : r['0'] !== undefined ? r['0'] : r[0];
+
+        return String(rowId).trim() === gene.trim();
+      });
+
       if (row) {
         const x = sampleCols;
-        const y = x.map(k => Number(row[k]));
+        const y = x.map(k => {
+          const val = row[k] !== undefined ? row[k] : row[k.toString()] !== undefined ? row[k.toString()] : 0;
+
+          return Number(val);
+        });
         newGeneDataMap[gene] = { x, y };
       } else {
         newGeneDataMap[gene] = { x: [], y: [] };
@@ -196,8 +253,43 @@ export default function TranscriptExpression({
     if (!sampleDataExists) {
       return x.map(() => '#6b7280');
     }
+
     return x.map(sample => {
-      const group = sampleToGroup[sample];
+      let group = sampleToGroup[sample];
+
+      if (!group) {
+        const normalizedSample = normalizeSampleName(sample);
+        group = sampleToGroup[normalizedSample];
+
+        if (!group && sample.includes('.')) {
+          const shortSample = sample.split('.').pop() || '';
+          group = sampleToGroup[shortSample];
+
+          if (!group) {
+            group = sampleToGroup[normalizeSampleName(shortSample)];
+          }
+        }
+
+        if (!group) {
+          const matchingKey = Object.keys(sampleToGroup).find(key => normalizeSampleName(key) === normalizedSample);
+
+          if (matchingKey) {
+            group = sampleToGroup[matchingKey];
+          }
+        }
+
+        if (!group && normalizedSample) {
+          const partialMatchKey = Object.keys(sampleToGroup).find(key => {
+            const normKey = normalizeSampleName(key);
+            return normKey.includes(normalizedSample) || normalizedSample.includes(normKey);
+          });
+
+          if (partialMatchKey) {
+            group = sampleToGroup[partialMatchKey];
+          }
+        }
+      }
+
       return groupToColor[group] || '#3182ce';
     });
   }
@@ -260,6 +352,13 @@ export default function TranscriptExpression({
         <div className='min-h-[60vh] flex items-center justify-center'>
           <div className='text-center text-gray-500 text-lg font-medium'>
             Kindly add CPM/TPM metric files to view plots.
+          </div>
+        </div>
+      ) : isLoading ? (
+        <div className='min-h-[60vh] flex items-center justify-center'>
+          <div className='text-center text-gray-500'>
+            <Spinner />
+            <p className='mt-4'>Loading data...</p>
           </div>
         </div>
       ) : (

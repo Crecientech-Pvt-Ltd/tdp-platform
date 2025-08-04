@@ -55,14 +55,9 @@ export default function PCA({ samplesheetUrl, pcaUrl }: PCAProps) {
                 setTraces([]);
                 return;
               }
-              const idKey = pcaHeader[0];
-              const pc1Key = pcaHeader[1];
-              const pc2Key = pcaHeader[2];
-
-              if (!idKey || !pc1Key || !pc2Key) {
-                setTraces([]);
-                return;
-              }
+              const idKey = pcaHeader[0] === '' || pcaHeader[0] === undefined ? '0' : pcaHeader[0];
+              const pc1Key = pcaHeader[1] || '1';
+              const pc2Key = pcaHeader[2] || '2';
 
               if (!hasSampleData) {
                 const allData = {
@@ -72,10 +67,14 @@ export default function PCA({ samplesheetUrl, pcaUrl }: PCAProps) {
                 };
 
                 pcaResults.data.forEach(row => {
-                  if (typeof row[pc1Key] === 'number' && typeof row[pc2Key] === 'number' && row[idKey]) {
-                    allData.x.push(row[pc1Key] as number);
-                    allData.y.push(row[pc2Key] as number);
-                    allData.text.push(String(row[idKey]));
+                  const id = row[''] !== undefined ? row[''] : row[idKey] !== undefined ? row[idKey] : row['0'];
+                  const pc1 = (row[pc1Key] !== undefined ? row[pc1Key] : row['1']) as number;
+                  const pc2 = (row[pc2Key] !== undefined ? row[pc2Key] : row['2']) as number;
+
+                  if (typeof pc1 === 'number' && typeof pc2 === 'number' && id !== undefined) {
+                    allData.x.push(pc1);
+                    allData.y.push(pc2);
+                    allData.text.push(String(id));
                   }
                 });
 
@@ -95,12 +94,15 @@ export default function PCA({ samplesheetUrl, pcaUrl }: PCAProps) {
               } else {
                 const grouped: Record<string, { x: number[]; y: number[]; text: string[] }> = {};
                 pcaResults.data.forEach(row => {
-                  const id = row[idKey];
-                  const group = id && idToGroup[String(id)] ? idToGroup[String(id)] : 'Unknown';
-                  if (typeof row[pc1Key] === 'number' && typeof row[pc2Key] === 'number' && id) {
+                  const id = row[''] !== undefined ? row[''] : row[idKey] !== undefined ? row[idKey] : row['0'];
+                  const pc1 = (row[pc1Key] !== undefined ? row[pc1Key] : row['1']) as number;
+                  const pc2 = (row[pc2Key] !== undefined ? row[pc2Key] : row['2']) as number;
+
+                  const group = id !== undefined && idToGroup[String(id)] ? idToGroup[String(id)] : 'Unknown';
+                  if (typeof pc1 === 'number' && typeof pc2 === 'number' && id !== undefined) {
                     if (!grouped[group]) grouped[group] = { x: [], y: [], text: [] };
-                    grouped[group].x.push(row[pc1Key] as number);
-                    grouped[group].y.push(row[pc2Key] as number);
+                    grouped[group].x.push(pc1);
+                    grouped[group].y.push(pc2);
                     grouped[group].text.push(String(id));
                   }
                 });
@@ -154,16 +156,23 @@ export default function PCA({ samplesheetUrl, pcaUrl }: PCAProps) {
               loadPCAData({}, {}, false);
               return;
             }
-            const nameKey = sampleHeader[0];
-            const groupKey = sampleHeader[1];
+
+            const nameKey = sampleHeader[0] === '' || sampleHeader[0] === undefined ? '0' : sampleHeader[0];
+            const groupKey = sampleHeader[sampleHeader.length - 1] || String(sampleHeader.length - 1);
+
             const idToGroup: Record<string, string> = {};
             const groupSet = new Set<string>();
             sampleResults.data.forEach(row => {
-              if (row[nameKey] && row[groupKey]) {
-                idToGroup[String(row[nameKey])] = String(row[groupKey]);
-                groupSet.add(String(row[groupKey]));
+              const name = row[''] !== undefined ? row[''] : row[nameKey] !== undefined ? row[nameKey] : row['0'];
+
+              const group = row[groupKey] !== undefined ? row[groupKey] : row[String(sampleHeader.length - 1)];
+
+              if (name !== undefined && group !== undefined) {
+                idToGroup[String(name)] = String(group);
+                groupSet.add(String(group));
               }
             });
+
             const groupArr = Array.from(groupSet).sort();
             const groupColor: Record<string, string> = {};
             groupArr.forEach((g, i) => {

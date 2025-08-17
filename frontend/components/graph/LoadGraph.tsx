@@ -115,7 +115,9 @@ export function LoadGraph() {
           }
           if (!result || !result.data) return;
           const geneNameToID = new Map<string, string>();
+          const geneNames: string[] = [];
           const nodes = result.data.genes.map(gene => {
+            geneNames.push(gene.Gene_name ?? gene.ID);
             if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
             return {
               key: gene.ID,
@@ -150,7 +152,7 @@ export function LoadGraph() {
           };
           // Forcefully made this as it was only way to successfuly load graph in this version (don't try to solve it)
           loadGraph(serializedGraph as unknown as Graph<NodeAttributes, EdgeAttributes>);
-          useStore.setState({ geneIDs: geneIDArray, totalNodes: geneIDs.size, totalEdges: fileData.length });
+          useStore.setState({ geneNames, totalNodes: geneIDs.size, totalEdges: fileData.length });
         };
       } else {
         await fetchData();
@@ -209,7 +211,7 @@ export function LoadGraph() {
               if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
             }
             useStore.setState({
-              geneIDs: transformedData.nodes?.map(node => node.key) || [],
+              geneNames: transformedData.nodes?.map(node => node.attributes?.label ?? node.key) || [],
               totalNodes: transformedData.nodes?.length || 0,
               totalEdges: transformedData.edges?.length || 0,
               geneNameToID,

@@ -32,7 +32,7 @@ import { Spinner } from '../ui/spinner';
 
 export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?: boolean }) {
   const diseaseName = useStore(state => state.diseaseName);
-  const geneIDs = useStore(state => state.geneIDs);
+  const geneIDs = useStore(state => state.geneNames);
   const bringCommon = useRef<boolean>(true);
   const [diseaseData, setDiseaseData] = React.useState<GetDiseaseData | undefined>(undefined);
   const [diseaseMap, setDiseaseMap] = React.useState<string>('MONDO_0004976');

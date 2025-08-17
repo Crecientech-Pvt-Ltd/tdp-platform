@@ -4,7 +4,6 @@ import { Spinner } from '@/components/ui/spinner';
 import { DEFAULT_EDGE_COLOR } from '@/lib/data';
 import '@react-sigma/core/lib/style.css';
 import dynamic from 'next/dynamic';
-import React from 'react';
 
 const SigmaContainer = dynamic(() => import('@/components/graph').then(module => module.SigmaContainer), {
   loading: () => (
@@ -20,19 +19,22 @@ const SigmaContainer = dynamic(() => import('@/components/graph').then(module =>
 
 export default function NetworkPage() {
   return (
-    <SigmaContainer
-      className='w-full h-full'
-      settings={{
-        enableEdgeEvents: true,
-        defaultNodeType: 'circle',
-        labelRenderedSizeThreshold: 0.75,
-        labelDensity: 0.2,
-        defaultEdgeColor: DEFAULT_EDGE_COLOR,
-        labelSize: 10,
-        defaultNodeColor: 'skyblue',
-        zoomingRatio: 1.2,
-        zIndex: true,
-      }}
-    />
+    <div className='w-full h-full'>
+      <SigmaContainer
+        className='w-full h-full'
+        settings={{
+          allowInvalidContainer: true,
+          enableEdgeEvents: true,
+          defaultNodeType: 'circle',
+          labelRenderedSizeThreshold: 0.75,
+          labelDensity: 0.2,
+          defaultEdgeColor: DEFAULT_EDGE_COLOR,
+          labelSize: 10,
+          defaultNodeColor: 'skyblue',
+          zoomingRatio: 1.2,
+          zIndex: true,
+        }}
+      />
+    </div>
   );
 }

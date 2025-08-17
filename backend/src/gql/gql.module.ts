@@ -1,11 +1,13 @@
-import { Module } from '@nestjs/common';
-import { GqlResolver } from './gql.resolver';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver } from '@nestjs/apollo';
-import { join } from 'node:path';
-import { GqlService } from './gql.service';
-import GraphQLJSON from 'graphql-type-json';
 import { ClickhouseModule } from '@/clickhouse/clickhouse.module';
+import { DataLoaderModule } from '@/dataloader';
+import { ApolloDriver } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
+import { join } from 'node:path';
+import { ClickhouseResolver, TargetResolver } from './clickhouse.resolver';
+import { GqlResolver } from './gql.resolver';
+import { GqlService } from './gql.service';
 
 @Module({
   imports: [
@@ -17,7 +19,8 @@ import { ClickhouseModule } from '@/clickhouse/clickhouse.module';
       path: '/graphql',
     }),
     ClickhouseModule,
+    DataLoaderModule,
   ],
-  providers: [GqlResolver, GqlService],
+  providers: [GqlResolver, ClickhouseResolver, TargetResolver, GqlService],
 })
 export class GqlModule {}

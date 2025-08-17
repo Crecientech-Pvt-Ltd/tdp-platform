@@ -108,10 +108,19 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
 
         ```bash
         docker exec -it clickhouse bash -c '
-          for f in /backup/clickhouse/*.tsv; do
-            t=$(basename "$f" .tsv)
-            clickhouse-client --query="INSERT INTO $t FORMAT TabSeparated" < "$f"
-            echo "Loaded $t from $f"
+          set -e
+          for f in /backup/clickhouse/*.tsv /backup/clickhouse/*.tsv.gz; do
+            table_name=$(sed -E "s/\.tsv(\.gz)?$//" <<< "$(basename $f)")
+            if [[ $table_name == "*" ]]; then
+              continue
+            fi
+            clickhouse-client --query="TRUNCATE TABLE $table_name"
+            if [[ $f == *.gz ]]; then
+              gunzip -c "$f" | clickhouse-client --query="INSERT INTO $table_name FORMAT TabSeparatedWithNames"
+            else
+              clickhouse-client --query="INSERT INTO $table_name FORMAT TabSeparatedWithNames" < "$f"
+            fi
+            echo "Loaded $table_name from $f"
           done
         '
         ```

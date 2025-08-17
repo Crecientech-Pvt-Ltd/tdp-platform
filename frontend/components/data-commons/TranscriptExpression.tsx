@@ -394,7 +394,7 @@ export default function TranscriptExpression({
                     loading={isLoading}
                     className='w-full'
                     multiselect={true}
-                    showSelectAll={true}
+                    showSelectedAsChip={true}
                   />
                   {selectedGenes.size > 0 && (
                     <p className='text-xs text-gray-500 mt-1'>

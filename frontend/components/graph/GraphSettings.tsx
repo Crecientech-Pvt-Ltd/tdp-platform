@@ -143,4 +143,6 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
       if (timer) clearTimeout(timer);
     };
   }, [nodeDegreeCutOff, totalNodes, sigma, activeTab]);
+
+  return null;
 }

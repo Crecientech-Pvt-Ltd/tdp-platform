@@ -103,6 +103,8 @@ export interface GraphStore {
    */
   geneNames: string[];
 
+  geneIDs: string[];
+
   /**
    * Disease Name
    */

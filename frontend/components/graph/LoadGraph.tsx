@@ -34,6 +34,22 @@ import {
 } from '../ui/alert-dialog';
 import { Spinner } from '../ui/spinner';
 
+type Type2Row = {
+  relation: string;
+  display_relation: string;
+  x_index: string;
+  x_id: string;
+  x_type: string;
+  x_name: string;
+  x_source: string;
+  y_index: string;
+  y_id: string;
+  y_type: string;
+  y_name: string;
+  y_source: string;
+  [key: string]: string;
+};
+
 export function LoadGraph() {
   const searchParams = useSearchParams();
   const loadGraph = useLoadGraph();
@@ -55,6 +71,7 @@ export function LoadGraph() {
 
   React.useEffect(() => {
     const fileName = searchParams?.get('file');
+    const csvType = searchParams?.get('csvType');
     (async () => {
       if (fileName) {
         const fileType = fileName.split('.').pop();
@@ -82,6 +99,60 @@ export function LoadGraph() {
             fileData = parsedResult.data as Array<Record<string, string | number>>;
             fields = parsedResult.meta.fields || [];
           }
+
+          if (csvType === 'type2') {
+            const nodeMap = new Map<string, { key: string; attributes: NodeAttributes }>();
+            (fileData as Type2Row[]).forEach(row => {
+              if (!nodeMap.has(row.x_id)) {
+                nodeMap.set(row.x_id, {
+                  key: row.x_id,
+                  attributes: {
+                    label: row.x_name,
+                    ID: row.x_id,
+                    nodeType: row.x_type,
+                    description: row.x_name,
+                  },
+                });
+              }
+              if (!nodeMap.has(row.y_id)) {
+                nodeMap.set(row.y_id, {
+                  key: row.y_id,
+                  attributes: {
+                    label: row.y_name,
+                    ID: row.y_id,
+                    nodeType: row.y_type,
+                    description: row.y_name,
+                  },
+                });
+              }
+            });
+
+            const edges: SerializedEdge<EdgeAttributes>[] = (fileData as Type2Row[]).map((row, idx) => ({
+              key: `${row.x_id}-${row.y_id}-${idx}`,
+              source: row.x_id,
+              target: row.y_id,
+              attributes: {
+                label: row.display_relation,
+                relation: row.relation,
+                score: 1,
+              },
+            }));
+
+            const serializedGraph: Partial<SerializedGraph<NodeAttributes, EdgeAttributes>> = {
+              nodes: Array.from(nodeMap.values()),
+              edges,
+              options: { type: 'directed' },
+            };
+
+            loadGraph(serializedGraph as unknown as Graph<NodeAttributes, EdgeAttributes>);
+            useStore.setState({
+              geneIDs: Array.from(nodeMap.keys()),
+              totalNodes: nodeMap.size,
+              totalEdges: edges.length,
+            });
+            return;
+          }
+
           if (fields.length < 3) {
             toast.error('There must be atleast 3 fields in csv/json!', {
               description: 'Fields more than 3 are ignored. Please check the file and try again',
@@ -152,7 +223,7 @@ export function LoadGraph() {
           };
           // Forcefully made this as it was only way to successfuly load graph in this version (don't try to solve it)
           loadGraph(serializedGraph as unknown as Graph<NodeAttributes, EdgeAttributes>);
-          useStore.setState({ geneNames, totalNodes: geneIDs.size, totalEdges: fileData.length });
+          useStore.setState({ geneNames, geneIDs: geneIDArray, totalNodes: geneIDs.size, totalEdges: fileData.length });
         };
       } else {
         await fetchData();
@@ -212,6 +283,7 @@ export function LoadGraph() {
             }
             useStore.setState({
               geneNames: transformedData.nodes?.map(node => node.attributes?.label ?? node.key) || [],
+              geneIDs: transformedData.nodes?.map(node => node.key) || [],
               totalNodes: transformedData.nodes?.length || 0,
               totalEdges: transformedData.edges?.length || 0,
               geneNameToID,

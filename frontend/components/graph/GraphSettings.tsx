@@ -22,6 +22,10 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
   const activeTab = useStore(state => state.activeTab);
   const nodeDegreeCutOff = useStore(state => state.radialAnalysis.nodeDegreeCutOff);
 
+  const circle = ['anatomy', 'gene/protein', 'effect/phenotype', 'molecular_function'];
+  const triangle = ['biological_process', 'cellular_component', 'exposure'];
+  const square = ['drug', 'pathway', 'disease', 'compound'];
+
   useEffect(() => {
     sigma.on('enterNode', e => setHoveredNode({ node: e.node, ctrlKey: e.event.original.ctrlKey }));
     sigma.on('leaveNode', () => setHoveredNode(null));
@@ -84,6 +88,10 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
     const graph = sigma.getGraph();
     setSettings({
       nodeReducer(node, data) {
+        if (triangle.includes(data.nodeType)) data.type = 'triangle';
+        else if (square.includes(data.nodeType)) data.type = 'square';
+        else if (circle.includes(data.nodeType)) data.type = 'circle';
+        else data.type = 'circle';
         if (!data.x) data.x = Math.random() * 1000;
         if (!data.y) data.y = Math.random() * 1000;
         if (!data.size) data.size = defaultNodeSize;

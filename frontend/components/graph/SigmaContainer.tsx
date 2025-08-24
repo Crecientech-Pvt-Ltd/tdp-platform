@@ -1,6 +1,8 @@
 'use client';
 
 import { NodeGradientProgram } from '@/lib/graph';
+import NodeSquareProgram from '@/lib/graph/NodeSquareProgram';
+import NodeTriangleProgram from '@/lib/graph/NodeTriangleProgram';
 import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import {
   ControlsContainer,
@@ -39,6 +41,10 @@ export const SigmaContainer = React.forwardRef<
     sigmaContainer.addEventListener('contextmenu', e => e.preventDefault());
   }, []);
 
+  const circle = ['anatomy', 'gene/protein', 'effect/phenotype', 'molecular_function'];
+  const triangle = ['biological_process', 'cellular_component', 'exposure'];
+  const square = ['drug', 'pathway', 'disease', 'compound'];
+
   return (
     <_SigmaContainer
       ref={ref}
@@ -58,11 +64,21 @@ export const SigmaContainer = React.forwardRef<
           }),
           highlight: NodeBorderProgram,
           normal: NodeCircleProgram,
+          triangle: NodeTriangleProgram,
+          square: NodeSquareProgram,
         },
         edgeProgramClasses: {
           line: EdgeLineProgram,
         },
         defaultDrawNodeHover: drawDiscNodeHover,
+        nodeReducer(node, data) {
+          console.log('sigma boy', data);
+          if (triangle.includes(data.nodeType)) data.type = 'triangle';
+          else if (square.includes(data.nodeType)) data.type = 'square';
+          else if (circle.includes(data.nodeType)) data.type = 'circle';
+          else data.type = 'circle';
+          return data;
+        },
       }}
     >
       <Suspense>

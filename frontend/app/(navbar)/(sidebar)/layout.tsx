@@ -1,5 +1,5 @@
 'use client';
-import { Clipboard, Search, Upload, Video, ChartColumn } from 'lucide-react';
+import { Clipboard, Search, Upload, Video, ChartColumn, LineChart } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -52,6 +52,14 @@ export default function SideBarLayout({ children }: { children: React.ReactNode 
             >
               <Link href='/data-commons' className='flex items-center outline-none'>
                 <ChartColumn size={20} className='mr-2' /> ALXN Data Common
+              </Link>
+            </li>
+            <li
+              className={`transition-colors p-2 rounded border border-transparent 
+              ${pathname === '/knowledge-graph' ? 'bg-white text-primary' : 'hover:bg-white/20 focus:bg-white/30'}`}
+            >
+              <Link href='/knowledge-graph' className='flex items-center outline-none'>
+                <LineChart size={20} className='mr-2' /> Knowledge Graph
               </Link>
             </li>
           </ul>

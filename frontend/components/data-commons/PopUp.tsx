@@ -382,7 +382,7 @@ export default function FileSelectionPopup({
               onClick={() => setIsEditing(true)}
               className='w-full sm:w-auto order-2'
             >
-              Edit Selection
+              Edit File Selection
             </Button>
             <Button
               onClick={confirmProceed}

@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import FileSelectionPopup from '@/components/data-commons/PopUp';
+import FileSelectionPopup from '@/components/data-commons/common/PopUp';
 import { Spinner } from '@/components/ui/spinner';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -27,6 +27,7 @@ type Group = {
 
 export default function DataCommonsPage() {
   const [structure, setStructure] = React.useState<Group[]>([]);
+  const [structureLoading, setStructureLoading] = React.useState<boolean>(true);
   const [selectedGroup, setSelectedGroup] = React.useState<string>('');
   const [selectedProgram, setSelectedProgram] = React.useState<string>('');
   const [selectedProject, setSelectedProject] = React.useState<string>('');
@@ -34,12 +35,15 @@ export default function DataCommonsPage() {
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showFileSelectionPopup, setShowFileSelectionPopup] = React.useState<boolean>(false);
-  const [loadingPlots, setLoadingPlots] = React.useState<boolean>(false);
+  const [imageLoading, setImageLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
+    setStructureLoading(true);
     fetch(`${API_BASE}/data-commons/structure`)
       .then(res => res.json())
-      .then(data => setStructure(data));
+      .then(data => setStructure(data))
+      .catch(() => setStructure([]))
+      .finally(() => setStructureLoading(false));
   }, []);
 
   const groupObj = structure.find(g => g.name === selectedGroup);
@@ -51,6 +55,7 @@ export default function DataCommonsPage() {
   React.useEffect(() => {
     if (selectedGroup && selectedProgram && selectedProject) {
       setLoading(true);
+      setImageLoading(true);
       fetch(
         `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/description`,
       )
@@ -63,10 +68,14 @@ export default function DataCommonsPage() {
           setDescriptionFiles(files);
           setCurrentIndex(0);
         })
-        .catch(() => setDescriptionFiles([]))
+        .catch(() => {
+          setDescriptionFiles([]);
+          setImageLoading(false);
+        })
         .finally(() => setLoading(false));
     } else {
       setDescriptionFiles([]);
+      setImageLoading(false);
     }
   }, [selectedGroup, selectedProgram, selectedProject]);
 
@@ -88,12 +97,16 @@ export default function DataCommonsPage() {
 
   const handleGoToPlots = () => {
     if (selectedGroup && selectedProgram && selectedProject) {
-      setLoadingPlots(true);
-      setTimeout(() => {
-        setLoadingPlots(false);
-        setShowFileSelectionPopup(true);
-      }, 800);
+      setShowFileSelectionPopup(true);
     }
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageLoadStart = () => {
+    setImageLoading(true);
   };
 
   const getImageUrl = (filename: string) =>
@@ -125,18 +138,26 @@ export default function DataCommonsPage() {
                   setSelectedProgram('');
                   setSelectedProject('');
                 }}
+                disabled={structureLoading}
               >
                 <SelectTrigger id='group'>
-                  <SelectValue placeholder='Select group' />
+                  <SelectValue placeholder={structureLoading ? 'Loading groups...' : 'Select group'} />
                 </SelectTrigger>
                 <SelectContent>
-                  {structure
-                    .filter(g => g.programs.some(p => p.projects.some(prj => prj.hasData && prj.files.length > 0)))
-                    .map(group => (
-                      <SelectItem key={group.name} value={group.name}>
-                        {group.name}
-                      </SelectItem>
-                    ))}
+                  {structureLoading ? (
+                    <div className='flex items-center justify-center py-4'>
+                      <Spinner />
+                      <span className='ml-2 text-sm text-gray-500'>Loading groups...</span>
+                    </div>
+                  ) : (
+                    structure
+                      .filter(g => g.programs.some(p => p.projects.some(prj => prj.hasData && prj.files.length > 0)))
+                      .map(group => (
+                        <SelectItem key={group.name} value={group.name}>
+                          {group.name}
+                        </SelectItem>
+                      ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -149,33 +170,59 @@ export default function DataCommonsPage() {
                   setSelectedProgram(val);
                   setSelectedProject('');
                 }}
-                disabled={!selectedGroup}
+                disabled={structureLoading || !selectedGroup}
               >
                 <SelectTrigger id='program'>
-                  <SelectValue placeholder='Select program' />
+                  <SelectValue placeholder={structureLoading ? 'Loading...' : 'Select program'} />
                 </SelectTrigger>
                 <SelectContent>
-                  {programs.map(program => (
-                    <SelectItem key={program.name} value={program.name}>
-                      {program.name}
-                    </SelectItem>
-                  ))}
+                  {structureLoading ? (
+                    <div className='flex items-center justify-center py-4'>
+                      <Spinner />
+                      <span className='ml-2 text-sm text-gray-500'>Loading...</span>
+                    </div>
+                  ) : programs.length === 0 ? (
+                    <div className='py-4 text-center text-sm text-gray-500'>
+                      {selectedGroup ? 'No programs available' : 'Select a group first'}
+                    </div>
+                  ) : (
+                    programs.map(program => (
+                      <SelectItem key={program.name} value={program.name}>
+                        {program.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label htmlFor='project'>Select Project</Label>
-              <Select value={selectedProject} onValueChange={setSelectedProject} disabled={!selectedProgram}>
+              <Select
+                value={selectedProject}
+                onValueChange={setSelectedProject}
+                disabled={structureLoading || !selectedProgram}
+              >
                 <SelectTrigger id='project'>
-                  <SelectValue placeholder='Select project' />
+                  <SelectValue placeholder={structureLoading ? 'Loading...' : 'Select project'} />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map(project => (
-                    <SelectItem key={project.name} value={project.name}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
+                  {structureLoading ? (
+                    <div className='flex items-center justify-center py-4'>
+                      <Spinner />
+                      <span className='ml-2 text-sm text-gray-500'>Loading...</span>
+                    </div>
+                  ) : projects.length === 0 ? (
+                    <div className='py-4 text-center text-sm text-gray-500'>
+                      {selectedProgram ? 'No projects available' : 'Select a program first'}
+                    </div>
+                  ) : (
+                    projects.map(project => (
+                      <SelectItem key={project.name} value={project.name}>
+                        {project.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -194,12 +241,6 @@ export default function DataCommonsPage() {
             >
               Go to Plots
             </Button>
-            {loadingPlots && (
-              <div className='mt-4 text-center flex flex-col items-center justify-center'>
-                <Spinner />
-                <p className='mt-2 text-gray-500'>Loading...</p>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -213,124 +254,115 @@ export default function DataCommonsPage() {
             overflow: 'hidden',
           }}
         >
-          {loading && (
-            <div className='text-center flex flex-col items-center justify-center'>
-              <Spinner />
-              <p className='mt-4 text-gray-500'>Loading project description...</p>
-            </div>
-          )}
-          {!loading && (
-            <>
-              {(!selectedGroup || descriptionFiles.length === 0) && (
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <Image
-                    src='/image/alxn-data-commons.jpeg'
-                    alt='Default Data Commons'
-                    fill
-                    style={{ objectFit: 'contain' }}
-                    sizes='100vw'
-                    priority
-                  />
-                </div>
-              )}
-            </>
-          )}
+          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            {(loading || imageLoading) && (
+              <div className='absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10'>
+                <Spinner />
+                <p className='mt-4 text-gray-500'>{loading ? 'Loading project description...' : 'Loading image...'}</p>
+              </div>
+            )}
 
-          {!loading && descriptionFiles.length > 0 && (
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-              }}
-            >
+            {(!selectedGroup || descriptionFiles.length === 0) && (
               <Image
-                src={
-                  descriptionFiles.length > 0
-                    ? getImageUrl(descriptionFiles[currentIndex])
-                    : '/image/alxn-data-commons.jpeg'
-                }
-                alt='Project Description'
+                src='/image/alxn-data-commons.jpeg'
+                alt='Default Data Commons'
                 fill
                 style={{ objectFit: 'contain' }}
                 sizes='100vw'
                 priority
+                onLoad={handleImageLoad}
+                onLoadStart={handleImageLoadStart}
               />
-              {descriptionFiles.length > 1 && (
-                <>
-                  <button
-                    aria-label='Previous'
-                    onClick={handlePrev}
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'rgba(0,0,0,0.4)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: 36,
-                      height: 36,
-                      cursor: 'pointer',
-                      zIndex: 2,
-                    }}
-                  >
-                    &#8592;
-                  </button>
-                  <button
-                    aria-label='Next'
-                    onClick={handleNext}
-                    style={{
-                      position: 'absolute',
-                      right: 0,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'rgba(0,0,0,0.4)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: 36,
-                      height: 36,
-                      cursor: 'pointer',
-                      zIndex: 2,
-                    }}
-                  >
-                    &#8594;
-                  </button>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 10,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      display: 'flex',
-                      gap: 8,
-                    }}
-                  >
-                    {descriptionFiles.map((_, idx) => (
-                      <span
-                        key={idx}
-                        style={{
-                          display: 'inline-block',
-                          width: 10,
-                          height: 10,
-                          borderRadius: '50%',
-                          background: idx === currentIndex ? '#1976d2' : '#bbb',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => setCurrentIndex(idx)}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+            )}
+
+            {descriptionFiles.length > 0 && (
+              <>
+                <Image
+                  src={getImageUrl(descriptionFiles[currentIndex]) || '/placeholder.svg'}
+                  alt='Project Description'
+                  fill
+                  style={{ objectFit: 'contain' }}
+                  sizes='100vw'
+                  priority
+                  onLoad={handleImageLoad}
+                  onLoadStart={handleImageLoadStart}
+                />
+                {descriptionFiles.length > 1 && (
+                  <>
+                    <button
+                      aria-label='Previous'
+                      onClick={handlePrev}
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(0,0,0,0.4)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 36,
+                        height: 36,
+                        cursor: 'pointer',
+                        zIndex: 2,
+                      }}
+                    >
+                      &#8592;
+                    </button>
+                    <button
+                      aria-label='Next'
+                      onClick={handleNext}
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(0,0,0,0.4)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 36,
+                        height: 36,
+                        cursor: 'pointer',
+                        zIndex: 2,
+                      }}
+                    >
+                      &#8594;
+                    </button>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 10,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: 8,
+                      }}
+                    >
+                      {descriptionFiles.map((_, idx) => (
+                        <span
+                          key={idx}
+                          style={{
+                            display: 'inline-block',
+                            width: 10,
+                            height: 10,
+                            borderRadius: '50%',
+                            background: idx === currentIndex ? '#1976d2' : '#bbb',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => setCurrentIndex(idx)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
       <FileSelectionPopup
-        isOpen={showFileSelectionPopup && !loadingPlots}
+        isOpen={showFileSelectionPopup}
         onClose={() => setShowFileSelectionPopup(false)}
         selectedGroup={selectedGroup}
         selectedProgram={selectedProgram}

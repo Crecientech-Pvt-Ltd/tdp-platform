@@ -145,6 +145,28 @@ export class DataCommonsService {
     }
   }
 
+  sendDeFile(
+    group: string,
+    program: string,
+    project: string,
+    filename: string,
+    res: any,
+  ) {
+    const projectPath = path.join(DATA_PATH, group, program, project);
+    const filePath = path.join(projectPath, filename);
+
+    if (!fs.existsSync(filePath)) {
+      res.status(404).send(`${filename} not found`);
+      return;
+    }
+
+    try {
+      res.sendFile(filePath);
+    } catch (e) {
+      res.status(500).send('Error sending file');
+    }
+  }
+
   sendProjectFileByKey(
     group: string,
     program: string,

@@ -8,11 +8,11 @@ import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 
 const TranscriptTab = dynamic(
-  () => import('@/components/data-commons/tabs/TranscriptTab').then(mod => mod.TranscriptTab),
+  () => import('@/components/data-commons/TranscriptExpression/TranscriptTab').then(mod => mod.TranscriptTab),
   { ssr: false },
 );
-const PCATab = dynamic(() => import('@/components/data-commons/tabs/PCATab').then(mod => mod.PCATab), { ssr: false });
-const DETab = dynamic(() => import('@/components/data-commons/tabs/DETab').then(mod => mod.DETab), { ssr: false });
+const PCATab = dynamic(() => import('@/components/data-commons/PCA/PCATab').then(mod => mod.PCATab), { ssr: false });
+const DETab = dynamic(() => import('@/components/data-commons/DifferentialExpression/DETab').then(mod => mod.DETab), { ssr: false });
 
 function PDCSNetworkTabs() {
   const tabNames = [
@@ -66,10 +66,30 @@ function PDCSNetworkTabs() {
               transcriptFile={transcriptFile}
               getFileUrl={getFileUrl}
               sampleFile={sampleFile}
+              group={group ?? ''}
+              program={program ?? ''}
+              project={project ?? ''}
             />
           )}
-          {activeTab === 'pca' && <PCATab pcaFile={pcaFile} getFileUrl={getFileUrl} sampleFile={sampleFile} />}
-          {activeTab === 'de' && <DETab deFilesArray={deFilesArray} getFileUrl={getFileUrl} />}
+          {activeTab === 'pca' && (
+            <PCATab
+              pcaFile={pcaFile}
+              getFileUrl={getFileUrl}
+              sampleFile={sampleFile}
+              group={group ?? ''}
+              program={program ?? ''}
+              project={project ?? ''}
+            />
+          )}
+          {activeTab === 'de' && (
+            <DETab
+              deFilesArray={deFilesArray}
+              getFileUrl={getFileUrl}
+              group={group ?? ''}
+              program={program ?? ''}
+              project={project ?? ''}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -77,25 +97,6 @@ function PDCSNetworkTabs() {
 }
 
 export default function NetworkPage() {
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className='flex flex-col items-center justify-center min-h-screen'>
-        <Spinner className='h-12 w-12' />
-        <p className='mt-4 text-lg text-gray-600'>Loading...</p>
-      </div>
-    );
-  }
-
   return (
     <Suspense
       fallback={

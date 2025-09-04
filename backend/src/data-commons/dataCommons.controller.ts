@@ -41,6 +41,17 @@ export class DataCommonsController {
     return this.service.sendProjectFile(group, program, project, filename, res);
   }
 
+  @Get('project/:group/:program/:project/deFile/:filename')
+  async getDeFile(
+    @Param('group') group: string,
+    @Param('program') program: string,
+    @Param('project') project: string,
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
+    return this.service.sendDeFile(group, program, project, filename, res);
+  }
+
   @Get('project/:group/:program/:project/files/keys/:fileKey')
   async getProjectFileByKey(
     @Param('group') group: string,
@@ -54,6 +65,23 @@ export class DataCommonsController {
       program,
       project,
       fileKey,
+      res,
+    );
+  }
+
+  @Get('project/:group/:program/:project/preview/:filename')
+  async previewProjectFile(
+    @Param('group') group: string,
+    @Param('program') program: string,
+    @Param('project') project: string,
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
+    return this.service.previewProjectFile(
+      group,
+      program,
+      project,
+      filename,
       res,
     );
   }

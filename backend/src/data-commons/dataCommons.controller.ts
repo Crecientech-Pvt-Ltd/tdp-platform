@@ -68,4 +68,21 @@ export class DataCommonsController {
       res,
     );
   }
+
+  @Get('project/:group/:program/:project/preview/:filename')
+  async previewProjectFile(
+    @Param('group') group: string,
+    @Param('program') program: string,
+    @Param('project') project: string,
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
+    return this.service.previewProjectFile(
+      group,
+      program,
+      project,
+      filename,
+      res,
+    );
+  }
 }

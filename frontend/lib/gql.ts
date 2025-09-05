@@ -79,3 +79,25 @@ export const TOP_GENES_QUERY = gql`
     }
   }
 `;
+
+export const OPENTARGET_HEATMAP_QUERY = gql`
+  query OpenTargetsTable($diseaseId: String!, $geneIds: [String!]!, $orderBy: OrderByEnum!, $page: Pagination!) {
+    targetDiseaseAssociationTable(diseaseId: $diseaseId, geneIds: $geneIds, orderBy: $orderBy, page: $page) {
+      rows {
+        target {
+          name
+          prioritization {
+            key
+            score
+          }
+        }
+        datasourceScores {
+          key
+          score
+        }
+        overall_score
+      }
+      totalCount
+    }
+  }
+`;

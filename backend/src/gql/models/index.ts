@@ -6,3 +6,6 @@ export * from './Disease.model';
 export * from './GeneInteraction.model';
 export * from './Gene.model';
 export * from './Header.model';
+export * from './TargetDiseaseAssociation.model';
+export * from './OrderByEnum.model';
+export * from './Pagination.model';

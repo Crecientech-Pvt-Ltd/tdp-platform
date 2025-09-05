@@ -9,8 +9,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
 
 export default function NetworkLayoutPage({ children }: { children: React.ReactNode }) {
-  const [leftSidebar, setLeftSidebar] = React.useState<boolean>(true);
-  const [rightSidebar, setRightSidebar] = React.useState<boolean>(true);
+  const [leftSidebar, setLeftSidebar] = React.useState<boolean>(false);
+  const [rightSidebar, setRightSidebar] = React.useState<boolean>(false);
 
   return (
     <div className='h-screen flex flex-col'>

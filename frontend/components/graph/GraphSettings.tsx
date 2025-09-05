@@ -3,6 +3,7 @@
 import { FADED_EDGE_COLOR, HIGHLIGHTED_EDGE_COLOR } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
+import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
 import { useSetSettings, useSigma } from '@react-sigma/core';
 import { useEffect, useState } from 'react';
 
@@ -25,6 +26,23 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
   }, [sigma]);
 
   useEffect(() => {
+    if (!sigma) return;
+    eventEmitter.on(Events.VISIBLE_NODES, () => {
+      const visibleNodeGeneIds = sigma.getGraph().reduceNodes((acc, node, attr) => {
+        if (!attr.hidden) acc.add(node);
+        return acc;
+      }, new Set<string>());
+      eventEmitter.emit(Events.VISIBLE_NODES_RESULTS, {
+        visibleNodeGeneIds,
+      } satisfies EventMessage[Events.VISIBLE_NODES_RESULTS]);
+    });
+
+    return () => {
+      eventEmitter.removeAllListeners(Events.VISIBLE_NODES);
+    };
+  }, [sigma]);
+
+  useEffect(() => {
     setSettings({
       labelDensity: defaultLabelDensity,
     });
@@ -42,6 +60,7 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
     });
   }, [defaultLabelSize, setSettings]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!sigma || !defaultNodeSize) return;
     if (selectedRadioNodeSize && selectedNodeSizeProperty) {

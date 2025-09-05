@@ -53,8 +53,6 @@ export class ClickhouseMigrationService implements OnApplicationBootstrap {
         } catch (err) {
           this.logger.error(`Migration ${file} failed: ${err?.message || err}`);
         }
-      } else {
-        this.logger.log(`Skipping already applied migration: ${file}`);
       }
     }
   }

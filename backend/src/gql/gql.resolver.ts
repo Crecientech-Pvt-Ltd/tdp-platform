@@ -10,11 +10,9 @@ import {
   GeneInteractionOutput,
   Header,
   InteractionInput,
-  TopGene,
 } from './models';
 import type { FieldNode, GraphQLResolveInfo } from 'graphql';
 import { Request } from 'express';
-import { ClickhouseService } from '@/clickhouse/clickhouse.service';
 
 @Resolver('gql')
 export class GqlResolver {
@@ -22,7 +20,6 @@ export class GqlResolver {
     private readonly gqlService: GqlService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
-    private readonly clickhouseService: ClickhouseService,
   ) {}
 
   @Query(() => [Gene])
@@ -99,13 +96,5 @@ export class GqlResolver {
       links: result.links,
       graphName,
     };
-  }
-
-  @Query(() => [TopGene])
-  async topGenesByDisease(
-    @Args('diseaseId', { type: () => String }) diseaseId: string,
-    @Args('limit', { type: () => Int, defaultValue: 25 }) limit: number,
-  ): Promise<TopGene[]> {
-    return this.clickhouseService.getTopGenesByDisease(diseaseId, limit);
   }
 }

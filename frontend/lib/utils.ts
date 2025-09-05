@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { GenePropertyMetadata } from './interface';
+import { OrderByEnum, type GenePropertyMetadata } from './interface';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,6 +58,8 @@ export enum Events {
   ALGORITHM = 'algorithm',
   EXPORT = 'export',
   TOGGLE_SEED_GENES = 'toggleSeedGenes',
+  VISIBLE_NODES = 'visible-nodes',
+  VISIBLE_NODES_RESULTS = 'visible-nodes-results',
 }
 export type EventMessage = {
   [Events.ALGORITHM]: {
@@ -70,6 +72,9 @@ export type EventMessage = {
     csvType?: 'universal' | 'interaction' | 'both';
   };
   [Events.TOGGLE_SEED_GENES]: boolean;
+  [Events.VISIBLE_NODES_RESULTS]: {
+    visibleNodeGeneIds: Set<string>;
+  };
 };
 
 export function envURL(env?: string) {
@@ -90,3 +95,33 @@ export function initRadioOptions() {
 }
 
 export const P_VALUE_REGEX = /^p[-_ ]?val(?:ue)?/i;
+
+export function orderByStringToEnum(orderBy: string): OrderByEnum {
+  const mapping: Record<string, OrderByEnum> = {
+    'Association Score': OrderByEnum.SCORE,
+    'GWAS associations': OrderByEnum.GWAS_ASSOCIATIONS,
+    'Gene Burden': OrderByEnum.GENE_BURDEN,
+    ClinVar: OrderByEnum.CLINVAR,
+    'GEL PanelApp': OrderByEnum.GEL_PANEL_APP,
+    Gene2phenotype: OrderByEnum.GENE2PHENOTYPE,
+    'UniProt literature': OrderByEnum.UNIPROT_LITERATURE,
+    'UniProt curated variants': OrderByEnum.UNIPROT_CURATED_VARIANTS,
+    Orphanet: OrderByEnum.ORPHANET,
+    ClinGen: OrderByEnum.CLINGEN,
+    'Cancer Gene Census': OrderByEnum.CANCER_GENE_CENSUS,
+    IntOGen: OrderByEnum.INTOGEN,
+    'ClinVar (somatic)': OrderByEnum.CLINVAR_SOMATIC,
+    'Cancer Biomarkers': OrderByEnum.CANCER_BIOMARKERS,
+    ChEMBL: OrderByEnum.CHEMBL,
+    'CRISPR Screens': OrderByEnum.CRISPR_SCREENS,
+    'Project Score': OrderByEnum.PROJECT_SCORE,
+    SLAPenrich: OrderByEnum.SLAPENRICH,
+    PROGENy: OrderByEnum.PROGENY,
+    Reactome: OrderByEnum.REACTOME,
+    'Gene signatures': OrderByEnum.GENE_SIGNATURES,
+    'Europe PMC': OrderByEnum.EUROPE_PMC,
+    'Expression Atlas': OrderByEnum.EXPRESSION_ATLAS,
+    IMPC: OrderByEnum.IMPC,
+  };
+  return mapping[orderBy] || OrderByEnum.SCORE;
+}

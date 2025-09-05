@@ -8,9 +8,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { MultiSelect } from '@/components/ui/multiselect';
 import { Spinner } from '@/components/ui/spinner';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Download, X } from 'lucide-react';
+import { Download, X, Eye } from 'lucide-react';
 import JSZip from 'jszip';
 import FlexibleLabelList from '@/components/RenderLabel';
+import FilePreviewModal from './FilePreviewModal';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -72,6 +74,11 @@ export default function FileSelectionPopup({
     differentialexpression: [] as string[],
     samplesheet: '',
   });
+
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [previewFile, setPreviewFile] = React.useState<{ filename: string; type: keyof FileOptions } | null>(null);
+  const [previewFileList, setPreviewFileList] = React.useState<string[]>([]);
+  const [previewFileIndex, setPreviewFileIndex] = React.useState(0);
 
   const canProceed = !loading;
 
@@ -317,6 +324,39 @@ export default function FileSelectionPopup({
     }
   };
 
+  const handlePreview = (type: keyof FileOptions, filename?: string) => {
+    if (type === 'differentialexpression') {
+      const files = selections.differentialexpression;
+      if (!files.length) return;
+      setPreviewFileList(files);
+      setPreviewFileIndex(filename ? files.indexOf(filename) : 0);
+      setPreviewFile({ filename: filename || files[0], type });
+      setPreviewOpen(true);
+    } else {
+      const file = selections[type] as string;
+      if (!file) return;
+      setPreviewFileList([file]);
+      setPreviewFileIndex(0);
+      setPreviewFile({ filename: file, type });
+      setPreviewOpen(true);
+    }
+  };
+
+  const handleNextPreview = () => {
+    if (previewFileList.length > 1) {
+      const nextIdx = (previewFileIndex + 1) % previewFileList.length;
+      setPreviewFileIndex(nextIdx);
+      setPreviewFile({ filename: previewFileList[nextIdx], type: previewFile?.type || 'differentialexpression' });
+    }
+  };
+  const handlePrevPreview = () => {
+    if (previewFileList.length > 1) {
+      const prevIdx = (previewFileIndex - 1 + previewFileList.length) % previewFileList.length;
+      setPreviewFileIndex(prevIdx);
+      setPreviewFile({ filename: previewFileList[prevIdx], type: previewFile?.type || 'differentialexpression' });
+    }
+  };
+
   const renderRow = (label: string, type: keyof FileOptions, displayType: string) => {
     if (type === 'differentialexpression') {
       return (
@@ -343,6 +383,21 @@ export default function FileSelectionPopup({
                           : 'None'}
                     </strong>
                   </span>
+                  {selections.differentialexpression.length > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-6 w-6 p-0'
+                          onClick={() => handlePreview('differentialexpression')}
+                        >
+                          <Eye className='h-4 w-4' />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Preview File</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 {!loading && selections.differentialexpression.length > 0 && (
                   <FlexibleLabelList
@@ -382,6 +437,21 @@ export default function FileSelectionPopup({
                   <span className='text-sm text-muted-foreground'>
                     ({selections.differentialexpression.length} files selected)
                   </span>
+                  {selections.differentialexpression.length > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-6 w-6 p-0'
+                          onClick={() => handlePreview('differentialexpression')}
+                        >
+                          <Eye className='h-4 w-4' />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Preview File</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 <div className='bg-muted/50 rounded-md p-2 max-h-32 overflow-y-auto'>
                   {selections.differentialexpression.length === 0 ? (
@@ -417,7 +487,24 @@ export default function FileSelectionPopup({
           />
         )}
         <div className='flex-1'>
-          <Label className='text-sm font-medium mb-2 block'>{displayType}</Label>
+          <div className='flex items-center gap-2 mb-2'>
+            <Label className='text-sm font-medium'>{displayType}</Label>
+            {selectedFile && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='h-6 w-6 p-0'
+                    onClick={() => handlePreview(type)}
+                  >
+                    <Eye className='h-4 w-4' />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Preview File</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           {loading ? (
             <div className='flex items-center gap-2 py-2'>
               <Spinner className='h-4 w-4' />
@@ -557,6 +644,20 @@ export default function FileSelectionPopup({
             )}
           </div>
         </DialogFooter>
+
+        <FilePreviewModal
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          filename={previewFile?.filename || ''}
+          group={selectedGroup}
+          program={selectedProgram}
+          project={selectedProject}
+          multiple={previewFileList.length > 1}
+          onNext={handleNextPreview}
+          onPrev={handlePrevPreview}
+          fileIndex={previewFileIndex}
+          fileCount={previewFileList.length}
+        />
       </DialogContent>
     </Dialog>
   );

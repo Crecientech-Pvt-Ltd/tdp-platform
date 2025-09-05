@@ -8,6 +8,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download } from 'lucide-react';
 import DownloadPopup from './DEDownloadPopup';
+import FilePreviewModal from '../common/FilePreviewModal';
+import { Eye } from 'lucide-react';
 
 interface DataFile {
   filename: string;
@@ -73,6 +75,9 @@ export default function SeeMore({
   const [logEnabled, setLogEnabled] = useState(isLogUsed);
   const [showDownloadPopup, setShowDownloadPopup] = useState(false);
 
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFileIndex, setPreviewFileIndex] = useState(0);
+
   const allColumns = React.useMemo(() => {
     const columnSet = new Set<string>();
     dataFiles.forEach(file => {
@@ -111,13 +116,28 @@ export default function SeeMore({
   const handleLogChange = (checked: boolean) => {
     setLogEnabled(checked);
   };
+  const deFiles = dataFiles.filter(f => f.filename);
+
+  const handlePreviewFiles = () => {
+    if (deFiles.length > 0) {
+      setPreviewFileIndex(0);
+      setPreviewOpen(true);
+    }
+  };
+
+  const handleNextPreview = () => {
+    setPreviewFileIndex((prev) => (prev + 1) % deFiles.length);
+  };
+
+  const handlePrevPreview = () => {
+    setPreviewFileIndex((prev) => (prev - 1 + deFiles.length) % deFiles.length);
+  };
 
   return (
     <>
       <Dialog open={isOpen}>
         <DialogContent className='max-w-4xl w-[95vw] max-h-[90vh] flex flex-col'>
           <DialogTitle className='text-xl font-semibold'>Plot Configuration & Data Information</DialogTitle>
-
           <div className='flex-grow overflow-y-auto px-1 py-4'>
             <div className='space-y-8'>
               <div className='bg-muted/30 rounded-lg p-6 border'>
@@ -177,18 +197,28 @@ export default function SeeMore({
               </div>
             </div>
           </div>
-
           <DialogFooter className='gap-2 flex-col sm:flex-row justify-between border-t pt-4'>
             <div className='flex gap-2 order-1 w-full sm:w-auto'>
               {availableContrasts.length > 0 && processDataForDownload && currentSettings && (
-                <Button
-                  onClick={() => setShowDownloadPopup(true)}
-                  variant='outline'
-                  className='flex items-center gap-2'
-                >
-                  <Download className='h-4 w-4' />
-                  Download Data
-                </Button>
+                <>
+                  <Button
+                    onClick={() => setShowDownloadPopup(true)}
+                    variant='outline'
+                    className='flex items-center gap-2'
+                  >
+                    <Download className='h-4 w-4' />
+                    Download Data
+                  </Button>
+                  <Button
+                    onClick={handlePreviewFiles}
+                    variant='outline'
+                    className='flex items-center gap-2'
+                    disabled={deFiles.length === 0}
+                  >
+                    <Eye className='h-4 w-4' />
+                    Preview Files
+                  </Button>
+                </>
               )}
             </div>
 
@@ -222,6 +252,20 @@ export default function SeeMore({
           project={project}
         />
       )}
+
+      <FilePreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        filename={deFiles[previewFileIndex]?.filename || ''}
+        group={group}
+        program={program}
+        project={project}
+        multiple={deFiles.length > 1}
+        onNext={handleNextPreview}
+        onPrev={handlePrevPreview}
+        fileIndex={previewFileIndex}
+        fileCount={deFiles.length}
+      />
     </>
   );
 }

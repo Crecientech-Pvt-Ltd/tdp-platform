@@ -135,7 +135,7 @@ export default function PCA({
                     type: "scatter",
                     mode: "markers",
                     name: "Data Points",
-                    marker: { color: "#6b7280", size: 7 },
+                    marker: { color: "#6b7280", size: 14 },
                     hovertemplate: "%{text}<extra></extra>",
                   },
                 ]
@@ -164,7 +164,7 @@ export default function PCA({
                   type: "scatter",
                   mode: "markers",
                   name: group,
-                  marker: { color: groupColor[group] || COLORS[idx % COLORS.length], size: 7 },
+                  marker: { color: groupColor[group] || COLORS[idx % COLORS.length], size: 9 },
                   hovertemplate: "%{text}<extra></extra>",
                 }))
                 setTraces(traces)
@@ -328,7 +328,6 @@ export default function PCA({
       : []),
   ]
 
-  // Build metadata for download
   const metadata = {
     selectedFiles: downloadFiles.map(f => f.name),
     settings: {
@@ -383,16 +382,16 @@ export default function PCA({
             <Plot
               data={traces}
               layout={{
-                title: { text: "PCA Plot", font: { size: 18 } },
+                title: { text: "PCA Plot", font: { size: 22 } },
                 xaxis: {
-                  title: { text: xAxisColumn },
+                  title: { text: xAxisColumn, font: { size: 18 } },
                   automargin: true,
                   tickangle: 0,
-                  tickfont: { size: 12 },
+                  tickfont: { size: 16 },
                 },
                 yaxis: {
-                  title: { text: yAxisColumn },
-                  tickfont: { size: 12 },
+                  title: { text: yAxisColumn, font: { size: 18 } },
+                  tickfont: { size: 16 },
                 },
                 margin: { t: 60, l: 60, r: 40, b: 80 },
                 autosize: true,
@@ -429,7 +428,7 @@ export default function PCA({
           zipName: `PCA-${project}.zip`,
           title: "Download PCA Data",
           buttonLabel: "Download Data",
-          metadata, // updated
+          metadata, 
         }}
         title="PCA Configuration & Data Information"
       />

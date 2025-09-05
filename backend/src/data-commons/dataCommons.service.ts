@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as readline from 'readline';
 import {
   ALLOWED_EXTENSIONS,
   findDifferentialExpressionFiles,
@@ -251,5 +252,48 @@ export class DataCommonsService {
     };
 
     res.json(result);
+  }
+
+  previewProjectFile(
+    group: string,
+    program: string,
+    project: string,
+    filename: string,
+    res: any,
+  ) {
+    const projectPath = path.join(DATA_PATH, group, program, project);
+    const filePath = path.join(projectPath, filename);
+
+    if (!fs.existsSync(filePath)) {
+      res.status(404).send(`${filename} not found`);
+      return;
+    }
+    try {
+      const stream = fs.createReadStream(filePath, { encoding: 'utf8' });
+      const rl = readline.createInterface({
+        input: stream,
+        crlfDelay: Infinity,
+      });
+
+      const lines: string[] = [];
+      rl.on('line', (line: string) => {
+        if (lines.length < 21) {
+          lines.push(line);
+        }
+        if (lines.length === 21) {
+          rl.close();
+        }
+      });
+
+      rl.on('close', () => {
+        res.type('text/plain').send(lines.join('\n'));
+      });
+
+      rl.on('error', () => {
+        res.status(500).send('Error reading file');
+      });
+    } catch (e) {
+      res.status(500).send('Error reading file');
+    }
   }
 }

@@ -399,17 +399,17 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
         ]}
         layout={{
           xaxis: {
-            title: { text: xAxisColumn, font: { size: 10 } },
+            title: { text: xAxisColumn, font: { size: 18 } },
             range: [data.bounds.xMin, data.bounds.xMax],
-            tickfont: { size: 9 },
+            tickfont: { size: 15 },
           },
           yaxis: {
             title: {
               text: useLog === 1 ? `-log10(${yAxisColumn})` : `${yAxisColumn}`,
-              font: { size: 10 },
+              font: { size: 15 },
             },
             range: [data.bounds.yMin, data.bounds.yMax],
-            tickfont: { size: 9 },
+            tickfont: { size: 15 },
           },
           autosize: true,
           dragmode: 'pan',
@@ -436,7 +436,6 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
       />
       </div>
       <div className="mt-2 p-2 border rounded-lg bg-gray-50 text-xs">
-            <div className="font-semibold text-gray-700 mb-2 text-center">Point Counts</div>
             <div className="flex justify-center items-center gap-4">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -448,7 +447,7 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                <span>NS: {counts?.gray || 0}</span>
+                <span>None: {counts?.gray || 0}</span>
               </div>
               <div className="border-l pl-2 ml-2">
                 <span className="font-medium">Total: {counts?.total || 0}</span>

@@ -511,20 +511,21 @@ export default function TranscriptExpression({
                       layout={{
                         title: {
                           text: `${dataSource === "gene" ? "Gene" : "Transcript"} Expression - ${selectedGenesArray[0]}`,
-                          font: { size: 18 },
+                          font: { size: 20 },
                         },
                         xaxis: {
                           tickangle: 45,
                           automargin: true,
-                          tickfont: { size: 12 },
+                          tickfont: { size: 15 },
+                          title: { text: "Sample", font: { size: 20 } },
                         },
                         yaxis: {
-                          title: { text: "Total read count (millions)", font: { size: 14 } },
-                          tickfont: { size: 12 },
+                          title: { text: "Total read count(millions)", font: { size: 20 }, standoff: 10 },
+                          tickfont: { size: 15 },
                         },
                         margin: {
                           t: 60,
-                          l: 80,
+                          l: 100,
                           r: 40,
                           b: calculateBottomMargin(geneDataMap[selectedGenesArray[0]]?.x || []) + 60,
                         },
@@ -556,13 +557,13 @@ export default function TranscriptExpression({
                                 },
                               ]}
                               layout={{
-                                title: { text: gene, font: { size: 13 } },
-                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 9 } },
+                                title: { text: gene, font: { size: 16 } },
+                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 13 }, title: { text: "Sample", font: { size: 14 } } },
                                 yaxis: {
-                                  title: { text: "Total read count (millions)", font: { size: 10 } },
-                                  tickfont: { size: 9 },
+                                  title: { text: "Total read count", font: { size: 13 }, standoff: 10 },
+                                  tickfont: { size: 13 },
                                 },
-                                margin: { t: 30, l: 45, r: 20, b: bottomMargin + 20 },
+                                margin: { t: 30, l: 80, r: 20, b: bottomMargin + 20 },
                                 autosize: true,
                                 showlegend: false,
                               }}
@@ -596,13 +597,13 @@ export default function TranscriptExpression({
                                 },
                               ]}
                               layout={{
-                                title: { text: gene, font: { size: 13 } },
-                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 9 } },
+                                title: { text: gene, font: { size: 16 } },
+                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 13 }, title: { text: "Sample", font: { size: 14 } } },
                                 yaxis: {
-                                  title: { text: "Total read count (millions)", font: { size: 10 } },
-                                  tickfont: { size: 9 },
+                                  title: { text: "Total read count (millions)", font: { size: 14 }, standoff: 10 },
+                                  tickfont: { size: 13 },
                                 },
-                                margin: { t: 30, l: 45, r: 20, b: bottomMargin + 20 },
+                                margin: { t: 30, l: 80, r: 20, b: bottomMargin + 20 },
                                 autosize: true,
                                 showlegend: false,
                               }}

@@ -5,8 +5,9 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from "@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Download } from "lucide-react"
+import { Download, Eye } from "lucide-react"
 import DownloadPopup, { type DownloadFile } from "./DownloadPopup"
+import FilePreviewModal from "./FilePreviewModal"
 
 type AxisConfig = {
   enabled?: boolean 
@@ -54,6 +55,13 @@ interface SeeMoreProps {
   download?: DownloadConfig
 }
 
+type DownloadMetadata = {
+  group?: string
+  program?: string
+  project?: string
+  [key: string]: unknown
+}
+
 export default function SeeMore({
   isOpen,
   onClose,
@@ -78,6 +86,37 @@ export default function SeeMore({
   const [selectedSampleColumn, setSelectedSampleColumn] = React.useState(mapping?.currentSampleColumn ?? "")
   const [selectedGroupColumn, setSelectedGroupColumn] = React.useState(mapping?.currentGroupColumn ?? "")
   const [showDownloadPopup, setShowDownloadPopup] = React.useState(false)
+
+  const [previewOpen, setPreviewOpen] = React.useState(false)
+  const [previewFileIndex, setPreviewFileIndex] = React.useState(0)
+
+  const previewableFiles = (download?.files ?? []).filter(
+    (f: DownloadFile) =>
+      typeof f.name === "string" &&
+      typeof f.url === "string" &&
+      (f.name.toLowerCase().endsWith(".csv") ||
+        f.name.toLowerCase().endsWith(".tsv") ||
+        f.name.toLowerCase().endsWith(".txt"))
+  )
+  const metadata = (download?.metadata ?? {}) as DownloadMetadata
+  const group = typeof metadata.group === "string" ? metadata.group : ""
+  const program = typeof metadata.program === "string" ? metadata.program : ""
+  const project = typeof metadata.project === "string" ? metadata.project : ""
+
+  const handlePreviewFiles = () => {
+    if (previewableFiles.length > 0) {
+      setPreviewFileIndex(0)
+      setPreviewOpen(true)
+    }
+  }
+
+  const handleNextPreview = () => {
+    setPreviewFileIndex((prev) => (prev + 1) % previewableFiles.length)
+  }
+
+  const handlePrevPreview = () => {
+    setPreviewFileIndex((prev) => (prev - 1 + previewableFiles.length) % previewableFiles.length)
+  }
 
   React.useEffect(() => {
     if (isOpen) {
@@ -225,14 +264,25 @@ export default function SeeMore({
           <DialogFooter className="gap-2 flex-col sm:flex-row justify-between border-t pt-4">
             <div className="flex gap-2 order-1 w-full sm:w-auto">
               {canDownload && (
-                <Button
-                  onClick={() => setShowDownloadPopup(true)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  {download?.buttonLabel ?? "Download Data"}
-                </Button>
+                <>
+                  <Button
+                    onClick={() => setShowDownloadPopup(true)}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    {download?.buttonLabel ?? "Download Data"}
+                  </Button>
+                  <Button
+                    onClick={handlePreviewFiles}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    disabled={previewableFiles.length === 0 || !group || !program || !project}
+                  >
+                    <Eye className="h-4 w-4" />
+                    Preview Files
+                  </Button>
+                </>
               )}
             </div>
 
@@ -259,6 +309,20 @@ export default function SeeMore({
           zipName={download.zipName}
         />
       )}
+
+      <FilePreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        filename={typeof previewableFiles[previewFileIndex]?.name === "string" ? previewableFiles[previewFileIndex]?.name : ""}
+        group={group}
+        program={program}
+        project={project}
+        multiple={previewableFiles.length > 1}
+        onNext={handleNextPreview}
+        onPrev={handlePrevPreview}
+        fileIndex={previewFileIndex}
+        fileCount={previewableFiles.length}
+      />
     </>
   )
 }

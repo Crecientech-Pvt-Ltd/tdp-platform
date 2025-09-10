@@ -85,6 +85,65 @@ export default function TranscriptExpression({
       .replace(/[^a-z0-9]/g, "")
   }
 
+  function getSampleGroup(sample: string): string {
+    let group = sampleToGroup[sample]
+
+    if (!group) {
+      const normalizedSample = normalizeSampleName(sample)
+      group = sampleToGroup[normalizedSample]
+
+      if (!group && sample.includes(".")) {
+        const shortSample = sample.split(".").pop() || ""
+        group = sampleToGroup[shortSample]
+        if (!group) group = sampleToGroup[normalizeSampleName(shortSample)]
+      }
+
+      if (!group && normalizedSample) {
+        const matchingKey = Object.keys(sampleToGroup).find((key) => normalizeSampleName(key) === normalizedSample)
+        if (matchingKey) group = sampleToGroup[matchingKey]
+      }
+
+      if (!group && normalizedSample) {
+        const partialMatchKey = Object.keys(sampleToGroup).find((key) => {
+          const normKey = normalizeSampleName(key)
+          return normKey.includes(normalizedSample) || normalizedSample.includes(normKey)
+        })
+        if (partialMatchKey) group = sampleToGroup[partialMatchKey]
+      }
+    }
+
+    return group || "Unknown"
+  }
+
+  function groupAndSortSamples(samples: string[]): { samples: string[], groups: string[] } {
+    if (!sampleDataExists) {
+      return { samples, groups: samples.map(() => "Unknown") }
+    }
+
+    const sampleGroups = samples.map(sample => ({
+      sample,
+      group: getSampleGroup(sample)
+    }))
+
+    const groupOrder = Object.keys(groupToColor).sort()
+    
+    sampleGroups.sort((a, b) => {
+      const groupIndexA = groupOrder.indexOf(a.group)
+      const groupIndexB = groupOrder.indexOf(b.group)
+      
+      if (groupIndexA !== groupIndexB) {
+        return (groupIndexA === -1 ? Infinity : groupIndexA) - (groupIndexB === -1 ? Infinity : groupIndexB)
+      }
+      
+      return a.sample.localeCompare(b.sample)
+    })
+
+    return {
+      samples: sampleGroups.map(sg => sg.sample),
+      groups: sampleGroups.map(sg => sg.group)
+    }
+  }
+
   useEffect(() => {
     if (!samplesheetUrl) {
       setSampleDataExists(false)
@@ -188,7 +247,6 @@ export default function TranscriptExpression({
         setGroupToColor({})
         setAvailableSampleColumns([])
       })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [samplesheetUrl, sampleColumn, groupColumn])
 
   useEffect(() => {
@@ -287,8 +345,8 @@ export default function TranscriptExpression({
       })
 
       if (row) {
-        const x = sampleCols
-        const y = x.map((k) => {
+        const originalX = sampleCols
+        const originalY = originalX.map((k) => {
           const val =
             row[k] !== undefined
               ? row[k]
@@ -297,14 +355,22 @@ export default function TranscriptExpression({
                 : 0
           return Number(val)
         })
-        newGeneDataMap[gene] = { x, y }
+
+        const { samples: sortedSamples } = groupAndSortSamples(originalX)
+        const sortedY = sortedSamples.map(sample => {
+          const index = originalX.indexOf(sample)
+          return index !== -1 ? originalY[index] : 0
+        })
+
+        newGeneDataMap[gene] = { x: sortedSamples, y: sortedY }
       } else {
         newGeneDataMap[gene] = { x: [], y: [] }
       }
     })
 
     setGeneDataMap(newGeneDataMap)
-  }, [selectedGenes, geneData, transcriptData, dataSource])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGenes, geneData, transcriptData, dataSource, sampleToGroup, groupToColor, sampleDataExists])
 
   const selectedGenesArray = useMemo(() => Array.from(selectedGenes).sort(), [selectedGenes])
 
@@ -314,32 +380,7 @@ export default function TranscriptExpression({
     }
 
     return x.map((sample) => {
-      let group = sampleToGroup[sample]
-
-      if (!group) {
-        const normalizedSample = normalizeSampleName(sample)
-        group = sampleToGroup[normalizedSample]
-
-        if (!group && sample.includes(".")) {
-          const shortSample = sample.split(".").pop() || ""
-          group = sampleToGroup[shortSample]
-          if (!group) group = sampleToGroup[normalizeSampleName(shortSample)]
-        }
-
-        if (!group && normalizedSample) {
-          const matchingKey = Object.keys(sampleToGroup).find((key) => normalizeSampleName(key) === normalizedSample)
-          if (matchingKey) group = sampleToGroup[matchingKey]
-        }
-
-        if (!group && normalizedSample) {
-          const partialMatchKey = Object.keys(sampleToGroup).find((key) => {
-            const normKey = normalizeSampleName(key)
-            return normKey.includes(normalizedSample) || normalizedSample.includes(normKey)
-          })
-          if (partialMatchKey) group = sampleToGroup[partialMatchKey]
-        }
-      }
-
+      const group = getSampleGroup(sample)
       return groupToColor[group] || "#3182ce"
     })
   }
@@ -391,7 +432,7 @@ export default function TranscriptExpression({
     if (hasGene && !hasTranscript) setDataSource("gene")
     else if (!hasGene && hasTranscript) setDataSource("transcript")
     else if (hasGene && hasTranscript && !["gene", "transcript"].includes(dataSource)) setDataSource("gene")
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasGene, hasTranscript])
 
   const isLoading = loading
@@ -473,6 +514,9 @@ export default function TranscriptExpression({
                     loading={isLoading}
                     className="w-full"
                     multiselect={true}
+                    showSelectedAsChip={true}
+                    showClearAll={true}
+                    showSelectAll={false}
                   />
                 </div>
                 <div className="min-w-fit flex-shrink-0">

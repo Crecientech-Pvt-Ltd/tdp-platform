@@ -5,10 +5,8 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multiselect';
-import { Download, Loader2 } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
+import { Download, Loader2, FileText, Palette } from 'lucide-react';
 import JSZip from 'jszip';
-import FlexibleLabelList from '@/components/RenderLabel';
 
 type Point = {
   x: number;
@@ -25,7 +23,7 @@ interface DownloadPopupProps {
   availableContrasts: string[];
   processDataForDownload: (contrastName: string) => Promise<{ rawData: GenericRow[]; points: Point[] } | null> | null;
   currentSettings: {
-    cutoff: number;
+    xThreshold: number;
     yThreshold: number;
     useLog: boolean;
     xAxisColumn: string;
@@ -64,9 +62,9 @@ export default function DownloadPopup({
 
   const dataTypeOptions = useMemo(
     () => [
-      { label: 'Red Points', value: 'red' },
-      { label: 'Blue Points', value: 'blue' },
-      { label: 'Gray Points', value: 'gray' },
+      { label: 'Red Points (Upregulated)', value: 'red' },
+      { label: 'Blue Points (Downregulated)', value: 'blue' },
+      { label: 'Gray Points (Non-significant)', value: 'gray' },
       { label: 'All Points', value: 'all' },
     ],
     [],
@@ -205,7 +203,6 @@ export default function DownloadPopup({
         selectedFiles: selectedFiles,
         dataTypes: selectedDataTypes,
         settings: currentSettings,
-        generatedAt: new Date().toISOString(),
         totalFiles: selectedFiles.length * selectedDataTypes.length,
         group,
         program,
@@ -249,125 +246,158 @@ export default function DownloadPopup({
     onClose();
   }, [onClose]);
 
+  const totalFilesCount = selectedFiles.length * selectedDataTypes.length;
+
   return (
     <Dialog open={isOpen}>
-      <DialogContent className='max-w-4xl w-[95vw] max-h-[90vh] flex flex-col'>
-        <DialogTitle className='text-xl font-semibold'>Download Volcano Plot Data</DialogTitle>
+      <DialogContent className='max-w-5xl w-[95vw] max-h-[90vh] flex flex-col shadow-2xl'>
+        <div className='border-b pb-4 mb-1'>
+          <DialogTitle className='text-2xl font-bold flex items-center gap-3 mb-1'>
+            <div className='p-2 bg-muted rounded-lg'>
+              <Download className='h-6 w-6' />
+            </div>
+            Download Volcano Plot Data
+          </DialogTitle>
+          <p className='text-muted-foreground'>Export your differential expression analysis results</p>
+        </div>
 
-        <div className='flex-grow overflow-y-auto px-1 py-4'>
+        <div className='flex-grow overflow-y-auto px-1 py-1'>
           {isDownloading ? (
-            <div className='flex items-center justify-center py-12'>
-              <div className='text-center text-gray-500'>
-                <Spinner className='mx-auto mb-4' />
-                Creating download package...
+            <div className='flex items-center justify-center py-16'>
+              <div className='text-center'>
+                <div className='relative mb-4'>
+                  <div className='w-16 h-16 border-4 border-muted border-t-foreground rounded-full animate-spin mx-auto'></div>
+                  <div className='absolute inset-0 flex items-center justify-center'>
+                    <Download className='h-6 w-6' />
+                  </div>
+                </div>
+                <h3 className='text-xl font-semibold mb-1'>Creating Download Package</h3>
+                <p className='text-muted-foreground'>Please wait while we prepare your files...</p>
               </div>
             </div>
           ) : (
-            <div className='space-y-6'>
-              <div className='bg-muted/30 rounded-lg p-6 border'>
-                <div className='space-y-6'>
-                  <div className='grid grid-cols-1 md:grid-cols-4 gap-4 items-start'>
-                    <div className='md:col-span-1 flex items-center justify-center min-h-[60px]'>
-                      <Label className='text-base font-semibold'>Differential Expression Files</Label>
+            <div className='space-y-4'>
+              <div className='bg-background rounded-xl shadow-sm border'>
+                <div className='bg-muted/30 border-b px-6 py-3 rounded-t-xl'>
+                  <div className='flex items-center gap-3'>
+                    <div className='p-2 bg-background rounded-lg border'>
+                      <FileText className='h-5 w-5' />
                     </div>
-                    <div className='md:col-span-3 flex flex-col gap-3'>
-                      <div className='flex flex-col gap-2'>
-                        <span className='text-sm text-muted-foreground'>
-                          <strong>{selectedFiles.length > 0 ? `${selectedFiles.length} files` : 'None'}</strong>
-                        </span>
-                        <FlexibleLabelList labels={selectedFiles} rowsToShow={availableFiles.length} truncateX={true} />
-                        <MultiSelect
-                          options={availableFiles.map(file => ({
-                            label: file,
-                            value: file,
-                          }))}
-                          selectedValues={selectedFiles}
-                          onChange={handleFileChange}
-                          placeholder='Select Differential Expression files'
-                          className='w-full'
-                        />
-                      </div>
+                    <div>
+                      <Label className='text-lg font-semibold'>Differential Expression Files</Label>
                     </div>
                   </div>
+                </div>
 
-                  <div className='grid grid-cols-1 md:grid-cols-4 gap-4 items-start'>
-                    <div className='md:col-span-1 flex items-center justify-center min-h-[60px]'>
-                      <Label className='text-base font-semibold'>Contrast Types</Label>
+                <div className='p-4 space-y-3'>
+                  <div className='flex items-center gap-2 mb-2'>
+                    <div className='w-3 h-3 bg-foreground rounded-full'></div>
+                    <span className='text-sm font-medium'>
+                      Selected: <span className='font-bold'>{selectedFiles.length}</span> of {availableFiles.length}{' '}
+                      files
+                    </span>
+                  </div>
+                  <MultiSelect
+                    options={availableFiles.map(file => ({
+                      label: file,
+                      value: file,
+                    }))}
+                    selectedValues={selectedFiles}
+                    onChange={handleFileChange}
+                    placeholder='Select Differential Expression files'
+                    className='w-full'
+                  />
+                </div>
+              </div>
+
+              <div className='bg-background rounded-xl shadow-sm border'>
+                <div className='bg-muted/30 border-b px-6 py-3 rounded-t-xl'>
+                  <div className='flex items-center gap-3'>
+                    <div className='p-2 bg-background rounded-lg border'>
+                      <Palette className='h-5 w-5' />
                     </div>
-                    <div className='md:col-span-3 flex flex-col gap-3'>
-                      <div className='flex flex-col gap-2'>
-                        <span className='text-sm text-muted-foreground'>
-                          <strong>{selectedDataTypes.length > 0 ? `${selectedDataTypes.length} types` : 'None'}</strong>
-                        </span>
-                        {selectedDataTypes.length > 0 && (
-                          <div className='max-h-20 overflow-y-auto bg-muted/50 rounded-md p-2 border'>
-                            <div className='flex flex-wrap gap-1'>
-                              {selectedDataTypes.map((type, index) => (
-                                <span
-                                  key={index}
-                                  className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${
-                                    type === 'red'
-                                      ? 'bg-red-100 text-red-700'
-                                      : type === 'blue'
-                                        ? 'bg-blue-100 text-blue-700'
-                                        : type === 'gray'
-                                          ? 'bg-gray-100 text-gray-700'
-                                          : 'bg-gradient-to-r from-red-100 via-blue-100 to-gray-100 text-gray-700'
-                                  }`}
-                                >
-                                  <div
-                                    className={`w-2 h-2 rounded-full ${
-                                      type === 'red'
-                                        ? 'bg-red-500'
-                                        : type === 'blue'
-                                          ? 'bg-blue-500'
-                                          : type === 'gray'
-                                            ? 'bg-gray-500'
-                                            : 'bg-gradient-to-r from-red-500 via-blue-500 to-gray-500'
-                                    }`}
-                                  ></div>
-                                  {type === 'red' ? 'Red' : type === 'blue' ? 'Blue' : type === 'gray' ? 'Gray' : 'All'}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        <MultiSelect
-                          options={dataTypeOptions}
-                          selectedValues={selectedDataTypes}
-                          onChange={handleDataTypeChange}
-                          placeholder='Select contrast types to download'
-                          className='w-full'
-                        />
-                      </div>
+                    <div>
+                      <Label className='text-lg font-semibold'>Data Categories</Label>
                     </div>
                   </div>
+                </div>
+
+                <div className='p-4 space-y-3'>
+                  
+
+                  {selectedDataTypes.length > 0 && (
+                    <div className='bg-muted/50 rounded-lg p-3 border mb-3'>
+                      <div className='flex flex-wrap gap-2'>
+                        {selectedDataTypes.map((type, index) => (
+                          <span
+                            key={index}
+                            className={`px-3 py-2 rounded-full text-sm font-medium flex items-center gap-2 border ${
+                              type === 'red'
+                                ? 'bg-red-50 text-red-700 border-red-200'
+                                : type === 'blue'
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : type === 'gray'
+                                    ? 'bg-gray-50 text-gray-700 border-gray-200'
+                                    : 'bg-muted text-muted-foreground border-border'
+                            }`}
+                          >
+                            <div
+                              className={`w-3 h-3 rounded-full ${
+                                type === 'red'
+                                  ? 'bg-red-500'
+                                  : type === 'blue'
+                                    ? 'bg-blue-500'
+                                    : type === 'gray'
+                                      ? 'bg-gray-500'
+                                      : 'bg-foreground'
+                              }`}
+                            ></div>
+                            {type === 'red'
+                              ? 'Upregulated'
+                              : type === 'blue'
+                                ? 'Downregulated'
+                                : type === 'gray'
+                                  ? 'Non-significant'
+                                  : 'All Points'}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <MultiSelect
+                    options={dataTypeOptions}
+                    selectedValues={selectedDataTypes}
+                    onChange={handleDataTypeChange}
+                    placeholder='Select data categories to download'
+                    className='w-full'
+                  />
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        <DialogFooter className='gap-2 flex-col sm:flex-row justify-end border-t pt-4'>
+        <DialogFooter className='gap-3 flex-col sm:flex-row justify-end border-t pt-4 mt-2'>
           <DialogClose asChild>
-            <Button onClick={handleClose} variant='secondary' disabled={isDownloading} className='w-full sm:w-auto'>
+            <Button onClick={handleClose} variant='outline' disabled={isDownloading} className='w-full sm:w-auto'>
               Cancel
             </Button>
           </DialogClose>
           <Button
             onClick={handleDownload}
             disabled={selectedFiles.length === 0 || selectedDataTypes.length === 0 || isDownloading}
-            className='w-full sm:w-auto flex items-center gap-2'
+            className='w-full sm:w-auto shadow-sm'
           >
             {isDownloading ? (
               <>
-                <Loader2 className='h-4 w-4 animate-spin' />
+                <Loader2 className='h-4 w-4 animate-spin mr-2' />
                 Creating ZIP...
               </>
             ) : (
               <>
-                <Download className='h-4 w-4' />
-                Download ({selectedFiles.length * selectedDataTypes.length})
+                <Download className='h-4 w-4 mr-2' />
+                Download {totalFilesCount > 0 && `(${totalFilesCount} files)`}
               </>
             )}
           </Button>

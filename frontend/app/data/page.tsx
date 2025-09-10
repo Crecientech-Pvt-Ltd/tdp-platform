@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
+import { TabsContent } from '@/components/ui/tabs';
 
 const TranscriptTab = dynamic(
   () => import('@/components/data-commons/TranscriptExpression/TranscriptTab').then(mod => mod.TranscriptTab),
@@ -15,13 +16,6 @@ const PCATab = dynamic(() => import('@/components/data-commons/PCA/PCATab').then
 const DETab = dynamic(() => import('@/components/data-commons/DifferentialExpression/DETab').then(mod => mod.DETab), { ssr: false });
 
 function PDCSNetworkTabs() {
-  const tabNames = [
-    { key: 'transcript', label: 'Transcript-level expression' },
-    { key: 'pca', label: 'PCA analysis' },
-    { key: 'de', label: 'Differential expression analysis' },
-  ];
-  const [activeTab, setActiveTab] = React.useState(tabNames[0].key);
-
   const searchParams = useSearchParams();
   const group = searchParams?.get('group');
   const program = searchParams?.get('program');
@@ -39,74 +33,62 @@ function PDCSNetworkTabs() {
     `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
 
   return (
-    <div className='w-full h-full flex flex-col'>
-      <div className='flex border-b w-full'>
-        {tabNames.map(tab => (
-          <button
-            key={tab.key}
-            className={`flex-1 px-6 py-3 font-semibold text-center transition-colors duration-150
-              ${
-                activeTab === tab.key
-                  ? 'border-b-2 border-primary text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:bg-muted/50'
-              }
-            `}
-            onClick={() => setActiveTab(tab.key)}
-            style={{ minWidth: 0 }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      <div className='flex-1 p-6'>
+    <>
+      <TabsContent value='transcript' className='flex-1 p-6 mt-0 h-full'>
         <div className='mt-4'>
-          {activeTab === 'transcript' && (
-            <TranscriptTab
-              geneFile={geneFile}
-              transcriptFile={transcriptFile}
-              getFileUrl={getFileUrl}
-              sampleFile={sampleFile}
-              group={group ?? ''}
-              program={program ?? ''}
-              project={project ?? ''}
-            />
-          )}
-          {activeTab === 'pca' && (
-            <PCATab
-              pcaFile={pcaFile}
-              getFileUrl={getFileUrl}
-              sampleFile={sampleFile}
-              group={group ?? ''}
-              program={program ?? ''}
-              project={project ?? ''}
-            />
-          )}
-          {activeTab === 'de' && (
-            <DETab
-              deFilesArray={deFilesArray}
-              getFileUrl={getFileUrl}
-              group={group ?? ''}
-              program={program ?? ''}
-              project={project ?? ''}
-            />
-          )}
+          <TranscriptTab
+            geneFile={geneFile}
+            transcriptFile={transcriptFile}
+            getFileUrl={getFileUrl}
+            sampleFile={sampleFile}
+            group={group ?? ''}
+            program={program ?? ''}
+            project={project ?? ''}
+          />
         </div>
-      </div>
-    </div>
+      </TabsContent>
+      
+      <TabsContent value='pca' className='flex-1 p-6 mt-0 h-full'>
+        <div className='mt-4'>
+          <PCATab
+            pcaFile={pcaFile}
+            getFileUrl={getFileUrl}
+            sampleFile={sampleFile}
+            group={group ?? ''}
+            program={program ?? ''}
+            project={project ?? ''}
+          />
+        </div>
+      </TabsContent>
+      
+      <TabsContent value='de' className='flex-1 p-6 mt-0 h-full'>
+        <div className='mt-4'>
+          <DETab
+            deFilesArray={deFilesArray}
+            getFileUrl={getFileUrl}
+            group={group ?? ''}
+            program={program ?? ''}
+            project={project ?? ''}
+          />
+        </div>
+      </TabsContent>
+    </>
   );
 }
 
 export default function NetworkPage() {
   return (
-    <Suspense
-      fallback={
-        <div className='flex flex-col items-center justify-center min-h-screen'>
-          <Spinner className='h-12 w-12' />
-          <p className='mt-4 text-lg text-gray-600'>Loading components...</p>
-        </div>
-      }
-    >
-      <PDCSNetworkTabs />
-    </Suspense>
+    <div className='w-full h-full flex flex-col'>
+      <Suspense
+        fallback={
+          <div className='flex flex-col items-center justify-center min-h-screen'>
+            <Spinner className='h-12 w-12' />
+            <p className='mt-4 text-lg text-gray-600'>Loading components...</p>
+          </div>
+        }
+      >
+        <PDCSNetworkTabs />
+      </Suspense>
+    </div>
   );
 }

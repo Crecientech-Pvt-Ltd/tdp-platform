@@ -18,6 +18,8 @@ interface VirtualizedCommandProps {
   loading?: boolean;
   width?: string;
   multiselect?: boolean;
+  showSelectAll?: boolean;
+  showClearAll?: boolean;
 }
 
 const VirtualizedCommand = ({
@@ -28,6 +30,8 @@ const VirtualizedCommand = ({
   loading,
   width,
   multiselect = false,
+  showSelectAll = true,
+  showClearAll = false,
 }: VirtualizedCommandProps) => {
   const [filteredOptions, setFilteredOptions] = React.useState<(string | GenePropertyMetadata)[]>(options);
   const parentRef = React.useRef<HTMLDivElement>(null);
@@ -56,7 +60,7 @@ const VirtualizedCommand = ({
   return (
     <Command style={{ width }} shouldFilter={false}>
       <CommandInput onValueChange={handleSearch} placeholder={placeholder}>
-        {multiselect && (
+        {multiselect && showSelectAll && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -67,6 +71,19 @@ const VirtualizedCommand = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>Select all (only first 50 items are selected at max)</TooltipContent>
+          </Tooltip>
+        )}
+        {multiselect && showClearAll && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className='bg-transparent hover:bg-muted cursor-pointer p-2 rounded border shadow ml-1 text-black text-xs'
+                onClick={() => onSelectOption?.([])}
+              >
+                Clear All
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Clear all selections</TooltipContent>
           </Tooltip>
         )}
       </CommandInput>
@@ -135,6 +152,8 @@ interface VirtualizedComboboxProps {
   align?: 'start' | 'end' | 'center';
   multiselect?: boolean;
   showSelectedAsChip?: boolean;
+  showSelectAll?: boolean;
+  showClearAll?: boolean;
 }
 
 export function VirtualizedCombobox({
@@ -148,6 +167,8 @@ export function VirtualizedCombobox({
   align = 'start',
   multiselect = false,
   showSelectedAsChip = false,
+  showSelectAll = true,
+  showClearAll = false,
 }: VirtualizedComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false);
 
@@ -164,13 +185,14 @@ export function VirtualizedCombobox({
             {multiselect && value instanceof Set ? (
               value.size ? (
                 showSelectedAsChip ? (
-                  <div className='relative flex gap-1'>
+                  <div className='relative flex gap-1 overflow-x-auto max-w-full'>
                     {Array.from(value).map(option => (
                       <Badge
                         key={option}
                         className={cn(
                           'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
                           'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
+                          'flex-shrink-0 text-white'
                         )}
                       >
                         {option}
@@ -187,16 +209,16 @@ export function VirtualizedCombobox({
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          // onClick={() => value instanceof Set && value.delete(option)}
                           onClick={() => {
                             if (value instanceof Set) {
-                              value.delete(option);
-                              onChange(value);
+                              const newSet = new Set(value);
+                              newSet.delete(option);
+                              onChange(newSet);
                             }
                           }}
                           aria-label={`Remove ${option}`}
                         >
-                          <XIcon className='h-3 w-3 text-muted hover:text-foreground' />
+                          <XIcon className='h-3 w-3 text-white hover:text-gray-200' />
                         </span>
                       </Badge>
                     ))}
@@ -217,6 +239,8 @@ export function VirtualizedCombobox({
       <PopoverContent align={align} className={cn(`w-[${width || '200px'}] p-0`, className)}>
         <VirtualizedCommand
           multiselect={multiselect}
+          showSelectAll={showSelectAll}
+          showClearAll={showClearAll}
           options={data}
           placeholder={searchPlaceholder}
           selectedOption={value}

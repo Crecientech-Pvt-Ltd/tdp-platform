@@ -41,7 +41,7 @@ interface SeeMoreProps {
   availableContrasts?: string[];
   processDataForDownload?: (contrastName: string) => Promise<{ rawData: GenericRow[]; points: Point[] } | null> | null;
   currentSettings?: {
-    cutoff: number;
+    xThreshold: number;
     yThreshold: number;
     useLog: boolean;
     xAxisColumn: string;

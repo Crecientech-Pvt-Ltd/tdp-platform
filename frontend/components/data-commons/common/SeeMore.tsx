@@ -1,13 +1,19 @@
 "use client"
 
 import React from "react"
+import dynamic from "next/dynamic"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Download, Eye } from "lucide-react"
-import DownloadPopup, { type DownloadFile } from "./DownloadPopup"
+import { Spinner } from "@/components/ui/spinner"
+import { type DownloadFile } from "./DownloadPopup"
 import FilePreviewModal from "./FilePreviewModal"
+
+const DownloadPopup = dynamic(() => import("./DownloadPopup"), {
+  loading: () => <div className="flex items-center justify-center p-4"><Spinner /></div>,
+})
 
 type AxisConfig = {
   enabled?: boolean 

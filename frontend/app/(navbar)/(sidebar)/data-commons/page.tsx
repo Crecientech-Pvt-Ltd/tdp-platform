@@ -5,7 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import FileSelectionPopup from '@/components/data-commons/common/PopUp';
+import PasswordPopup from '@/components/data-commons/common/PasswordPopup';
 import { Spinner } from '@/components/ui/spinner';
+import { LockKeyholeIcon } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -35,6 +37,7 @@ export default function DataCommonsPage() {
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showFileSelectionPopup, setShowFileSelectionPopup] = React.useState<boolean>(false);
+  const [showPasswordPopup, setShowPasswordPopup] = React.useState<boolean>(false);
   const [imageLoading, setImageLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -95,10 +98,57 @@ export default function DataCommonsPage() {
     setCurrentIndex(idx => (idx + 1) % descriptionFiles.length);
   };
 
-  const handleGoToPlots = () => {
+  const handleGoToPlots = async () => {
     if (selectedGroup && selectedProgram && selectedProject) {
-      setShowFileSelectionPopup(true);
+      const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
+      const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
+
+      if (isAuthenticated) {
+        setShowFileSelectionPopup(true);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ password: '' }),
+          },
+        );
+
+        if (!response.ok) {
+          console.error('Password check failed:', response.status);
+          setShowFileSelectionPopup(true);
+          return;
+        }
+
+        const result = await response.json();
+        console.log('Password check result:', result);
+
+        if (result.hasPassword) {
+          setShowPasswordPopup(true);
+        } else {
+          sessionStorage.setItem(authKey, 'authenticated');
+          setShowFileSelectionPopup(true);
+        }
+      } catch (error) {
+        console.error('Password check error:', error);
+        setShowFileSelectionPopup(true);
+      }
     }
+  };
+
+  const handlePasswordSuccess = () => {
+    setShowPasswordPopup(false);
+
+    const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
+    sessionStorage.setItem(authKey, 'authenticated');
+
+    setShowFileSelectionPopup(true);
   };
 
   const handleImageLoad = () => {
@@ -134,6 +184,10 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedGroup}
                 onValueChange={val => {
+                  if (selectedGroup && selectedProgram && selectedProject) {
+                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
+                    sessionStorage.removeItem(oldAuthKey);
+                  }
                   setSelectedGroup(val);
                   setSelectedProgram('');
                   setSelectedProject('');
@@ -167,6 +221,10 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedProgram}
                 onValueChange={val => {
+                  if (selectedGroup && selectedProgram && selectedProject) {
+                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
+                    sessionStorage.removeItem(oldAuthKey);
+                  }
                   setSelectedProgram(val);
                   setSelectedProject('');
                 }}
@@ -200,7 +258,13 @@ export default function DataCommonsPage() {
               <Label htmlFor='project'>Select Project</Label>
               <Select
                 value={selectedProject}
-                onValueChange={setSelectedProject}
+                onValueChange={val => {
+                  if (selectedGroup && selectedProgram && selectedProject) {
+                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
+                    sessionStorage.removeItem(oldAuthKey);
+                  }
+                  setSelectedProject(val);
+                }}
                 disabled={structureLoading || !selectedProgram}
               >
                 <SelectTrigger id='project'>
@@ -219,7 +283,12 @@ export default function DataCommonsPage() {
                   ) : (
                     projects.map(project => (
                       <SelectItem key={project.name} value={project.name}>
-                        {project.name}
+                        <div className='flex gap-2'>
+                          {project.files.find(f => f === 'password.txt') ? (
+                            <LockKeyholeIcon className='size-4' />
+                          ) : null}{' '}
+                          {project.name}
+                        </div>
                       </SelectItem>
                     ))
                   )}
@@ -364,6 +433,14 @@ export default function DataCommonsPage() {
       <FileSelectionPopup
         isOpen={showFileSelectionPopup}
         onClose={() => setShowFileSelectionPopup(false)}
+        selectedGroup={selectedGroup}
+        selectedProgram={selectedProgram}
+        selectedProject={selectedProject}
+      />
+      <PasswordPopup
+        isOpen={showPasswordPopup}
+        onClose={() => setShowPasswordPopup(false)}
+        onSuccess={handlePasswordSuccess}
         selectedGroup={selectedGroup}
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}

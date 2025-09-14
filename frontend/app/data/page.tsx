@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import '@react-sigma/core/lib/style.css';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import React from 'react';
 import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
@@ -17,6 +17,7 @@ const DETab = dynamic(() => import('@/components/data-commons/DifferentialExpres
 
 function PDCSNetworkTabs() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const group = searchParams?.get('group');
   const program = searchParams?.get('program');
   const project = searchParams?.get('project');
@@ -27,10 +28,87 @@ function PDCSNetworkTabs() {
   const sampleFile = searchParams?.get('sampleFile');
   const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+
   const deFilesArray = deFile?.split(',');
 
   const getFileUrl = (filename: string) =>
     `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
+
+  React.useEffect(() => {
+    if (!group || !program || !project) {
+      router.push('/data-commons');
+      return;
+    }
+
+    const checkAuthentication = async () => {
+      const authKey = `auth_${group}_${program}_${project}`;
+      const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
+      
+      if (isAuthenticated) {
+        setIsAuthenticated(true);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/password`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ password: '' }),
+          }
+        );
+
+        if (!response.ok) {
+          console.error('Password check failed:', response.status);
+          router.push('/data-commons');
+          return;
+        }
+
+        const result = await response.json();
+        
+        if (result.hasPassword) {
+          router.push('/data-commons');
+        } else {
+          sessionStorage.setItem(authKey, 'authenticated');
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Password check error:', error);
+        router.push('/data-commons');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuthentication();
+  }, [group, program, project, router, API_BASE]);
+
+  if (loading) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-screen'>
+        <Spinner className='h-12 w-12' />
+        <p className='mt-4 text-lg text-gray-600'>Checking project access...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-screen'>
+        <div className='text-center'>
+          <h2 className='text-2xl font-semibold mb-2'>Access Required</h2>
+          <p className='text-muted-foreground mb-4'>Redirecting to authentication...</p>
+          <Spinner className='mx-auto' />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

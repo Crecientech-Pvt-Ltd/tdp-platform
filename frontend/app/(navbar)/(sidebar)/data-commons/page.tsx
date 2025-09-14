@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import FileSelectionPopup from '@/components/data-commons/common/PopUp';
 import PasswordPopup from '@/components/data-commons/common/PasswordPopup';
 import { Spinner } from '@/components/ui/spinner';
+import { LockKeyholeIcon } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -101,12 +102,12 @@ export default function DataCommonsPage() {
     if (selectedGroup && selectedProgram && selectedProject) {
       const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
       const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
-      
+
       if (isAuthenticated) {
         setShowFileSelectionPopup(true);
         return;
       }
-      
+
       try {
         const response = await fetch(
           `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
@@ -118,16 +119,16 @@ export default function DataCommonsPage() {
             body: JSON.stringify({ password: '' }),
           },
         );
-        
+
         if (!response.ok) {
           console.error('Password check failed:', response.status);
           setShowFileSelectionPopup(true);
           return;
         }
-        
+
         const result = await response.json();
         console.log('Password check result:', result);
-        
+
         if (result.hasPassword) {
           setShowPasswordPopup(true);
         } else {
@@ -143,10 +144,10 @@ export default function DataCommonsPage() {
 
   const handlePasswordSuccess = () => {
     setShowPasswordPopup(false);
-    
+
     const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
     sessionStorage.setItem(authKey, 'authenticated');
-    
+
     setShowFileSelectionPopup(true);
   };
 
@@ -282,7 +283,12 @@ export default function DataCommonsPage() {
                   ) : (
                     projects.map(project => (
                       <SelectItem key={project.name} value={project.name}>
-                        {project.name}
+                        <div className='flex gap-2'>
+                          {project.files.find(f => f === 'password.txt') ? (
+                            <LockKeyholeIcon className='size-4' />
+                          ) : null}{' '}
+                          {project.name}
+                        </div>
                       </SelectItem>
                     ))
                   )}

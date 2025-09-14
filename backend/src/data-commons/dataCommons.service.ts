@@ -233,7 +233,9 @@ export class DataCommonsService {
 
     let filesInProject: string[] = [];
     try {
-      filesInProject = fs.readdirSync(projectPath);
+      filesInProject = fs
+        .readdirSync(projectPath)
+        .filter((f) => f !== 'password.txt');
     } catch (e) {
       res.status(404).send('Project folder not found');
       return;
@@ -264,7 +266,7 @@ export class DataCommonsService {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(filePath) || filename === 'password.txt') {
       res.status(404).send(`${filename} not found`);
       return;
     }

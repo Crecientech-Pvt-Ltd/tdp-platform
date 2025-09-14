@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Plot from 'react-plotly.js';
 import Papa from 'papaparse';
 import type { Shape } from 'plotly.js';
@@ -9,7 +10,10 @@ import { VirtualizedCombobox } from '@/components/VirtualizedCombobox';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Info } from 'lucide-react';
-import SeeMore from './DESeeMore';
+
+const SeeMore = dynamic(() => import('./DESeeMore'), {
+  loading: () => <div className="flex items-center justify-center p-4"><Spinner /></div>,
+});
 
 type GenericRow = Record<string, string | number | null>;
 

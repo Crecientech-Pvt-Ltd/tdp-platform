@@ -296,4 +296,41 @@ export class DataCommonsService {
       res.status(500).send('Error reading file');
     }
   }
+
+  checkProjectPassword(
+    group: string,
+    program: string,
+    project: string,
+    password: string,
+    res: any,
+  ) {
+    const projectPath = path.join(DATA_PATH, group, program, project);
+    const passwordFilePath = path.join(projectPath, 'password.txt');
+
+    // Check if password file exists
+    if (!fs.existsSync(passwordFilePath)) {
+      // No password protection
+      res.json({ success: true, hasPassword: false });
+      return;
+    }
+
+    try {
+      const filePassword = fs.readFileSync(passwordFilePath, 'utf8').trim();
+      const success = password === filePassword;
+
+      res.json({
+        success,
+        hasPassword: true,
+        message: success ? 'Password correct' : 'Incorrect password',
+      });
+    } catch (e) {
+      res.status(500).send('Error reading password file');
+    }
+  }
+
+  hasPasswordProtection(group: string, program: string, project: string) {
+    const projectPath = path.join(DATA_PATH, group, program, project);
+    const passwordFilePath = path.join(projectPath, 'password.txt');
+    return fs.existsSync(passwordFilePath);
+  }
 }

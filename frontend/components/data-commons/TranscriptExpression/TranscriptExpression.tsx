@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import dynamic from "next/dynamic"
 import Plot from "react-plotly.js"
 import Papa from "papaparse"
 import { VirtualizedCombobox } from "@/components/VirtualizedCombobox"
@@ -10,7 +11,10 @@ import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import { Info } from "lucide-react"
 import type { DownloadFileSpec } from "@/components/data-commons/common/DownloadPopup"
-import { SeeMore } from "@/components/data-commons/common/SeeMore"
+
+const SeeMore = dynamic(() => import("@/components/data-commons/common/SeeMore").then(mod => ({ default: mod.SeeMore })), {
+  loading: () => <div className="flex items-center justify-center p-4"><Spinner /></div>,
+})
 
 type GeneRow = { [key: string]: string | number }
 type SampleRow = { [key: string]: string }

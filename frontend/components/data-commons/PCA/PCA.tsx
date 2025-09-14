@@ -1,14 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import dynamic from "next/dynamic"
 import Papa from "papaparse"
 import Plot from "react-plotly.js"
 import type { PlotData } from "plotly.js"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import { Info } from "lucide-react"
-import { SeeMore } from "@/components/data-commons/common/SeeMore"
 import type { DownloadFileSpec } from "@/components/data-commons/common/DownloadPopup"
+
+const SeeMore = dynamic(() => import("@/components/data-commons/common/SeeMore").then(mod => ({ default: mod.SeeMore })), {
+  loading: () => <div className="flex items-center justify-center p-4"><Spinner /></div>,
+})
 
 type PCADataRow = {
   [key: string]: string | number | undefined

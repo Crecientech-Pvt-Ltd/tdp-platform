@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Controller, Get, Param, Post, Res, Body } from '@nestjs/common';
 import { Response } from 'express';
 import { DataCommonsService } from './dataCommons.service';
 
@@ -82,6 +82,23 @@ export class DataCommonsController {
       program,
       project,
       filename,
+      res,
+    );
+  }
+
+  @Post('project/:group/:program/:project/password')
+  async checkProjectPassword(
+    @Param('group') group: string,
+    @Param('program') program: string,
+    @Param('project') project: string,
+    @Body() body: { password: string },
+    @Res() res: any,
+  ) {
+    return this.service.checkProjectPassword(
+      group,
+      program,
+      project,
+      body.password || '',
       res,
     );
   }

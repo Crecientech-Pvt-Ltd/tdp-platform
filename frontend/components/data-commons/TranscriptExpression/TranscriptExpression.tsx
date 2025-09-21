@@ -561,7 +561,6 @@ export default function TranscriptExpression({
                           tickangle: 45,
                           automargin: true,
                           tickfont: { size: 15 },
-                          title: { text: "Sample", font: { size: 20 } },
                         },
                         yaxis: {
                           title: { text: "Total read count(millions)", font: { size: 20 }, standoff: 10 },
@@ -602,7 +601,7 @@ export default function TranscriptExpression({
                               ]}
                               layout={{
                                 title: { text: gene, font: { size: 16 } },
-                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 13 }, title: { text: "Sample", font: { size: 14 } } },
+                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 13 }, },
                                 yaxis: {
                                   title: { text: "Total read count", font: { size: 13 }, standoff: 10 },
                                   tickfont: { size: 13 },
@@ -642,7 +641,7 @@ export default function TranscriptExpression({
                               ]}
                               layout={{
                                 title: { text: gene, font: { size: 16 } },
-                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 13 }, title: { text: "Sample", font: { size: 14 } } },
+                                xaxis: { tickangle: 45, automargin: true, tickfont: { size: 13 }, },
                                 yaxis: {
                                   title: { text: "Total read count (millions)", font: { size: 14 }, standoff: 10 },
                                   tickfont: { size: 13 },

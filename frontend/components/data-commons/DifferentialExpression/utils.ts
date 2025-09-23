@@ -7,8 +7,13 @@ import type { GenericRow, Point, Bounds } from './types';
 export const calculateBounds = (points: Point[], useLog: boolean): Bounds => {
   if (points.length === 0) return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
   
-  const xVals = points.map(p => p.x);
-  const yVals = points.map(p => p.y);
+  const xVals = points.map(p => p.x).filter(x => isFinite(x));
+  const yVals = points.map(p => p.y).filter(y => isFinite(y));
+  
+  if (xVals.length === 0 || yVals.length === 0) {
+    return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
+  }
+  
   const maxAbsX = Math.max(...xVals.map(Math.abs)) + 0.5;
 
   if (useLog) {

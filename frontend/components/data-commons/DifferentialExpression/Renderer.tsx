@@ -33,40 +33,50 @@ export const VolcanoPlotRenderer: React.FC<VolcanoPlotRendererProps> = ({
 
   const createShapes = (): Partial<Shape>[] => {
     const thresholdY = useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold;
-    const clampedThresholdY = Math.max(data.bounds.yMin, Math.min(thresholdY, data.bounds.yMax));
     
-    return [
-      {
+    const shapes: Partial<Shape>[] = [];
+    
+    const safeYMin = isFinite(data.bounds.yMin) ? data.bounds.yMin : 0;
+    const safeYMax = isFinite(data.bounds.yMax) ? data.bounds.yMax : (useLog ? 10 : 1);
+    const safeXMin = isFinite(data.bounds.xMin) ? data.bounds.xMin : -5;
+    const safeXMax = isFinite(data.bounds.xMax) ? data.bounds.xMax : 5;
+    
+    shapes.push({
+      type: 'line',
+      x0: -thresholds.xThreshold,
+      x1: -thresholds.xThreshold,
+      y0: safeYMin,
+      y1: safeYMax,
+      xref: 'x',
+      yref: 'y',
+      line: { color: 'black', dash: 'dashdot', width: 2 },
+    });
+    
+    shapes.push({
+      type: 'line',
+      x0: thresholds.xThreshold,
+      x1: thresholds.xThreshold,
+      y0: safeYMin,
+      y1: safeYMax,
+      xref: 'x',
+      yref: 'y',
+      line: { color: 'black', dash: 'dashdot', width: 2 },
+    });
+    
+    if (isFinite(thresholdY) && thresholdY >= safeYMin && thresholdY <= safeYMax) {
+      shapes.push({
         type: 'line',
-        x0: -thresholds.xThreshold,
-        x1: -thresholds.xThreshold,
-        y0: data.bounds.yMin,
-        y1: data.bounds.yMax,
-        xref: 'x',
-        yref: 'y',
-        line: { color: 'black', dash: 'dashdot', width: 2 },
-      },
-      {
-        type: 'line',
-        x0: thresholds.xThreshold,
-        x1: thresholds.xThreshold,
-        y0: data.bounds.yMin,
-        y1: data.bounds.yMax,
-        xref: 'x',
-        yref: 'y',
-        line: { color: 'black', dash: 'dashdot', width: 2 },
-      },
-      {
-        type: 'line',
-        y0: clampedThresholdY,
-        y1: clampedThresholdY,
-        x0: data.bounds.xMin,
-        x1: data.bounds.xMax,
+        y0: thresholdY,
+        y1: thresholdY,
+        x0: safeXMin,
+        x1: safeXMax,
         xref: 'x',
         yref: 'y',
         line: { color: 'black', dash: 'dot', width: 2 },
-      },
-    ];
+      });
+    }
+    
+    return shapes;
   };
 
   const plotData = [
@@ -117,7 +127,16 @@ export const VolcanoPlotRenderer: React.FC<VolcanoPlotRendererProps> = ({
           layout={{
             xaxis: {
               title: { text: xAxisColumn, font: { size: 18 } },
-              range: [data.bounds.xMin, data.bounds.xMax],
+              range: [
+                Math.min(
+                  isFinite(data.bounds.xMin) ? data.bounds.xMin : -5, 
+                  -thresholds.xThreshold - 0.5
+                ),
+                Math.max(
+                  isFinite(data.bounds.xMax) ? data.bounds.xMax : 5, 
+                  thresholds.xThreshold + 0.5
+                )
+              ],
               tickfont: { size: 15 },
             },
             yaxis: {
@@ -125,7 +144,20 @@ export const VolcanoPlotRenderer: React.FC<VolcanoPlotRendererProps> = ({
                 text: useLog ? `-log10(${yAxisColumn})` : `${yAxisColumn}`,
                 font: { size: 15 },
               },
-              range: [data.bounds.yMin, data.bounds.yMax],
+              range: [
+                Math.min(
+                  isFinite(data.bounds.yMin) ? data.bounds.yMin : 0,
+                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) 
+                    ? (useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) - 0.5
+                    : 0
+                ),
+                Math.max(
+                  isFinite(data.bounds.yMax) ? data.bounds.yMax : (useLog ? 10 : 1),
+                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) 
+                    ? (useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) + 0.5
+                    : (useLog ? 10 : 1)
+                )
+              ],
               tickfont: { size: 15 },
             },
             autosize: true,

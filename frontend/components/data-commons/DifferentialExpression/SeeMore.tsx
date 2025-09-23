@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download } from 'lucide-react';
-import DownloadPopup from './DEDownloadPopup';
+import DownloadPopup from './DownloadPopup';
 import FilePreviewModal from '../common/FilePreviewModal';
 import { Eye } from 'lucide-react';
 

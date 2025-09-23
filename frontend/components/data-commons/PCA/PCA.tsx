@@ -10,8 +10,8 @@ import {
   usePCAColumns,
   useSampleColumns,
   usePCAData,
-} from "./PCAHooks"
-import { getDefaultSampleColumn, getDefaultGroupColumn } from "./PCAUtils"
+} from "./hooks"
+import { getDefaultSampleColumn, getDefaultGroupColumn } from "./utils"
 import {
   GroupLegend,
   LoadingState,

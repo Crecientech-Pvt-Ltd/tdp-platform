@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback } from "react"
 import Papa from "papaparse"
 import type { PlotData } from "plotly.js"
-import type { PCADataRow } from "./PCAUtils"
+import type { PCADataRow } from "./utils"
 import {
   createGroupColorMapping,
   parseIdToGroupMapping,
   createPCATraces,
   getDefaultSampleColumn,
   getDefaultGroupColumn,
-} from "./PCAUtils"
+} from "./utils"
 
 export function useViewportHeight() {
   const [viewportHeight, setViewportHeight] = useState(800)

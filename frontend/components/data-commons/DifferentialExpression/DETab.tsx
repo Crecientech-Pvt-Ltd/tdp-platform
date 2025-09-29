@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
-const VolcanoPlot = dynamic(() => import('@/components/data-commons/DifferentialExpression/VolcanoPlot'), { ssr: false });
+const VolcanoPlot = dynamic(() => import('@/components/data-commons/DifferentialExpression/DE'), { ssr: false });
 
 export function DETab({
   deFilesArray,

@@ -1,20 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download } from 'lucide-react';
+import DownloadPopup from './DownloadPopup';
 import FilePreviewModal from '../common/FilePreviewModal';
 import { Eye } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
-
-const DownloadPopup = dynamic(() => import('./DEDownloadPopup'), {
-  loading: () => <div className="flex items-center justify-center p-4"><Spinner /></div>,
-});
 
 interface DataFile {
   filename: string;

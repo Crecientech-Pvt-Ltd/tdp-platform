@@ -25,6 +25,7 @@ export interface VolcanoPlotProps {
   group: string;
   program: string;
   project: string;
+  loading?: boolean;
 }
 
 export interface ThresholdControls {

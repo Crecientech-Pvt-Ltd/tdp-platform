@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Plot from 'react-plotly.js';
 import type { Shape } from 'plotly.js';
 import type { ProcessedData, ThresholdControls, PointCounts } from './types';
@@ -15,7 +15,7 @@ interface VolcanoPlotRendererProps {
   onPlotRelayout: (eventData: Record<string, unknown> | undefined) => void;
 }
 
-export const VolcanoPlotRenderer: React.FC<VolcanoPlotRendererProps> = ({
+export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
   contrast,
   data,
   counts,
@@ -25,7 +25,7 @@ export const VolcanoPlotRenderer: React.FC<VolcanoPlotRendererProps> = ({
   useLog,
   thresholds,
   onPlotRelayout,
-}) => {
+}: VolcanoPlotRendererProps) {
   if (!data || data.points.length === 0) return null;
 
   const normalPoints = data.points.filter(p => p.color !== 'orange');
@@ -218,4 +218,4 @@ export const VolcanoPlotRenderer: React.FC<VolcanoPlotRendererProps> = ({
       </div>
     </div>
   );
-};
+});

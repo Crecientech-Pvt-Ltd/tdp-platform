@@ -14,6 +14,7 @@ export type DownloadFile = {
   fileName?: string 
   name?: string 
   description?: string
+  content?: string
 }
 
 export type DownloadFileSpec = DownloadFile
@@ -46,7 +47,7 @@ export default function DownloadPopup({
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedFiles(selectableFiles.filter((f) => !!f.url).map((f) => getDisplayName(f)!))
+      setSelectedFiles(selectableFiles.filter((f) => !!(f.url || f.content)).map((f) => getDisplayName(f)!))
     } else {
       setSelectedFiles([])
       setIsDownloading(false)
@@ -69,15 +70,25 @@ export default function DownloadPopup({
 
       for (const f of files) {
         const displayName = getDisplayName(f)
-        if (!displayName || !f.url) continue
+        if (!displayName) continue
         if (!selectedFiles.includes(displayName)) continue
 
         try {
-          const res = await fetch(f.url)
-          const text = await res.text()
-          zip.file(displayName, text)
+          let content: string
+          
+          if (f.content) {
+            content = f.content
+          } else if (f.url) {
+            const res = await fetch(f.url)
+            content = await res.text()
+          } else {
+            console.warn(`File ${displayName} has neither content nor URL`)
+            continue
+          }
+          
+          zip.file(displayName, content)
         } catch (err) {
-          console.warn(`Failed to fetch ${displayName}:`, err)
+          console.warn(`Failed to process ${displayName}:`, err)
         }
       }
 
@@ -132,7 +143,7 @@ export default function DownloadPopup({
                     <div className="space-y-3">
                       {selectableFiles.map((file) => {
                         const displayName = getDisplayName(file)!
-                        const disabled = !file.url
+                        const disabled = !(file.url || file.content)
                         const checked = selectedFiles.includes(displayName)
 
                         return (

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import FileSelectionPopup from '@/components/data-commons/common/PopUp';
+import FileUploadPopup from '@/components/data-commons/common/FileUploadPopup';
 import { Spinner } from '@/components/ui/spinner';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -35,6 +36,7 @@ export default function DataCommonsPage() {
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showFileSelectionPopup, setShowFileSelectionPopup] = React.useState<boolean>(false);
+  const [showFileUploadPopup, setShowFileUploadPopup] = React.useState<boolean>(false);
   const [imageLoading, setImageLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -230,7 +232,7 @@ export default function DataCommonsPage() {
         </form>
 
         {selectedGroup && selectedProgram && selectedProject && (
-          <div className='px-8 pb-4'>
+          <div className='px-8 pb-4 space-y-2'>
             <Button
               type='button'
               className='w-full'
@@ -240,6 +242,29 @@ export default function DataCommonsPage() {
               onClick={handleGoToPlots}
             >
               Go to Plots
+            </Button>
+            <div className='text-center text-sm text-muted-foreground'>or</div>
+            <Button
+              type='button'
+              variant='outline'
+              className='w-full'
+              onClick={() => setShowFileUploadPopup(true)}
+            >
+              Upload Your Own Files
+            </Button>
+          </div>
+        )}
+        
+        {/* Show upload option even when no project is selected */}
+        {(!selectedGroup || !selectedProgram || !selectedProject) && (
+          <div className='px-8 pb-4'>
+            <Button
+              type='button'
+              variant='outline'
+              className='w-full'
+              onClick={() => setShowFileUploadPopup(true)}
+            >
+              Upload Your Own Files
             </Button>
           </div>
         )}
@@ -367,6 +392,10 @@ export default function DataCommonsPage() {
         selectedGroup={selectedGroup}
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}
+      />
+      <FileUploadPopup
+        isOpen={showFileUploadPopup}
+        onClose={() => setShowFileUploadPopup(false)}
       />
     </div>
   );

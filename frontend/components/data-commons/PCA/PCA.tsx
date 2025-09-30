@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useState, useMemo, useCallback } from "react"
-import dynamic from "next/dynamic"
 import Papa from "papaparse"
-import { Spinner } from "@/components/ui/spinner"
 import type { DownloadFileSpec } from "@/components/data-commons/common/DownloadPopup"
+import { SeeMore } from "@/components/data-commons/common/SeeMore"
+import { useFileData } from "@/components/data-commons/upload/hooks/useFileData"
+import type { FileSource } from "@/components/data-commons/upload/hooks/useDataFiles"
 import {
   useViewportHeight,
   usePCAColumns,
@@ -21,30 +22,25 @@ import {
   PCALayout,
 } from "./PCAComponents"
 
-const SeeMore = dynamic(() => import("@/components/data-commons/common/SeeMore").then(mod => ({ default: mod.SeeMore })), {
-  loading: () => <div className="flex items-center justify-center p-4"><Spinner /></div>,
-})
-
 interface PCAProps {
-  samplesheetUrl?: string
-  pcaUrl?: string
+  sampleFile: FileSource | null
+  pcaFile: FileSource | null
   group?: string
   program?: string
   project?: string
-  pcaFileName?: string
-  sampleFileName?: string
 }
 
 export default function PCA({
-  samplesheetUrl,
-  pcaUrl,
+  sampleFile,
+  pcaFile,
   group = "default",
   program = "PCA",
   project = "analysis",
-  pcaFileName = "PCA.csv",
-  sampleFileName = "sample-sheet.csv",
 }: PCAProps) {
   const [showSeeMore, setShowSeeMore] = useState(false)
+  
+  const { data: sampleData, loading: sampleLoading } = useFileData(sampleFile);
+  const { data: pcaData, loading: pcaLoading } = useFileData(pcaFile);
   
   const viewportHeight = useViewportHeight()
   
@@ -68,71 +64,102 @@ export default function PCA({
     handleColumnChange,
   } = useSampleColumns()
 
-  useEffect(() => {
-    const initializeColumns = async () => {
-      if (pcaUrl && pcaColumns.length === 0) {
-        const response = await fetch(pcaUrl)
-        const pcaText = await response.text()
-        
-        Papa.parse(pcaText, {
-          header: true,
-          preview: 1,
-          complete: (results) => {
-            const header = results.meta.fields ?? []
-            setPcaColumns(header)
-            
-            if (!xAxisColumn && header.length > 1) {
-              setXAxisColumn(header[1])
-            }
-            if (!yAxisColumn && header.length > 2) {
-              setYAxisColumn(header[2])
-            }
-          },
-        })
-      }
+  const {
+    traces,
+    groupToColor,
+    sampleDataExists,
+    loading: pcaDataLoading,
+  } = usePCAData(pcaData, sampleData, sampleColumn, groupColumn, xAxisColumn, yAxisColumn)
+  
+  const loading = sampleLoading || pcaLoading || pcaDataLoading
+  const hasPCAFile = !!(pcaFile && (pcaFile.url || pcaFile.content))
 
-      if (samplesheetUrl && samplesheetColumns.length === 0) {
-        const response = await fetch(samplesheetUrl)
-        if (response.ok) {
-          const sampleText = await response.text()
-          
-          Papa.parse(sampleText, {
-            header: true,
-            preview: 1,
-            complete: (results) => {
-              const header = results.meta.fields ?? []
-              setSamplesheetColumns(header)
-              
-              if (!sampleColumn && header.length > 0) {
-                setSampleColumn(getDefaultSampleColumn(header))
-              }
-              if (!groupColumn && header.length > 1) {
-                setGroupColumn(getDefaultGroupColumn(header))
-              }
-            },
-          })
-        }
+  const pcaHeaders = useMemo(() => {
+    if (!pcaData) return []
+    
+    const isTabDelimited = pcaData.indexOf("\t") !== -1
+    let headers: string[] = []
+    
+    Papa.parse(pcaData, {
+      header: true,
+      preview: 1,
+      delimiter: isTabDelimited ? "\t" : undefined,
+      complete: (results) => {
+        const header = results.meta.fields ?? []
+        headers = header.map((col, idx) => {
+          if (!col || col.trim() === "") {
+            return idx === 0 ? "Sample_ID" : `Column_${idx}`
+          }
+          return col
+        })
+      },
+    })
+    
+    return headers
+  }, [pcaData])
+
+  const sampleHeaders = useMemo(() => {
+    if (!sampleData) return []
+    
+    const isTabDelimited = sampleData.indexOf("\t") !== -1
+    let headers: string[] = []
+    
+    Papa.parse(sampleData, {
+      header: true,
+      preview: 1,
+      delimiter: isTabDelimited ? "\t" : undefined,
+      complete: (results) => {
+        headers = results.meta.fields ?? []
+      },
+    })
+    
+    return headers
+  }, [sampleData])
+
+  useEffect(() => {
+    if (pcaHeaders.length > 0) {
+      setPcaColumns(pcaHeaders)
+      
+      if (!xAxisColumn && pcaHeaders.length > 1) {
+        setXAxisColumn(pcaHeaders[1])
+      }
+      if (!yAxisColumn && pcaHeaders.length > 2) {
+        setYAxisColumn(pcaHeaders[2])
       }
     }
+  }, [pcaHeaders, xAxisColumn, yAxisColumn, setPcaColumns, setXAxisColumn, setYAxisColumn])
 
-    initializeColumns().catch(() => {})
-  }, [pcaUrl, samplesheetUrl, pcaColumns.length, samplesheetColumns.length, xAxisColumn, yAxisColumn, sampleColumn, groupColumn, setPcaColumns, setXAxisColumn, setYAxisColumn, setSamplesheetColumns, setSampleColumn, setGroupColumn])
-
-  const { traces, groupToColor, sampleDataExists, loading } = usePCAData(
-    pcaUrl,
-    samplesheetUrl,
-    sampleColumn,
-    groupColumn,
-    xAxisColumn,
-    yAxisColumn
-  )
+  useEffect(() => {
+    if (sampleHeaders.length > 0) {
+      setSamplesheetColumns(sampleHeaders)
+      
+      if (!sampleColumn && sampleHeaders.length > 0) {
+        setSampleColumn(getDefaultSampleColumn(sampleHeaders))
+      }
+      if (!groupColumn && sampleHeaders.length > 1) {
+        setGroupColumn(getDefaultGroupColumn(sampleHeaders))
+      }
+    }
+  }, [sampleHeaders, sampleColumn, groupColumn, setSamplesheetColumns, setSampleColumn, setGroupColumn])
 
   const downloadFiles: DownloadFileSpec[] = useMemo(() => [
-    ...(pcaUrl && pcaFileName ? [{ name: pcaFileName, url: pcaUrl, description: "PCA results (coordinates)" }] : []),
-    ...(samplesheetUrl && sampleFileName
-      ? [{ name: sampleFileName, url: samplesheetUrl, description: "Sample metadata with group assignments" }]
+    ...(pcaFile?.filename 
+      ? [{ 
+          name: pcaFile.filename, 
+          url: pcaFile.url || '', 
+          description: "PCA results (coordinates)",
+          ...(pcaFile.content && { content: pcaFile.content })
+        }] 
       : []),
-  ], [pcaUrl, pcaFileName, samplesheetUrl, sampleFileName])
+    ...(sampleFile?.filename
+      ? [{ 
+          name: sampleFile.filename, 
+          url: sampleFile.url || '', 
+          description: "Sample metadata with group assignments",
+          ...(sampleFile.content && { content: sampleFile.content })
+        }]
+      : []),
+  ], [pcaFile, sampleFile])
 
   const metadata = useMemo(() => ({
     selectedFiles: downloadFiles.map(f => f.name),
@@ -161,7 +188,7 @@ export default function PCA({
 
   return (
     <PCALayout>
-      {!pcaUrl ? (
+      {!hasPCAFile ? (
         <EmptyState>
           Kindly add PCA file to view the plot.
         </EmptyState>

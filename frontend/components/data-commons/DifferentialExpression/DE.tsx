@@ -17,7 +17,7 @@ import type {
   GenericRow 
 } from './types';
 
-export default function VolcanoPlot({ deFiles, group, program, project }: VolcanoPlotProps) {
+export default function VolcanoPlot({ deFiles, group, program, project, loading: externalLoading }: VolcanoPlotProps) {
   const [availableContrasts, setAvailableContrasts] = useState<string[]>([]);
   const [selectedContrasts, setSelectedContrasts] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -40,10 +40,16 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
   } = useContrastData(deFiles, debouncedContrasts);
 
   useEffect(() => {
+    if (externalLoading) {
+      setLoading(true);
+      setAllDataLoaded(false);
+      return;
+    }
+
     if (!deFiles || Object.keys(deFiles).length === 0) {
       setAvailableContrasts([]);
       setSelectedContrasts([]);
-      setAllDataLoaded(false);
+      setAllDataLoaded(true);
       setLoading(false);
       return;
     }
@@ -55,7 +61,7 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
     setSelectedContrasts([contrastNames[0]]);
     setAllDataLoaded(true);
     setLoading(false);
-  }, [deFiles]);
+  }, [deFiles, externalLoading]);
 
   const processedData = useMemo<Record<string, ProcessedData>>(() => {
     const result: Record<string, ProcessedData> = {};
@@ -281,7 +287,7 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
         onShowSettings={() => setShowSeeMore(true)}
       />
 
-      <div className='w-full overflow-x-auto overflow-y-auto' style={{ maxHeight: `${viewportHeight * 0.9}px` }}>
+      <div className='w-full' style={{ maxHeight: `${viewportHeight * 0.9}px` }}>
         {debouncedContrasts.length > 0 && (
           <div className='space-y-2 h-full'>
             {debouncedContrasts.length === 1 ? (
@@ -364,6 +370,7 @@ export default function VolcanoPlot({ deFiles, group, program, project }: Volcan
         group={group}
         program={program}
         project={project}
+        deFiles={deFiles}
       />
     </div>
   );

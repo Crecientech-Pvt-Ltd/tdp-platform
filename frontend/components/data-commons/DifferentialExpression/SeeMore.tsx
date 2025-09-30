@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, memo, useMemo } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -51,9 +51,10 @@ interface SeeMoreProps {
   group: string;
   program: string;
   project: string;
+  deFiles?: Record<string, string>;
 }
 
-export default function SeeMore({
+export default memo(function SeeMore({
   isOpen,
   onClose,
   dataFiles,
@@ -69,6 +70,7 @@ export default function SeeMore({
   group,
   program,
   project,
+  deFiles,
 }: SeeMoreProps) {
   const [selectedXColumn, setSelectedXColumn] = useState(currentXColumn);
   const [selectedYColumn, setSelectedYColumn] = useState(currentYColumn);
@@ -78,17 +80,17 @@ export default function SeeMore({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewFileIndex, setPreviewFileIndex] = useState(0);
 
-  const allColumns = React.useMemo(() => {
+  const allColumns = useMemo(() => {
     const columnSet = new Set<string>();
-    dataFiles.forEach(file => {
+    for (const file of dataFiles) {
       if (file.columns) {
-        file.columns.forEach(col => {
+        for (const col of file.columns) {
           if (col.trim() !== '') {
             columnSet.add(col);
           }
-        });
+        }
       }
-    });
+    }
     return Array.from(columnSet).sort();
   }, [dataFiles]);
 
@@ -116,21 +118,22 @@ export default function SeeMore({
   const handleLogChange = (checked: boolean) => {
     setLogEnabled(checked);
   };
-  const deFiles = dataFiles.filter(f => f.filename);
+  
+  const previewableFiles = dataFiles.filter(f => f.filename);
 
   const handlePreviewFiles = () => {
-    if (deFiles.length > 0) {
+    if (previewableFiles.length > 0) {
       setPreviewFileIndex(0);
       setPreviewOpen(true);
     }
   };
 
   const handleNextPreview = () => {
-    setPreviewFileIndex((prev) => (prev + 1) % deFiles.length);
+    setPreviewFileIndex((prev) => (prev + 1) % previewableFiles.length);
   };
 
   const handlePrevPreview = () => {
-    setPreviewFileIndex((prev) => (prev - 1 + deFiles.length) % deFiles.length);
+    setPreviewFileIndex((prev) => (prev - 1 + previewableFiles.length) % previewableFiles.length);
   };
 
   return (
@@ -193,6 +196,16 @@ export default function SeeMore({
                     Apply logarithmic transformation to the Y-Axis data for better visualization of exponential
                     relationships
                   </p>
+                  
+                  {logEnabled && (
+                    <div className='mt-4 ml-6 p-4 bg-muted/20 rounded-lg border'>
+                      <Label className='text-sm font-medium'>Zero Value Handling (Log Scale)</Label>
+                      <p className='text-xs text-muted-foreground mt-1'>
+                        Zero and negative values in the Y-axis column are automatically replaced with the minimum 
+                        non-zero value from the dataset to ensure all points remain visible in log transformation.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -213,7 +226,7 @@ export default function SeeMore({
                     onClick={handlePreviewFiles}
                     variant='outline'
                     className='flex items-center gap-2'
-                    disabled={deFiles.length === 0}
+                    disabled={previewableFiles.length === 0}
                   >
                     <Eye className='h-4 w-4' />
                     Preview Files
@@ -256,16 +269,21 @@ export default function SeeMore({
       <FilePreviewModal
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        filename={deFiles[previewFileIndex]?.filename || ''}
+        filename={previewableFiles[previewFileIndex]?.filename || ''}
         group={group}
         program={program}
         project={project}
-        multiple={deFiles.length > 1}
+        uploadedContent={
+          previewableFiles[previewFileIndex]?.filename && deFiles
+            ? deFiles[previewableFiles[previewFileIndex].filename]
+            : undefined
+        }
+        multiple={previewableFiles.length > 1}
         onNext={handleNextPreview}
         onPrev={handlePrevPreview}
         fileIndex={previewFileIndex}
-        fileCount={deFiles.length}
+        fileCount={previewableFiles.length}
       />
     </>
   );
-}
+});

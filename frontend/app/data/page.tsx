@@ -1,30 +1,43 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import '@react-sigma/core/lib/style.css';
 import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
 
 const TranscriptTab = dynamic(
-  () => import('@/components/data-commons/TranscriptExpression/TranscriptTab').then(mod => mod.TranscriptTab),
-  { ssr: false },
+  () => import('@/components/data-commons/TranscriptExpression/TranscriptTab').then(mod => ({ default: mod.TranscriptTab })),
+  { 
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center p-8"><Spinner /></div>
+  }
 );
-const PCATab = dynamic(() => import('@/components/data-commons/PCA/PCATab').then(mod => mod.PCATab), { ssr: false });
-const DETab = dynamic(() => import('@/components/data-commons/DifferentialExpression/DETab').then(mod => mod.DETab), { ssr: false });
+
+const PCATab = dynamic(
+  () => import('@/components/data-commons/PCA/PCATab').then(mod => ({ default: mod.PCATab })),
+  { 
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center p-8"><Spinner /></div>
+  }
+);
+
+const DETab = dynamic(
+  () => import('@/components/data-commons/DifferentialExpression/DETab').then(mod => ({ default: mod.DETab })),
+  { 
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center p-8"><Spinner /></div>
+  }
+);
 
 function PDCSNetworkTabs() {
   const searchParams = useSearchParams();
   const group = searchParams?.get('group');
   const program = searchParams?.get('program');
   const project = searchParams?.get('project');
-  const geneFile = searchParams?.get('geneFile');
-  const transcriptFile = searchParams?.get('transcriptFile');
-  const pcaFile = searchParams?.get('pcaFile');
   const deFile = searchParams?.get('deFiles');
-  const sampleFile = searchParams?.get('sampleFile');
   const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const deFilesArray = deFile?.split(',');
@@ -37,10 +50,6 @@ function PDCSNetworkTabs() {
       <TabsContent value='transcript' className='flex-1 p-6 mt-0 h-full'>
         <div className='mt-4'>
           <TranscriptTab
-            geneFile={geneFile}
-            transcriptFile={transcriptFile}
-            getFileUrl={getFileUrl}
-            sampleFile={sampleFile}
             group={group ?? ''}
             program={program ?? ''}
             project={project ?? ''}
@@ -51,9 +60,6 @@ function PDCSNetworkTabs() {
       <TabsContent value='pca' className='flex-1 p-6 mt-0 h-full'>
         <div className='mt-4'>
           <PCATab
-            pcaFile={pcaFile}
-            getFileUrl={getFileUrl}
-            sampleFile={sampleFile}
             group={group ?? ''}
             program={program ?? ''}
             project={project ?? ''}

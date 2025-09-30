@@ -73,10 +73,10 @@ export default function SeeMore({
 }: SeeMoreProps) {
   const mapping = mappingProp ?? sampleMappingProp
 
-  const axisOptions = axis?.options ?? axis?.axisColumns ?? []
+  const axisOptions = (axis?.options ?? axis?.axisColumns ?? []).filter(col => col && col.trim() !== "")
   const axisEnabled = !!axis?.enabled && axisOptions.length > 0
 
-  const mappingAvailableCols = mapping?.availableColumns ?? []
+  const mappingAvailableCols = (mapping?.availableColumns ?? []).filter(col => col !== undefined && col !== null)
   const mappingEnabled = !!mapping?.enabled || mappingAvailableCols.length > 0
 
   const canDownload = !!download && !!download.files?.length
@@ -93,7 +93,7 @@ export default function SeeMore({
   const previewableFiles = (download?.files ?? []).filter(
     (f: DownloadFile) =>
       typeof f.name === "string" &&
-      typeof f.url === "string" &&
+      (typeof f.url === "string" || typeof f.content === "string") &&
       (f.name.toLowerCase().endsWith(".csv") ||
         f.name.toLowerCase().endsWith(".tsv") ||
         f.name.toLowerCase().endsWith(".txt"))
@@ -178,11 +178,14 @@ export default function SeeMore({
                           <SelectValue placeholder="Select X-axis column" />
                         </SelectTrigger>
                         <SelectContent>
-                          {axisOptions.map((col, idx) => (
-                            <SelectItem key={idx} value={col}>
-                              <span className="font-medium">{col}</span>
-                            </SelectItem>
-                          ))}
+                          {axisOptions.map((col, idx) => {
+                            const value = col && col.trim() !== "" ? col : `column_${idx}`
+                            return (
+                              <SelectItem key={idx} value={value}>
+                                <span className="font-medium">{col || `Column ${idx + 1}`}</span>
+                              </SelectItem>
+                            )
+                          })}
                         </SelectContent>
                       </Select>
                       {selectedXAxis && (
@@ -197,11 +200,14 @@ export default function SeeMore({
                           <SelectValue placeholder="Select Y-axis column" />
                         </SelectTrigger>
                         <SelectContent>
-                          {axisOptions.map((col, idx) => (
-                            <SelectItem key={idx} value={col}>
-                              <span className="font-medium">{col}</span>
-                            </SelectItem>
-                          ))}
+                          {axisOptions.map((col, idx) => {
+                            const value = col && col.trim() !== "" ? col : `column_${idx}`
+                            return (
+                              <SelectItem key={idx} value={value}>
+                                <span className="font-medium">{col || `Column ${idx + 1}`}</span>
+                              </SelectItem>
+                            )
+                          })}
                         </SelectContent>
                       </Select>
                       {selectedYAxis && (
@@ -277,7 +283,7 @@ export default function SeeMore({
                     onClick={handlePreviewFiles}
                     variant="outline"
                     className="flex items-center gap-2"
-                    disabled={previewableFiles.length === 0 || !group || !program || !project}
+                    disabled={previewableFiles.length === 0}
                   >
                     <Eye className="h-4 w-4" />
                     Preview Files
@@ -317,6 +323,11 @@ export default function SeeMore({
         group={group}
         program={program}
         project={project}
+        uploadedContent={
+          previewableFiles[previewFileIndex] && 'content' in previewableFiles[previewFileIndex] 
+            ? (previewableFiles[previewFileIndex] as {content: string}).content 
+            : undefined
+        }
         multiple={previewableFiles.length > 1}
         onNext={handleNextPreview}
         onPrev={handlePrevPreview}

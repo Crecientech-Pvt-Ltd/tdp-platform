@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -35,7 +35,7 @@ interface DownloadPopupProps {
   project: string;
 }
 
-export default function DownloadPopup({
+export default memo(function DownloadPopup({
   isOpen,
   onClose,
   availableContrasts,
@@ -165,32 +165,21 @@ export default function DownloadPopup({
           let dataToDownload: GenericRow[] = [];
           let outputFileName = '';
 
-          switch (dataType) {
-            case 'red':
-              const redIndices = points
-                .map((point, index) => (point.color === 'red' ? index : -1))
-                .filter(i => i !== -1);
-              dataToDownload = redIndices.map(i => rawData[i]);
-              outputFileName = `${fileName.replace('.csv', '')}_red_points.csv`;
-              break;
-            case 'blue':
-              const blueIndices = points
-                .map((point, index) => (point.color === 'blue' ? index : -1))
-                .filter(i => i !== -1);
-              dataToDownload = blueIndices.map(i => rawData[i]);
-              outputFileName = `${fileName.replace('.csv', '')}_blue_points.csv`;
-              break;
-            case 'gray':
-              const grayIndices = points
-                .map((point, index) => (point.color === 'gray' ? index : -1))
-                .filter(i => i !== -1);
-              dataToDownload = grayIndices.map(i => rawData[i]);
-              outputFileName = `${fileName.replace('.csv', '')}_gray_points.csv`;
-              break;
-            case 'all':
-              dataToDownload = rawData;
-              outputFileName = `${fileName.replace('.csv', '')}_all_points.csv`;
-              break;
+          if (dataType === 'all') {
+            dataToDownload = rawData;
+            outputFileName = `${fileName.replace('.csv', '')}_all_points.csv`;
+          } else {
+            const filteredData: GenericRow[] = [];
+            for (let i = 0; i < points.length; i++) {
+              if (points[i].color === dataType) {
+                filteredData.push(rawData[i]);
+              }
+            }
+            dataToDownload = filteredData;
+            
+            const colorSuffix = dataType === 'red' ? 'red_points' : 
+                               dataType === 'blue' ? 'blue_points' : 'gray_points';
+            outputFileName = `${fileName.replace('.csv', '')}_${colorSuffix}.csv`;
           }
 
           if (dataToDownload.length > 0) {
@@ -405,4 +394,4 @@ export default function DownloadPopup({
       </DialogContent>
     </Dialog>
   );
-}
+});

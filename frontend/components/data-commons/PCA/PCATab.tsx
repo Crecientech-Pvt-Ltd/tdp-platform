@@ -1,29 +1,28 @@
 import PCA from './PCA';
+import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
 
 export function PCATab({
-  pcaFile,
-  getFileUrl,
-  sampleFile,
   group,
   program,
   project,
 }: {
-  pcaFile: string | null | undefined;
-  getFileUrl: (filename: string) => string;
-  sampleFile: string | null | undefined;
   group: string;
   program: string;
   project: string;
 }) {
+  const { pcaFile, sampleFile, loading } = useDataFiles();
+
+  if (loading) {
+    return <div className="flex items-center justify-center p-8">Loading files...</div>;
+  }
+
   return (
     <PCA
-      samplesheetUrl={sampleFile ? getFileUrl(sampleFile) : undefined}
-      pcaUrl={pcaFile ? getFileUrl(pcaFile) : undefined}
+      sampleFile={sampleFile}
+      pcaFile={pcaFile}
       group={group}
       program={program}
       project={project}
-      pcaFileName={pcaFile ?? undefined}
-      sampleFileName={sampleFile ?? undefined}
     />
   );
 }

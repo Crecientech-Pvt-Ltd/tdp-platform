@@ -43,7 +43,7 @@ export function parseIdToGroupMapping(
     return row[column]
   }
 
-  sampleData.forEach((row) => {
+  sampleData.forEach((row: PCADataRow) => {
     const sampleId = getColumnValue(row, sampleColumn)
     const groupValue = getColumnValue(row, groupColumn)
 
@@ -70,13 +70,13 @@ export function createPCATraces(
     return row[""] !== undefined ? row[""] : row[idKey] !== undefined ? row[idKey] : row["0"]
   }
 
-  const xKey = xAxisColumn || pcaHeader[1] || "1"
-  const yKey = yAxisColumn || pcaHeader[2] || "2"
+  const xKey = xAxisColumn === "Sample_ID" ? "" : (xAxisColumn.startsWith("Column_") ? Object.keys(pcaData[0] || {})[parseInt(xAxisColumn.split("_")[1])] : xAxisColumn)
+  const yKey = yAxisColumn === "Sample_ID" ? "" : (yAxisColumn.startsWith("Column_") ? Object.keys(pcaData[0] || {})[parseInt(yAxisColumn.split("_")[1])] : yAxisColumn)
 
   if (!hasSampleData) {
-    const allData = { x: [] as number[], y: [] as number[], text: [] as string[] }
+    const allData: { x: number[]; y: number[]; text: string[] } = { x: [], y: [], text: [] }
 
-    pcaData.forEach((row) => {
+    for (const row of pcaData) {
       const id = getIdValue(row, pcaHeader)
       const xVal = row[xKey] as number
       const yVal = row[yKey] as number
@@ -86,7 +86,7 @@ export function createPCATraces(
         allData.y.push(yVal)
         allData.text.push(String(id))
       }
-    })
+    }
 
     return [{
       x: allData.x,
@@ -102,7 +102,7 @@ export function createPCATraces(
 
   const grouped: Record<string, { x: number[]; y: number[]; text: string[] }> = {}
   
-  pcaData.forEach((row) => {
+  for (const row of pcaData) {
     const id = getIdValue(row, pcaHeader)
     const xVal = row[xKey] as number
     const yVal = row[yKey] as number
@@ -114,7 +114,7 @@ export function createPCATraces(
       grouped[group].y.push(yVal)
       grouped[group].text.push(String(id))
     }
-  })
+  }
 
   return Object.entries(grouped).map(([group, data], idx) => ({
     x: data.x,

@@ -15,6 +15,7 @@ import FilePreviewModal from './FilePreviewModal';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
+const FILE_KEYS: (keyof FileOptions)[] = ['gene', 'transcript', 'pca', 'differentialexpression', 'samplesheet'];
 
 interface FileSelectionPopupProps {
   isOpen: boolean;
@@ -75,26 +76,32 @@ export default function FileSelectionPopup({
     samplesheet: '',
   });
 
-  const [previewOpen, setPreviewOpen] = React.useState(false);
-  const [previewFile, setPreviewFile] = React.useState<{ filename: string; type: keyof FileOptions } | null>(null);
-  const [previewFileList, setPreviewFileList] = React.useState<string[]>([]);
-  const [previewFileIndex, setPreviewFileIndex] = React.useState(0);
+  const [previewState, setPreviewState] = React.useState({
+    open: false,
+    file: null as { filename: string; type: keyof FileOptions } | null,
+    fileList: [] as string[],
+    fileIndex: 0,
+  });
 
-  const canProceed = !loading;
+  const canProceed = React.useMemo(() => !loading, [loading]);
 
-  const getFileUrl = (filename: string) =>
-    `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`;
+  const getFileUrl = React.useCallback((filename: string) =>
+    `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`,
+    [selectedGroup, selectedProgram, selectedProject]
+  );
 
-  const getDeFileUrl = (filename: string) =>
-    `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/deFile/${encodeURIComponent(filename)}`;
+  const getDeFileUrl = React.useCallback((filename: string) =>
+    `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/deFile/${encodeURIComponent(filename)}`,
+    [selectedGroup, selectedProgram, selectedProject]
+  );
 
-  const orderFiles = (files: string[], type: keyof FileOptions) => {
+  const orderFiles = React.useCallback((files: string[], type: keyof FileOptions) => {
     const keyword = type.toLowerCase();
     const filtered = filterCsvTsv(files);
     const matching = filtered.filter(f => f.toLowerCase().includes(keyword));
     const others = filtered.filter(f => !f.toLowerCase().includes(keyword));
     return [...matching, ...others];
-  };
+  }, []);
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -105,28 +112,44 @@ export default function FileSelectionPopup({
   }, [isOpen]);
 
   React.useEffect(() => {
-    if (isOpen && selectedGroup && selectedProgram && selectedProject) {
-      setLoading(true);
+    if (!isOpen || !selectedGroup || !selectedProgram || !selectedProject) {
+      return;
+    }
 
-      const keys: (keyof FileOptions)[] = ['gene', 'transcript', 'pca', 'differentialexpression', 'samplesheet'];
+    let isCancelled = false;
+    setLoading(true);
 
-      const fetchFileList = async (key: keyof FileOptions) => {
-        const url = `${API_BASE}/data-commons/project/${encodeURIComponent(
-          selectedGroup,
-        )}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(
-          selectedProject,
-        )}/files/keys/${encodeURIComponent(key)}`;
-        try {
-          const res = await fetch(url);
-          const json = await res.json();
-          return [key, json.allFiles ?? json.filesHavingSameKey ?? []] as [keyof FileOptions, string[]];
-        } catch (error) {
-          console.error(`Failed to fetch files for ${key}:`, error);
-          return [key, []] as [keyof FileOptions, string[]];
-        }
-      };
+    const fetchFileList = async (key: keyof FileOptions) => {
+      const url = `${API_BASE}/data-commons/project/${encodeURIComponent(
+        selectedGroup,
+      )}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(
+        selectedProject,
+      )}/files/keys/${encodeURIComponent(key)}`;
+      
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        return [key, filterCsvTsv(json.allFiles ?? json.filesHavingSameKey ?? [])] as [keyof FileOptions, string[]];
+      } catch (error) {
+        console.error(`Failed to fetch files for ${key}:`, error);
+        return [key, []] as [keyof FileOptions, string[]];
+      }
+    };
 
-      Promise.all(keys.map(fetchFileList)).then(results => {
+    const initializeSelections = (options: FileOptions) => ({
+      gene: options.gene.find(f => f.toLowerCase().includes('gene')) || '',
+      transcript: options.transcript.find(f => f.toLowerCase().includes('transcript')) || '',
+      pca: options.pca.find(f => f.toLowerCase().includes('pca')) || '',
+      samplesheet: options.samplesheet.find(f => f.toLowerCase().includes('sample')) || '',
+      differentialexpression: options.differentialexpression.filter(f =>
+        f.toLowerCase().includes('differentialexpression'),
+      ),
+    });
+
+    Promise.all(FILE_KEYS.map(fetchFileList))
+      .then(results => {
+        if (isCancelled) return;
+
         const options: FileOptions = {
           gene: [],
           transcript: [],
@@ -134,40 +157,41 @@ export default function FileSelectionPopup({
           differentialexpression: [],
           samplesheet: [],
         };
+
         results.forEach(([key, files]) => {
-          options[key] = filterCsvTsv(files);
+          options[key] = files;
         });
+
         setFileOptions(options);
-
-        setSelections({
-          gene: options.gene.find(f => f.toLowerCase().includes('gene')) || '',
-          transcript: options.transcript.find(f => f.toLowerCase().includes('transcript')) || '',
-          pca: options.pca.find(f => f.toLowerCase().includes('pca')) || '',
-          samplesheet: options.samplesheet.find(f => f.toLowerCase().includes('sample')) || '',
-          differentialexpression: options.differentialexpression.filter(f =>
-            f.toLowerCase().includes('differentialexpression'),
-          ),
-        });
-
+        setSelections(initializeSelections(options));
         setLoading(false);
+      })
+      .catch(error => {
+        if (!isCancelled) {
+          console.error('Failed to fetch files:', error);
+          setLoading(false);
+        }
       });
-    }
+
+    return () => {
+      isCancelled = true;
+    };
   }, [isOpen, selectedGroup, selectedProgram, selectedProject]);
 
-  const handleChange = (type: keyof FileOptions, value: string | string[]) => {
+  const handleChange = React.useCallback((type: keyof FileOptions, value: string | string[]) => {
     setSelections(prev => ({
       ...prev,
       [type]: value === '__none__' ? '' : value,
     }));
-  };
+  }, []);
 
-  const handleCloseButton = () => {
+  const handleCloseButton = React.useCallback(() => {
     if (showDownloadCheckboxes) setShowDownloadCheckboxes(false);
     else if (isEditing) setIsEditing(false);
     else onClose();
-  };
+  }, [showDownloadCheckboxes, isEditing, onClose]);
 
-  const confirmProceed = () => {
+  const confirmProceed = React.useCallback(() => {
     setLoadingProceed(true);
 
     const params = new URLSearchParams({
@@ -188,19 +212,21 @@ export default function FileSelectionPopup({
       setLoadingProceed(false);
       onClose();
     }, 600);
-  };
+  }, [selectedGroup, selectedProgram, selectedProject, selections, onClose]);
 
-  const toggleDownloadSelection = (type: string) => {
-    const newSelections = new Set(downloadSelections);
-    if (newSelections.has(type)) {
-      newSelections.delete(type);
-    } else {
-      newSelections.add(type);
-    }
-    setDownloadSelections(newSelections);
-  };
+  const toggleDownloadSelection = React.useCallback((type: string) => {
+    setDownloadSelections(prev => {
+      const newSelections = new Set(prev);
+      if (newSelections.has(type)) {
+        newSelections.delete(type);
+      } else {
+        newSelections.add(type);
+      }
+      return newSelections;
+    });
+  }, []);
 
-  const getFilesToDownload = () => {
+  const getFilesToDownload = React.useCallback(() => {
     const files: {
       gene: string[];
       transcript: string[];
@@ -232,9 +258,21 @@ export default function FileSelectionPopup({
     }
 
     return files;
-  };
+  }, [downloadSelections, selections]);
 
-  const handleDownload = async () => {
+  const initializeDownloadSelections = React.useCallback(() => {
+    const initialSelections = new Set<string>();
+
+    if (selections.gene) initialSelections.add('gene');
+    if (selections.transcript) initialSelections.add('transcript');
+    if (selections.pca) initialSelections.add('pca');
+    if (selections.samplesheet) initialSelections.add('samplesheet');
+    if (selections.differentialexpression.length > 0) initialSelections.add('differentialexpression');
+
+    return initialSelections;
+  }, [selections]);
+
+  const handleDownload = React.useCallback(async () => {
     const filesToDownload = getFilesToDownload();
 
     const allFiles: Array<{ filename: string; type: string }> = [];
@@ -322,40 +360,51 @@ export default function FileSelectionPopup({
     } finally {
       setIsDownloading(false);
     }
-  };
+  }, [getFilesToDownload, getDeFileUrl, getFileUrl, selectedProject]);
 
-  const handlePreview = (type: keyof FileOptions, filename?: string) => {
+  const handlePreview = React.useCallback((type: keyof FileOptions, filename?: string) => {
     if (type === 'differentialexpression') {
       const files = selections.differentialexpression;
       if (!files.length) return;
-      setPreviewFileList(files);
-      setPreviewFileIndex(filename ? files.indexOf(filename) : 0);
-      setPreviewFile({ filename: filename || files[0], type });
-      setPreviewOpen(true);
+      setPreviewState({
+        open: true,
+        file: { filename: filename || files[0], type },
+        fileList: files,
+        fileIndex: filename ? files.indexOf(filename) : 0,
+      });
     } else {
       const file = selections[type] as string;
       if (!file) return;
-      setPreviewFileList([file]);
-      setPreviewFileIndex(0);
-      setPreviewFile({ filename: file, type });
-      setPreviewOpen(true);
+      setPreviewState({
+        open: true,
+        file: { filename: file, type },
+        fileList: [file],
+        fileIndex: 0,
+      });
     }
-  };
+  }, [selections]);
 
-  const handleNextPreview = () => {
-    if (previewFileList.length > 1) {
-      const nextIdx = (previewFileIndex + 1) % previewFileList.length;
-      setPreviewFileIndex(nextIdx);
-      setPreviewFile({ filename: previewFileList[nextIdx], type: previewFile?.type || 'differentialexpression' });
+  const handleNextPreview = React.useCallback(() => {
+    if (previewState.fileList.length > 1) {
+      const nextIdx = (previewState.fileIndex + 1) % previewState.fileList.length;
+      setPreviewState(prev => ({
+        ...prev,
+        fileIndex: nextIdx,
+        file: { filename: prev.fileList[nextIdx], type: prev.file?.type || 'differentialexpression' }
+      }));
     }
-  };
-  const handlePrevPreview = () => {
-    if (previewFileList.length > 1) {
-      const prevIdx = (previewFileIndex - 1 + previewFileList.length) % previewFileList.length;
-      setPreviewFileIndex(prevIdx);
-      setPreviewFile({ filename: previewFileList[prevIdx], type: previewFile?.type || 'differentialexpression' });
+  }, [previewState.fileList, previewState.fileIndex]);
+
+  const handlePrevPreview = React.useCallback(() => {
+    if (previewState.fileList.length > 1) {
+      const prevIdx = (previewState.fileIndex - 1 + previewState.fileList.length) % previewState.fileList.length;
+      setPreviewState(prev => ({
+        ...prev,
+        fileIndex: prevIdx,
+        file: { filename: prev.fileList[prevIdx], type: prev.file?.type || 'differentialexpression' }
+      }));
     }
-  };
+  }, [previewState.fileList, previewState.fileIndex]);
 
   const renderRow = (label: string, type: keyof FileOptions, displayType: string) => {
     if (type === 'differentialexpression') {
@@ -543,18 +592,6 @@ export default function FileSelectionPopup({
     );
   };
 
-  const initializeDownloadSelections = () => {
-    const initialSelections = new Set<string>();
-
-    if (selections.gene) initialSelections.add('gene');
-    if (selections.transcript) initialSelections.add('transcript');
-    if (selections.pca) initialSelections.add('pca');
-    if (selections.samplesheet) initialSelections.add('samplesheet');
-    if (selections.differentialexpression.length > 0) initialSelections.add('differentialexpression');
-
-    return initialSelections;
-  };
-
   return (
     <Dialog open={isOpen}>
       <DialogContent className='max-w-3xl w-[95vw] max-h-[85vh] flex flex-col'>
@@ -646,17 +683,17 @@ export default function FileSelectionPopup({
         </DialogFooter>
 
         <FilePreviewModal
-          open={previewOpen}
-          onClose={() => setPreviewOpen(false)}
-          filename={previewFile?.filename || ''}
+          open={previewState.open}
+          onClose={() => setPreviewState(prev => ({ ...prev, open: false }))}
+          filename={previewState.file?.filename || ''}
           group={selectedGroup}
           program={selectedProgram}
           project={selectedProject}
-          multiple={previewFileList.length > 1}
+          multiple={previewState.fileList.length > 1}
           onNext={handleNextPreview}
           onPrev={handlePrevPreview}
-          fileIndex={previewFileIndex}
-          fileCount={previewFileList.length}
+          fileIndex={previewState.fileIndex}
+          fileCount={previewState.fileList.length}
         />
       </DialogContent>
     </Dialog>

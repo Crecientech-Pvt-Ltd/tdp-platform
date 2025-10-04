@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import Papa from "papaparse"
 import type { PlotData } from "plotly.js"
 import type { PCADataRow } from "./utils"
@@ -66,8 +66,8 @@ export function useSampleColumns() {
 }
 
 export function usePCAData(
-  pcaUrl?: string,
-  samplesheetUrl?: string,
+  pcaData?: string,
+  sampleData?: string,
   sampleColumn?: string,
   groupColumn?: string,
   xAxisColumn?: string,
@@ -78,146 +78,95 @@ export function usePCAData(
   const [sampleDataExists, setSampleDataExists] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const resetState = useCallback(() => {
-    setTraces([])
-    setLoading(false)
-  }, [])
-
-  const loadPCAData = useCallback(
-    async (
-      idToGroup: Record<string, string>,
-      groupColor: Record<string, string>,
-      hasSampleData: boolean
-    ) => {
-      if (!pcaUrl) {
-        resetState()
-        return
-      }
-
-      setLoading(true)
-      try {
-        const response = await fetch(pcaUrl)
-        const pcaText = await response.text()
-
-        Papa.parse<PCADataRow>(pcaText, {
-          header: true,
-          dynamicTyping: true,
-          skipEmptyLines: true,
-          complete: (pcaResults) => {
-            const pcaHeader = pcaResults.meta.fields ?? []
-            
-            if (pcaHeader.length < 3) {
-              resetState()
-              return
-            }
-
-            const traces = createPCATraces(
-              pcaResults.data,
-              pcaHeader,
-              xAxisColumn || pcaHeader[1] || "1",
-              yAxisColumn || pcaHeader[2] || "2",
-              idToGroup,
-              groupColor,
-              hasSampleData
-            )
-
-            setTraces(traces)
-            setLoading(false)
-          },
-          error: resetState,
-        })
-      } catch {
-        resetState()
-      }
-    },
-    [pcaUrl, xAxisColumn, yAxisColumn, resetState]
-  )
-
-  const loadSampleData = useCallback(async () => {
-    const defaultResult = { 
-      idToGroup: {} as Record<string, string>, 
-      groupColor: {} as Record<string, string>, 
-      hasSampleData: false, 
-      sampleHeader: [] as string[] 
-    }
+  const parsedPCAData = useMemo((): { data: PCADataRow[], header: string[] } | null => {
+    if (!pcaData) return null
     
-    if (!samplesheetUrl) {
-      setSampleDataExists(false)
-      setGroupToColor({})
-      return defaultResult
+    const isTabDelimited = pcaData.indexOf("\t") !== -1
+    let result: { data: PCADataRow[], header: string[] } | null = null
+    
+    Papa.parse<PCADataRow>(pcaData, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      delimiter: isTabDelimited ? "\t" : undefined,
+      complete: (parseResult) => {
+        result = {
+          data: parseResult.data as PCADataRow[],
+          header: parseResult.meta.fields ?? []
+        }
+      },
+    })
+    
+    return result
+  }, [pcaData])
+
+  const parsedSampleData = useMemo((): { data: PCADataRow[], header: string[] } | null => {
+    if (!sampleData) return null
+    
+    const isTabDelimited = sampleData.indexOf("\t") !== -1
+    let result: { data: PCADataRow[], header: string[] } | null = null
+    
+    Papa.parse<PCADataRow>(sampleData, {
+      header: true,
+      skipEmptyLines: true,
+      delimiter: isTabDelimited ? "\t" : undefined,
+      complete: (parseResult) => {
+        result = {
+          data: parseResult.data as PCADataRow[],
+          header: parseResult.meta.fields ?? []
+        }
+      },
+    })
+    
+    return result
+  }, [sampleData])
+
+  const sampleMapping = useMemo(() => {
+    if (!parsedSampleData || parsedSampleData.header.length < 2) {
+      return { 
+        idToGroup: {} as Record<string, string>, 
+        groupColor: {} as Record<string, string>, 
+        hasSampleData: false 
+      }
     }
 
-    try {
-      const response = await fetch(samplesheetUrl)
-      if (!response.ok) throw new Error("Sample file not found")
-      
-      const sampleText = await response.text()
+    const actualSampleColumn = sampleColumn || getDefaultSampleColumn(parsedSampleData.header)
+    const actualGroupColumn = groupColumn || getDefaultGroupColumn(parsedSampleData.header)
 
-      return new Promise<typeof defaultResult>((resolve) => {
-        Papa.parse<PCADataRow>(sampleText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (sampleResults) => {
-            const sampleHeader = sampleResults.meta.fields ?? []
+    const { idToGroup, groupSet } = parseIdToGroupMapping(
+      parsedSampleData.data,
+      actualSampleColumn,
+      actualGroupColumn
+    )
 
-            if (sampleHeader.length < 2) {
-              setSampleDataExists(false)
-              setGroupToColor({})
-              resolve({ ...defaultResult, sampleHeader })
-              return
-            }
+    const groupColor = createGroupColorMapping(groupSet)
 
-            const actualSampleColumn = sampleColumn || getDefaultSampleColumn(sampleHeader)
-            const actualGroupColumn = groupColumn || getDefaultGroupColumn(sampleHeader)
+    return { idToGroup, groupColor, hasSampleData: true }
+  }, [parsedSampleData, sampleColumn, groupColumn])
 
-            const { idToGroup, groupSet } = parseIdToGroupMapping(
-              sampleResults.data,
-              actualSampleColumn,
-              actualGroupColumn
-            )
-
-            const groupColor = createGroupColorMapping(groupSet)
-            setGroupToColor(groupColor)
-            setSampleDataExists(true)
-
-            resolve({ idToGroup, groupColor, hasSampleData: true, sampleHeader })
-          },
-          error: () => {
-            setSampleDataExists(false)
-            setGroupToColor({})
-            resolve(defaultResult)
-          },
-        })
-      })
-    } catch {
-      setSampleDataExists(false)
-      setGroupToColor({})
-      return defaultResult
+  const memoizedTraces = useMemo(() => {
+    if (!parsedPCAData || parsedPCAData.header.length < 3) {
+      return []
     }
-  }, [samplesheetUrl, sampleColumn, groupColumn])
+
+    return createPCATraces(
+      parsedPCAData.data,
+      parsedPCAData.header,
+      xAxisColumn || parsedPCAData.header[1] || "1",
+      yAxisColumn || parsedPCAData.header[2] || "2",
+      sampleMapping.idToGroup,
+      sampleMapping.groupColor,
+      sampleMapping.hasSampleData
+    )
+  }, [parsedPCAData, xAxisColumn, yAxisColumn, sampleMapping])
 
   useEffect(() => {
-    let isCancelled = false
-
-    const loadData = async () => {
-      setLoading(true)
-      
-      const sampleResult = await loadSampleData()
-      if (isCancelled) return
-
-      await loadPCAData(
-        sampleResult.idToGroup,
-        sampleResult.groupColor,
-        sampleResult.hasSampleData
-      )
-    }
-
-    loadData()
-
-    return () => {
-      isCancelled = true
-    }
-  }, [loadSampleData, loadPCAData])
+    setLoading(true)
+    setTraces(memoizedTraces)
+    setGroupToColor(sampleMapping.groupColor)
+    setSampleDataExists(sampleMapping.hasSampleData)
+    setLoading(false)
+  }, [memoizedTraces, sampleMapping])
 
   return {
     traces,

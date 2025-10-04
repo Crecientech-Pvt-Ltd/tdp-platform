@@ -7,31 +7,42 @@ import type { GenericRow, Point, Bounds } from './types';
 export const calculateBounds = (points: Point[], useLog: boolean): Bounds => {
   if (points.length === 0) return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
   
-  const xVals = points.map(p => p.x).filter(x => isFinite(x));
-  const yVals = points.map(p => p.y).filter(y => isFinite(y));
+  let xMin = Infinity;
+  let xMax = -Infinity;
+  let yMin = Infinity;
+  let yMax = -Infinity;
   
-  if (xVals.length === 0 || yVals.length === 0) {
+  for (const point of points) {
+    const { x, y } = point;
+    if (isFinite(x)) {
+      if (x < xMin) xMin = x;
+      if (x > xMax) xMax = x;
+    }
+    if (isFinite(y)) {
+      if (y < yMin) yMin = y;
+      if (y > yMax) yMax = y;
+    }
+  }
+  
+  if (!isFinite(xMin) || !isFinite(xMax) || !isFinite(yMin) || !isFinite(yMax)) {
     return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
   }
   
-  const maxAbsX = Math.max(...xVals.map(Math.abs)) + 0.5;
+  const maxAbsX = Math.max(Math.abs(xMin), Math.abs(xMax)) + 0.5;
 
   if (useLog) {
-    const maxY = Math.max(...yVals) + 0.5;
     return {
       xMin: -maxAbsX,
       xMax: maxAbsX,
       yMin: 0,
-      yMax: maxY,
+      yMax: yMax + Math.max(0.5, yMax * 0.1),
     };
   } else {
-    const minY = Math.min(0, Math.min(...yVals) - 0.01);
-    const maxY = Math.max(...yVals) + 0.01;
     return {
       xMin: -maxAbsX,
       xMax: maxAbsX,
-      yMin: minY,
-      yMax: maxY,
+      yMin: Math.min(0, yMin - 0.01),
+      yMax: yMax + Math.max(0.01, Math.abs(yMax) * 0.1),
     };
   }
 };
@@ -63,28 +74,47 @@ export const getContrastCsvText = (
   const deFileKeys = Object.keys(deFiles);
   const lowerKeyMap = Object.fromEntries(deFileKeys.map(original => [original.toLowerCase(), original]));
 
-  if (
-    contrast === 'default' &&
-    (lowerKeyMap['differentialexpression.csv'] ||
-      lowerKeyMap['differentialexpression.tsv'] ||
-      lowerKeyMap['differentialexpression.txt'])
-  ) {
-    return (
-      deFiles[lowerKeyMap['differentialexpression.csv']] ||
-      deFiles[lowerKeyMap['differentialexpression.tsv']] ||
-      deFiles[lowerKeyMap['differentialexpression.txt']]
-    );
+  if (contrast === 'default') {
+    const defaultKeys = [
+      'differentialexpression.csv',
+      'differentialexpression.tsv', 
+      'differentialexpression.txt'
+    ];
+    
+    for (const key of defaultKeys) {
+      if (lowerKeyMap[key]) {
+        return deFiles[lowerKeyMap[key]];
+      }
+    }
   } else {
     const extensions = ['csv', 'tsv', 'txt'];
+    const separators = ['_', '-', ' '];
+    const prefixes = ['differentialexpression', 'de'];
+    
+    for (const prefix of prefixes) {
+      for (const separator of separators) {
+        for (const ext of extensions) {
+          const pattern = `${prefix}${separator}${contrast}.${ext}`.toLowerCase();
+          if (lowerKeyMap[pattern]) {
+            return deFiles[lowerKeyMap[pattern]];
+          }
+        }
+      }
+    }
+    
+    const fullFilenamePattern = contrast.toLowerCase();
+    if (lowerKeyMap[fullFilenamePattern]) {
+      return deFiles[lowerKeyMap[fullFilenamePattern]];
+    }
+    
     for (const ext of extensions) {
-      const key1 = `differentialexpression_${contrast}.${ext}`.toLowerCase();
-      const key2 = `differentialexpression-${contrast}.${ext}`.toLowerCase();
-      const matchedKey = lowerKeyMap[key1] || lowerKeyMap[key2];
-      if (matchedKey) {
-        return deFiles[matchedKey];
+      const withExt = `${fullFilenamePattern}.${ext}`;
+      if (lowerKeyMap[withExt]) {
+        return deFiles[lowerKeyMap[withExt]];
       }
     }
   }
+  
   return '';
 };
 
@@ -94,6 +124,7 @@ export const getContrastCsvText = (
 export const parseContrastNames = (deFiles: Record<string, string>): string[] => {
   return Object.keys(deFiles).map(filename => {
     const lowerCaseFileName = filename.toLowerCase();
+    
     if (
       lowerCaseFileName === 'differentialexpression.csv' ||
       lowerCaseFileName === 'differentialexpression.tsv' ||
@@ -101,8 +132,18 @@ export const parseContrastNames = (deFiles: Record<string, string>): string[] =>
     ) {
       return 'default';
     }
-    const match = lowerCaseFileName.match(/^differentialexpression[-_](.+)\.(csv|tsv|txt)$/);
-    return match ? match[1] : filename;
+    
+    let match = lowerCaseFileName.match(/^differentialexpression([-_\s]+)(.+)\.(csv|tsv|txt)$/);
+    if (match && match[2]) {
+      return match[2];
+    }
+    
+    match = lowerCaseFileName.match(/^de([-_\s]+)(.+)\.(csv|tsv|txt)$/);
+    if (match && match[2]) {
+      return match[2];
+    }
+    
+    return filename.replace(/\.(csv|tsv|txt)$/i, '');
   });
 };
 
@@ -122,12 +163,16 @@ export const getPointColor = (
     return 'orange';
   }
 
+  const absX = Math.abs(xValue);
+  
   if (useLog) {
-    if (xValue >= xThreshold && pValue <= yThreshold) return 'red';
-    else if (xValue <= -xThreshold && pValue <= yThreshold) return 'blue';
+    if (absX >= xThreshold && pValue <= yThreshold) {
+      return xValue >= 0 ? 'red' : 'blue';
+    }
   } else {
-    if (xValue >= xThreshold && pValue >= yThreshold) return 'red';
-    else if (xValue <= -xThreshold && pValue >= yThreshold) return 'blue';
+    if (absX >= xThreshold && pValue >= yThreshold) {
+      return xValue >= 0 ? 'red' : 'blue';
+    }
   }
   
   return 'gray';
@@ -144,34 +189,61 @@ export const processDataToPoints = (
   xThreshold: number,
   yThreshold: number,
   selectedGenes: Set<string>,
-  availableColumns: string[]
+  availableColumns: string[],
+  minNonZeroReplacement: number = 1e-300
 ): Point[] => {
   const idKey = availableColumns[0] || 'id';
+  const points: Point[] = [];
 
-  return rawData
-    .filter(row => {
-      return (
-        typeof row[xAxisColumn] === 'number' &&
-        typeof row[yAxisColumn] === 'number' &&
-        !isNaN(row[xAxisColumn] as number) &&
-        !isNaN(row[yAxisColumn] as number)
-      );
-    })
-    .map(row => {
-      const xValue = row[xAxisColumn] as number;
-      const pValue = row[yAxisColumn] as number;
-      const yValue = useLog ? -Math.log10(pValue) : pValue;
-      const geneId = String(row[idKey] || row[''] || '');
+  let minNonZero: number | null = null;
+  
+  if (useLog) {
+    for (const row of rawData) {
+      const pValue = row[yAxisColumn];
+      
+      if (typeof pValue === 'number' && !isNaN(pValue) && pValue > 0) {
+        if (minNonZero === null || pValue < minNonZero) {
+          minNonZero = pValue;
+        }
+      }
+    }
+    
+    if (minNonZero === null) {
+      minNonZero = minNonZeroReplacement;
+    }
+  }
 
-      const color = getPointColor(xValue, pValue, xThreshold, yThreshold, useLog, geneId, selectedGenes);
+  for (const row of rawData) {
+    const xValue = row[xAxisColumn];
+    let pValue = row[yAxisColumn];
+    const geneId = String(row[idKey] || row[''] || '');
+    
+    if (
+      typeof xValue !== 'number' ||
+      typeof pValue !== 'number' ||
+      isNaN(xValue) ||
+      isNaN(pValue)
+    ) {
+      continue;
+    }
 
-      return {
-        x: xValue,
-        y: yValue,
-        text: geneId,
-        color,
-      };
+    if (useLog && pValue <= 0) {
+      const replacementValue = minNonZero !== null ? minNonZero : minNonZeroReplacement;
+      pValue = replacementValue;
+    }
+
+    const yValue = useLog ? -Math.log10(pValue) : pValue;
+    const color = getPointColor(xValue, pValue, xThreshold, yThreshold, useLog, geneId, selectedGenes);
+
+    points.push({
+      x: xValue,
+      y: yValue,
+      text: geneId,
+      color,
     });
+  }
+
+  return points;
 };
 
 /**

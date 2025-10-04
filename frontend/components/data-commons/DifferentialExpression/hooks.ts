@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import type { GenericRow, ThresholdControls, ContrastData } from './types';
-import { getContrastCsvText, findColumnKeys, parseCsvData } from './utils';
+import { findColumnKeys, parseCsvData } from './utils';
 
 /**
  * debounce hook for delaying value updates
@@ -124,7 +124,23 @@ export const useContrastData = (deFiles: Record<string, string> | undefined, deb
     let newColumns: string[] = [...availableColumns];
 
     toFetch.forEach(contrast => {
-      const csvText = getContrastCsvText(contrast, deFiles);
+      let csvText = '';
+      if (contrast === 'default') {
+        const defaultKeys = ['differentialexpression.csv', 'differentialexpression.tsv', 'differentialexpression.txt'];
+        for (const key of defaultKeys) {
+          const found = Object.keys(deFiles).find(f => f.toLowerCase() === key);
+          if (found) {
+            csvText = deFiles[found];
+            break;
+          }
+        }
+      } else {
+        const found = Object.keys(deFiles).find(filename => {
+          const lower = filename.toLowerCase();
+          return lower.includes(contrast.toLowerCase()) || filename === contrast;
+        });
+        if (found) csvText = deFiles[found];
+      }
 
       if (csvText) {
         parseCsvData(csvText, (results) => {
@@ -138,12 +154,12 @@ export const useContrastData = (deFiles: Record<string, string> | undefined, deb
             return;
           }
 
-          const filtered = results.data.filter(row => {
+          const filtered = results.data.filter((row: GenericRow) => {
             return Object.values(row).some(value => value !== null && value !== undefined && value !== '');
           });
 
           const idKey = headers[0] || 'id';
-          filtered.forEach(row => {
+          filtered.forEach((row: GenericRow) => {
             const geneId = String(row[idKey] || row[''] || '');
             if (geneId.trim()) {
               allGenes.add(geneId);

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { memo } from "react"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import { Info } from "lucide-react"
@@ -10,7 +10,7 @@ interface GroupLegendProps {
   sampleDataExists: boolean
 }
 
-export function GroupLegend({ groupToColor, sampleDataExists }: GroupLegendProps) {
+export const GroupLegend = memo(function GroupLegend({ groupToColor, sampleDataExists }: GroupLegendProps) {
   if (!sampleDataExists) return null
 
   const groupNames = Object.keys(groupToColor).sort()
@@ -35,7 +35,7 @@ export function GroupLegend({ groupToColor, sampleDataExists }: GroupLegendProps
       ))}
     </div>
   )
-}
+})
 
 interface LoadingStateProps {
   children: React.ReactNode
@@ -70,7 +70,7 @@ interface PCAHeaderProps {
   onSeeMoreClick: () => void
 }
 
-export function PCAHeader({ xAxisColumn, yAxisColumn, onSeeMoreClick }: PCAHeaderProps) {
+export const PCAHeader = memo(function PCAHeader({ xAxisColumn, yAxisColumn, onSeeMoreClick }: PCAHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-xl sm:text-2xl font-semibold text-center flex-1">
@@ -89,7 +89,7 @@ export function PCAHeader({ xAxisColumn, yAxisColumn, onSeeMoreClick }: PCAHeade
       </div>
     </div>
   )
-}
+})
 
 interface PCAPlotProps {
   traces: Partial<PlotData>[]
@@ -98,7 +98,7 @@ interface PCAPlotProps {
   viewportHeight: number
 }
 
-export function PCAPlot({ traces, xAxisColumn, yAxisColumn, viewportHeight }: PCAPlotProps) {
+export const PCAPlot = memo(function PCAPlot({ traces, xAxisColumn, yAxisColumn, viewportHeight }: PCAPlotProps) {
   return (
     <div className="relative w-full" style={{ height: `${viewportHeight * 0.8 - 64}px` }}>
       <Plot
@@ -121,11 +121,23 @@ export function PCAPlot({ traces, xAxisColumn, yAxisColumn, viewportHeight }: PC
         }}
         useResizeHandler
         style={{ width: "100%", height: "90%" }}
-        config={{ responsive: true, displayModeBar: false }}
+        config={{ 
+          responsive: true, 
+          displayModeBar: true,
+          modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'resetScale2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'zoom2d'],
+          displaylogo: false,
+          toImageButtonOptions: {
+            format: 'png',
+            filename: `PCA_plot_${xAxisColumn}_vs_${yAxisColumn}`,
+            height: 800,
+            width: 1200,
+            scale: 1
+          }
+        }}
       />
     </div>
   )
-}
+})
 
 interface PCALayoutProps {
   children: React.ReactNode

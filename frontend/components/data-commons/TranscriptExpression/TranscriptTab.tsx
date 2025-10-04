@@ -1,33 +1,29 @@
 import TranscriptExpression from '@/components/data-commons/TranscriptExpression/TranscriptExpression';
+import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
 
 export function TranscriptTab({
-  geneFile,
-  transcriptFile,
-  getFileUrl,
-  sampleFile,
   group,
   program,
   project,
 }: {
-  geneFile: string | null | undefined;
-  transcriptFile: string | null | undefined;
-  getFileUrl: (filename: string) => string;
-  sampleFile: string | null | undefined;
   group: string;
   program: string;
   project: string;
 }) {
+  const { geneFile, transcriptFile, sampleFile, loading } = useDataFiles();
+
+  if (loading) {
+    return <div className="flex items-center justify-center p-8">Loading files...</div>;
+  }
+
   return (
     <TranscriptExpression
-      samplesheetUrl={sampleFile ? getFileUrl(sampleFile) : undefined}
-      geneCountsUrl={geneFile ? getFileUrl(geneFile) : undefined}
-      transcriptCountsUrl={transcriptFile ? getFileUrl(transcriptFile) : undefined}
+      sampleFile={sampleFile}
+      geneFile={geneFile}
+      transcriptFile={transcriptFile}
       group={group}
       program={program}
       project={project}
-      geneFileName={geneFile? geneFile: undefined} 
-  transcriptFileName={transcriptFile? transcriptFile : undefined}
-  sampleFileName={sampleFile? sampleFile : undefined}
     />
   );
 }

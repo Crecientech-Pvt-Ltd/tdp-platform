@@ -13,9 +13,10 @@ interface FilePreviewModalProps {
   open: boolean
   onClose: () => void
   filename: string
-  group: string
-  program: string
-  project: string
+  group?: string
+  program?: string
+  project?: string
+  uploadedContent?: string 
   multiple?: boolean
   onNext?: () => void
   onPrev?: () => void
@@ -112,6 +113,7 @@ export default function FilePreviewModal({
   group,
   program,
   project,
+  uploadedContent,
   multiple = false,
   onNext,
   onPrev,
@@ -132,6 +134,34 @@ export default function FilePreviewModal({
     setError(null)
     setRawContent("")
     setTable(null)
+
+    if (uploadedContent) {
+      setRawContent(uploadedContent)
+      setParsing(true)
+      setLoading(false)
+      
+      setTimeout(() => {
+        try {
+          const lines = uploadedContent.split('\n')
+          const previewContent = lines.slice(0, 21).join('\n')
+          const parsed = parseTable(previewContent)
+          if (!cancelled) setTable(parsed)
+        } catch (e) {
+          if (!cancelled) setTable(null)
+        } finally {
+          if (!cancelled) setParsing(false)
+        }
+      }, 0)
+      return
+    }
+
+    if (!group || !program || !project) {
+      if (!cancelled) {
+        setError("Missing project information for server file preview")
+        setLoading(false)
+      }
+      return
+    }
 
     const url = `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(
       program,
@@ -167,7 +197,7 @@ export default function FilePreviewModal({
     return () => {
       cancelled = true
     }
-  }, [open, filename, group, program, project])
+  }, [open, filename, group, program, project, uploadedContent])
 
   const isLoading = loading || parsing
   const showTable = !!table && table.rows.length > 0

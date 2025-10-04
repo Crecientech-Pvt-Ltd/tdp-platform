@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-
-const VolcanoPlot = dynamic(() => import('@/components/data-commons/DifferentialExpression/DE'), { ssr: false });
+import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
+import VolcanoPlot from '@/components/data-commons/DifferentialExpression/DE';
 
 export function DETab({
   deFilesArray,
@@ -12,22 +11,26 @@ export function DETab({
   program,
   project,
 }: {
-  deFilesArray: string[] | undefined;
-  getFileUrl: (filename: string) => string;
+  deFilesArray?: string[];
+  getFileUrl?: (filename: string) => string;
   group: string;
   program: string;
   project: string;
 }) {
-  const [deFiles, setDeFiles] = useState<Record<string, string> | undefined>(undefined);
+  const [serverDeFiles, setServerDeFiles] = useState<Record<string, string> | undefined>(undefined);
+  const [serverLoading, setServerLoading] = useState(false);
+  
+  const { deFiles: uploadedFiles, loading: uploadLoading, isUploadMode } = useDataFiles();
 
   useEffect(() => {
-    if (!deFilesArray) {
-      setDeFiles(undefined);
+    if (isUploadMode || !deFilesArray || !getFileUrl) {
+      setServerDeFiles(undefined);
+      setServerLoading(false);
       return;
     }
 
+    setServerLoading(true);
     const result: Record<string, string> = {};
-
     let completed = 0;
 
     deFilesArray.forEach(defilename => {
@@ -42,11 +45,24 @@ export function DETab({
         .finally(() => {
           completed++;
           if (completed === deFilesArray.length) {
-            setDeFiles(result);
+            setServerDeFiles(Object.keys(result).length > 0 ? result : undefined);
+            setServerLoading(false);
           }
         });
     });
-  }, [deFilesArray, getFileUrl]);
+  }, [deFilesArray, getFileUrl, isUploadMode]);
 
-  return <VolcanoPlot deFiles={deFiles} group={group} program={program} project={project} />;
+  const uploadedDeFiles = uploadedFiles && uploadedFiles.length > 0 ? 
+    uploadedFiles.reduce((acc, file, index) => {
+      if (file && (file.content || file.url)) {
+        const filename = file.filename || `differential_expression_${index + 1}.csv`;
+        acc[filename] = file.content || '';
+      }
+      return acc;
+    }, {} as Record<string, string>) : undefined;
+
+  const deFiles = isUploadMode ? uploadedDeFiles : serverDeFiles;
+  const loading = isUploadMode ? uploadLoading : serverLoading;
+
+  return <VolcanoPlot deFiles={deFiles} group={group} program={program} project={project} loading={loading} />;
 }

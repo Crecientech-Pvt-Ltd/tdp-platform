@@ -47,9 +47,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
             ))}
           </TabsList>
         </div>
-        <div className='flex items-center gap-4'>
-          
-        </div>
+        <div className='flex items-center gap-4'></div>
         <Button variant='oldtool' size='icon' className='h-full' onClick={handleRightSidebarToggle}>
           {rightSidebar ? <ChevronRight className='h-4 w-4' /> : <ChevronLeft className='h-4 w-4' />}
         </Button>
@@ -64,7 +62,10 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
             <ResizableHandle withHandle />
           </>
         )}
-        <ResizablePanel defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100} className='bg-white h-full w-full'>
+        <ResizablePanel
+          defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100}
+          className='bg-white h-full w-full'
+        >
           {children}
         </ResizablePanel>
         {rightSidebar && (

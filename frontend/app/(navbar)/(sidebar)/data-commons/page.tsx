@@ -244,26 +244,16 @@ export default function DataCommonsPage() {
               Go to Plots
             </Button>
             <div className='text-center text-sm text-muted-foreground'>or</div>
-            <Button
-              type='button'
-              variant='outline'
-              className='w-full'
-              onClick={() => setShowFileUploadPopup(true)}
-            >
+            <Button type='button' variant='outline' className='w-full' onClick={() => setShowFileUploadPopup(true)}>
               Upload Your Own Files
             </Button>
           </div>
         )}
-        
+
         {/* Show upload option even when no project is selected */}
         {(!selectedGroup || !selectedProgram || !selectedProject) && (
           <div className='px-8 pb-4'>
-            <Button
-              type='button'
-              variant='outline'
-              className='w-full'
-              onClick={() => setShowFileUploadPopup(true)}
-            >
+            <Button type='button' variant='outline' className='w-full' onClick={() => setShowFileUploadPopup(true)}>
               Upload Your Own Files
             </Button>
           </div>
@@ -393,10 +383,7 @@ export default function DataCommonsPage() {
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}
       />
-      <FileUploadPopup
-        isOpen={showFileUploadPopup}
-        onClose={() => setShowFileUploadPopup(false)}
-      />
+      <FileUploadPopup isOpen={showFileUploadPopup} onClose={() => setShowFileUploadPopup(false)} />
     </div>
   );
 }

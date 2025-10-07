@@ -6,12 +6,12 @@ import type { GenericRow, Point, Bounds } from './types';
  */
 export const calculateBounds = (points: Point[], useLog: boolean): Bounds => {
   if (points.length === 0) return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
-  
+
   let xMin = Infinity;
   let xMax = -Infinity;
   let yMin = Infinity;
   let yMax = -Infinity;
-  
+
   for (const point of points) {
     const { x, y } = point;
     if (isFinite(x)) {
@@ -23,11 +23,11 @@ export const calculateBounds = (points: Point[], useLog: boolean): Bounds => {
       if (y > yMax) yMax = y;
     }
   }
-  
+
   if (!isFinite(xMin) || !isFinite(xMax) || !isFinite(yMin) || !isFinite(yMax)) {
     return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
   }
-  
+
   const maxAbsX = Math.max(Math.abs(xMin), Math.abs(xMax)) + 0.5;
 
   if (useLog) {
@@ -52,9 +52,8 @@ export const calculateBounds = (points: Point[], useLog: boolean): Bounds => {
  */
 export const findColumnKeys = (headers: string[]) => {
   const logFCKey =
-    headers.find(h => h && /^log[ _-]?2?[ _-]?(?:fc|foldchange)$/i.test(h)) ||
-    headers.find(h => h && /log/i.test(h));
-    
+    headers.find(h => h && /^log[ _-]?2?[ _-]?(?:fc|foldchange)$/i.test(h)) || headers.find(h => h && /log/i.test(h));
+
   const pvalKey =
     headers.find(h => h && /^(?:adj|adjusted)[ _-]?p[ _-]?(?:val|value|values)$/i.test(h)) ||
     headers.find(h => h && /^p[ _-]?(?:adj|adjusted)(?:[ _-]?(?:val|value|values))?$/i.test(h)) ||
@@ -67,20 +66,13 @@ export const findColumnKeys = (headers: string[]) => {
 /**
  * Get CSV content for a specific contrast file
  */
-export const getContrastCsvText = (
-  contrast: string,
-  deFiles: Record<string, string>
-): string => {
+export const getContrastCsvText = (contrast: string, deFiles: Record<string, string>): string => {
   const deFileKeys = Object.keys(deFiles);
   const lowerKeyMap = Object.fromEntries(deFileKeys.map(original => [original.toLowerCase(), original]));
 
   if (contrast === 'default') {
-    const defaultKeys = [
-      'differentialexpression.csv',
-      'differentialexpression.tsv', 
-      'differentialexpression.txt'
-    ];
-    
+    const defaultKeys = ['differentialexpression.csv', 'differentialexpression.tsv', 'differentialexpression.txt'];
+
     for (const key of defaultKeys) {
       if (lowerKeyMap[key]) {
         return deFiles[lowerKeyMap[key]];
@@ -90,7 +82,7 @@ export const getContrastCsvText = (
     const extensions = ['csv', 'tsv', 'txt'];
     const separators = ['_', '-', ' '];
     const prefixes = ['differentialexpression', 'de'];
-    
+
     for (const prefix of prefixes) {
       for (const separator of separators) {
         for (const ext of extensions) {
@@ -101,12 +93,12 @@ export const getContrastCsvText = (
         }
       }
     }
-    
+
     const fullFilenamePattern = contrast.toLowerCase();
     if (lowerKeyMap[fullFilenamePattern]) {
       return deFiles[lowerKeyMap[fullFilenamePattern]];
     }
-    
+
     for (const ext of extensions) {
       const withExt = `${fullFilenamePattern}.${ext}`;
       if (lowerKeyMap[withExt]) {
@@ -114,7 +106,7 @@ export const getContrastCsvText = (
       }
     }
   }
-  
+
   return '';
 };
 
@@ -124,7 +116,7 @@ export const getContrastCsvText = (
 export const parseContrastNames = (deFiles: Record<string, string>): string[] => {
   return Object.keys(deFiles).map(filename => {
     const lowerCaseFileName = filename.toLowerCase();
-    
+
     if (
       lowerCaseFileName === 'differentialexpression.csv' ||
       lowerCaseFileName === 'differentialexpression.tsv' ||
@@ -132,17 +124,17 @@ export const parseContrastNames = (deFiles: Record<string, string>): string[] =>
     ) {
       return 'default';
     }
-    
+
     let match = lowerCaseFileName.match(/^differentialexpression([-_\s]+)(.+)\.(csv|tsv|txt)$/);
     if (match && match[2]) {
       return match[2];
     }
-    
+
     match = lowerCaseFileName.match(/^de([-_\s]+)(.+)\.(csv|tsv|txt)$/);
     if (match && match[2]) {
       return match[2];
     }
-    
+
     return filename.replace(/\.(csv|tsv|txt)$/i, '');
   });
 };
@@ -157,14 +149,14 @@ export const getPointColor = (
   yThreshold: number,
   useLog: boolean,
   geneId: string,
-  selectedGenes: Set<string>
+  selectedGenes: Set<string>,
 ): string => {
   if (selectedGenes.has(geneId)) {
     return 'orange';
   }
 
   const absX = Math.abs(xValue);
-  
+
   if (useLog) {
     if (absX >= xThreshold && pValue <= yThreshold) {
       return xValue >= 0 ? 'red' : 'blue';
@@ -174,7 +166,7 @@ export const getPointColor = (
       return xValue >= 0 ? 'red' : 'blue';
     }
   }
-  
+
   return 'gray';
 };
 
@@ -190,24 +182,24 @@ export const processDataToPoints = (
   yThreshold: number,
   selectedGenes: Set<string>,
   availableColumns: string[],
-  minNonZeroReplacement: number = 1e-300
+  minNonZeroReplacement: number = 1e-300,
 ): Point[] => {
   const idKey = availableColumns[0] || 'id';
   const points: Point[] = [];
 
   let minNonZero: number | null = null;
-  
+
   if (useLog) {
     for (const row of rawData) {
       const pValue = row[yAxisColumn];
-      
+
       if (typeof pValue === 'number' && !isNaN(pValue) && pValue > 0) {
         if (minNonZero === null || pValue < minNonZero) {
           minNonZero = pValue;
         }
       }
     }
-    
+
     if (minNonZero === null) {
       minNonZero = minNonZeroReplacement;
     }
@@ -217,13 +209,8 @@ export const processDataToPoints = (
     const xValue = row[xAxisColumn];
     let pValue = row[yAxisColumn];
     const geneId = String(row[idKey] || row[''] || '');
-    
-    if (
-      typeof xValue !== 'number' ||
-      typeof pValue !== 'number' ||
-      isNaN(xValue) ||
-      isNaN(pValue)
-    ) {
+
+    if (typeof xValue !== 'number' || typeof pValue !== 'number' || isNaN(xValue) || isNaN(pValue)) {
       continue;
     }
 
@@ -249,10 +236,7 @@ export const processDataToPoints = (
 /**
  * Parse CSV data using Papa Parse
  */
-export const parseCsvData = (
-  csvText: string,
-  onComplete: (results: Papa.ParseResult<GenericRow>) => void
-): void => {
+export const parseCsvData = (csvText: string, onComplete: (results: Papa.ParseResult<GenericRow>) => void): void => {
   Papa.parse<GenericRow>(csvText, {
     header: true,
     dynamicTyping: true,

@@ -18,8 +18,8 @@ export const fileUploadUtils: FileUploadUtils = {
   readFileAsText: (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = (e) => reject(e);
+      reader.onload = e => resolve(e.target?.result as string);
+      reader.onerror = e => reject(e);
       reader.readAsText(file);
     });
   },
@@ -34,7 +34,7 @@ export const fileUploadUtils: FileUploadUtils = {
     const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.'));
     const truncatedName = nameWithoutExt.substring(0, maxLength - extension!.length - 4) + '...';
     return `${truncatedName}.${extension}`;
-  }
+  },
 };
 
 export const createUploadParams = (selections: {

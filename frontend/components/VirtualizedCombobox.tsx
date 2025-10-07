@@ -192,7 +192,7 @@ export function VirtualizedCombobox({
                         className={cn(
                           'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
                           'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
-                          'flex-shrink-0 text-white'
+                          'flex-shrink-0 text-white',
                         )}
                       >
                         {option}

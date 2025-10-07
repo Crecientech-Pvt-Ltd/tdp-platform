@@ -113,8 +113,8 @@ If you don't need the customized data anymore, you can click the **Reset** butto
 - The table below elaborates the naming convention, and the value ranges for all the supported features (data types).
   - "Custom" data type is for customized color purpose. For example, if you find all the features do not fit your needs, you can create your own "customized feature" and color them by yourself.
 
-| Data Type                     | Column Naming Convention                                                    | Value range                                                                                                 |
-| ----------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Data Type                     | Column Naming Convention                                                  | Value range                                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | LogFC                         | LogFC\_<pre className="inline text-red-500">CustomName</pre>              | [-Inf, +Inf]                                                                                                |
 | GDA                           | [GDA\|OpenTargets]\_<pre className="inline text-red-500">CustomName</pre> | [0, 1]                                                                                                      |
 | Genetics                      | [GWAS\|Genetics]\_<pre className="inline text-red-500">CustomName</pre>   | [-1, 1]                                                                                                     |
@@ -122,7 +122,7 @@ If you don't need the customized data anymore, you can click the **Reset** butto
 | Pathway                       | Pathway\_<pre className="inline text-red-500">CustomName</pre>            | Binary (0/1)                                                                                                |
 | Druggability                  | Druggability\_<pre className="inline text-red-500">CustomName</pre>       | [0, 1]                                                                                                      |
 | Tissue Enrichment             | TE\_<pre className="inline text-red-500">CustomName</pre>                 | [0, +Inf]                                                                                                   |
-| Custom                        | Custom\_Color\_<pre className="inline text-red-500">CustomName</pre>      | Any hex color code or CSS color name, see list [here ↗](https://www.w3schools.com/colors/colors_names.asp)  |
+| Custom                        | Custom_Color\_<pre className="inline text-red-500">CustomName</pre>       | Any hex color code or CSS color name, see list [here ↗](https://www.w3schools.com/colors/colors_names.asp) |
 
 - The CSV file below provides an example of what the real file looks like.
   - The first column must be either gene name or Ensembl id (column name doesn't matter)
@@ -131,5 +131,5 @@ If you don't need the customized data anymore, you can click the **Reset** butto
 ![Example of a customized CSV file](../../../public/image/docs/custom-upload-csv-example.png)
 
 ### Network Export
-You can export the network you created. Please refer to the [Network Export](network-visualization-board.mdx#network-export) section in the [Network Visualization Board](network-visualization-board.mdx) page for more details.
 
+You can export the network you created. Please refer to the [Network Export](network-visualization-board.mdx#network-export) section in the [Network Visualization Board](network-visualization-board.mdx) page for more details.

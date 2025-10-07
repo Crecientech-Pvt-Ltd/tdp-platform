@@ -8,14 +8,7 @@ import { VolcanoPlotControls } from './Controls';
 import { VolcanoPlotRenderer } from './Renderer';
 import { useDebounce, useThresholds, useViewportDimensions, useContrastData } from './hooks';
 import { calculateBounds, processDataToPoints, parseContrastNames, getContrastCsvText, findColumnKeys } from './utils';
-import type { 
-  VolcanoPlotProps, 
-  ProcessedData, 
-  PointCounts, 
-  SeeMoreDataItem, 
-  Point, 
-  GenericRow 
-} from './types';
+import type { VolcanoPlotProps, ProcessedData, PointCounts, SeeMoreDataItem, Point, GenericRow } from './types';
 
 export default function VolcanoPlot({ deFiles, group, program, project, loading: externalLoading }: VolcanoPlotProps) {
   const [availableContrasts, setAvailableContrasts] = useState<string[]>([]);
@@ -29,15 +22,8 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
   const debouncedContrasts = useDebounce(selectedContrasts, 150);
   const thresholds = useThresholds(1, 0.01);
   const { viewportHeight } = useViewportDimensions();
-  const {
-    contrastData,
-    availableColumns,
-    availableGenes,
-    xAxisColumn,
-    yAxisColumn,
-    setXAxisColumn,
-    setYAxisColumn
-  } = useContrastData(deFiles, debouncedContrasts);
+  const { contrastData, availableColumns, availableGenes, xAxisColumn, yAxisColumn, setXAxisColumn, setYAxisColumn } =
+    useContrastData(deFiles, debouncedContrasts);
 
   useEffect(() => {
     if (externalLoading) {
@@ -76,7 +62,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
         thresholds.xThreshold,
         thresholds.yThreshold,
         selectedGenes,
-        availableColumns
+        availableColumns,
       );
 
       result[contrast] = {
@@ -210,7 +196,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
           const headers = results.meta.fields ?? [];
           const idKey = headers[0] || 'id';
           const { logFCKey, pvalKey } = findColumnKeys(headers);
-          
+
           let finalLogFCKey = xAxisColumn;
           let finalPvalKey = yAxisColumn;
 
@@ -239,7 +225,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
             thresholds.xThreshold,
             thresholds.yThreshold,
             selectedGenes,
-            headers
+            headers,
           );
 
           resolve({ rawData: filtered, points });

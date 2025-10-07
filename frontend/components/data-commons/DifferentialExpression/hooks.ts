@@ -5,14 +5,14 @@ import { findColumnKeys, parseCsvData } from './utils';
 /**
  * debounce hook for delaying value updates
  */
-export const useDebounce = <T,>(value: T, delay: number): T => {
+export const useDebounce = <T>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  
+
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(handler);
   }, [value, delay]);
-  
+
   return debouncedValue;
 };
 
@@ -75,7 +75,7 @@ export const useThresholds = (initialX: number = 1, initialY: number = 0.01): Th
     updateYThreshold,
     resetXThreshold,
     resetYThreshold,
-    setThresholdsFromPlot
+    setThresholdsFromPlot,
   };
 };
 
@@ -106,22 +106,28 @@ export const useViewportDimensions = () => {
 /**
  * Hook for managing contrast data and csv parsing
  */
-export const useContrastData = (deFiles: Record<string, string> | undefined, debouncedContrasts: string[]): ContrastData => {
+export const useContrastData = (
+  deFiles: Record<string, string> | undefined,
+  debouncedContrasts: string[],
+): ContrastData => {
   const [contrastData, setContrastData] = useState<Record<string, GenericRow[]>>({});
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
   const [availableGenes, setAvailableGenes] = useState<string[]>([]);
   const [xAxisColumn, setXAxisColumn] = useState('logFC');
   const [yAxisColumn, setYAxisColumn] = useState('PValue');
 
+  // Use ref to track which contrasts have been fetched to avoid infinite loops
+  const fetchedContrastsRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     if (!deFiles) return;
 
-    const toFetch = debouncedContrasts.filter(c => !contrastData[c]);
+    // Only fetch contrasts that haven't been fetched yet
+    const toFetch = debouncedContrasts.filter(c => !fetchedContrastsRef.current.has(c));
     if (toFetch.length === 0) return;
 
     const newData: Record<string, GenericRow[]> = {};
     const allGenes = new Set<string>();
-    let newColumns: string[] = [...availableColumns];
 
     toFetch.forEach(contrast => {
       let csvText = '';
@@ -143,9 +149,8 @@ export const useContrastData = (deFiles: Record<string, string> | undefined, deb
       }
 
       if (csvText) {
-        parseCsvData(csvText, (results) => {
+        parseCsvData(csvText, results => {
           const headers = results.meta.fields ?? [];
-          newColumns = Array.from(new Set([...newColumns, ...headers]));
 
           const { logFCKey, pvalKey } = findColumnKeys(headers);
 
@@ -167,18 +172,28 @@ export const useContrastData = (deFiles: Record<string, string> | undefined, deb
           });
 
           newData[contrast] = filtered;
+
+          // Update available columns (merge with existing)
+          setAvailableColumns(prev => Array.from(new Set([...prev, ...headers])));
         });
       }
     });
 
     if (Object.keys(newData).length > 0) {
+      // Mark these contrasts as fetched
+      toFetch.forEach(c => fetchedContrastsRef.current.add(c));
+
       setContrastData(prev => ({ ...prev, ...newData }));
-      setAvailableColumns(newColumns);
       setAvailableGenes(prev => Array.from(new Set([...prev, ...allGenes])).sort());
     }
-  }, [debouncedContrasts, deFiles, contrastData, availableColumns]);
+  }, [debouncedContrasts, deFiles]);
+
+  // Use ref to track if we've already initialized the column names to prevent infinite loop
+  const columnsInitializedRef = useRef(false);
 
   useEffect(() => {
+    if (columnsInitializedRef.current) return;
+
     if (availableColumns.length > 0 && (xAxisColumn === 'logFC' || yAxisColumn === 'PValue')) {
       const { logFCKey, pvalKey } = findColumnKeys(availableColumns);
 
@@ -188,6 +203,8 @@ export const useContrastData = (deFiles: Record<string, string> | undefined, deb
       if (yAxisColumn === 'PValue' && pvalKey) {
         setYAxisColumn(pvalKey);
       }
+
+      columnsInitializedRef.current = true;
     }
   }, [availableColumns, xAxisColumn, yAxisColumn]);
 
@@ -198,6 +215,6 @@ export const useContrastData = (deFiles: Record<string, string> | undefined, deb
     xAxisColumn,
     yAxisColumn,
     setXAxisColumn,
-    setYAxisColumn
+    setYAxisColumn,
   };
 };

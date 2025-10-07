@@ -153,7 +153,7 @@ const FlexibleLabelList = ({
                 ${truncateX ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}
                 ${labelClassName}
               `}
-              title={label !== '•' ? label : ''} 
+              title={label !== '•' ? label : ''}
             >
               {truncateLabel(label)}
             </div>

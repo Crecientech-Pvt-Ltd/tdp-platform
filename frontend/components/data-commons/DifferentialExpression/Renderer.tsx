@@ -33,14 +33,14 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
 
   const createShapes = (): Partial<Shape>[] => {
     const thresholdY = useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold;
-    
+
     const shapes: Partial<Shape>[] = [];
-    
+
     const safeYMin = isFinite(data.bounds.yMin) ? data.bounds.yMin : 0;
-    const safeYMax = isFinite(data.bounds.yMax) ? data.bounds.yMax : (useLog ? 10 : 1);
+    const safeYMax = isFinite(data.bounds.yMax) ? data.bounds.yMax : useLog ? 10 : 1;
     const safeXMin = isFinite(data.bounds.xMin) ? data.bounds.xMin : -5;
     const safeXMax = isFinite(data.bounds.xMax) ? data.bounds.xMax : 5;
-    
+
     shapes.push({
       type: 'line',
       x0: -thresholds.xThreshold,
@@ -51,7 +51,7 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
       yref: 'y',
       line: { color: 'black', dash: 'dashdot', width: 2 },
     });
-    
+
     shapes.push({
       type: 'line',
       x0: thresholds.xThreshold,
@@ -62,7 +62,7 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
       yref: 'y',
       line: { color: 'black', dash: 'dashdot', width: 2 },
     });
-    
+
     if (isFinite(thresholdY) && thresholdY >= safeYMin && thresholdY <= safeYMax) {
       shapes.push({
         type: 'line',
@@ -75,7 +75,7 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
         line: { color: 'black', dash: 'dot', width: 2 },
       });
     }
-    
+
     return shapes;
   };
 
@@ -128,14 +128,8 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
             xaxis: {
               title: { text: xAxisColumn, font: { size: 18 } },
               range: [
-                Math.min(
-                  isFinite(data.bounds.xMin) ? data.bounds.xMin : -5, 
-                  -thresholds.xThreshold - 0.5
-                ),
-                Math.max(
-                  isFinite(data.bounds.xMax) ? data.bounds.xMax : 5, 
-                  thresholds.xThreshold + 0.5
-                )
+                Math.min(isFinite(data.bounds.xMin) ? data.bounds.xMin : -5, -thresholds.xThreshold - 0.5),
+                Math.max(isFinite(data.bounds.xMax) ? data.bounds.xMax : 5, thresholds.xThreshold + 0.5),
               ],
               tickfont: { size: 15 },
             },
@@ -147,16 +141,18 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
               range: [
                 Math.min(
                   isFinite(data.bounds.yMin) ? data.bounds.yMin : 0,
-                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) 
+                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold)
                     ? (useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) - 0.5
-                    : 0
+                    : 0,
                 ),
                 Math.max(
-                  isFinite(data.bounds.yMax) ? data.bounds.yMax : (useLog ? 10 : 1),
-                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) 
+                  isFinite(data.bounds.yMax) ? data.bounds.yMax : useLog ? 10 : 1,
+                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold)
                     ? (useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) + 0.5
-                    : (useLog ? 10 : 1)
-                )
+                    : useLog
+                      ? 10
+                      : 1,
+                ),
               ],
               tickfont: { size: 15 },
             },
@@ -190,7 +186,7 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
           }}
         />
       </div>
-      
+
       <div className='mt-2 p-2 border rounded-lg bg-gray-50 text-xs'>
         <div className='flex justify-center items-center gap-4'>
           <div className='flex items-center gap-1'>

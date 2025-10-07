@@ -24,17 +24,17 @@ export const useFileData = (fileSource: FileSource | null) => {
     if (fileSource.url) {
       setLoading(true);
       setError(null);
-      
+
       fetch(fileSource.url)
-        .then((res) => {
+        .then(res => {
           if (!res.ok) throw new Error(`Failed to fetch ${fileSource.filename || 'file'}`);
           return res.text();
         })
-        .then((text) => {
+        .then(text => {
           setData(text);
           setError(null);
         })
-        .catch((err) => {
+        .catch(err => {
           setError(err.message);
           setData('');
         })

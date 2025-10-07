@@ -118,7 +118,7 @@ export default memo(function SeeMore({
   const handleLogChange = (checked: boolean) => {
     setLogEnabled(checked);
   };
-  
+
   const previewableFiles = dataFiles.filter(f => f.filename);
 
   const handlePreviewFiles = () => {
@@ -129,11 +129,11 @@ export default memo(function SeeMore({
   };
 
   const handleNextPreview = () => {
-    setPreviewFileIndex((prev) => (prev + 1) % previewableFiles.length);
+    setPreviewFileIndex(prev => (prev + 1) % previewableFiles.length);
   };
 
   const handlePrevPreview = () => {
-    setPreviewFileIndex((prev) => (prev - 1 + previewableFiles.length) % previewableFiles.length);
+    setPreviewFileIndex(prev => (prev - 1 + previewableFiles.length) % previewableFiles.length);
   };
 
   return (
@@ -196,12 +196,12 @@ export default memo(function SeeMore({
                     Apply logarithmic transformation to the Y-Axis data for better visualization of exponential
                     relationships
                   </p>
-                  
+
                   {logEnabled && (
                     <div className='mt-4 ml-6 p-4 bg-muted/20 rounded-lg border'>
                       <Label className='text-sm font-medium'>Zero Value Handling (Log Scale)</Label>
                       <p className='text-xs text-muted-foreground mt-1'>
-                        Zero and negative values in the Y-axis column are automatically replaced with the minimum 
+                        Zero and negative values in the Y-axis column are automatically replaced with the minimum
                         non-zero value from the dataset to ensure all points remain visible in log transformation.
                       </p>
                     </div>

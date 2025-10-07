@@ -176,9 +176,8 @@ export default memo(function DownloadPopup({
               }
             }
             dataToDownload = filteredData;
-            
-            const colorSuffix = dataType === 'red' ? 'red_points' : 
-                               dataType === 'blue' ? 'blue_points' : 'gray_points';
+
+            const colorSuffix = dataType === 'red' ? 'red_points' : dataType === 'blue' ? 'blue_points' : 'gray_points';
             outputFileName = `${fileName.replace('.csv', '')}_${colorSuffix}.csv`;
           }
 
@@ -312,8 +311,6 @@ export default memo(function DownloadPopup({
                 </div>
 
                 <div className='p-4 space-y-3'>
-                  
-
                   {selectedDataTypes.length > 0 && (
                     <div className='bg-muted/50 rounded-lg p-3 border mb-3'>
                       <div className='flex flex-wrap gap-2'>

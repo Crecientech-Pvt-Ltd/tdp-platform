@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import { useState, useMemo } from "react"
-import { SeeMore } from "@/components/data-commons/common/SeeMore"
-import type { FileSource } from "@/components/data-commons/upload/hooks/useDataFiles"
+import { useState, useMemo } from 'react';
+import { SeeMore } from '@/components/data-commons/common/SeeMore';
+import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import {
   useViewportHeight,
   useDataFiles,
@@ -11,18 +11,18 @@ import {
   useParsedData,
   useGeneSelection,
   useGeneDataMap,
-} from "./hooks"
-import { createDownloadFiles, createMetadata } from "./utils"
-import { LoadingState, EmptyState, Controls, NoSelectionState } from "./ui"
-import { PlotLayout } from "./plots"
+} from './hooks';
+import { createDownloadFiles, createMetadata } from './utils';
+import { LoadingState, EmptyState, Controls, NoSelectionState } from './ui';
+import { PlotLayout } from './plots';
 
 interface TranscriptExpressionProps {
-  sampleFile: FileSource | null
-  geneFile: FileSource | null
-  transcriptFile: FileSource | null
-  group?: string
-  program?: string
-  project?: string
+  sampleFile: FileSource | null;
+  geneFile: FileSource | null;
+  transcriptFile: FileSource | null;
+  group?: string;
+  program?: string;
+  project?: string;
 }
 
 export default function TranscriptExpression({
@@ -33,20 +33,17 @@ export default function TranscriptExpression({
   program,
   project,
 }: TranscriptExpressionProps) {
-  const [showSeeMore, setShowSeeMore] = useState(false)
-  
-  const viewportHeight = useViewportHeight()
-  
-  const {
-    sampleData,
-    geneData,
-    transcriptData,
-    loading,
-    hasGene,
-    hasTranscript,
-  } = useDataFiles(sampleFile, geneFile, transcriptFile)
+  const [showSeeMore, setShowSeeMore] = useState(false);
 
-  const { dataSource, setDataSource } = useDataSource(hasGene, hasTranscript)
+  const viewportHeight = useViewportHeight();
+
+  const { sampleData, geneData, transcriptData, loading, hasGene, hasTranscript } = useDataFiles(
+    sampleFile,
+    geneFile,
+    transcriptFile,
+  );
+
+  const { dataSource, setDataSource } = useDataSource(hasGene, hasTranscript);
 
   const {
     availableSampleColumns,
@@ -56,15 +53,15 @@ export default function TranscriptExpression({
     groupToColor,
     sampleDataExists,
     mappingChange,
-  } = useSampleMapping(sampleData)
+  } = useSampleMapping(sampleData);
 
-  const { parsedGeneData, parsedTranscriptData } = useParsedData(geneData, transcriptData)
+  const { parsedGeneData, parsedTranscriptData } = useParsedData(geneData, transcriptData);
 
-  const {
-    geneList,
-    selectedGenes,
-    handleGeneSelection,
-  } = useGeneSelection(dataSource, parsedGeneData, parsedTranscriptData)
+  const { geneList, selectedGenes, handleGeneSelection } = useGeneSelection(
+    dataSource,
+    parsedGeneData,
+    parsedTranscriptData,
+  );
 
   const { geneDataMap, getBarColors } = useGeneDataMap(
     selectedGenes,
@@ -73,45 +70,43 @@ export default function TranscriptExpression({
     dataSource,
     sampleToGroup,
     groupToColor,
-    sampleDataExists
-  )
+    sampleDataExists,
+  );
 
-  const selectedGenesArray = useMemo(() => Array.from(selectedGenes).sort(), [selectedGenes])
+  const selectedGenesArray = useMemo(() => Array.from(selectedGenes).sort(), [selectedGenes]);
 
-  const downloadFiles = useMemo(() => 
-    createDownloadFiles(geneFile, transcriptFile, sampleFile),
-    [geneFile, transcriptFile, sampleFile]
-  )
+  const downloadFiles = useMemo(
+    () => createDownloadFiles(geneFile, transcriptFile, sampleFile),
+    [geneFile, transcriptFile, sampleFile],
+  );
 
-  const metadata = useMemo(() => 
-    createMetadata(downloadFiles, sampleColumn, groupColumn, group, program, project),
-    [downloadFiles, sampleColumn, groupColumn, group, program, project]
-  )
+  const metadata = useMemo(
+    () => createMetadata(downloadFiles, sampleColumn, groupColumn, group, program, project),
+    [downloadFiles, sampleColumn, groupColumn, group, program, project],
+  );
 
   const handleDataSourceChange = (checked: boolean) => {
-    setDataSource(checked ? "transcript" : "gene")
-  }
+    setDataSource(checked ? 'transcript' : 'gene');
+  };
 
   if (!hasGene && !hasTranscript) {
     return (
-      <div className="w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto">
-        <EmptyState>
-          Kindly add CPM/TPM metric files to view plots.
-        </EmptyState>
+      <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
+        <EmptyState>Kindly add CPM/TPM metric files to view plots.</EmptyState>
       </div>
-    )
+    );
   }
 
   if (loading) {
     return (
-      <div className="w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto">
+      <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
         <LoadingState>Loading data...</LoadingState>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto">
+    <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
       <Controls
         hasGene={hasGene}
         hasTranscript={hasTranscript}
@@ -134,12 +129,7 @@ export default function TranscriptExpression({
         viewportHeight={viewportHeight}
       />
 
-      {selectedGenesArray.length === 0 && !loading && (
-        <NoSelectionState 
-          dataSource={dataSource} 
-          isLoading={loading} 
-        />
-      )}
+      {selectedGenesArray.length === 0 && !loading && <NoSelectionState dataSource={dataSource} isLoading={loading} />}
 
       <SeeMore
         isOpen={showSeeMore}
@@ -149,19 +139,19 @@ export default function TranscriptExpression({
           currentSampleColumn: sampleColumn,
           currentGroupColumn: groupColumn,
           onChange: mappingChange,
-          title: "Sample to Group Mapping",
-          sampleHelpText: "Column containing sample identifiers. Default: First column",
-          groupHelpText: "Column containing group assignments. Default: Last column",
+          title: 'Sample to Group Mapping',
+          sampleHelpText: 'Column containing sample identifiers. Default: First column',
+          groupHelpText: 'Column containing group assignments. Default: Last column',
         }}
         download={{
           files: downloadFiles,
-          zipName: `TE-${project || "data"}.zip`,
-          title: "Download Expression Data",
-          buttonLabel: "Download Data",
+          zipName: `TE-${project || 'data'}.zip`,
+          title: 'Download Expression Data',
+          buttonLabel: 'Download Data',
           metadata,
         }}
-        title="Transcript Expression – Configuration & Data"
+        title='Transcript Expression – Configuration & Data'
       />
     </div>
-  )
+  );
 }

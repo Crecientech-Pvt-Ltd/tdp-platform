@@ -30,8 +30,6 @@ interface FileSelections {
   samplesheet: UploadedFile | null;
 }
 
-
-
 export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProps) {
   const [loadingProceed, setLoadingProceed] = React.useState(false);
   const [uploading, setUploading] = React.useState<string | null>(null);
@@ -103,22 +101,22 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     try {
       if (type === 'differentialexpression') {
         const uploadedFiles: UploadedFile[] = [];
-        
+
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           if (!fileUploadUtils.validateFileType(file)) {
             alert(`Invalid file type for ${file.name}. Please upload CSV, TSV, or TXT files only.`);
             continue;
           }
-          
+
           const content = await fileUploadUtils.readFileAsText(file);
           const id = await fileUploadUtils.storeFile(file.name, content, type);
           uploadedFiles.push({ id, filename: file.name, content });
         }
-        
+
         setSelections(prev => ({
           ...prev,
-          differentialexpression: [...prev.differentialexpression, ...uploadedFiles]
+          differentialexpression: [...prev.differentialexpression, ...uploadedFiles],
         }));
       } else {
         const file = files[0];
@@ -126,18 +124,18 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
           alert(`Invalid file type for ${file.name}. Please upload CSV, TSV, or TXT files only.`);
           return;
         }
-        
+
         if (selections[type]) {
           await indexedDBManager.deleteFile((selections[type] as UploadedFile).id);
         }
-        
+
         const content = await fileUploadUtils.readFileAsText(file);
         const id = await fileUploadUtils.storeFile(file.name, content, type);
         const uploadedFile = { id, filename: file.name, content };
-        
+
         setSelections(prev => ({
           ...prev,
-          [type]: uploadedFile
+          [type]: uploadedFile,
         }));
       }
     } catch (error) {
@@ -154,7 +152,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         await indexedDBManager.deleteFile(fileId);
         setSelections(prev => ({
           ...prev,
-          differentialexpression: prev.differentialexpression.filter(f => f.id !== fileId)
+          differentialexpression: prev.differentialexpression.filter(f => f.id !== fileId),
         }));
       } else if (type !== 'differentialexpression') {
         const file = selections[type] as UploadedFile | null;
@@ -162,7 +160,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
           await indexedDBManager.deleteFile(file.id);
           setSelections(prev => ({
             ...prev,
-            [type]: null
+            [type]: null,
           }));
         }
         if (fileInputRefs.current[type]) {
@@ -210,8 +208,13 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
   };
 
   const canProceed = () => {
-    return selections.gene || selections.transcript || selections.pca || 
-           selections.differentialexpression.length > 0 || selections.samplesheet;
+    return (
+      selections.gene ||
+      selections.transcript ||
+      selections.pca ||
+      selections.differentialexpression.length > 0 ||
+      selections.samplesheet
+    );
   };
 
   const confirmProceed = () => {
@@ -228,10 +231,10 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
 
   const renderUploadRow = (label: string, type: keyof FileSelections, displayType: string) => {
     const isUploading = uploading === type;
-    
+
     if (type === 'differentialexpression') {
       return (
-                <div className='py-1.5 border-b last:border-b-0'>
+        <div className='py-1.5 border-b last:border-b-0'>
           <div className='flex items-center gap-2 mb-1'>
             <Label className='text-xs font-medium'>{displayType}</Label>
             <span className='text-xs text-muted-foreground'>
@@ -253,18 +256,20 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
               </Tooltip>
             )}
           </div>
-          
+
           <div className='space-y-1'>
             <input
-              ref={(el) => { fileInputRefs.current.differentialexpression = el; }}
+              ref={el => {
+                fileInputRefs.current.differentialexpression = el;
+              }}
               type='file'
               multiple
               accept='.csv,.tsv,.txt'
-              onChange={(e) => handleFileUpload('differentialexpression', e.target.files)}
+              onChange={e => handleFileUpload('differentialexpression', e.target.files)}
               className='hidden'
               id={`upload-${type}`}
             />
-            
+
             <div className='border-2 border-dashed border-muted-foreground/25 rounded-md p-1.5 min-h-[35px] flex items-center'>
               {selections.differentialexpression.length === 0 ? (
                 <label
@@ -295,7 +300,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                     Add more files
                   </label>
                   <div className='flex flex-wrap gap-1'>
-                    {selections.differentialexpression.map((file) => (
+                    {selections.differentialexpression.map(file => (
                       <div
                         key={file.id}
                         className='inline-flex items-center gap-1 bg-muted/80 rounded px-1.5 py-0.5 text-xs'
@@ -330,12 +335,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
           {selectedFile && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='h-6 w-6 p-0'
-                  onClick={() => handlePreview(type)}
-                >
+                <Button variant='ghost' size='icon' className='h-6 w-6 p-0' onClick={() => handlePreview(type)}>
                   <Eye className='h-4 w-4' />
                 </Button>
               </TooltipTrigger>
@@ -343,17 +343,19 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
             </Tooltip>
           )}
         </div>
-        
+
         <div className='space-y-2'>
           <input
-            ref={(el) => { fileInputRefs.current[type] = el; }}
+            ref={el => {
+              fileInputRefs.current[type] = el;
+            }}
             type='file'
             accept='.csv,.tsv,.txt'
-            onChange={(e) => handleFileUpload(type, e.target.files)}
+            onChange={e => handleFileUpload(type, e.target.files)}
             className='hidden'
             id={`upload-${type}`}
           />
-          
+
           <div className='border-2 border-dashed border-muted-foreground/25 rounded-md p-2 min-h-[45px]'>
             {!selectedFile ? (
               <label
@@ -368,9 +370,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                 ) : (
                   <>
                     <Upload className='h-3 w-3' />
-                    <span className='text-xs text-muted-foreground'>
-                      Click to upload {type} file
-                    </span>
+                    <span className='text-xs text-muted-foreground'>Click to upload {type} file</span>
                   </>
                 )}
               </label>
@@ -410,9 +410,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
   return (
     <Dialog open={isOpen}>
       <DialogContent className='max-w-3xl w-[95vw] max-h-[85vh] flex flex-col'>
-        <DialogTitle className='text-lg font-semibold'>
-          Upload Analysis Files
-        </DialogTitle>
+        <DialogTitle className='text-lg font-semibold'>Upload Analysis Files</DialogTitle>
 
         <div className='flex-grow overflow-y-auto'>
           <div className='space-y-0'>
@@ -420,7 +418,11 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
             {renderUploadRow('Transcript File', 'transcript', 'Transcript File')}
             {renderUploadRow('Sample Sheet File', 'samplesheet', 'Sample Sheet File')}
             {renderUploadRow('PCA File', 'pca', 'PCA File')}
-            {renderUploadRow('Differential Expression Files', 'differentialexpression', 'Differential Expression Files')}
+            {renderUploadRow(
+              'Differential Expression Files',
+              'differentialexpression',
+              'Differential Expression Files',
+            )}
           </div>
         </div>
 
@@ -430,7 +432,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
               <X className='h-4 w-4' />
               Cancel
             </Button>
-            
+
             <Button
               variant='outline'
               onClick={clearAllSelections}

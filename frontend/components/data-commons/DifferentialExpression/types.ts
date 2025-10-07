@@ -64,7 +64,7 @@ export interface SeeMoreDataItem {
   xDescription: string;
   yDescription: string;
   columns: string[];
-  [key: string]: string | string[]; 
+  [key: string]: string | string[];
 }
 
 export interface PointCounts {

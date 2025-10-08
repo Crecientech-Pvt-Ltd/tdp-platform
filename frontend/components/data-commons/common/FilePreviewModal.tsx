@@ -146,7 +146,7 @@ export default function FilePreviewModal({
           const previewContent = lines.slice(0, 21).join('\n')
           const parsed = parseTable(previewContent)
           if (!cancelled) setTable(parsed)
-        } catch (e) {
+        } catch {
           if (!cancelled) setTable(null)
         } finally {
           if (!cancelled) setParsing(false)
@@ -180,7 +180,7 @@ export default function FilePreviewModal({
           try {
             const parsed = parseTable(text)
             if (!cancelled) setTable(parsed)
-          } catch (e) {
+          } catch {
             if (!cancelled) setTable(null)
           } finally {
             if (!cancelled) setParsing(false)

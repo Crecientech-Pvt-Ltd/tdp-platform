@@ -160,7 +160,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
   };
 
   const handleLogUsageChange = (logUsage: boolean) => {
-    logUsage === true ? setUseLog(1) : setUseLog(0);
+    setUseLog(logUsage === true ? 1 : 0);
   };
 
   const seeMoreData = useMemo<SeeMoreDataItem[]>(() => {

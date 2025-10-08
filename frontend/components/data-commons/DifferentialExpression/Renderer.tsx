@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
-import Plot from 'react-plotly.js';
 import type { Shape } from 'plotly.js';
-import type { ProcessedData, ThresholdControls, PointCounts } from './types';
+import { memo } from 'react';
+import Plot from 'react-plotly.js';
+import type { PointCounts, ProcessedData, ThresholdControls } from './types';
 
 interface VolcanoPlotRendererProps {
   contrast: string;
@@ -36,10 +36,10 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
 
     const shapes: Partial<Shape>[] = [];
 
-    const safeYMin = isFinite(data.bounds.yMin) ? data.bounds.yMin : 0;
-    const safeYMax = isFinite(data.bounds.yMax) ? data.bounds.yMax : useLog ? 10 : 1;
-    const safeXMin = isFinite(data.bounds.xMin) ? data.bounds.xMin : -5;
-    const safeXMax = isFinite(data.bounds.xMax) ? data.bounds.xMax : 5;
+    const safeYMin = Number.isFinite(data.bounds.yMin) ? data.bounds.yMin : 0;
+    const safeYMax = Number.isFinite(data.bounds.yMax) ? data.bounds.yMax : useLog ? 10 : 1;
+    const safeXMin = Number.isFinite(data.bounds.xMin) ? data.bounds.xMin : -5;
+    const safeXMax = Number.isFinite(data.bounds.xMax) ? data.bounds.xMax : 5;
 
     shapes.push({
       type: 'line',
@@ -63,7 +63,7 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
       line: { color: 'black', dash: 'dashdot', width: 2 },
     });
 
-    if (isFinite(thresholdY) && thresholdY >= safeYMin && thresholdY <= safeYMax) {
+    if (Number.isFinite(thresholdY) && thresholdY >= safeYMin && thresholdY <= safeYMax) {
       shapes.push({
         type: 'line',
         y0: thresholdY,
@@ -119,7 +119,7 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
   ];
 
   return (
-    <div className='w-full h-full flex flex-col'>
+    <div className='flex h-full w-full flex-col'>
       <div className='relative flex-grow'>
         <Plot
           key={`${contrast}-${selectedGenes.size}`}
@@ -128,8 +128,8 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
             xaxis: {
               title: { text: xAxisColumn, font: { size: 18 } },
               range: [
-                Math.min(isFinite(data.bounds.xMin) ? data.bounds.xMin : -5, -thresholds.xThreshold - 0.5),
-                Math.max(isFinite(data.bounds.xMax) ? data.bounds.xMax : 5, thresholds.xThreshold + 0.5),
+                Math.min(Number.isFinite(data.bounds.xMin) ? data.bounds.xMin : -5, -thresholds.xThreshold - 0.5),
+                Math.max(Number.isFinite(data.bounds.xMax) ? data.bounds.xMax : 5, thresholds.xThreshold + 0.5),
               ],
               tickfont: { size: 15 },
             },
@@ -140,14 +140,14 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
               },
               range: [
                 Math.min(
-                  isFinite(data.bounds.yMin) ? data.bounds.yMin : 0,
-                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold)
+                  Number.isFinite(data.bounds.yMin) ? data.bounds.yMin : 0,
+                  Number.isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold)
                     ? (useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) - 0.5
                     : 0,
                 ),
                 Math.max(
-                  isFinite(data.bounds.yMax) ? data.bounds.yMax : useLog ? 10 : 1,
-                  isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold)
+                  Number.isFinite(data.bounds.yMax) ? data.bounds.yMax : useLog ? 10 : 1,
+                  Number.isFinite(useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold)
                     ? (useLog ? -Math.log10(thresholds.yThreshold) : thresholds.yThreshold) + 0.5
                     : useLog
                       ? 10
@@ -187,27 +187,27 @@ export const VolcanoPlotRenderer = memo(function VolcanoPlotRenderer({
         />
       </div>
 
-      <div className='mt-2 p-2 border rounded-lg bg-gray-50 text-xs'>
-        <div className='flex justify-center items-center gap-4'>
+      <div className='mt-2 rounded-lg border bg-gray-50 p-2 text-xs'>
+        <div className='flex items-center justify-center gap-4'>
           <div className='flex items-center gap-1'>
-            <div className='w-3 h-3 bg-red-500 rounded-full'></div>
+            <div className='h-3 w-3 rounded-full bg-red-500'></div>
             <span>Up: {counts?.red || 0}</span>
           </div>
           <div className='flex items-center gap-1'>
-            <div className='w-3 h-3 bg-blue-500 rounded-full'></div>
+            <div className='h-3 w-3 rounded-full bg-blue-500'></div>
             <span>Down: {counts?.blue || 0}</span>
           </div>
           <div className='flex items-center gap-1'>
-            <div className='w-3 h-3 bg-gray-500 rounded-full'></div>
+            <div className='h-3 w-3 rounded-full bg-gray-500'></div>
             <span>None: {counts?.gray || 0}</span>
           </div>
           {selectedGenes.size > 0 && (
             <div className='flex items-center gap-1'>
-              <div className='w-3 h-3 bg-orange-500 rounded-full border-2 border-black'></div>
+              <div className='h-3 w-3 rounded-full border-2 border-black bg-orange-500'></div>
               <span>Selected: {selectedGenes.size}</span>
             </div>
           )}
-          <div className='border-l pl-2 ml-2'>
+          <div className='ml-2 border-l pl-2'>
             <span className='font-medium'>Total: {counts?.total || 0}</span>
           </div>
         </div>

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import JSZip from 'jszip';
+import { DownloadIcon, FileTextIcon, Loader2Icon, PaletteIcon } from 'lucide-react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multiselect';
-import { Download, Loader2, FileText, Palette } from 'lucide-react';
-import JSZip from 'jszip';
 
 type Point = {
   x: number;
@@ -238,11 +238,11 @@ export default memo(function DownloadPopup({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className='max-w-5xl w-[95vw] max-h-[90vh] flex flex-col shadow-2xl'>
-        <div className='border-b pb-4 mb-1'>
-          <DialogTitle className='text-2xl font-bold flex items-center gap-3 mb-1'>
-            <div className='p-2 bg-muted rounded-lg'>
-              <Download className='h-6 w-6' />
+      <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-5xl flex-col shadow-2xl'>
+        <div className='mb-1 border-b pb-4'>
+          <DialogTitle className='mb-1 flex items-center gap-3 font-bold text-2xl'>
+            <div className='rounded-lg bg-muted p-2'>
+              <DownloadIcon className='h-6 w-6' />
             </div>
             Download Volcano Plot Data
           </DialogTitle>
@@ -254,33 +254,33 @@ export default memo(function DownloadPopup({
             <div className='flex items-center justify-center py-16'>
               <div className='text-center'>
                 <div className='relative mb-4'>
-                  <div className='w-16 h-16 border-4 border-muted border-t-foreground rounded-full animate-spin mx-auto'></div>
+                  <div className='mx-auto h-16 w-16 animate-spin rounded-full border-4 border-muted border-t-foreground'></div>
                   <div className='absolute inset-0 flex items-center justify-center'>
-                    <Download className='h-6 w-6' />
+                    <DownloadIcon className='h-6 w-6' />
                   </div>
                 </div>
-                <h3 className='text-xl font-semibold mb-1'>Creating Download Package</h3>
+                <h3 className='mb-1 font-semibold text-xl'>Creating Download Package</h3>
                 <p className='text-muted-foreground'>Please wait while we prepare your files...</p>
               </div>
             </div>
           ) : (
             <div className='space-y-4'>
-              <div className='bg-background rounded-xl shadow-sm border'>
-                <div className='bg-muted/30 border-b px-6 py-3 rounded-t-xl'>
+              <div className='rounded-xl border bg-background shadow-sm'>
+                <div className='rounded-t-xl border-b bg-muted/30 px-6 py-3'>
                   <div className='flex items-center gap-3'>
-                    <div className='p-2 bg-background rounded-lg border'>
-                      <FileText className='h-5 w-5' />
+                    <div className='rounded-lg border bg-background p-2'>
+                      <FileTextIcon className='h-5 w-5' />
                     </div>
                     <div>
-                      <Label className='text-lg font-semibold'>Differential Expression Files</Label>
+                      <Label className='font-semibold text-lg'>Differential Expression Files</Label>
                     </div>
                   </div>
                 </div>
 
-                <div className='p-4 space-y-3'>
-                  <div className='flex items-center gap-2 mb-2'>
-                    <div className='w-3 h-3 bg-foreground rounded-full'></div>
-                    <span className='text-sm font-medium'>
+                <div className='space-y-3 p-4'>
+                  <div className='mb-2 flex items-center gap-2'>
+                    <div className='h-3 w-3 rounded-full bg-foreground'></div>
+                    <span className='font-medium text-sm'>
                       Selected: <span className='font-bold'>{selectedFiles.length}</span> of {availableFiles.length}{' '}
                       files
                     </span>
@@ -298,37 +298,37 @@ export default memo(function DownloadPopup({
                 </div>
               </div>
 
-              <div className='bg-background rounded-xl shadow-sm border'>
-                <div className='bg-muted/30 border-b px-6 py-3 rounded-t-xl'>
+              <div className='rounded-xl border bg-background shadow-sm'>
+                <div className='rounded-t-xl border-b bg-muted/30 px-6 py-3'>
                   <div className='flex items-center gap-3'>
-                    <div className='p-2 bg-background rounded-lg border'>
-                      <Palette className='h-5 w-5' />
+                    <div className='rounded-lg border bg-background p-2'>
+                      <PaletteIcon className='h-5 w-5' />
                     </div>
                     <div>
-                      <Label className='text-lg font-semibold'>Data Categories</Label>
+                      <Label className='font-semibold text-lg'>Data Categories</Label>
                     </div>
                   </div>
                 </div>
 
-                <div className='p-4 space-y-3'>
+                <div className='space-y-3 p-4'>
                   {selectedDataTypes.length > 0 && (
-                    <div className='bg-muted/50 rounded-lg p-3 border mb-3'>
+                    <div className='mb-3 rounded-lg border bg-muted/50 p-3'>
                       <div className='flex flex-wrap gap-2'>
-                        {selectedDataTypes.map((type, index) => (
+                        {selectedDataTypes.map(type => (
                           <span
-                            key={index}
-                            className={`px-3 py-2 rounded-full text-sm font-medium flex items-center gap-2 border ${
+                            key={type}
+                            className={`flex items-center gap-2 rounded-full border px-3 py-2 font-medium text-sm ${
                               type === 'red'
-                                ? 'bg-red-50 text-red-700 border-red-200'
+                                ? 'border-red-200 bg-red-50 text-red-700'
                                 : type === 'blue'
-                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  ? 'border-blue-200 bg-blue-50 text-blue-700'
                                   : type === 'gray'
-                                    ? 'bg-gray-50 text-gray-700 border-gray-200'
-                                    : 'bg-muted text-muted-foreground border-border'
+                                    ? 'border-gray-200 bg-gray-50 text-gray-700'
+                                    : 'border-border bg-muted text-muted-foreground'
                             }`}
                           >
                             <div
-                              className={`w-3 h-3 rounded-full ${
+                              className={`h-3 w-3 rounded-full ${
                                 type === 'red'
                                   ? 'bg-red-500'
                                   : type === 'blue'
@@ -364,7 +364,7 @@ export default memo(function DownloadPopup({
           )}
         </div>
 
-        <DialogFooter className='gap-3 flex-col sm:flex-row justify-end border-t pt-4 mt-2'>
+        <DialogFooter className='mt-2 flex-col justify-end gap-3 border-t pt-4 sm:flex-row'>
           <DialogClose asChild>
             <Button onClick={handleClose} variant='outline' disabled={isDownloading} className='w-full sm:w-auto'>
               Cancel
@@ -373,16 +373,16 @@ export default memo(function DownloadPopup({
           <Button
             onClick={handleDownload}
             disabled={selectedFiles.length === 0 || selectedDataTypes.length === 0 || isDownloading}
-            className='w-full sm:w-auto shadow-sm'
+            className='w-full shadow-sm sm:w-auto'
           >
             {isDownloading ? (
               <>
-                <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                <Loader2Icon className='mr-2 h-4 w-4 animate-spin' />
                 Creating ZIP...
               </>
             ) : (
               <>
-                <Download className='h-4 w-4 mr-2' />
+                <DownloadIcon className='mr-2 h-4 w-4' />
                 Download {totalFilesCount > 0 && `(${totalFilesCount} files)`}
               </>
             )}

@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
-import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
+import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
 import { GROUP_COLORS } from './constants';
 import { normalizeSampleName } from './utils';
 
@@ -143,12 +143,12 @@ export function useSampleMapping(sampleData: string | undefined) {
       let groupField = groupKey;
 
       if (sampleColumn?.startsWith('col_')) {
-        const idx = Number.parseInt(sampleColumn.split('_')[1]);
+        const idx = Number.parseInt(sampleColumn.split('_')[1], 10);
         const keys = Object.keys(row);
         sampleField = keys[idx] ?? nameKey;
       }
       if (groupColumn?.startsWith('col_')) {
-        const idx = Number.parseInt(groupColumn.split('_')[1]);
+        const idx = Number.parseInt(groupColumn.split('_')[1], 10);
         const keys = Object.keys(row);
         groupField = keys[idx] ?? groupKey;
       }
@@ -289,7 +289,7 @@ export function useGeneDataMap(
 
   useEffect(() => {
     sampleGroupCache.clear();
-  }, [sampleToGroup, sampleGroupCache]);
+  }, [sampleGroupCache]);
 
   const getSampleGroup = useCallback(
     (sample: string): string => {
@@ -329,8 +329,7 @@ export function useGeneDataMap(
       sampleGroupCache.set(sample, result);
       return result;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sampleToGroup, sampleGroupCache, sampleDataExists],
+    [sampleToGroup, sampleGroupCache],
   );
 
   const groupAndSortSamples = useCallback(

@@ -1,17 +1,7 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Body,
-  Param,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Param, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto, UpdateFeedbackStatusDto } from './feedback.dto';
-import { FeedbackStatus } from './feedback.model';
+import type { FeedbackStatus } from './feedback.model';
 
 @Controller('api/feedback')
 export class FeedbackController {

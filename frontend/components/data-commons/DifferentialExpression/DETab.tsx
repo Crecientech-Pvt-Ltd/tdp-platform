@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
 import VolcanoPlot from '@/components/data-commons/DifferentialExpression/DE';
+import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
 
 export function DETab({
   deFilesArray,

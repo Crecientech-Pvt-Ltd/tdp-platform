@@ -3,11 +3,11 @@
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  type SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
 import React from 'react';
@@ -41,7 +41,7 @@ export function DataTable<TData>({ columns, data, filterColumnName, loading = fa
 
   return (
     <div>
-      <div className='flex justify-between items-center py-4 p-2'>
+      <div className='flex items-center justify-between p-2 py-4'>
         <Input
           placeholder={`Filter ${filterColumnName.replace('_', ' ')}s...`}
           value={(table.getColumn(filterColumnName)?.getFilterValue() as string) ?? ''}

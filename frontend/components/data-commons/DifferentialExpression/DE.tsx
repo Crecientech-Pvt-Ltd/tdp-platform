@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
 import Papa from 'papaparse';
+import { useEffect, useMemo, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
-import SeeMore from './SeeMore';
 import { VolcanoPlotControls } from './Controls';
+import { useContrastData, useDebounce, useThresholds, useViewportDimensions } from './hooks';
 import { VolcanoPlotRenderer } from './Renderer';
-import { useDebounce, useThresholds, useViewportDimensions, useContrastData } from './hooks';
-import { calculateBounds, processDataToPoints, parseContrastNames, getContrastCsvText, findColumnKeys } from './utils';
-import type { VolcanoPlotProps, ProcessedData, PointCounts, SeeMoreDataItem, Point, GenericRow } from './types';
+import SeeMore from './SeeMore';
+import type { GenericRow, Point, PointCounts, ProcessedData, SeeMoreDataItem, VolcanoPlotProps } from './types';
+import { calculateBounds, findColumnKeys, getContrastCsvText, parseContrastNames, processDataToPoints } from './utils';
 
-export default function VolcanoPlot({ deFiles, group, program, project, loading: externalLoading }: VolcanoPlotProps) {
+export default function xVolcanoPlot({ deFiles, group, program, project, loading: externalLoading }: VolcanoPlotProps) {
   const [availableContrasts, setAvailableContrasts] = useState<string[]>([]);
   const [selectedContrasts, setSelectedContrasts] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -113,7 +113,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
         let newPValue: number;
         if (useLog === 1) {
           const logPValue = newValue;
-          newPValue = Math.pow(10, -logPValue);
+          newPValue = 10 ** -logPValue;
         } else {
           newPValue = newValue;
         }
@@ -146,7 +146,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
   };
 
   const handleLogUsageChange = (logUsage: boolean) => {
-    logUsage === true ? setUseLog(1) : setUseLog(0);
+    setUseLog(logUsage ? 1 : 0);
   };
 
   const seeMoreData = useMemo<SeeMoreDataItem[]>(() => {
@@ -238,10 +238,10 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
 
   if (loading || !allDataLoaded) {
     return (
-      <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
-        <div className='min-h-[60vh] flex flex-col items-center justify-center'>
+      <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
+        <div className='flex min-h-[60vh] flex-col items-center justify-center'>
           <Spinner />
-          <p className='text-gray-500 text-lg mt-4'>Loading data...</p>
+          <p className='mt-4 text-gray-500 text-lg'>Loading data...</p>
         </div>
       </div>
     );
@@ -249,9 +249,9 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
 
   if ((!deFiles || Object.keys(deFiles).length === 0) && allDataLoaded) {
     return (
-      <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
-        <div className='min-h-[60vh] flex flex-col items-center justify-center'>
-          <p className='text-gray-500 text-lg font-medium'>
+      <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
+        <div className='flex min-h-[60vh] flex-col items-center justify-center'>
+          <p className='font-medium text-gray-500 text-lg'>
             Kindly add Differential Expression files to view the plots.
           </p>
         </div>
@@ -259,8 +259,20 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
     );
   }
 
+  console.log(
+    debouncedContrasts,
+    processedData,
+    pointCounts,
+    thresholds,
+    xAxisColumn,
+    yAxisColumn,
+    availableColumns,
+    selectedGenes,
+    useLog,
+  );
+
   return (
-    <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto resizable-panel-container'>
+    <div className='resizable-panel-container mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
       <VolcanoPlotControls
         showDropdown={showDropdown}
         availableContrasts={availableContrasts}
@@ -275,19 +287,19 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
 
       <div className='w-full' style={{ maxHeight: `${viewportHeight * 0.9}px` }}>
         {debouncedContrasts.length > 0 && (
-          <div className='space-y-2 h-full'>
+          <div className='h-full space-y-2'>
             {debouncedContrasts.length === 1 ? (
               <div className='w-full' style={{ height: `${viewportHeight * 0.8 - 16}px` }}>
-                <h3 className='text-center font-semibold text-lg mb-2'>
+                <h3 className='mb-2 text-center font-semibold text-lg'>
                   {debouncedContrasts[0] === 'default'
                     ? 'Differential Expression'
                     : debouncedContrasts[0].toUpperCase()}
                 </h3>
-                <div className='w-full h-[calc(100%-2rem)]'>{renderPlot(debouncedContrasts[0])}</div>
+                <div className='h-[calc(100%-2rem)] w-full'>{renderPlot(debouncedContrasts[0])}</div>
               </div>
             ) : (
               <div
-                className={`grid gap-3 h-full ${debouncedContrasts.length >= 3 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-2'}`}
+                className={`grid h-full gap-3 ${debouncedContrasts.length >= 3 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-2'}`}
               >
                 {debouncedContrasts.map(contrast => (
                   <div
@@ -304,7 +316,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
                   >
                     <div className='h-full'>
                       <h3
-                        className={`text-center font-semibold ${debouncedContrasts.length >= 3 ? 'text-sm mb-1' : 'text-lg mb-2'}`}
+                        className={`text-center font-semibold ${debouncedContrasts.length >= 3 ? 'mb-1 text-sm' : 'mb-2 text-lg'}`}
                       >
                         {contrast === 'default' ? 'Differential Expression' : contrast.toUpperCase()}
                       </h3>
@@ -329,11 +341,10 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
       </div>
 
       {debouncedContrasts.length === 0 && !loading && (
-        <div className='text-center py-12'>
+        <div className='py-12 text-center'>
           <p className='text-gray-500 text-lg'>Select contrasts to view their volcano plots</p>
         </div>
       )}
-
       <SeeMore
         isOpen={showSeeMore}
         onClose={() => setShowSeeMore(false)}
@@ -342,7 +353,7 @@ export default function VolcanoPlot({ deFiles, group, program, project, loading:
         currentYColumn={yAxisColumn}
         onColumnChange={handleColumnChange}
         changeUseOfLog={handleLogUsageChange}
-        isLogUsed={useLog === 1 ? true : false}
+        isLogUsed={useLog === 1}
         availableContrasts={availableContrasts}
         processDataForDownload={processDataForDownload}
         currentSettings={{

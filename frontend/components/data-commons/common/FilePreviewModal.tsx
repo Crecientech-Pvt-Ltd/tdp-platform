@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, X } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
+import { ArrowLeftIcon, ArrowRightIcon, XIcon } from 'lucide-react';
 import Papa from 'papaparse';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 
 interface FilePreviewModalProps {
   open: boolean;
@@ -109,49 +109,50 @@ export default function FilePreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className='flex flex-col max-w-[95vw] w-[95vw] max-h-[95vh] h-[95vh] p-0'>
-        <div className='flex items-center justify-between p-4 border-b shrink-0'>
-          <DialogTitle className='text-lg font-semibold pr-8 truncate'>Preview: {filename}</DialogTitle>
+      <DialogContent className='flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col p-0'>
+        <div className='flex shrink-0 items-center justify-between border-b p-4'>
+          <DialogTitle className='truncate pr-8 font-semibold text-lg'>Preview: {filename}</DialogTitle>
           <DialogClose asChild>
             <Button aria-label='Close preview' variant='ghost' size='icon' className='shrink-0' onClick={onClose}>
-              <X className='h-5 w-5' />
+              <XIcon className='h-5 w-5' />
               <span className='sr-only'>Close</span>
             </Button>
           </DialogClose>
         </div>
-        <div className='flex-1 min-h-0 p-4'>
-          <div className='h-full rounded border bg-background flex flex-col'>
+        <div className='min-h-0 flex-1 p-4'>
+          <div className='flex h-full flex-col rounded border bg-background'>
             {loading && (
-              <div className='p-4 border-b shrink-0' role='status' aria-live='polite'>
+              <div className='shrink-0 border-b p-4' aria-live='polite'>
                 <div className='flex items-center gap-2'>
                   <Spinner className='h-4 w-4' />
                   <span className='text-sm'>Loading preview...</span>
                 </div>
               </div>
             )}
-            {error && <div className='p-4 text-sm text-destructive'>Failed to load preview: {error}</div>}
+            {error && <div className='p-4 text-destructive text-sm'>Failed to load preview: {error}</div>}
             {!error && (loading || showTable) && (
-              <div className='flex-1 min-h-0 overflow-hidden' aria-busy={loading}>
+              <div className='min-h-0 flex-1 overflow-hidden' aria-busy={loading}>
                 <div className='h-full overflow-auto'>
                   <table className='w-full border-separate border-spacing-0'>
                     <thead className='sticky top-0 z-10 bg-background shadow-sm'>
                       <tr>
                         <th
                           scope='col'
-                          className='sticky left-0 z-20 bg-background border px-3 py-2 text-left text-xs font-medium text-muted-foreground min-w-[3rem] w-[3rem]'
+                          className='sticky left-0 z-20 w-[3rem] min-w-[3rem] border bg-background px-3 py-2 text-left font-medium text-muted-foreground text-xs'
                         >
                           #
                         </th>
                         {(table?.headers || new Array(6).fill('')).map((h, i) => (
                           <th
+                            // biome-ignore lint/suspicious/noArrayIndexKey: Index is necessary here to replace skeleton
                             key={`h-${i}`}
                             scope='col'
-                            className='border px-3 py-3 text-left text-xs font-semibold text-foreground align-top whitespace-nowrap min-w-[10rem]'
+                            className='min-w-[10rem] whitespace-nowrap border px-3 py-3 text-left align-top font-semibold text-foreground text-xs'
                           >
                             {loading && !table ? (
-                              <div className='h-4 w-24 rounded bg-muted animate-pulse' />
+                              <div className='h-4 w-24 animate-pulse rounded bg-muted' />
                             ) : (
-                              <div className='break-words max-w-[12rem]'>{h}</div>
+                              <div className='max-w-[12rem] break-words'>{h}</div>
                             )}
                           </th>
                         ))}
@@ -161,13 +162,15 @@ export default function FilePreviewModal({
                       {loading &&
                         !table &&
                         Array.from({ length: 10 }).map((_, r) => (
+                          // biome-ignore lint/suspicious/noArrayIndexKey: had to do for skeleton
                           <tr key={`s-${r}`} className={r % 2 === 0 ? 'bg-muted/40' : ''}>
-                            <td className='sticky left-0 z-10 bg-background border px-3 py-2 text-muted-foreground'>
+                            <td className='sticky left-0 z-10 border bg-background px-3 py-2 text-muted-foreground'>
                               {r + 1}
                             </td>
                             {Array.from({ length: 6 }).map((_, c) => (
+                              // biome-ignore lint/suspicious/noArrayIndexKey: had to do for skeleton
                               <td key={`s-${r}-${c}`} className='border px-3 py-2'>
-                                <div className='h-4 w-20 rounded bg-muted animate-pulse' />
+                                <div className='h-4 w-20 animate-pulse rounded bg-muted' />
                               </td>
                             ))}
                           </tr>
@@ -175,13 +178,13 @@ export default function FilePreviewModal({
                       {!loading &&
                         showTable &&
                         table.data.map((row, rIdx) => (
-                          <tr key={`r-${rIdx}`} className={rIdx % 2 === 0 ? 'bg-muted/30' : ''}>
-                            <td className='sticky left-0 z-10 bg-background border px-3 py-2 text-muted-foreground'>
+                          <tr key={Object.values(row)?.[0]} className={rIdx % 2 === 0 ? 'bg-muted/30' : ''}>
+                            <td className='sticky left-0 z-10 border bg-background px-3 py-2 text-muted-foreground'>
                               {rIdx + 1}
                             </td>
-                            {table.headers.map((header, cIdx) => (
-                              <td key={`c-${rIdx}-${cIdx}`} className='border px-3 py-2 align-top max-w-[12rem]'>
-                                <div className='break-words whitespace-pre-wrap'>{row[header] || ''}</div>
+                            {table.headers.map(header => (
+                              <td key={header} className='max-w-[12rem] border px-3 py-2 align-top'>
+                                <div className='whitespace-pre-wrap break-words'>{row[header] || ''}</div>
                               </td>
                             ))}
                           </tr>
@@ -192,22 +195,22 @@ export default function FilePreviewModal({
               </div>
             )}
             {!error && !loading && !showTable && (
-              <div className='flex-1 min-h-0 overflow-auto'>
-                <pre className='p-4 font-mono text-xs whitespace-pre-wrap break-words h-full'>{rawContent}</pre>
+              <div className='min-h-0 flex-1 overflow-auto'>
+                <pre className='h-full whitespace-pre-wrap break-words p-4 font-mono text-xs'>{rawContent}</pre>
               </div>
             )}
           </div>
         </div>
         {multiple && (
-          <div className='flex justify-between items-center p-4 border-t shrink-0'>
+          <div className='flex shrink-0 items-center justify-between border-t p-4'>
             <Button variant='outline' size='sm' onClick={onPrev} disabled={fileCount <= 1}>
-              <ArrowLeft className='h-4 w-4 mr-1' /> Prev
+              <ArrowLeftIcon className='mr-1 h-4 w-4' /> Prev
             </Button>
-            <span className='text-sm text-muted-foreground'>
+            <span className='text-muted-foreground text-sm'>
               File {fileIndex + 1} of {fileCount}
             </span>
             <Button variant='outline' size='sm' onClick={onNext} disabled={fileCount <= 1}>
-              Next <ArrowRight className='h-4 w-4 ml-1' />
+              Next <ArrowRightIcon className='ml-1 h-4 w-4' />
             </Button>
           </div>
         )}

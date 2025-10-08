@@ -11,7 +11,7 @@ const VALID_EXTENSIONS = ['.csv', '.tsv', '.txt'];
 
 export const fileUploadUtils: FileUploadUtils = {
   validateFileType: (file: File): boolean => {
-    const extension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const extension = `.${file.name.split('.').pop()?.toLowerCase()}`;
     return VALID_EXTENSIONS.includes(extension);
   },
 
@@ -32,7 +32,7 @@ export const fileUploadUtils: FileUploadUtils = {
     if (filename.length <= maxLength) return filename;
     const extension = filename.split('.').pop();
     const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.'));
-    const truncatedName = nameWithoutExt.substring(0, maxLength - extension!.length - 4) + '...';
+    const truncatedName = `${nameWithoutExt.substring(0, maxLength - extension!.length - 4)}...`;
     return `${truncatedName}.${extension}`;
   },
 };

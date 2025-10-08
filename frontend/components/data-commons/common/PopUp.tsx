@@ -1,18 +1,18 @@
 'use client';
 
-import React from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { MultiSelect } from '@/components/ui/multiselect';
-import { Spinner } from '@/components/ui/spinner';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Download, X, Eye } from 'lucide-react';
 import JSZip from 'jszip';
+import { DownloadIcon, EyeIcon, XIcon } from 'lucide-react';
+import React from 'react';
 import FlexibleLabelList from '@/components/RenderLabel';
-import FilePreviewModal from './FilePreviewModal';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { MultiSelect } from '@/components/ui/multiselect';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import FilePreviewModal from './FilePreviewModal';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 const FILE_KEYS: (keyof FileOptions)[] = ['gene', 'transcript', 'pca', 'differentialexpression', 'samplesheet'];
@@ -42,7 +42,7 @@ const truncateFilename = (filename: string, maxLength = 50) => {
   if (filename.length <= maxLength) return filename;
   const extension = filename.split('.').pop();
   const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.'));
-  const truncatedName = nameWithoutExt.substring(0, maxLength - extension!.length - 4) + '...';
+  const truncatedName = `${nameWithoutExt.substring(0, maxLength - extension!.length - 4)}...`;
   return `${truncatedName}.${extension}`;
 };
 
@@ -298,7 +298,7 @@ export default function FileSelectionPopup({
           file.type === 'differentialexpression' ? getDeFileUrl(file.filename) : getFileUrl(file.filename);
         const response = await fetch(fileUrl);
 
-        let blob;
+        let blob: Blob;
         if (file.type === 'differentialexpression') {
           const text = await response.text();
           const colonIndex = text.indexOf(':');
@@ -411,10 +411,10 @@ export default function FileSelectionPopup({
     }
   }, [previewState.fileList, previewState.fileIndex]);
 
-  const renderRow = (label: string, type: keyof FileOptions, displayType: string) => {
+  const renderRow = (_label: string, type: keyof FileOptions, displayType: string) => {
     if (type === 'differentialexpression') {
       return (
-        <div className='flex items-start gap-4 py-3 border-b last:border-b-0'>
+        <div className='flex items-start gap-4 border-b py-3 last:border-b-0'>
           {showDownloadCheckboxes && (
             <Checkbox
               checked={downloadSelections.has(type)}
@@ -426,8 +426,8 @@ export default function FileSelectionPopup({
             {isEditing ? (
               <div className='space-y-3'>
                 <div className='flex items-center gap-2'>
-                  <Label className='text-sm font-medium'>{displayType}</Label>
-                  <span className='text-sm text-muted-foreground'>
+                  <Label className='font-medium text-sm'>{displayType}</Label>
+                  <span className='text-muted-foreground text-sm'>
                     {' '}
                     <strong>
                       {loading
@@ -446,7 +446,7 @@ export default function FileSelectionPopup({
                           className='h-6 w-6 p-0'
                           onClick={() => handlePreview('differentialexpression')}
                         >
-                          <Eye className='h-4 w-4' />
+                          <EyeIcon className='h-4 w-4' />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Preview File</TooltipContent>
@@ -467,9 +467,9 @@ export default function FileSelectionPopup({
                   />
                 )}
                 {loading ? (
-                  <div className='flex items-center justify-center py-4 border rounded-md bg-muted/50'>
-                    <Spinner className='h-4 w-4 mr-2' />
-                    <span className='text-sm text-muted-foreground'>Loading files...</span>
+                  <div className='flex items-center justify-center rounded-md border bg-muted/50 py-4'>
+                    <Spinner className='mr-2 h-4 w-4' />
+                    <span className='text-muted-foreground text-sm'>Loading files...</span>
                   </div>
                 ) : (
                   <MultiSelect
@@ -486,9 +486,9 @@ export default function FileSelectionPopup({
               </div>
             ) : (
               <>
-                <div className='flex items-center gap-2 mb-2'>
-                  <Label className='text-sm font-medium'>{displayType}</Label>
-                  <span className='text-sm text-muted-foreground'>
+                <div className='mb-2 flex items-center gap-2'>
+                  <Label className='font-medium text-sm'>{displayType}</Label>
+                  <span className='text-muted-foreground text-sm'>
                     ({selections.differentialexpression.length} files selected)
                   </span>
                   {selections.differentialexpression.length > 0 && (
@@ -500,20 +500,20 @@ export default function FileSelectionPopup({
                           className='h-6 w-6 p-0'
                           onClick={() => handlePreview('differentialexpression')}
                         >
-                          <Eye className='h-4 w-4' />
+                          <EyeIcon className='h-4 w-4' />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Preview File</TooltipContent>
                     </Tooltip>
                   )}
                 </div>
-                <div className='bg-muted/50 rounded-md p-2 max-h-32 overflow-y-auto'>
+                <div className='max-h-32 overflow-y-auto rounded-md bg-muted/50 p-2'>
                   {selections.differentialexpression.length === 0 ? (
-                    <span className='text-sm text-muted-foreground'>No files selected</span>
+                    <span className='text-muted-foreground text-sm'>No files selected</span>
                   ) : (
                     <div className='space-y-1'>
                       {selections.differentialexpression.map((file, index) => (
-                        <div key={index} className='text-sm' title={file}>
+                        <div key={file} className='text-sm' title={file}>
                           {index + 1}. {truncateFilename(file, 60)}
                         </div>
                       ))}
@@ -531,7 +531,7 @@ export default function FileSelectionPopup({
     const selectedFile = selections[type] as string;
 
     return (
-      <div className='flex items-start gap-4 py-3 border-b last:border-b-0'>
+      <div className='flex items-start gap-4 border-b py-3 last:border-b-0'>
         {showDownloadCheckboxes && (
           <Checkbox
             checked={downloadSelections.has(type)}
@@ -541,13 +541,13 @@ export default function FileSelectionPopup({
           />
         )}
         <div className='flex-1'>
-          <div className='flex items-center gap-2 mb-2'>
-            <Label className='text-sm font-medium'>{displayType}</Label>
+          <div className='mb-2 flex items-center gap-2'>
+            <Label className='font-medium text-sm'>{displayType}</Label>
             {selectedFile && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant='ghost' size='icon' className='h-6 w-6 p-0' onClick={() => handlePreview(type)}>
-                    <Eye className='h-4 w-4' />
+                    <EyeIcon className='h-4 w-4' />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Preview File</TooltipContent>
@@ -557,7 +557,7 @@ export default function FileSelectionPopup({
           {loading ? (
             <div className='flex items-center gap-2 py-2'>
               <Spinner className='h-4 w-4' />
-              <span className='text-sm text-muted-foreground'>Loading files...</span>
+              <span className='text-muted-foreground text-sm'>Loading files...</span>
             </div>
           ) : isEditing ? (
             <Select
@@ -569,7 +569,7 @@ export default function FileSelectionPopup({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='__none__'>
-                  <span className='text-sm text-muted-foreground'>None</span>
+                  <span className='text-muted-foreground text-sm'>None</span>
                 </SelectItem>
                 {allFiles.map(file => (
                   <SelectItem key={file} value={file}>
@@ -581,7 +581,7 @@ export default function FileSelectionPopup({
               </SelectContent>
             </Select>
           ) : (
-            <div className='bg-muted/50 rounded-md p-2'>
+            <div className='rounded-md bg-muted/50 p-2'>
               <span className='text-sm' title={selectedFile}>
                 {selectedFile ? truncateFilename(selectedFile, 60) : 'No file selected'}
               </span>
@@ -594,8 +594,8 @@ export default function FileSelectionPopup({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className='max-w-3xl w-[95vw] max-h-[85vh] flex flex-col'>
-        <DialogTitle className='text-lg font-semibold'>
+      <DialogContent className='flex max-h-[85vh] w-[95vw] max-w-3xl flex-col'>
+        <DialogTitle className='font-semibold text-lg'>
           {isEditing ? 'Edit Analysis Files' : 'Confirm File Selection'}
         </DialogTitle>
 
@@ -618,10 +618,10 @@ export default function FileSelectionPopup({
           )}
         </div>
 
-        <DialogFooter className='gap-2 flex-col sm:flex-row justify-between border-t pt-4'>
-          <div className='flex gap-2 flex-1'>
+        <DialogFooter className='flex-col justify-between gap-2 border-t pt-4 sm:flex-row'>
+          <div className='flex flex-1 gap-2'>
             <Button variant='outline' onClick={handleCloseButton} className='flex items-center gap-2'>
-              <X className='h-4 w-4' />
+              <XIcon className='h-4 w-4' />
               Cancel
             </Button>
 
@@ -639,7 +639,7 @@ export default function FileSelectionPopup({
                 disabled={loading || isDownloading}
                 className='flex items-center gap-2'
               >
-                <Download className='h-4 w-4' />
+                <DownloadIcon className='h-4 w-4' />
                 {isDownloading ? 'Downloading...' : showDownloadCheckboxes ? 'Download Selected' : 'Download'}
               </Button>
             )}
@@ -652,9 +652,7 @@ export default function FileSelectionPopup({
                   <Button variant='secondary' onClick={() => setIsEditing(true)} disabled={loading}>
                     Edit File Selection
                   </Button>
-                ) : (
-                  <></>
-                )}
+                ) : null}
                 <Button
                   onClick={confirmProceed}
                   disabled={!canProceed || loadingProceed || loading}

@@ -1,11 +1,11 @@
 'use client';
 
-import { useStore } from '@/lib/hooks';
-import type { EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
-import { P_VALUE_REGEX } from '@/lib/utils';
 import { useSigma } from '@react-sigma/core';
 import { scaleLinear } from 'd3-scale';
 import { useEffect } from 'react';
+import { useStore } from '@/lib/hooks';
+import type { EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
+import { P_VALUE_REGEX } from '@/lib/utils';
 
 export function SizeAnalysis() {
   const selectedRadioNodeSize = useStore(state => state.selectedRadioNodeSize);
@@ -16,6 +16,7 @@ export function SizeAnalysis() {
   const diseaseName = useStore(state => state.diseaseName);
   const radioOptions = useStore(state => state.radioOptions);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!selectedRadioNodeSize && graph) {
       useStore.setState({ selectedNodeSizeProperty: '' });
@@ -24,9 +25,9 @@ export function SizeAnalysis() {
         return attr;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRadioNodeSize]);
+  }, [selectedRadioNodeSize, defaultNodeSize]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!selectedNodeSizeProperty || !graph || !selectedRadioNodeSize) return;
     const isUserProperty =
@@ -55,7 +56,7 @@ export function SizeAnalysis() {
     } else if (selectedRadioNodeSize === 'TE' && typeof selectedNodeSizeProperty !== 'string') {
       const propertyArray = Array.from(selectedNodeSizeProperty);
       if (propertyArray.length === 0) {
-        graph.updateEachNodeAttributes((node, attr) => {
+        graph.updateEachNodeAttributes((_node, attr) => {
           attr.size = defaultNodeSize;
           return attr;
         });
@@ -163,7 +164,6 @@ export function SizeAnalysis() {
         return attr;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNodeSizeProperty, graph, universalData, defaultNodeSize]);
 
   return null;

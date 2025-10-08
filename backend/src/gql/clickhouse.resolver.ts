@@ -1,19 +1,6 @@
 import { ClickhouseService } from '@/clickhouse/clickhouse.service';
-import {
-  Args,
-  Int,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import {
-  TopGene,
-  OrderByEnum,
-  ScoredKeyValue,
-  Target,
-  TargetDiseaseAssociationTable,
-} from './models';
+import { Args, Int, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { TopGene, OrderByEnum, ScoredKeyValue, Target, TargetDiseaseAssociationTable } from './models';
 import { Pagination } from './models/Pagination.model';
 import { DataLoaderService } from '@/dataloader';
 
@@ -42,12 +29,7 @@ export class ClickhouseResolver {
     @Args('page', { type: () => Pagination, nullable: true })
     pagination: Pagination,
   ) {
-    return this.clickhouseService.getTargetDiseaseAssociationTable(
-      geneIds,
-      diseaseId,
-      orderBy,
-      pagination,
-    );
+    return this.clickhouseService.getTargetDiseaseAssociationTable(geneIds, diseaseId, orderBy, pagination);
   }
 }
 
@@ -57,8 +39,7 @@ export class TargetResolver {
 
   @ResolveField('prioritization', () => [ScoredKeyValue])
   async prioritizationTable(@Parent() target: Target) {
-    const prioritizationLoader =
-      this.dataLoaderService.getPrioritizationLoader();
+    const prioritizationLoader = this.dataLoaderService.getPrioritizationLoader();
     return prioritizationLoader.load(target.id);
   }
 }

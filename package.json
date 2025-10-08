@@ -2,18 +2,13 @@
   "name": "tdp-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "TDP Platform Monorepo",
+  "description": "TDP Platform",
   "scripts": {
     "prepare": "husky || true",
-    "commit": "git-cz",
-    "frontend": "npm run dev:turbo -w frontend",
-    "backend": "npm run start:dev -w backend"
+    "commit": "cz",
+    "frontend": "cd frontend && pnpm dev:turbo",
+    "backend": "cd backend && pnpm start:dev"
   },
-  "workspaces": [
-    "frontend",
-    "backend",
-    "scripts"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Crecientech-Pvt-Ltd/tdp-platform.git"
@@ -27,12 +22,17 @@
   },
   "homepage": "https://github.com/Crecientech-Pvt-Ltd/tdp-platform#readme",
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0",
-    "@commitlint/cz-commitlint": "^19.8.0",
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@commitlint/cz-commitlint": "^20.1.0",
     "commitizen": "^4.3.1",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.0"
+    "lint-staged": "^16.2.3"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "config": {
     "commitizen": {
@@ -40,13 +40,12 @@
     }
   },
   "lint-staged": {
-    "frontend/**/*.{js,jsx,ts,tsx}": [
-      "npm run eslint -w frontend",
-      "npm run prettier -w frontend"
+    "frontend/**/*.{js,jsx,ts,tsx,json,jsonc}": [
+      "pnpm -C frontend check"
     ],
     "backend/**/*.{js,ts}": [
-      "npm run eslint -w backend",
-      "npm run prettier -w backend"
+      "pnpm -C backend lint",
+      "pnpm -C backend format"
     ]
   }
 }

@@ -47,7 +47,7 @@ services:
 
   gsea:
     build:
-      context: backend/gsea
+      context: gsea
       dockerfile: Dockerfile
     container_name: gsea
     restart: always

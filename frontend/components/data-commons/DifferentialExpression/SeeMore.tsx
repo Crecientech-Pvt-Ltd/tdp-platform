@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useState, memo, useMemo } from 'react';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { DownloadIcon, EyeIcon } from 'lucide-react';
+import React, { memo, useId, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Download } from 'lucide-react';
-import DownloadPopup from './DownloadPopup';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FilePreviewModal from '../common/FilePreviewModal';
-import { Eye } from 'lucide-react';
+import DownloadPopup from './DownloadPopup';
 
 interface DataFile {
   filename: string;
@@ -136,18 +135,20 @@ export default memo(function SeeMore({
     setPreviewFileIndex(prev => (prev - 1 + previewableFiles.length) % previewableFiles.length);
   };
 
+  const logScaleId = useId();
+
   return (
     <>
       <Dialog open={isOpen}>
-        <DialogContent className='max-w-4xl w-[95vw] max-h-[90vh] flex flex-col'>
-          <DialogTitle className='text-xl font-semibold'>Plot Configuration & Data Information</DialogTitle>
+        <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-4xl flex-col'>
+          <DialogTitle className='font-semibold text-xl'>Plot Configuration & Data Information</DialogTitle>
           <div className='flex-grow overflow-y-auto px-1 py-4'>
             <div className='space-y-8'>
-              <div className='bg-muted/30 rounded-lg p-6 border'>
-                <h3 className='text-lg font-semibold mb-4 text-primary'>Axis Configuration</h3>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <div className='rounded-lg border bg-muted/30 p-6'>
+                <h3 className='mb-4 font-semibold text-lg text-primary'>Axis Configuration</h3>
+                <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                   <div className='space-y-3'>
-                    <Label className='text-base font-medium'>X-Axis Column</Label>
+                    <Label className='font-medium text-base'>X-Axis Column</Label>
                     <Select value={selectedXColumn} onValueChange={setSelectedXColumn}>
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Select X-axis column' />
@@ -160,13 +161,13 @@ export default memo(function SeeMore({
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className='text-sm text-muted-foreground'>
+                    <p className='text-muted-foreground text-sm'>
                       Currently mapping to: <span className='font-medium'>{selectedXColumn}</span>
                     </p>
                   </div>
 
                   <div className='space-y-3'>
-                    <Label className='text-base font-medium'>Y-Axis Column</Label>
+                    <Label className='font-medium text-base'>Y-Axis Column</Label>
                     <Select value={selectedYColumn} onValueChange={setSelectedYColumn}>
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Select Y-axis column' />
@@ -179,28 +180,28 @@ export default memo(function SeeMore({
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className='text-sm text-muted-foreground'>
+                    <p className='text-muted-foreground text-sm'>
                       Currently mapping to: <span className='font-medium'>{selectedYColumn}</span>
                     </p>
                   </div>
                 </div>
 
-                <div className='mt-6 pt-4 border-t'>
+                <div className='mt-6 border-t pt-4'>
                   <div className='flex items-center space-x-2'>
-                    <Checkbox id='log-scale' checked={logEnabled} onCheckedChange={handleLogChange} />
-                    <Label htmlFor='log-scale' className='text-base font-medium cursor-pointer'>
+                    <Checkbox id={logScaleId} checked={logEnabled} onCheckedChange={handleLogChange} />
+                    <Label htmlFor={logScaleId} className='cursor-pointer font-medium text-base'>
                       Use logarithmic scale
                     </Label>
                   </div>
-                  <p className='text-sm text-muted-foreground mt-1 ml-6'>
+                  <p className='mt-1 ml-6 text-muted-foreground text-sm'>
                     Apply logarithmic transformation to the Y-Axis data for better visualization of exponential
                     relationships
                   </p>
 
                   {logEnabled && (
-                    <div className='mt-4 ml-6 p-4 bg-muted/20 rounded-lg border'>
-                      <Label className='text-sm font-medium'>Zero Value Handling (Log Scale)</Label>
-                      <p className='text-xs text-muted-foreground mt-1'>
+                    <div className='mt-4 ml-6 rounded-lg border bg-muted/20 p-4'>
+                      <Label className='font-medium text-sm'>Zero Value Handling (Log Scale)</Label>
+                      <p className='mt-1 text-muted-foreground text-xs'>
                         Zero and negative values in the Y-axis column are automatically replaced with the minimum
                         non-zero value from the dataset to ensure all points remain visible in log transformation.
                       </p>
@@ -210,8 +211,8 @@ export default memo(function SeeMore({
               </div>
             </div>
           </div>
-          <DialogFooter className='gap-2 flex-col sm:flex-row justify-between border-t pt-4'>
-            <div className='flex gap-2 order-1 w-full sm:w-auto'>
+          <DialogFooter className='flex-col justify-between gap-2 border-t pt-4 sm:flex-row'>
+            <div className='order-1 flex w-full gap-2 sm:w-auto'>
               {availableContrasts.length > 0 && processDataForDownload && currentSettings && (
                 <>
                   <Button
@@ -219,7 +220,7 @@ export default memo(function SeeMore({
                     variant='outline'
                     className='flex items-center gap-2'
                   >
-                    <Download className='h-4 w-4' />
+                    <DownloadIcon className='h-4 w-4' />
                     Download Data
                   </Button>
                   <Button
@@ -228,14 +229,14 @@ export default memo(function SeeMore({
                     className='flex items-center gap-2'
                     disabled={previewableFiles.length === 0}
                   >
-                    <Eye className='h-4 w-4' />
+                    <EyeIcon className='h-4 w-4' />
                     Preview Files
                   </Button>
                 </>
               )}
             </div>
 
-            <div className='flex gap-2 order-2 w-full sm:w-auto'>
+            <div className='order-2 flex w-full gap-2 sm:w-auto'>
               <DialogClose asChild>
                 <Button type='button' variant='secondary' onClick={handleCancel} className='w-full sm:w-auto'>
                   Cancel
@@ -243,7 +244,7 @@ export default memo(function SeeMore({
               </DialogClose>
               <Button
                 onClick={handleApplyChanges}
-                className='bg-primary text-white hover:bg-primary/90 w-full sm:w-auto'
+                className='w-full bg-primary text-white hover:bg-primary/90 sm:w-auto'
               >
                 Apply Changes
               </Button>

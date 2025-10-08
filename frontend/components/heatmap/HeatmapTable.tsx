@@ -1,8 +1,7 @@
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import * as React from 'react';
-
-import { cn } from '@/lib/utils';
 import { ChevronDownIcon } from 'lucide-react';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 import { Skeleton } from '../ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
@@ -63,7 +62,7 @@ export function HeatmapTable<T extends object>({
 
   return (
     <div ref={containerRef} className='w-full overflow-auto'>
-      <Table className='min-w-full text-sm table-fixed'>
+      <Table className='min-w-full table-fixed text-sm'>
         <colgroup>
           <col style={{ width: labelColWidth }} />
           {table
@@ -76,14 +75,14 @@ export function HeatmapTable<T extends object>({
               />
             ))}
         </colgroup>
-        <TableHeader className='h-32 sticky top-0 z-10 bg-white'>
+        <TableHeader className='sticky top-0 z-10 h-32 bg-white'>
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id} className='hover:bg-transparent'>
               {headerGroup.headers.map((header, j) => (
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'px-1 py-2 border-b font-semibold text-left align-bottom cursor-pointer text-xs md:text-sm',
+                    'cursor-pointer border-b px-1 py-2 text-left align-bottom font-semibold text-xs md:text-sm',
                     header.column.getCanSort() && 'hover:font-extrabold',
                     loading && 'pointer-events-none opacity-50',
                   )}
@@ -145,13 +144,13 @@ export function HeatmapTable<T extends object>({
                       <Skeleton className='h-4 w-16' />
                     ) : colIndex === 1 ? (
                       // Association score column gets a square skeleton
-                      <div className='flex justify-center items-center h-8'>
-                        <Skeleton className='w-6 h-6 rounded-md' />
+                      <div className='flex h-8 items-center justify-center'>
+                        <Skeleton className='h-6 w-6 rounded-md' />
                       </div>
                     ) : (
                       // Other columns get circular skeletons
-                      <div className='flex justify-center items-center h-8'>
-                        <Skeleton className='w-6 h-6 rounded-full' />
+                      <div className='flex h-8 items-center justify-center'>
+                        <Skeleton className='h-6 w-6 rounded-full' />
                       </div>
                     )}
                   </TableCell>
@@ -161,56 +160,58 @@ export function HeatmapTable<T extends object>({
           ) : data.length === 0 ? (
             // No data state
             <TableRow>
-              <TableCell colSpan={columns.length} className='text-center py-8 text-muted-foreground'>
+              <TableCell colSpan={columns.length} className='py-8 text-center text-muted-foreground'>
                 No data available
               </TableCell>
             </TableRow>
           ) : (
             // Actual data
-            table.getRowModel().rows.map(row => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell, j) => {
-                  if (j === 0) {
+            table
+              .getRowModel()
+              .rows.map(row => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell, j) => {
+                    if (j === 0) {
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className='px-1 py-2'
+                          style={{
+                            width: labelColWidth,
+                            minWidth: labelColWidth,
+                            maxWidth: labelColWidth,
+                          }}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      );
+                    }
+                    const value = cell.getValue() as number | undefined;
                     return (
                       <TableCell
                         key={cell.id}
                         className='px-1 py-2'
-                        style={{
-                          width: labelColWidth,
-                          minWidth: labelColWidth,
-                          maxWidth: labelColWidth,
-                        }}
+                        style={{ width: colWidth, minWidth: minColWidth, maxWidth: maxColWidth, textAlign: 'center' }}
                       >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className='flex h-8 items-center justify-start'>
+                              <span
+                                className={cn(
+                                  'inline-block h-6 w-6 border border-gray-400',
+                                  cell.column.id === 'Association Score' ? 'rounded-md' : 'rounded-full',
+                                )}
+                                style={{ background: colorScale?.(value, cell.column.id) ?? '#e3f0fa' }}
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>{typeof value === 'number' ? value.toFixed(2) : 'No data'}</TooltipContent>
+                        </Tooltip>
                       </TableCell>
                     );
-                  }
-                  const value = cell.getValue() as number | undefined;
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className='px-1 py-2'
-                      style={{ width: colWidth, minWidth: minColWidth, maxWidth: maxColWidth, textAlign: 'center' }}
-                    >
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className='flex justify-start items-center h-8'>
-                            <span
-                              className={cn(
-                                'inline-block w-6 h-6 border border-gray-400',
-                                cell.column.id === 'Association Score' ? 'rounded-md' : 'rounded-full',
-                              )}
-                              style={{ background: colorScale?.(value, cell.column.id) ?? '#e3f0fa' }}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>{typeof value === 'number' ? value.toFixed(2) : 'No data'}</TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))
+                  })}
+                </TableRow>
+              ))
           )}
         </TableBody>
       </Table>

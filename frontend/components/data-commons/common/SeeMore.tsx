@@ -1,11 +1,11 @@
 'use client';
 
+import { DownloadIcon, EyeIcon } from 'lucide-react';
 import React from 'react';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Download, Eye } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import DownloadPopup, { type DownloadFile } from './DownloadPopup';
 import FilePreviewModal from './FilePreviewModal';
 
@@ -162,26 +162,26 @@ export default function SeeMore({
   return (
     <>
       <Dialog open={isOpen}>
-        <DialogContent className='max-w-4xl w-[95vw] max-h-[90vh] flex flex-col'>
-          <DialogTitle className='text-xl font-semibold'>{title}</DialogTitle>
+        <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-4xl flex-col'>
+          <DialogTitle className='font-semibold text-xl'>{title}</DialogTitle>
 
           <div className='flex-grow overflow-y-auto px-1 py-4'>
             <div className='space-y-8'>
               {axisEnabled && (
-                <div className='bg-muted/30 rounded-lg p-6 border'>
-                  <h3 className='text-lg font-semibold mb-4 text-primary'>{axis?.title ?? 'Axis Configuration'}</h3>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                <div className='rounded-lg border bg-muted/30 p-6'>
+                  <h3 className='mb-4 font-semibold text-lg text-primary'>{axis?.title ?? 'Axis Configuration'}</h3>
+                  <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                     <div className='space-y-3'>
-                      <Label className='text-base font-medium'>{axis?.xLabel ?? 'X-Axis Column'}</Label>
+                      <Label className='font-medium text-base'>{axis?.xLabel ?? 'X-Axis Column'}</Label>
                       <Select value={selectedXAxis} onValueChange={setSelectedXAxis}>
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select X-axis column' />
                         </SelectTrigger>
                         <SelectContent>
                           {axisOptions.map((col, idx) => {
-                            const value = col && col.trim() !== '' ? col : `column_${idx}`;
+                            const columnValue = getColumnValue(col, idx);
                             return (
-                              <SelectItem key={idx} value={value}>
+                              <SelectItem key={columnValue} value={columnValue}>
                                 <span className='font-medium'>{col || `Column ${idx + 1}`}</span>
                               </SelectItem>
                             );
@@ -189,21 +189,21 @@ export default function SeeMore({
                         </SelectContent>
                       </Select>
                       {selectedXAxis && (
-                        <p className='text-sm text-muted-foreground'>Currently mapping to: {selectedXAxis}</p>
+                        <p className='text-muted-foreground text-sm'>Currently mapping to: {selectedXAxis}</p>
                       )}
                     </div>
 
                     <div className='space-y-3'>
-                      <Label className='text-base font-medium'>{axis?.yLabel ?? 'Y-Axis Column'}</Label>
+                      <Label className='font-medium text-base'>{axis?.yLabel ?? 'Y-Axis Column'}</Label>
                       <Select value={selectedYAxis} onValueChange={setSelectedYAxis}>
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select Y-axis column' />
                         </SelectTrigger>
                         <SelectContent>
                           {axisOptions.map((col, idx) => {
-                            const value = col && col.trim() !== '' ? col : `column_${idx}`;
+                            const columnValue = getColumnValue(col, idx);
                             return (
-                              <SelectItem key={idx} value={value}>
+                              <SelectItem key={columnValue} value={columnValue}>
                                 <span className='font-medium'>{col || `Column ${idx + 1}`}</span>
                               </SelectItem>
                             );
@@ -211,7 +211,7 @@ export default function SeeMore({
                         </SelectContent>
                       </Select>
                       {selectedYAxis && (
-                        <p className='text-sm text-muted-foreground'>Currently mapping to: {selectedYAxis}</p>
+                        <p className='text-muted-foreground text-sm'>Currently mapping to: {selectedYAxis}</p>
                       )}
                     </div>
                   </div>
@@ -219,45 +219,51 @@ export default function SeeMore({
               )}
 
               {mappingEnabled && (
-                <div className='bg-muted/30 rounded-lg p-6 border'>
-                  <h3 className='text-lg font-semibold mb-4 text-primary'>
+                <div className='rounded-lg border bg-muted/30 p-6'>
+                  <h3 className='mb-4 font-semibold text-lg text-primary'>
                     {mapping?.title ?? 'Sample to Group Mapping'}
                   </h3>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                     <div className='space-y-3'>
-                      <Label className='text-base font-medium'>Sample Column</Label>
+                      <Label className='font-medium text-base'>Sample Column</Label>
                       <Select value={selectedSampleColumn} onValueChange={setSelectedSampleColumn}>
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select sample column' />
                         </SelectTrigger>
                         <SelectContent>
-                          {mappingAvailableCols.map((column, index) => (
-                            <SelectItem key={index} value={getColumnValue(column, index)}>
-                              <span className='font-medium'>{getColumnDisplayName(column, index)}</span>
-                            </SelectItem>
-                          ))}
+                          {mappingAvailableCols.map((column, index) => {
+                            const columnValue = getColumnValue(column, index);
+                            return (
+                              <SelectItem key={columnValue} value={columnValue}>
+                                <span className='font-medium'>{getColumnDisplayName(column, index)}</span>
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='text-muted-foreground text-sm'>
                         {mapping?.sampleHelpText ?? 'Column containing sample identifiers. Default: First column'}
                       </p>
                     </div>
 
                     <div className='space-y-3'>
-                      <Label className='text-base font-medium'>Group Column</Label>
+                      <Label className='font-medium text-base'>Group Column</Label>
                       <Select value={selectedGroupColumn} onValueChange={setSelectedGroupColumn}>
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select group column' />
                         </SelectTrigger>
                         <SelectContent>
-                          {mappingAvailableCols.map((column, index) => (
-                            <SelectItem key={index} value={getColumnValue(column, index)}>
-                              <span className='font-medium'>{getColumnDisplayName(column, index)}</span>
-                            </SelectItem>
-                          ))}
+                          {mappingAvailableCols.map((column, index) => {
+                            const columnValue = getColumnValue(column, index);
+                            return (
+                              <SelectItem key={columnValue} value={columnValue}>
+                                <span className='font-medium'>{getColumnDisplayName(column, index)}</span>
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='text-muted-foreground text-sm'>
                         {mapping?.groupHelpText ?? 'Column containing group assignments. Default: Last column'}
                       </p>
                     </div>
@@ -267,8 +273,8 @@ export default function SeeMore({
             </div>
           </div>
 
-          <DialogFooter className='gap-2 flex-col sm:flex-row justify-between border-t pt-4'>
-            <div className='flex gap-2 order-1 w-full sm:w-auto'>
+          <DialogFooter className='flex-col justify-between gap-2 border-t pt-4 sm:flex-row'>
+            <div className='order-1 flex w-full gap-2 sm:w-auto'>
               {canDownload && (
                 <>
                   <Button
@@ -276,7 +282,7 @@ export default function SeeMore({
                     variant='outline'
                     className='flex items-center gap-2'
                   >
-                    <Download className='h-4 w-4' />
+                    <DownloadIcon className='h-4 w-4' />
                     {download?.buttonLabel ?? 'Download Data'}
                   </Button>
                   <Button
@@ -285,20 +291,20 @@ export default function SeeMore({
                     className='flex items-center gap-2'
                     disabled={previewableFiles.length === 0}
                   >
-                    <Eye className='h-4 w-4' />
+                    <EyeIcon className='h-4 w-4' />
                     Preview Files
                   </Button>
                 </>
               )}
             </div>
 
-            <div className='flex gap-2 order-2 w-full sm:w-auto'>
+            <div className='order-2 flex w-full gap-2 sm:w-auto'>
               <DialogClose asChild>
                 <Button type='button' variant='secondary' onClick={handleCancel} className='w-full sm:w-auto'>
                   Cancel
                 </Button>
               </DialogClose>
-              <Button onClick={handleApply} className='bg-primary text-white hover:bg-primary/90 w-full sm:w-auto'>
+              <Button onClick={handleApply} className='w-full bg-primary text-white hover:bg-primary/90 sm:w-auto'>
                 Apply Changes
               </Button>
             </div>

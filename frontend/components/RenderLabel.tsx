@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 interface FlexibleLabelListProps {
   /** Array of string labels to display */
@@ -100,7 +100,7 @@ const FlexibleLabelList = ({
     const containerWidth = calculateWidth();
     if (typeof containerWidth === 'number') {
       const maxChars = Math.floor(containerWidth / 8) - 4;
-      return label.length > maxChars ? label.substring(0, maxChars) + '...' : label;
+      return label.length > maxChars ? `${label.substring(0, maxChars)}...` : label;
     }
     return label;
   };
@@ -124,13 +124,7 @@ const FlexibleLabelList = ({
   return (
     <div
       className={`
-        ${bgColor} 
-        border border-gray-300 
-        rounded-lg 
-        p-3 
-        ${scrollbarStyles}
-        scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100
-        ${className}
+        ${bgColor} rounded-lg border border-gray-300 p-3 ${scrollbarStyles}scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 ${className}
       `}
       style={containerStyle}
     >
@@ -138,19 +132,11 @@ const FlexibleLabelList = ({
         <div className='text-gray-500 italic'>No labels to display</div>
       ) : (
         <div className='space-y-1'>
-          {processedLabels.map((label, index) => (
+          {processedLabels.map(label => (
             <div
-              key={index}
-              className={`
-                text-sm 
-                text-gray-800 
-                py-1 
-                px-2 
-                rounded 
-                hover:bg-gray-100 
-                transition-colors
-                ${label === '•' ? 'text-center text-gray-400 hover:bg-transparent' : ''}
-                ${truncateX ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}
+              key={label}
+              className={`rounded px-2 py-1 text-gray-800 text-sm transition-colors hover:bg-gray-100 ${label === '•' ? 'text-center text-gray-400 hover:bg-transparent' : ''}
+                ${truncateX ? 'overflow-hidden text-ellipsis whitespace-nowrap' : 'break-words'}
                 ${labelClassName}
               `}
               title={label !== '•' ? label : ''}

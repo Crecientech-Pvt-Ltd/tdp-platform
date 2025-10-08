@@ -6,10 +6,7 @@ export interface Edge {
   [key: string]: any;
 }
 
-export function mergeEdgesAndAverageScore(
-  edges: Edge[],
-  interactionTypes: string[],
-): Edge[] {
+export function mergeEdgesAndAverageScore(edges: Edge[], interactionTypes: string[]): Edge[] {
   const edgeMap = new Map<
     string,
     {
@@ -21,10 +18,7 @@ export function mergeEdgesAndAverageScore(
   >();
 
   for (const edge of edges) {
-    const key =
-      edge.gene1 < edge.gene2
-        ? `${edge.gene1}|${edge.gene2}`
-        : `${edge.gene2}|${edge.gene1}`;
+    const key = edge.gene1 < edge.gene2 ? `${edge.gene1}|${edge.gene2}` : `${edge.gene2}|${edge.gene1}`;
     const type = edge.interactionType;
 
     if (!edgeMap.has(key)) {
@@ -45,20 +39,16 @@ export function mergeEdgesAndAverageScore(
     }
   }
 
-  return Array.from(edgeMap.values()).map(
-    ({ totalScore, count, edge, typeScores }) => {
-      const result: any = { ...edge, score: totalScore / count };
-      result.typeScores = {};
-      for (const type of interactionTypes) {
-        if (typeScores[type]) {
-          result.typeScores[type] =
-            typeScores[type].reduce((a, b) => a + b, 0) /
-            typeScores[type].length;
-        } else {
-          result.typeScores[type] = null;
-        }
+  return Array.from(edgeMap.values()).map(({ totalScore, count, edge, typeScores }) => {
+    const result: any = { ...edge, score: totalScore / count };
+    result.typeScores = {};
+    for (const type of interactionTypes) {
+      if (typeScores[type]) {
+        result.typeScores[type] = typeScores[type].reduce((a, b) => a + b, 0) / typeScores[type].length;
+      } else {
+        result.typeScores[type] = null;
       }
-      return result;
-    },
-  );
+    }
+    return result;
+  });
 }

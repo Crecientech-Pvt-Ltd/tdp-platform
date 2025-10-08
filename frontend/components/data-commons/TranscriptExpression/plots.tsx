@@ -1,4 +1,4 @@
-import React, { useMemo, memo } from 'react';
+import { memo, useMemo } from 'react';
 import Plot from 'react-plotly.js';
 import { calculateBottomMargin } from './utils';
 
@@ -22,8 +22,8 @@ export function PlotLayout({
   if (selectedGenesArrayMemo.length === 0) return null;
 
   return (
-    <div className='w-full overflow-x-hidden overflow-y-hidden h-[80%]'>
-      <div className='w-full overflow-x-hidden overflow-y-hidden max-h-[90vh]'>
+    <div className='h-[80%] w-full overflow-x-hidden overflow-y-hidden'>
+      <div className='max-h-[90vh] w-full overflow-x-hidden overflow-y-hidden'>
         {selectedGenesArrayMemo.length === 1 ? (
           <SinglePlot
             gene={selectedGenesArrayMemo[0]}
@@ -156,7 +156,7 @@ function MultiPlotGrid({ genes, geneDataMap, getBarColors, viewportHeight, dataS
 
   return (
     <div className='space-y-2'>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+      <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
         {genes.map(gene => {
           const data = geneDataMap[gene] || { x: [], y: [] };
           const bottomMargin = calculateBottomMargin(data.x);

@@ -1,7 +1,8 @@
 import { ClickhouseModule } from '@/clickhouse/clickhouse.module';
 import { DataLoaderModule } from '@/dataloader';
-import { ApolloDriver } from '@nestjs/apollo';
+import { ApolloDriver } from '@/utils/apollo';
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
 import { join } from 'node:path';
@@ -11,12 +12,16 @@ import { GqlService } from './gql.service';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot({
+    GraphQLModule.forRootAsync({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      resolvers: { JSON: GraphQLJSON },
-      path: '/graphql',
+      useFactory: (configService: ConfigService) => ({
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        sortSchema: true,
+        resolvers: { JSON: GraphQLJSON },
+        path: '/graphql',
+        playground: configService.get<string>('NODE_ENV', 'development') !== 'production',
+      }),
+      inject: [ConfigService],
     }),
     ClickhouseModule,
     DataLoaderModule,

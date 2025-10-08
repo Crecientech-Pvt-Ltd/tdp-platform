@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import type { GenericRow, Point, Bounds } from './types';
+import type { Bounds, GenericRow, Point } from './types';
 
 /**
  * Calculate plot bounds based on data points
@@ -14,17 +14,17 @@ export const calculateBounds = (points: Point[], useLog: boolean): Bounds => {
 
   for (const point of points) {
     const { x, y } = point;
-    if (isFinite(x)) {
+    if (Number.isFinite(x)) {
       if (x < xMin) xMin = x;
       if (x > xMax) xMax = x;
     }
-    if (isFinite(y)) {
+    if (Number.isFinite(y)) {
       if (y < yMin) yMin = y;
       if (y > yMax) yMax = y;
     }
   }
 
-  if (!isFinite(xMin) || !isFinite(xMax) || !isFinite(yMin) || !isFinite(yMax)) {
+  if (!Number.isFinite(xMin) || !Number.isFinite(xMax) || !Number.isFinite(yMin) || !Number.isFinite(yMax)) {
     return { xMin: -1, xMax: 1, yMin: 0, yMax: 5 };
   }
 
@@ -126,12 +126,12 @@ export const parseContrastNames = (deFiles: Record<string, string>): string[] =>
     }
 
     let match = lowerCaseFileName.match(/^differentialexpression([-_\s]+)(.+)\.(csv|tsv|txt)$/);
-    if (match && match[2]) {
+    if (match?.[2]) {
       return match[2];
     }
 
     match = lowerCaseFileName.match(/^de([-_\s]+)(.+)\.(csv|tsv|txt)$/);
-    if (match && match[2]) {
+    if (match?.[2]) {
       return match[2];
     }
 
@@ -193,7 +193,7 @@ export const processDataToPoints = (
     for (const row of rawData) {
       const pValue = row[yAxisColumn];
 
-      if (typeof pValue === 'number' && !isNaN(pValue) && pValue > 0) {
+      if (typeof pValue === 'number' && !Number.isNaN(pValue) && pValue > 0) {
         if (minNonZero === null || pValue < minNonZero) {
           minNonZero = pValue;
         }
@@ -210,7 +210,7 @@ export const processDataToPoints = (
     let pValue = row[yAxisColumn];
     const geneId = String(row[idKey] || row[''] || '');
 
-    if (typeof xValue !== 'number' || typeof pValue !== 'number' || isNaN(xValue) || isNaN(pValue)) {
+    if (typeof xValue !== 'number' || typeof pValue !== 'number' || Number.isNaN(xValue) || Number.isNaN(pValue)) {
       continue;
     }
 

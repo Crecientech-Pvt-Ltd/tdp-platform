@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
-import Plot from 'react-plotly.js';
+import { InfoIcon } from 'lucide-react';
 import type { PlotData } from 'plotly.js';
+import type React from 'react';
+import { memo } from 'react';
+import Plot from 'react-plotly.js';
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 interface GroupLegendProps {
   groupToColor: Record<string, string>;
@@ -17,7 +18,7 @@ export const GroupLegend = memo(function GroupLegend({ groupToColor, sampleDataE
   if (groupNames.length === 0) return null;
 
   return (
-    <div className='flex gap-4 mb-6 flex-wrap justify-center'>
+    <div className='mb-6 flex flex-wrap justify-center gap-4'>
       {groupNames.map(group => (
         <div key={group} className='flex items-center gap-2'>
           <span
@@ -30,7 +31,7 @@ export const GroupLegend = memo(function GroupLegend({ groupToColor, sampleDataE
               border: '1px solid #ccc',
             }}
           />
-          <span className='text-sm font-medium'>{group}</span>
+          <span className='font-medium text-sm'>{group}</span>
         </div>
       ))}
     </div>
@@ -43,7 +44,7 @@ interface LoadingStateProps {
 
 export function LoadingState({ children }: LoadingStateProps) {
   return (
-    <div className='min-h-[60vh] flex items-center justify-center'>
+    <div className='flex min-h-[60vh] items-center justify-center'>
       <div className='text-center text-gray-500'>
         <Spinner />
         <p className='mt-4'>{children}</p>
@@ -58,8 +59,8 @@ interface EmptyStateProps {
 
 export function EmptyState({ children }: EmptyStateProps) {
   return (
-    <div className='min-h-[60vh] flex items-center justify-center'>
-      <div className='text-center text-gray-500 text-lg font-medium'>{children}</div>
+    <div className='flex min-h-[60vh] items-center justify-center'>
+      <div className='text-center font-medium text-gray-500 text-lg'>{children}</div>
     </div>
   );
 }
@@ -72,13 +73,13 @@ interface PCAHeaderProps {
 
 export const PCAHeader = memo(function PCAHeader({ xAxisColumn, yAxisColumn, onSeeMoreClick }: PCAHeaderProps) {
   return (
-    <div className='flex items-center justify-between mb-6'>
-      <h2 className='text-xl sm:text-2xl font-semibold text-center flex-1'>
+    <div className='mb-6 flex items-center justify-between'>
+      <h2 className='flex-1 text-center font-semibold text-xl sm:text-2xl'>
         PCA Plot ({xAxisColumn} vs {yAxisColumn})
       </h2>
       <div className='flex gap-2'>
         <Button onClick={onSeeMoreClick} variant='outline' size='sm' className='flex items-center gap-2'>
-          <Info className='h-4 w-4' />
+          <InfoIcon className='h-4 w-4' />
           See More
         </Button>
       </div>
@@ -148,5 +149,5 @@ interface PCALayoutProps {
 }
 
 export function PCALayout({ children }: PCALayoutProps) {
-  return <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1400px] mx-auto'>{children}</div>;
+  return <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1400px] lg:px-8'>{children}</div>;
 }

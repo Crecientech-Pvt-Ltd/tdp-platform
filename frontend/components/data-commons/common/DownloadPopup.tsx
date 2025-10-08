@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Download, Loader2 } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
 import JSZip from 'jszip';
+import { DownloadIcon, Loader2Icon } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 export type DownloadFile = {
   url?: string;
@@ -120,8 +120,8 @@ export default function DownloadPopup({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className='max-w-2xl w-[95vw] max-h-[90vh] flex flex-col'>
-        <DialogTitle className='text-xl font-semibold'>Download Data</DialogTitle>
+      <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-2xl flex-col'>
+        <DialogTitle className='font-semibold text-xl'>Download Data</DialogTitle>
 
         <div className='flex-grow overflow-y-auto px-1 py-4'>
           {isDownloading ? (
@@ -133,12 +133,12 @@ export default function DownloadPopup({
             </div>
           ) : (
             <div className='space-y-6'>
-              <div className='bg-muted/30 rounded-lg p-6 border'>
+              <div className='rounded-lg border bg-muted/30 p-6'>
                 <div className='space-y-4'>
-                  <Label className='text-base font-semibold'>Available Files</Label>
+                  <Label className='font-semibold text-base'>Available Files</Label>
 
                   {selectableFiles.length === 0 ? (
-                    <p className='text-sm text-muted-foreground'>No files available for download.</p>
+                    <p className='text-muted-foreground text-sm'>No files available for download.</p>
                   ) : (
                     <div className='space-y-3'>
                       {selectableFiles.map(file => {
@@ -149,7 +149,7 @@ export default function DownloadPopup({
                         return (
                           <div
                             key={displayName}
-                            className='flex items-center space-x-3 p-3 bg-background rounded-md border'
+                            className='flex items-center space-x-3 rounded-md border bg-background p-3'
                           >
                             <Checkbox
                               id={displayName}
@@ -158,11 +158,11 @@ export default function DownloadPopup({
                               disabled={disabled}
                             />
                             <div className='flex-1'>
-                              <Label htmlFor={displayName} className='text-sm font-medium cursor-pointer'>
+                              <Label htmlFor={displayName} className='cursor-pointer font-medium text-sm'>
                                 {displayName}
                               </Label>
                               {file.description && (
-                                <p className='text-xs text-muted-foreground mt-1'>{file.description}</p>
+                                <p className='mt-1 text-muted-foreground text-xs'>{file.description}</p>
                               )}
                             </div>
                           </div>
@@ -176,7 +176,7 @@ export default function DownloadPopup({
           )}
         </div>
 
-        <DialogFooter className='gap-2 flex-col sm:flex-row justify-end border-t pt-4'>
+        <DialogFooter className='flex-col justify-end gap-2 border-t pt-4 sm:flex-row'>
           <DialogClose asChild>
             <Button onClick={handleClose} variant='secondary' disabled={isDownloading} className='w-full sm:w-auto'>
               Cancel
@@ -185,16 +185,16 @@ export default function DownloadPopup({
           <Button
             onClick={handleDownload}
             disabled={selectedFiles.length === 0 || isDownloading}
-            className='w-full sm:w-auto flex items-center gap-2'
+            className='flex w-full items-center gap-2 sm:w-auto'
           >
             {isDownloading ? (
               <>
-                <Loader2 className='h-4 w-4 animate-spin' />
+                <Loader2Icon className='h-4 w-4 animate-spin' />
                 Creating ZIP...
               </>
             ) : (
               <>
-                <Download className='h-4 w-4' />
+                <DownloadIcon className='h-4 w-4' />
                 Download ({selectedFiles.length})
               </>
             )}

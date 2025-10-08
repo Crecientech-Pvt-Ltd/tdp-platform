@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { DataCommonsService } from './dataCommons.service';
 
 @Controller('data-commons')
@@ -60,13 +60,7 @@ export class DataCommonsController {
     @Param('fileKey') fileKey: string,
     @Res() res: Response,
   ) {
-    return this.service.sendProjectFileByKey(
-      group,
-      program,
-      project,
-      fileKey,
-      res,
-    );
+    return this.service.sendProjectFileByKey(group, program, project, fileKey, res);
   }
 
   @Get('project/:group/:program/:project/preview/:filename')
@@ -77,12 +71,6 @@ export class DataCommonsController {
     @Param('filename') filename: string,
     @Res() res: Response,
   ) {
-    return this.service.previewProjectFile(
-      group,
-      program,
-      project,
-      filename,
-      res,
-    );
+    return this.service.previewProjectFile(group, program, project, filename, res);
   }
 }

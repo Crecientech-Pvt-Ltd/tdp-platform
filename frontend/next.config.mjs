@@ -3,17 +3,17 @@ import nextra from "nextra";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  outputFileTracingRoot: process.cwd(),
   images: {
     unoptimized: true,
     dangerouslyAllowSVG: true,
   },
+  turbopack: {},
 };
 
 const withNextra = nextra({
-  theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.jsx',
+  contentDirBasePath: '/docs',
   defaultShowCopyCode: true,
-  readingTime: true,
-})
+});
 
 export default withNextra(nextConfig);

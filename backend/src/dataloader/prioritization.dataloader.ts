@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as DataLoader from 'dataloader';
+import DataLoader from 'dataloader';
 import { ClickhouseService } from '@/clickhouse/clickhouse.service';
 import { ScoredKeyValue } from '@/gql/models';
 
@@ -10,25 +10,18 @@ export class PrioritizationDataLoader {
   constructor(private readonly clickhouseService: ClickhouseService) {}
 
   createLoader(): DataLoader<string, ScoredKeyValue[]> {
-    return new DataLoader<string, ScoredKeyValue[]>(
-      this.batchLoadPrioritization.bind(this),
-      {
-        cache: true,
-        maxBatchSize: 100,
-        name: PrioritizationDataLoader.name,
-      },
-    );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return new DataLoader<string, ScoredKeyValue[]>(this.batchLoadPrioritization.bind(this), {
+      cache: true,
+      maxBatchSize: 100,
+      name: PrioritizationDataLoader.name,
+    });
   }
 
-  private async batchLoadPrioritization(
-    geneIds: readonly string[],
-  ): Promise<ScoredKeyValue[][]> {
+  private async batchLoadPrioritization(geneIds: readonly string[]): Promise<ScoredKeyValue[][]> {
     try {
       // Use the efficient batch method from ClickhouseService
-      const resultMap =
-        await this.clickhouseService.getBatchPrioritizationTable(
-          Array.from(geneIds),
-        );
+      const resultMap = await this.clickhouseService.getBatchPrioritizationTable(Array.from(geneIds));
 
       // Return results in the same order as requested gene IDs
       return geneIds.map((geneId) => resultMap.get(geneId) || []);

@@ -1,5 +1,11 @@
 'use client';
 
+import { useSigma } from '@react-sigma/core';
+import { downloadAsImage } from '@sigma/export-image';
+import JSZip from 'jszip';
+import { unparse } from 'papaparse';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import {
   DISEASE_DEPENDENT_PROPERTIES,
   type DiseaseDependentProperties,
@@ -9,12 +15,6 @@ import {
 import { useStore } from '@/lib/hooks';
 import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
-import { useSigma } from '@react-sigma/core';
-import { downloadAsImage } from '@sigma/export-image';
-import { unparse } from 'papaparse';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
-import JSZip from 'jszip';
 
 export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.MutableRefObject<Set<string>> }) {
   const projectTitle = useStore(state => state.projectTitle);
@@ -31,6 +31,7 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
     element.remove();
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     eventEmitter.on(
       Events.EXPORT,
@@ -162,7 +163,6 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
         }
       },
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;

@@ -1,10 +1,8 @@
 'use client';
 
-import '@react-sigma/core/lib/style.css';
-import { useSearchParams } from 'next/navigation';
-import React from 'react';
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
 
@@ -59,19 +57,19 @@ function PDCSNetworkTabs() {
 
   return (
     <>
-      <TabsContent value='transcript' className='flex-1 p-6 mt-0 h-full'>
+      <TabsContent value='transcript' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <TranscriptTab group={group ?? ''} program={program ?? ''} project={project ?? ''} />
         </div>
       </TabsContent>
 
-      <TabsContent value='pca' className='flex-1 p-6 mt-0 h-full'>
+      <TabsContent value='pca' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <PCATab group={group ?? ''} program={program ?? ''} project={project ?? ''} />
         </div>
       </TabsContent>
 
-      <TabsContent value='de' className='flex-1 p-6 mt-0 h-full'>
+      <TabsContent value='de' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <DETab
             deFilesArray={deFilesArray}
@@ -88,12 +86,12 @@ function PDCSNetworkTabs() {
 
 export default function NetworkPage() {
   return (
-    <div className='w-full h-full flex flex-col'>
+    <div className='flex h-full w-full flex-col'>
       <Suspense
         fallback={
-          <div className='flex flex-col items-center justify-center min-h-screen'>
+          <div className='flex min-h-screen flex-col items-center justify-center'>
             <Spinner className='h-12 w-12' />
-            <p className='mt-4 text-lg text-gray-600'>Loading components...</p>
+            <p className='mt-4 text-gray-600 text-lg'>Loading components...</p>
           </div>
         }
       >

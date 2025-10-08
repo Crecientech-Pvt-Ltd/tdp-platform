@@ -1,13 +1,13 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
 import type { PlotData } from 'plotly.js';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { PCADataRow } from './utils';
 import {
   createGroupColorMapping,
-  parseIdToGroupMapping,
   createPCATraces,
-  getDefaultSampleColumn,
   getDefaultGroupColumn,
+  getDefaultSampleColumn,
+  parseIdToGroupMapping,
 } from './utils';
 
 export function useViewportHeight() {

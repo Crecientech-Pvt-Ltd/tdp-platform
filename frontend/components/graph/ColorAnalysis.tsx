@@ -1,12 +1,12 @@
 'use client';
 
+import { useSigma } from '@react-sigma/core';
+import { scaleLinear } from 'd3-scale';
+import { useEffect } from 'react';
 import { DEFAULT_EDGE_COLOR } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { P_VALUE_REGEX } from '@/lib/utils';
-import { useSigma } from '@react-sigma/core';
-import { scaleLinear } from 'd3-scale';
-import { useEffect } from 'react';
 
 export function ColorAnalysis() {
   const selectedRadioNodeColor = useStore(state => state.selectedRadioNodeColor);
@@ -19,6 +19,7 @@ export function ColorAnalysis() {
   const radioOptions = useStore(state => state.radioOptions);
   const edgeOpacity = useStore(state => state.edgeOpacity);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!graph) return;
     if (showEdgeColor) {
@@ -35,8 +36,9 @@ export function ColorAnalysis() {
         return attr;
       });
     }
-  }, [showEdgeColor, edgeOpacity, graph]);
+  }, [showEdgeColor, edgeOpacity]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!selectedRadioNodeColor && graph) {
       useStore.setState({ selectedNodeColorProperty: '' });
@@ -45,8 +47,9 @@ export function ColorAnalysis() {
         return attr;
       });
     }
-  }, [graph, selectedRadioNodeColor]);
+  }, [selectedRadioNodeColor]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!selectedNodeColorProperty || !graph || !selectedRadioNodeColor) return;
     const isUserProperty =
@@ -207,8 +210,7 @@ export function ColorAnalysis() {
         return attr;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedNodeColorProperty, graph, universalData, defaultNodeColor]);
+  }, [selectedNodeColorProperty, graph, universalData]);
 
   return null;
 }

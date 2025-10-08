@@ -7,9 +7,7 @@ import { ScoredKeyValue } from '@/gql/models';
 export class DataLoaderService {
   private prioritizationLoader: DataLoader<string, ScoredKeyValue[]>;
 
-  constructor(
-    private readonly prioritizationDataLoader: PrioritizationDataLoader,
-  ) {}
+  constructor(private readonly prioritizationDataLoader: PrioritizationDataLoader) {}
 
   getPrioritizationLoader(): DataLoader<string, ScoredKeyValue[]> {
     if (!this.prioritizationLoader) {

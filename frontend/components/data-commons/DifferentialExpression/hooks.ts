@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-import type { GenericRow, ThresholdControls, ContrastData } from './types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ContrastData, GenericRow, ThresholdControls } from './types';
 import { findColumnKeys, parseCsvData } from './utils';
 
 /**
@@ -28,7 +28,7 @@ export const useThresholds = (initialX: number = 1, initialY: number = 0.01): Th
   const updateXThreshold = useCallback((value: string) => {
     setXInput(value);
     const numVal = parseFloat(value);
-    if (!isNaN(numVal) && numVal >= 0) {
+    if (!Number.isNaN(numVal) && numVal >= 0) {
       setXThreshold(Math.abs(numVal));
     }
   }, []);
@@ -36,7 +36,7 @@ export const useThresholds = (initialX: number = 1, initialY: number = 0.01): Th
   const updateYThreshold = useCallback((value: string) => {
     setYInput(value);
     const numVal = parseFloat(value);
-    if (!isNaN(numVal) && numVal > 0 && numVal <= 1) {
+    if (!Number.isNaN(numVal) && numVal > 0 && numVal <= 1) {
       setYThreshold(numVal);
     }
   }, []);
@@ -181,7 +181,9 @@ export const useContrastData = (
 
     if (Object.keys(newData).length > 0) {
       // Mark these contrasts as fetched
-      toFetch.forEach(c => fetchedContrastsRef.current.add(c));
+      for (const fetched of toFetch) {
+        fetchedContrastsRef.current.add(fetched);
+      }
 
       setContrastData(prev => ({ ...prev, ...newData }));
       setAvailableGenes(prev => Array.from(new Set([...prev, ...allGenes])).sort());

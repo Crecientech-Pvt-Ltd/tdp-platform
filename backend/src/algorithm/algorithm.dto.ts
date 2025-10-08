@@ -1,11 +1,4 @@
-import {
-  IsArray,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 
 export class GraphConfigDto {
   @IsString()

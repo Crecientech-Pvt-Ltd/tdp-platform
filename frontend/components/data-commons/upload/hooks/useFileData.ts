@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileSource } from './useDataFiles';
+import type { FileSource } from './useDataFiles';
 
 export const useFileData = (fileSource: FileSource | null) => {
   const [data, setData] = useState<string>('');

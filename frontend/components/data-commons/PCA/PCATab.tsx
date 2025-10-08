@@ -1,5 +1,5 @@
-import PCA from './PCA';
 import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
+import PCA from './PCA';
 
 export function PCATab({ group, program, project }: { group: string; program: string; project: string }) {
   const { pcaFile, sampleFile, loading } = useDataFiles();

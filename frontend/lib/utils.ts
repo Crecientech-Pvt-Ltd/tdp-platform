@@ -1,7 +1,7 @@
-import EventEmitter from 'events';
 import { type ClassValue, clsx } from 'clsx';
+import EventEmitter from 'events';
 import { twMerge } from 'tailwind-merge';
-import { OrderByEnum, type GenePropertyMetadata } from './interface';
+import { type GenePropertyMetadata, OrderByEnum } from './interface';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -78,7 +78,7 @@ export type EventMessage = {
 };
 
 export function envURL(env?: string) {
-  return (env || 'https://pdnet-rnd-web.crecientech.com').replace(/\/$/, '');
+  return (env || 'http://web.tdp-dev.alexion.cloud').replace(/\/$/, '');
 }
 
 export function initRadioOptions() {

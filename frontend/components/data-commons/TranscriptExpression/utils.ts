@@ -1,5 +1,5 @@
-import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import type { DownloadFileSpec } from '@/components/data-commons/common/DownloadPopup';
+import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 
 //used for fuzzy matching between gene file and samplesheet
 export function normalizeSampleName(sample: string): string {

@@ -36,7 +36,7 @@ export function parseIdToGroupMapping(
 
   const getColumnValue = (row: PCADataRow, column: string) => {
     if (column.startsWith('col_')) {
-      const index = Number.parseInt(column.split('_')[1]);
+      const index = Number.parseInt(column.split('_')[1], 10);
       const keys = Object.keys(row);
       return row[keys[index]];
     }
@@ -74,13 +74,13 @@ export function createPCATraces(
     xAxisColumn === 'Sample_ID'
       ? ''
       : xAxisColumn.startsWith('Column_')
-        ? Object.keys(pcaData[0] || {})[parseInt(xAxisColumn.split('_')[1])]
+        ? Object.keys(pcaData[0] || {})[parseInt(xAxisColumn.split('_')[1], 10)]
         : xAxisColumn;
   const yKey =
     yAxisColumn === 'Sample_ID'
       ? ''
       : yAxisColumn.startsWith('Column_')
-        ? Object.keys(pcaData[0] || {})[parseInt(yAxisColumn.split('_')[1])]
+        ? Object.keys(pcaData[0] || {})[parseInt(yAxisColumn.split('_')[1], 10)]
         : yAxisColumn;
 
   if (!hasSampleData) {

@@ -1,20 +1,20 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { SeeMore } from '@/components/data-commons/common/SeeMore';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import {
-  useViewportHeight,
   useDataFiles,
   useDataSource,
-  useSampleMapping,
-  useParsedData,
-  useGeneSelection,
   useGeneDataMap,
+  useGeneSelection,
+  useParsedData,
+  useSampleMapping,
+  useViewportHeight,
 } from './hooks';
-import { createDownloadFiles, createMetadata } from './utils';
-import { LoadingState, EmptyState, Controls, NoSelectionState } from './ui';
 import { PlotLayout } from './plots';
+import { Controls, EmptyState, LoadingState, NoSelectionState } from './ui';
+import { createDownloadFiles, createMetadata } from './utils';
 
 interface TranscriptExpressionProps {
   sampleFile: FileSource | null;
@@ -91,7 +91,7 @@ export default function TranscriptExpression({
 
   if (!hasGene && !hasTranscript) {
     return (
-      <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
+      <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
         <EmptyState>Kindly add CPM/TPM metric files to view plots.</EmptyState>
       </div>
     );
@@ -99,14 +99,14 @@ export default function TranscriptExpression({
 
   if (loading) {
     return (
-      <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
+      <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
         <LoadingState>Loading data...</LoadingState>
       </div>
     );
   }
 
   return (
-    <div className='w-full px-4 sm:px-6 lg:px-8 max-w-[95vw] lg:max-w-[1500px] mx-auto'>
+    <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
       <Controls
         hasGene={hasGene}
         hasTranscript={hasTranscript}

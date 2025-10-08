@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 
 export interface FileSource {
@@ -87,8 +87,9 @@ export const useDataFiles = (): UseDataFilesReturn => {
 
   const deFileIdsString = deFileIds.join(',');
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
-    const loadFiles = async () => {
+    (async () => {
       setLoading(true);
 
       if (isUploadMode) {
@@ -120,11 +121,8 @@ export const useDataFiles = (): UseDataFilesReturn => {
           deFiles: deFilesArray.map(filename => ({ url: getServerFileUrl(filename), filename })),
         });
       }
-
       setLoading(false);
-    };
-
-    loadFiles();
+    })();
   }, [
     isUploadMode,
     geneFileId,

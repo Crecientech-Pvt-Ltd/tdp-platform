@@ -1,16 +1,6 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  OnModuleInit,
-} from '@nestjs/common';
-import {
-  GRAPH_DROP_QUERY,
-  NEO4J_CONFIG,
-  NEO4J_DRIVER,
-} from '@/neo4j/neo4j.constants';
-import { Neo4jConfig } from '@/interfaces';
+import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { GRAPH_DROP_QUERY, NEO4J_CONFIG, NEO4J_DRIVER } from '@/neo4j/neo4j.constants';
+import type { Neo4jConfig } from '@/interfaces';
 import { Driver, Session, SessionMode } from 'neo4j-driver';
 import { RedisService } from '@/redis/redis.service';
 import { regexp } from '@/neo4j/neo4j.util';
@@ -30,10 +20,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
   ) {
-    this.MAX_POOL_SIZE = this.configService.get<number>(
-      'NEO4J_MAX_POOL_SIZE',
-      10,
-    );
+    this.MAX_POOL_SIZE = this.configService.get<number>('NEO4J_MAX_POOL_SIZE', 10);
     this.KEY_EXPIRY = this.configService.get<number>('REDIS_KEY_EXPIRY', 120);
   }
 
@@ -70,15 +57,12 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   async bindGraph(graphName: string, userID: string) {
-    const [[, val], [, ttl]] = await this.redisService.redisClient
-      .multi()
-      .get(userID)
-      .ttl(userID)
-      .exec();
+    const result = await this.redisService.redisClient.multi().get(userID).ttl(userID).exec();
+    if (!result) return;
+    const [[, val], [, ttl]] = result;
     if (val) {
       if (val === graphName) {
-        if ((await this.redisService.redisClient.exists(graphName)) === 1)
-          return;
+        if ((await this.redisService.redisClient.exists(graphName)) === 1) return;
       } else {
         const num = await this.redisService.redisClient.decr(val as string);
         if (num === 0) {

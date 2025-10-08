@@ -20,7 +20,6 @@ export type ProcessedData = {
 };
 
 export interface VolcanoPlotProps {
-  contrastUrl?: string;
   deFiles?: Record<string, string>;
   group: string;
   program: string;

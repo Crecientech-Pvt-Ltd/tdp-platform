@@ -28,14 +28,8 @@ export class AlgorithmController {
     @Query('minCommunitySize', new ParseIntPipe({ optional: true }))
     minCommunitySize = 1,
   ) {
-    const result = await this.algoService.louvain(
-      graphName,
-      resolution,
-      weighted,
-      minCommunitySize,
-    );
-    if (!result)
-      throw new HttpException('Graph not found', HttpStatus.NOT_FOUND);
+    const result = await this.algoService.louvain(graphName, resolution, weighted, minCommunitySize);
+    if (!result) throw new HttpException('Graph not found', HttpStatus.NOT_FOUND);
     return result;
   }
 

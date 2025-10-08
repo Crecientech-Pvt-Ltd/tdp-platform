@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
 import Papa from 'papaparse';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DownloadFileSpec } from '@/components/data-commons/common/DownloadPopup';
 import { SeeMore } from '@/components/data-commons/common/SeeMore';
-import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
-import { useViewportHeight, usePCAColumns, useSampleColumns, usePCAData } from './hooks';
-import { getDefaultSampleColumn, getDefaultGroupColumn } from './utils';
-import { GroupLegend, LoadingState, EmptyState, PCAHeader, PCAPlot, PCALayout } from './PCAComponents';
+import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
+import { usePCAColumns, usePCAData, useSampleColumns, useViewportHeight } from './hooks';
+import { EmptyState, GroupLegend, LoadingState, PCAHeader, PCALayout, PCAPlot } from './PCAComponents';
+import { getDefaultGroupColumn, getDefaultSampleColumn } from './utils';
 
 interface PCAProps {
   sampleFile: FileSource | null;
@@ -187,7 +187,7 @@ export default function PCA({
         <>
           <PCAHeader xAxisColumn={xAxisColumn} yAxisColumn={yAxisColumn} onSeeMoreClick={handleSeeMoreClick} />
 
-          <div className='flex items-center justify-center mb-6'>
+          <div className='mb-6 flex items-center justify-center'>
             <GroupLegend groupToColor={groupToColor} sampleDataExists={sampleDataExists} />
           </div>
 

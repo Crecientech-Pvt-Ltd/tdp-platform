@@ -1,4 +1,9 @@
 'use client';
+import { useLazyQuery } from '@apollo/client/react';
+import { LoaderIcon } from 'lucide-react';
+import Image from 'next/image';
+import React, { useId } from 'react';
+import { toast } from 'sonner';
 import PopUpTable from '@/components/PopUpTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,11 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { GENE_VERIFICATION_QUERY } from '@/lib/gql';
 import type { GeneVerificationData, GeneVerificationVariables } from '@/lib/interface';
 import { distinct, openDB } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
-import { Loader } from 'lucide-react';
-import Image from 'next/image';
-import React from 'react';
-import { toast } from 'sonner';
 
 export default function UploadFile() {
   const [file, setFile] = React.useState<File | null>(null);
@@ -100,22 +100,25 @@ export default function UploadFile() {
     window.open(`/network?file=${encodeURIComponent(file?.name as string)}`, '_blank', 'noopener,noreferrer');
   };
 
+  const uploadFileId = useId();
+  const fileTypeId = useId();
+
   return (
-    <div className='mx-auto border rounded-lg shadow-md h-full'>
+    <div className='mx-auto h-full rounded-lg border shadow-md'>
       <h2
         style={{
           background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
         }}
-        className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
+        className='mb-6 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
       >
         Upload your Network
       </h2>
       <form action={handleSubmit}>
         <div className='space-y-4 px-8'>
           <div>
-            <Label htmlFor='fileType'>Select File Type</Label>
+            <Label htmlFor={fileTypeId}>Select File Type</Label>
             <Select value={fileType} onValueChange={val => setFileType(val as 'csv' | 'json')}>
-              <SelectTrigger id='fileType'>
+              <SelectTrigger id={fileTypeId}>
                 <SelectValue placeholder='Select file type' />
               </SelectTrigger>
               <SelectContent>
@@ -125,9 +128,9 @@ export default function UploadFile() {
             </Select>
           </div>
           <div>
-            <div className='flex justify-between items-center'>
-              <Label htmlFor='fileUpload'>Upload {fileType.toUpperCase()}</Label>
-              <p className='text-zinc-500 lg:text-base sm:text-sm text-xs'>
+            <div className='flex items-center justify-between'>
+              <Label htmlFor={uploadFileId}>Upload {fileType.toUpperCase()}</Label>
+              <p className='text-xs text-zinc-500 sm:text-sm lg:text-base'>
                 (1st & 2nd columns need to be ENSG IDs or Gene name,
                 <br />
                 while 3rd column should be interaction score; examples:{' '}
@@ -141,12 +144,12 @@ export default function UploadFile() {
               </p>
             </div>
             <Input
-              id='fileUpload'
+              id={uploadFileId}
               type='file'
               accept='.csv,.json'
               onChange={handleFileChange}
               required
-              className='border-2 hover:border-dashed cursor-pointer h-9'
+              className='h-9 cursor-pointer border-2 hover:border-dashed'
             />
           </div>
           <Button
@@ -156,7 +159,7 @@ export default function UploadFile() {
             type='submit'
             className='w-full'
           >
-            {loading && <Loader className='animate-spin mr-2' size={20} />} Submit
+            {loading && <LoaderIcon className='mr-2 animate-spin' size={20} />} Submit
           </Button>
         </div>
       </form>
@@ -168,13 +171,13 @@ export default function UploadFile() {
         handleGenerateGraph={handleGenerateGraph}
       />
       <div className='mt-6 px-8'>
-        <h3 className='text-lg font-semibold mb-2'>File Format</h3>
+        <h3 className='mb-2 font-semibold text-lg'>File Format</h3>
         <Image
           src={'/image/uploadFormat.png'}
           width={400}
           height={400}
           alt='CSV file format example'
-          className='w-full max-w-3xl mx-auto mix-blend-multiply'
+          className='mx-auto w-full max-w-3xl mix-blend-multiply'
         />
       </div>
     </div>

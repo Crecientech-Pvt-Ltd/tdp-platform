@@ -6,9 +6,9 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import FileSelectionPopup from '@/components/data-commons/common/PopUp';
 import PasswordPopup from '@/components/data-commons/common/PasswordPopup';
-import FileUploadPopup from '@/components/data-commons/common/FileUploadPopup';
 import { Spinner } from '@/components/ui/spinner';
 import { LockKeyholeIcon } from 'lucide-react';
+import FileUploadPopup from '@/components/data-commons/common/FileUploadPopup';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -38,9 +38,9 @@ export default function DataCommonsPage() {
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showFileSelectionPopup, setShowFileSelectionPopup] = React.useState<boolean>(false);
-  const [showPasswordPopup, setShowPasswordPopup] = React.useState<boolean>(false);
   const [showFileUploadPopup, setShowFileUploadPopup] = React.useState<boolean>(false);
   const [imageLoading, setImageLoading] = React.useState<boolean>(false);
+  const [showPasswordPopup, setShowPasswordPopup] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     setStructureLoading(true);
@@ -124,12 +124,10 @@ export default function DataCommonsPage() {
 
         if (!response.ok) {
           console.error('Password check failed:', response.status);
-          setShowFileSelectionPopup(true);
           return;
         }
 
         const result = await response.json();
-        console.log('Password check result:', result);
 
         if (result.hasPassword) {
           setShowPasswordPopup(true);
@@ -301,7 +299,7 @@ export default function DataCommonsPage() {
         </form>
 
         {selectedGroup && selectedProgram && selectedProject && (
-          <div className='px-8 pb-4 space-y-2'>
+          <div className='px-8 pb-4'>
             <Button
               type='button'
               className='w-full'
@@ -313,26 +311,16 @@ export default function DataCommonsPage() {
               Go to Plots
             </Button>
             <div className='text-center text-sm text-muted-foreground'>or</div>
-            <Button
-              type='button'
-              variant='outline'
-              className='w-full'
-              onClick={() => setShowFileUploadPopup(true)}
-            >
+            <Button type='button' variant='outline' className='w-full' onClick={() => setShowFileUploadPopup(true)}>
               Upload Your Own Files
             </Button>
           </div>
         )}
-        
+
         {/* Show upload option even when no project is selected */}
         {(!selectedGroup || !selectedProgram || !selectedProject) && (
           <div className='px-8 pb-4'>
-            <Button
-              type='button'
-              variant='outline'
-              className='w-full'
-              onClick={() => setShowFileUploadPopup(true)}
-            >
+            <Button type='button' variant='outline' className='w-full' onClick={() => setShowFileUploadPopup(true)}>
               Upload Your Own Files
             </Button>
           </div>
@@ -462,6 +450,7 @@ export default function DataCommonsPage() {
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}
       />
+      <FileUploadPopup isOpen={showFileUploadPopup} onClose={() => setShowFileUploadPopup(false)} />
       <PasswordPopup
         isOpen={showPasswordPopup}
         onClose={() => setShowPasswordPopup(false)}
@@ -469,10 +458,6 @@ export default function DataCommonsPage() {
         selectedGroup={selectedGroup}
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}
-        />
-      <FileUploadPopup
-        isOpen={showFileUploadPopup}
-        onClose={() => setShowFileUploadPopup(false)}
       />
     </div>
   );

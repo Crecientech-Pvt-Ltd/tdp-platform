@@ -1,6 +1,6 @@
 'use client';
 
-import JSZip from 'jszip';
+import { strToU8, zipSync } from 'fflate';
 import { DownloadIcon, Loader2Icon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -66,46 +66,37 @@ export default function DownloadPopup({
 
     setIsDownloading(true);
     try {
-      const zip = new JSZip();
+      const zipFiles: Record<string, Uint8Array> = {};
 
       for (const f of files) {
         const displayName = getDisplayName(f);
-        if (!displayName) continue;
-        if (!selectedFiles.includes(displayName)) continue;
+        if (!displayName || !selectedFiles.includes(displayName)) continue;
 
         try {
-          let content: string;
+          const content = f.content ?? (f.url ? await (await fetch(f.url)).text() : '');
+          if (!content) continue;
 
-          if (f.content) {
-            content = f.content;
-          } else if (f.url) {
-            const res = await fetch(f.url);
-            content = await res.text();
-          } else {
-            console.warn(`File ${displayName} has neither content nor URL`);
-            continue;
-          }
-
-          zip.file(displayName, content);
+          zipFiles[displayName] = strToU8(content);
         } catch (err) {
           console.warn(`Failed to process ${displayName}:`, err);
         }
       }
 
       if (metadata) {
-        zip.file('metadata.json', JSON.stringify(metadata, null, 2));
+        zipFiles['metadata.json'] = strToU8(JSON.stringify(metadata, null, 2));
       }
 
-      const blob = await zip.generateAsync({ type: 'blob' });
+      const zipData = zipSync(zipFiles);
+      const zippedArrayBuffer = zipData.buffer instanceof ArrayBuffer ? zipData.buffer : zipData.slice().buffer; // fallback, but zipSync should return ArrayBuffer-backed Uint8Array
+
+      const blob = new Blob([zippedArrayBuffer], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = zipName;
-      a.style.visibility = 'hidden';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const aElement = document.createElement('a');
+      aElement.href = url;
+      aElement.download = zipName;
+      aElement.click();
       URL.revokeObjectURL(url);
+      aElement.remove();
 
       onClose();
     } catch (error) {

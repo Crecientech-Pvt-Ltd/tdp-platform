@@ -1,6 +1,6 @@
 'use client';
 
-import JSZip from 'jszip';
+import { strToU8, zipSync } from 'fflate';
 import { DownloadIcon, EyeIcon, XIcon } from 'lucide-react';
 import React from 'react';
 import FlexibleLabelList from '@/components/RenderLabel';
@@ -312,16 +312,16 @@ export default function FileSelectionPopup({
           blob = await response.blob();
         }
 
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = file.filename;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } else {
-        const zip = new JSZip();
+        const files: Record<string, Uint8Array> = {};
 
         for (const file of allFiles) {
           const fileUrl =
@@ -331,27 +331,25 @@ export default function FileSelectionPopup({
           if (file.type === 'differentialexpression') {
             const text = await response.text();
             const colonIndex = text.indexOf(':');
-            if (colonIndex !== -1) {
-              const fileData = text.substring(colonIndex + 1).trim();
-              zip.file(file.filename, fileData);
-            } else {
-              zip.file(file.filename, text);
-            }
+            const fileData = colonIndex !== -1 ? text.substring(colonIndex + 1).trim() : text;
+            files[file.filename] = strToU8(fileData);
           } else {
-            const blob = await response.blob();
-            zip.file(file.filename, blob);
+            const arrayBuffer = await response.arrayBuffer();
+            files[file.filename] = new Uint8Array(arrayBuffer);
           }
         }
 
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        const url = window.URL.createObjectURL(zipBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${selectedProject}_files.zip`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        const zipBuffer = zipSync(files);
+        const zippedArrayBuffer = zipBuffer.buffer instanceof ArrayBuffer ? zipBuffer.buffer : zipBuffer.slice().buffer; // fallback, but zipSync should return ArrayBuffer-backed Uint8Array
+
+        const blob = new Blob([zippedArrayBuffer], { type: 'application/zip' });
+        const url = URL.createObjectURL(blob);
+        const aElement = document.createElement('a');
+        aElement.href = url;
+        aElement.download = `${selectedProject}_files.zip`;
+        aElement.click();
+        URL.revokeObjectURL(url);
+        aElement.remove();
       }
 
       setShowDownloadCheckboxes(false);

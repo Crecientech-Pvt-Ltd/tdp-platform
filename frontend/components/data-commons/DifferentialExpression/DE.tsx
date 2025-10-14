@@ -259,18 +259,6 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
     );
   }
 
-  console.log(
-    debouncedContrasts,
-    processedData,
-    pointCounts,
-    thresholds,
-    xAxisColumn,
-    yAxisColumn,
-    availableColumns,
-    selectedGenes,
-    useLog,
-  );
-
   return (
     <div className='resizable-panel-container mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
       <VolcanoPlotControls

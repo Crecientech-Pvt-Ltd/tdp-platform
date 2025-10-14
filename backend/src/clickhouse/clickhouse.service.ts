@@ -266,6 +266,7 @@ export class ClickhouseService implements OnApplicationBootstrap {
       this.logger.log(`Running migration ${file}...`);
       try {
         sql.split(';').forEach(async (stmt) => {
+          if (!stmt.trim()) return;
           await this.client.command({
             query: stmt.trim(),
           });

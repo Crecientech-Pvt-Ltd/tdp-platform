@@ -1,6 +1,6 @@
 'use client';
 
-import JSZip from 'jszip';
+import { strToU8, zipSync } from 'fflate';
 import { DownloadIcon, FileTextIcon, Loader2Icon, PaletteIcon } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -148,47 +148,41 @@ export default memo(function DownloadPopup({
     setIsDownloading(true);
 
     try {
-      const zip = new JSZip();
+      const files: Record<string, Uint8Array> = {};
 
       for (const fileName of selectedFiles) {
         const contrast = getContrastFromFileName(fileName);
         const result = await processDataForDownload(contrast);
-
         if (!result) {
           console.warn(`No data found for file: ${fileName}`);
           continue;
         }
 
         const { rawData, points } = result;
+        const base = fileName.replace(/\.csv$/, '');
 
         for (const dataType of selectedDataTypes) {
-          let dataToDownload: GenericRow[] = [];
-          let outputFileName = '';
+          let rows: GenericRow[] = [];
+          let suffix = '';
 
           if (dataType === 'all') {
-            dataToDownload = rawData;
-            outputFileName = `${fileName.replace('.csv', '')}_all_points.csv`;
+            rows = rawData;
+            suffix = 'all_points';
           } else {
-            const filteredData: GenericRow[] = [];
-            for (let i = 0; i < points.length; i++) {
-              if (points[i].color === dataType) {
-                filteredData.push(rawData[i]);
-              }
-            }
-            dataToDownload = filteredData;
-
-            const colorSuffix = dataType === 'red' ? 'red_points' : dataType === 'blue' ? 'blue_points' : 'gray_points';
-            outputFileName = `${fileName.replace('.csv', '')}_${colorSuffix}.csv`;
+            rows = rawData.filter((_, i) => points[i]?.color === dataType);
+            if (rows.length === 0) continue;
+            suffix = dataType === 'red' ? 'red_points' : dataType === 'blue' ? 'blue_points' : 'gray_points';
           }
 
-          if (dataToDownload.length > 0) {
-            zip.file(outputFileName, createCSVContent(dataToDownload));
+          if (rows.length > 0) {
+            const outName = `${base}_${suffix}.csv`;
+            files[outName] = strToU8(createCSVContent(rows));
           }
         }
       }
 
       const metadata = {
-        selectedFiles: selectedFiles,
+        selectedFiles,
         dataTypes: selectedDataTypes,
         settings: currentSettings,
         totalFiles: selectedFiles.length * selectedDataTypes.length,
@@ -196,19 +190,19 @@ export default memo(function DownloadPopup({
         program,
         project,
       };
+      files['download_metadata.json'] = strToU8(JSON.stringify(metadata, null, 2));
 
-      zip.file('download_metadata.json', JSON.stringify(metadata, null, 2));
-
-      const content = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(content);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `DE-${project}-data.zip`;
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const zippedBuffer = zipSync(files);
+      const zippedArrayBuffer =
+        zippedBuffer.buffer instanceof ArrayBuffer ? zippedBuffer.buffer : zippedBuffer.slice().buffer; // fallback, but zipSync should return ArrayBuffer-backed Uint8Array
+      const blob = new Blob([zippedArrayBuffer], { type: 'application/zip' });
+      const url = URL.createObjectURL(blob);
+      const aElement = document.createElement('a');
+      aElement.href = url;
+      aElement.download = `DE-${project}-data.zip`;
+      aElement.click();
       URL.revokeObjectURL(url);
+      aElement.remove();
 
       onClose();
     } catch (error) {

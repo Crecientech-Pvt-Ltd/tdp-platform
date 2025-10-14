@@ -4,7 +4,7 @@ WORKDIR /app
 FROM base AS deps
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.18.3 --activate
 COPY package.json pnpm-lock.yaml ./
 
 FROM deps AS prod-deps
@@ -21,6 +21,5 @@ COPY --from=build /app/dist /app/dist
 COPY --from=build /app/src/clickhouse/migrations /app/src/clickhouse/migrations
 
 COPY --from=build /app/src/data-commons/data /app/src/data-commons/data
-COPY --from=build /app/src/data-commons/data /app/dist/data-commons/data
 
 CMD [ "node", "dist/main" ]

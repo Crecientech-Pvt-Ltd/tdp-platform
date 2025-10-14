@@ -46,7 +46,7 @@ export const GENE_UNIVERSAL_QUERY = gql`
 `;
 
 export const GET_HEADERS_QUERY = gql`
-  query GetHeaders($disease: String!) {
+  query GetHeaders($disease: String!, $skipCommon: Boolean!) {
     headers(disease: $disease) {
       common @skip(if: $skipCommon) {
         name

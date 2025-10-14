@@ -37,9 +37,7 @@ export function LoadGraph() {
   const searchParams = useSearchParams();
   const loadGraph = useLoadGraph();
   const variable = JSON.parse(localStorage.getItem('graphConfig') || '{}');
-  const [fetchData, { data: response, loading, error }] = useLazyQuery<GeneGraphData, GeneGraphVariables>(
-    GENE_GRAPH_QUERY,
-  );
+  const [fetchData, { loading }] = useLazyQuery<GeneGraphData, GeneGraphVariables>(GENE_GRAPH_QUERY);
 
   const [fetchFileData] = useLazyQuery<GeneVerificationData, GeneVerificationVariables>(GENE_VERIFICATION_QUERY);
   const [showWarning, setShowWarning] = React.useState<boolean>(false);
@@ -149,7 +147,7 @@ export function LoadGraph() {
           useStore.setState({ geneNames, totalNodes: geneIDs.size, totalEdges: fileData.length });
         };
       } else {
-        await fetchData({
+        const result = await fetchData({
           variables: {
             geneIDs: variable.geneIDs,
             interactionType: variable.interactionType,
@@ -157,13 +155,13 @@ export function LoadGraph() {
             order: variable.order,
           },
         });
-        if (error) {
-          console.error(error);
+        if (result.error) {
+          console.error(result.error);
           alert('Error loading graph! Check console for errors');
           return;
         }
-        if (response) {
-          const { genes, links, graphName } = response.getGeneInteractions;
+        if (result.data) {
+          const { genes, links, graphName } = result.data.getGeneInteractions;
           if (genes.length > 5000 || links.length > 50000) {
             toast.warning('Large graph detected!', {
               description: 'Computation is stopped. Auto closing the graph in 3 seconds to prevent browser crash',

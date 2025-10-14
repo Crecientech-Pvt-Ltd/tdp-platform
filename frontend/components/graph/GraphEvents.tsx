@@ -28,17 +28,17 @@ export function GraphEvents({
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
   const nodeSearchQuery = useStore(state => state.nodeSearchQuery);
   const trieRef = useRef(new Trie<{ key: string; value: string }>());
-  const totalNodes = useStore(state => state.totalNodes);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
+    if (sigma.getGraph().order === 0) return;
     const nodeArr = sigma.getGraph().mapNodes((node, attributes) => ({
       key: attributes.label,
       value: node,
     })) as { key: string; value: string }[];
     if (!Array.isArray(nodeArr)) return;
     trieRef.current = Trie.fromArray(nodeArr, 'key');
-  }, [totalNodes]);
+  }, [sigma.getGraph().order]);
 
   const { gotoNode } = useCamera();
 

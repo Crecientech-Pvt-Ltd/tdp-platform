@@ -106,7 +106,6 @@ export function OpenTargetsHeatmap() {
       eventEmitter.emit(Events.VISIBLE_NODES);
     }, 500);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodeDegreeCutOff]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
@@ -124,7 +123,6 @@ export function OpenTargetsHeatmap() {
       });
       setGeneIdsToQuery(geneIds);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diseaseId, geneIds]);
 
   const toggleOnlyVisible = (checked: CheckedState) => {

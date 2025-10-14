@@ -105,7 +105,6 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
       .catch(err => {
         console.error(err);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diseaseName]);
 
   useEffect(() => {

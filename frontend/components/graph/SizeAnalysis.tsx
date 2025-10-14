@@ -25,7 +25,7 @@ export function SizeAnalysis() {
         return attr;
       });
     }
-  }, [selectedRadioNodeSize, defaultNodeSize]);
+  }, [selectedRadioNodeSize]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {

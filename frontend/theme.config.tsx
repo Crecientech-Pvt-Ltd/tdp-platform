@@ -36,7 +36,15 @@ export const DocsThemeLayout = async ({
   children: React.ReactNode;
 }>) => {
   return (
-    <Layout darkMode={false} navbar={navbar} footer={footer} pageMap={await getPageMap()}>
+    <Layout
+      nextThemes={{
+        defaultTheme: 'light',
+      }}
+      darkMode={false}
+      navbar={navbar}
+      footer={footer}
+      pageMap={await getPageMap()}
+    >
       {children}
     </Layout>
   );

@@ -1,8 +1,4 @@
-import {
-  FIRST_ORDER_GENES_QUERY,
-  LEIDEN_QUERY,
-  RENEW_QUERY,
-} from '@/neo4j/neo4j.constants';
+import { FIRST_ORDER_GENES_QUERY, LEIDEN_QUERY, RENEW_QUERY } from '@/neo4j/neo4j.constants';
 import { Neo4jService } from '@/neo4j/neo4j.service';
 import { RedisService } from '@/redis/redis.service';
 import { Injectable } from '@nestjs/common';
@@ -150,16 +146,11 @@ export class AlgorithmService {
     };
   }
 
-  async louvain(
-    graphName: string,
-    resolution: number,
-    weighted: boolean,
-    minCommunitySize: number,
-  ) {
+  async louvain(graphName: string, resolution: number, weighted: boolean, minCommunitySize: number) {
     if (!(await this.neo4jService.graphExists(graphName))) return;
     const session = this.neo4jService.getSession();
     const response = (
-      await session.run(LEIDEN_QUERY(minCommunitySize, weighted), {
+      await session.run<{ ID: string; communityId: number }>(LEIDEN_QUERY(minCommunitySize, weighted), {
         graphName,
         resolution,
       })
@@ -169,7 +160,7 @@ export class AlgorithmService {
     const colorGen = this.colorGenerator();
     return response.reduce(
       (acc, record) => {
-        const community = record.get('community');
+        const community = record.get('communityId');
         if (!acc[community])
           acc[community] = {
             name: `Community ${++count}`,
@@ -184,36 +175,24 @@ export class AlgorithmService {
   }
 
   async renewSession(graphConfig: GraphConfigDto) {
-    if (await this.neo4jService.graphExists(graphConfig.graphName))
-      return false;
+    if (await this.neo4jService.graphExists(graphConfig.graphName)) return false;
     const session = this.neo4jService.getSession();
     if (graphConfig.order === 2) {
       graphConfig.order = 0;
       graphConfig.geneIDs = (
-        await session.run<{ geneIDs: string[] }>(
-          FIRST_ORDER_GENES_QUERY(graphConfig.interactionType),
-          {
-            geneIDs: graphConfig.geneIDs,
-            minScore: graphConfig.minScore,
-          },
-        )
+        await session.run<{ geneIDs: string[] }>(FIRST_ORDER_GENES_QUERY(graphConfig.interactionType), {
+          geneIDs: graphConfig.geneIDs,
+          minScore: graphConfig.minScore,
+        })
       ).records[0].get('geneIDs');
     }
-    await session.run(
-      RENEW_QUERY(graphConfig.order, graphConfig.interactionType),
-      {
-        geneIDs: graphConfig.geneIDs,
-        minScore: graphConfig.minScore,
-        graphName: graphConfig.graphName,
-      },
-    );
+    await session.run(RENEW_QUERY(graphConfig.order, graphConfig.interactionType), {
+      geneIDs: graphConfig.geneIDs,
+      minScore: graphConfig.minScore,
+      graphName: graphConfig.graphName,
+    });
     await this.neo4jService.releaseSession(session);
-    await this.redisService.redisClient.set(
-      graphConfig.graphName,
-      '',
-      'EX',
-      120,
-    );
+    await this.redisService.redisClient.set(graphConfig.graphName, '', 'EX', 120);
     return true;
   }
 }

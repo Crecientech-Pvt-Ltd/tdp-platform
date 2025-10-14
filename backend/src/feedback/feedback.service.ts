@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { ClickhouseService } from '../clickhouse/clickhouse.service';
 import { CreateFeedbackDto } from './feedback.dto';
 import { FeedbackStatus } from './feedback.model';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class FeedbackService {
   constructor(private readonly clickhouseService: ClickhouseService) {}
 
   async createFeedback(dto: CreateFeedbackDto) {
-    const id = uuidv4();
+    const id = nanoid();
     const createdAt = new Date();
     const status: FeedbackStatus = 'pending';
     const pad = (n: number) => n.toString().padStart(2, '0');

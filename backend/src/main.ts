@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as compression from 'compression';
+import compression from 'compression';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,9 +29,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 4000);
 }
 bootstrap()
-  .then(() =>
-    Logger.log(`Server started on ${process.env.PORT ?? 4000}`, 'Bootstrap'),
-  )
+  .then(() => Logger.log(`Server started on ${process.env.PORT ?? 4000}`, 'Bootstrap'))
   .catch((e) => {
     Logger.error(`❌  Error starting server. \n ${e}`);
     process.exit(1);

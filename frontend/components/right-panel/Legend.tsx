@@ -1,13 +1,13 @@
 'use client';
 
+import { ChevronsUpDownIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { PROPERTY_TYPE_LABEL_MAPPING } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
-import { ChevronsUpDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { P_VALUE_REGEX } from '@/lib/utils';
 import { BinaryLegend, HeatmapLegend } from '../legends';
 import { Button } from '../ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
-import { P_VALUE_REGEX } from '@/lib/utils';
 
 export function Legend() {
   const selectedRadioNodeColor = useStore(state => state.selectedRadioNodeColor);
@@ -22,15 +22,15 @@ export function Legend() {
 
   return (
     <Collapsible defaultOpen className='text-xs'>
-      <div className='flex items-center justify-between w-full bg-primary p-2'>
+      <div className='flex w-full items-center justify-between bg-primary p-2'>
         <p className='font-bold text-white'>Legends</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
-            <ChevronsUpDown size={15} />
+          <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+            <ChevronsUpDownIcon size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='flex flex-col gap-2 p-8 items-center'>
+      <CollapsibleContent className='flex flex-col items-center gap-2 p-8'>
         {selectedRadioNodeColor ? (
           selectedRadioNodeColor === 'Pathway' ? (
             <BinaryLegend />

@@ -1,5 +1,13 @@
 'use client';
-
+import { useLazyQuery } from '@apollo/client/react';
+import { useLoadGraph } from '@react-sigma/core';
+import type Graph from 'graphology';
+import type { SerializedEdge, SerializedGraph } from 'graphology-types';
+import { AlertTriangleIcon } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import Papa from 'papaparse';
+import React from 'react';
+import { toast } from 'sonner';
 /******** only for testing with sample graph **************/
 // import { data as response } from '@/lib/data/sample-graph.json';
 import { GENE_GRAPH_QUERY, GENE_VERIFICATION_QUERY } from '@/lib/gql';
@@ -13,15 +21,6 @@ import type {
   NodeAttributes,
 } from '@/lib/interface';
 import { openDB } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
-import { useLoadGraph } from '@react-sigma/core';
-import type Graph from 'graphology';
-import type { SerializedEdge, SerializedGraph } from 'graphology-types';
-import { AlertTriangle } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import Papa from 'papaparse';
-import React from 'react';
-import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,22 +37,14 @@ export function LoadGraph() {
   const searchParams = useSearchParams();
   const loadGraph = useLoadGraph();
   const variable = JSON.parse(localStorage.getItem('graphConfig') || '{}');
-  const [fetchData, { data: response, loading, error }] = useLazyQuery<GeneGraphData, GeneGraphVariables>(
-    GENE_GRAPH_QUERY,
-    {
-      variables: {
-        geneIDs: variable.geneIDs,
-        interactionType: variable.interactionType,
-        minScore: variable.minScore,
-        order: variable.order,
-      },
-    },
-  );
+  const [fetchData, { loading }] = useLazyQuery<GeneGraphData, GeneGraphVariables>(GENE_GRAPH_QUERY);
 
   const [fetchFileData] = useLazyQuery<GeneVerificationData, GeneVerificationVariables>(GENE_VERIFICATION_QUERY);
   const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: No need of extra deps
   React.useEffect(() => {
+    const abortController = new AbortController();
     const fileName = searchParams?.get('file');
     (async () => {
       if (fileName) {
@@ -71,6 +62,7 @@ export function LoadGraph() {
         }
         const req = store.get(fileName);
         req.onsuccess = async () => {
+          if (abortController.signal.aborted) return;
           const fileText = await (req.result as File).text();
           let fileData: Array<Record<string, string | number>>;
           let fields: string[] = [];
@@ -155,14 +147,21 @@ export function LoadGraph() {
           useStore.setState({ geneNames, totalNodes: geneIDs.size, totalEdges: fileData.length });
         };
       } else {
-        await fetchData();
-        if (error) {
-          console.error(error);
+        const result = await fetchData({
+          variables: {
+            geneIDs: variable.geneIDs,
+            interactionType: variable.interactionType,
+            minScore: variable.minScore,
+            order: variable.order,
+          },
+        });
+        if (result.error) {
+          console.error(result.error);
           alert('Error loading graph! Check console for errors');
           return;
         }
-        if (response) {
-          const { genes, links, graphName } = response.getGeneInteractions;
+        if (result.data) {
+          const { genes, links, graphName } = result.data.getGeneInteractions;
           if (genes.length > 5000 || links.length > 50000) {
             toast.warning('Large graph detected!', {
               description: 'Computation is stopped. Auto closing the graph in 3 seconds to prevent browser crash',
@@ -219,15 +218,22 @@ export function LoadGraph() {
           }
         }
       }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadGraph, loading, fetchData]);
+    })().catch(err => {
+      if (!abortController.signal.aborted) {
+        console.error('Error in LoadGraph:', err);
+      }
+    });
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
 
   return (
     <>
       {loading ? (
-        <div className=' absolute bottom-0 w-full h-full z-40 grid place-items-center'>
-          <div className='flex flex-col items-center' id='test'>
+        <div className='absolute bottom-0 z-40 grid h-full w-full place-items-center'>
+          <div className='flex flex-col items-center'>
             <Spinner />
             Loading...
           </div>
@@ -236,15 +242,15 @@ export function LoadGraph() {
         <AlertDialog open={showWarning}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className='text-red-500 flex items-center'>
-                <AlertTriangle size={24} className='mr-2' />
+              <AlertDialogTitle className='flex items-center text-red-500'>
+                <AlertTriangleIcon size={24} className='mr-2' />
                 Warning!
               </AlertDialogTitle>
               <AlertDialogDescription className='text-black'>
                 You are about to generate a graph with a large number of nodes/edges. You may face difficulties in
                 analyzing the graph.
               </AlertDialogDescription>
-              <p className='text-black font-semibold'>Are you sure you want to proceed?</p>
+              <p className='font-semibold text-black'>Are you sure you want to proceed?</p>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel

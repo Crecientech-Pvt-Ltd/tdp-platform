@@ -1,12 +1,12 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { envURL } from '@/lib/utils';
-import { ArrowLeft, CheckCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeftIcon, CheckCircleIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { envURL } from '@/lib/utils';
 
 interface Feedback {
   id: string;
@@ -49,22 +49,22 @@ export default function ViewFeedbacks() {
     setLoading(true);
     setError(null);
     fetchFeedbacks();
-  }, [filter, page, PAGE_SIZE]);
+  }, [filter, page]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className='w-full max-w-5xl my-8 container mx-auto'>
-      <div className='flex items-center justify-between mb-6 mx-8'>
+    <div className='container mx-auto my-8 w-full max-w-5xl'>
+      <div className='mx-8 mb-6 flex items-center justify-between'>
         <Link href='/feedback'>
           <Button variant='outline' className='flex items-center gap-2'>
-            <ArrowLeft size={16} />
+            <ArrowLeftIcon size={16} />
             Back to Feedback Form
           </Button>
         </Link>
       </div>
 
-      <div className='flex gap-2 mb-4 mx-8'>
+      <div className='mx-8 mb-4 flex gap-2'>
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           onClick={() => {
@@ -94,38 +94,39 @@ export default function ViewFeedbacks() {
         </Button>
       </div>
 
-      <Card className='shadow-md mx-8'>
+      <Card className='mx-8 shadow-md'>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold'>All Feedbacks</CardTitle>
+          <CardTitle className='font-bold text-2xl'>All Feedbacks</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className='mb-4 p-4 border rounded-lg'>
-                <div className='flex justify-between items-start mb-3'>
+              // biome-ignore lint/suspicious/noArrayIndexKey: had to use for skeleton
+              <div key={index} className='mb-4 rounded-lg border p-4'>
+                <div className='mb-3 flex items-start justify-between'>
                   <Skeleton className='h-6 w-32' />
                   <Skeleton className='h-6 w-24' />
                 </div>
-                <Skeleton className='h-4 w-full mb-2' />
-                <Skeleton className='h-4 w-3/4 mb-4' />
-                <Skeleton className='h-16 w-full mb-2' />
+                <Skeleton className='mb-2 h-4 w-full' />
+                <Skeleton className='mb-4 h-4 w-3/4' />
+                <Skeleton className='mb-2 h-16 w-full' />
                 <div className='flex justify-end'>
                   <Skeleton className='h-9 w-24' />
                 </div>
               </div>
             ))
           ) : error ? (
-            <div className='text-center py-8'>
+            <div className='py-8 text-center'>
               <p className='text-red-500'>{error}</p>
             </div>
           ) : feedbacks.length === 0 ? (
-            <div className='text-center py-8'>
+            <div className='py-8 text-center'>
               <p className='text-muted-foreground'>No feedbacks found.</p>
             </div>
           ) : (
             feedbacks.map(feedback => (
-              <div key={feedback.id} className='mb-4 p-4 shadow-md border rounded-lg'>
-                <div className='flex justify-between items-start mb-3'>
+              <div key={feedback.id} className='mb-4 rounded-lg border p-4 shadow-md'>
+                <div className='mb-3 flex items-start justify-between'>
                   <div>
                     <p className='font-medium'>
                       <b>Name:</b> {feedback.name}
@@ -136,7 +137,7 @@ export default function ViewFeedbacks() {
                         {feedback.email}
                       </a>
                     </p>
-                    <p className='text-xs text-muted-foreground'>
+                    <p className='text-muted-foreground text-xs'>
                       Created: {new Date(feedback.createdAt).toLocaleString()}
                     </p>
                   </div>
@@ -151,29 +152,29 @@ export default function ViewFeedbacks() {
                     >
                       {feedback.status === 'pending' ? (
                         <span className='flex items-center gap-1'>
-                          <Clock size={14} />
+                          <ClockIcon size={14} />
                           Pending
                         </span>
                       ) : (
                         <span className='flex items-center gap-1'>
-                          <CheckCircle size={14} />
+                          <CheckCircleIcon size={14} />
                           Taken
                         </span>
                       )}
                     </Badge>
-                    <span className='text-xs text-muted-foreground mt-2'>
+                    <span className='mt-2 text-muted-foreground text-xs'>
                       <b>ID:</b> {feedback.id}
                     </span>
                   </div>
                 </div>
-                <div className='bg-gray-50 shadow shadow-primary dark:bg-gray-900 p-3 rounded-md mb-3 whitespace-pre-wrap'>
+                <div className='mb-3 whitespace-pre-wrap rounded-md bg-gray-50 p-3 shadow shadow-primary dark:bg-gray-900'>
                   {feedback.text}
                 </div>
               </div>
             ))
           )}
           {totalPages > 1 && (
-            <div className='flex justify-center items-center gap-4 mt-6'>
+            <div className='mt-6 flex items-center justify-center gap-4'>
               <Button
                 variant='outline'
                 size='sm'
@@ -181,7 +182,7 @@ export default function ViewFeedbacks() {
                 onClick={() => setPage(page - 1)}
                 className='flex items-center gap-1'
               >
-                <ChevronLeft size={16} />
+                <ChevronLeftIcon size={16} />
                 Prev
               </Button>
               <span className='text-sm'>
@@ -195,7 +196,7 @@ export default function ViewFeedbacks() {
                 className='flex items-center gap-1'
               >
                 Next
-                <ChevronRight size={16} />
+                <ChevronRightIcon size={16} />
               </Button>
             </div>
           )}

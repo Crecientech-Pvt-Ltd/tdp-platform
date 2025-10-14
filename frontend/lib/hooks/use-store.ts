@@ -1,7 +1,7 @@
 import { create } from 'zustand';
+import { OPENTARGETS_PROPERTY_MAPPING } from '../data';
 import type { GraphStore } from '../interface';
 import { initRadioOptions } from '../utils';
-import { OPENTARGETS_PROPERTY_MAPPING } from '../data';
 
 export const useStore = create<GraphStore>(set => ({
   projectTitle: 'Untitled',

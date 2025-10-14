@@ -1,8 +1,9 @@
-import React from 'react';
+import { InfoIcon } from 'lucide-react';
+import type React from 'react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multiselect';
 import { VirtualizedCombobox } from '@/components/VirtualizedCombobox';
-import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
 import type { ThresholdControls } from './types';
 
 interface VolcanoPlotControlsProps {
@@ -37,18 +38,18 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
 
   return (
     <div className='mb-1'>
-      <div className='bg-gray-50 rounded-lg p-2 border'>
-        <div className='flex flex-wrap items-center gap-2 sm:gap-3 text-sm'>
+      <div className='rounded-lg border bg-gray-50 p-2'>
+        <div className='flex flex-wrap items-center gap-2 text-sm sm:gap-3'>
           {showDropdown && (
-            <div className='flex items-center gap-1 sm:gap-2 min-w-0'>
-              <label className='text-xs font-medium text-gray-700 whitespace-nowrap'>Contrasts:</label>
-              <div className='w-40 sm:w-52 md:w-64 lg:w-80 xl:w-96 relative z-10 min-w-0'>
+            <div className='flex min-w-0 items-center gap-1 sm:gap-2'>
+              <Label className='whitespace-nowrap font-medium text-gray-700 text-xs'>Contrasts:</Label>
+              <div className='relative z-10 w-40 min-w-0 sm:w-52 md:w-64 lg:w-80 xl:w-96'>
                 <MultiSelect
                   options={multiSelectOptions}
                   selectedValues={selectedContrasts}
                   onChange={onContrastChange}
                   placeholder='Select...'
-                  className='text-xs w-full'
+                  className='w-full text-xs'
                 />
               </div>
             </div>
@@ -56,32 +57,32 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
 
           <div className='flex items-center gap-2 sm:gap-3'>
             <div className='flex items-center gap-1'>
-              <label className='text-xs font-medium text-gray-700 whitespace-nowrap'>X:</label>
+              <Label className='whitespace-nowrap font-medium text-gray-700 text-xs'>X:</Label>
               <input
                 type='number'
                 value={thresholds.xInput}
                 onChange={e => thresholds.updateXThreshold(e.target.value)}
                 onBlur={thresholds.resetXThreshold}
-                className='border px-1 py-0.5 w-12 sm:w-16 text-center rounded text-xs'
+                className='w-12 rounded border px-1 py-0.5 text-center text-xs sm:w-16'
               />
             </div>
 
             <div className='flex items-center gap-1'>
-              <label className='text-xs font-medium text-gray-700 whitespace-nowrap'>Y:</label>
+              <Label className='whitespace-nowrap font-medium text-gray-700 text-xs'>Y:</Label>
               <input
                 type='number'
                 value={thresholds.yInput}
                 onChange={e => thresholds.updateYThreshold(e.target.value)}
                 onBlur={thresholds.resetYThreshold}
-                className='border px-1 py-0.5 w-12 sm:w-16 text-center rounded text-xs'
+                className='w-12 rounded border px-1 py-0.5 text-center text-xs sm:w-16'
               />
             </div>
           </div>
 
           {availableGenes.length > 0 && (
-            <div className='flex items-center gap-1 sm:gap-2 min-w-0 flex-1 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg'>
-              <label className='text-xs font-medium text-gray-700 whitespace-nowrap'>Genes:</label>
-              <div className='w-full relative z-10 min-w-0'>
+            <div className='flex min-w-0 max-w-xs flex-1 items-center gap-1 sm:max-w-sm sm:gap-2 md:max-w-md lg:max-w-lg'>
+              <Label className='whitespace-nowrap font-medium text-gray-700 text-xs'>Genes:</Label>
+              <div className='relative z-10 w-full min-w-0'>
                 <VirtualizedCombobox
                   data={availableGenes}
                   value={selectedGenes}
@@ -91,7 +92,7 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
                   showSelectedAsChip={true}
                   showSelectAll={false}
                   showClearAll={true}
-                  className='text-xs w-full'
+                  className='w-full text-xs'
                   width='100%'
                 />
               </div>
@@ -103,10 +104,10 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
               onClick={onShowSettings}
               variant='outline'
               size='sm'
-              className='flex items-center gap-1 h-6 sm:h-7 px-2'
+              className='flex h-6 items-center gap-1 px-2 sm:h-7'
             >
-              <Info className='h-3 w-3' />
-              <span className='text-xs hidden sm:inline'>Settings</span>
+              <InfoIcon className='h-3 w-3' />
+              <span className='hidden text-xs sm:inline'>Settings</span>
             </Button>
           </div>
         </div>

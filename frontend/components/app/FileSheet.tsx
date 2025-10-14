@@ -1,5 +1,12 @@
 'use client';
 
+import type { CheckedState } from '@radix-ui/react-checkbox';
+import { Trash2Icon, UploadIcon } from 'lucide-react';
+import Link from 'next/link';
+import Papa from 'papaparse';
+import React, { useId } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,14 +33,7 @@ import {
 import { DISEASE_DEPENDENT_PROPERTIES, DISEASE_INDEPENDENT_PROPERTIES } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { RadioOptions, UniversalData } from '@/lib/interface';
-import { P_VALUE_REGEX, formatBytes, initRadioOptions, openDB } from '@/lib/utils';
-import type { CheckedState } from '@radix-ui/react-checkbox';
-import { Trash2, Upload } from 'lucide-react';
-import { Link } from 'next-view-transitions';
-import Papa from 'papaparse';
-import React from 'react';
-import { useDropzone } from 'react-dropzone';
-import { toast } from 'sonner';
+import { formatBytes, initRadioOptions, openDB, P_VALUE_REGEX } from '@/lib/utils';
 
 export function FileSheet() {
   const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
@@ -268,13 +268,15 @@ export function FileSheet() {
     });
   };
 
+  const doNotShowAgainId = useId();
+
   return (
     <div>
-      <div className='flex flex-col lg:flex-row gap-2 justify-between'>
+      <div className='flex flex-col justify-between gap-2 lg:flex-row'>
         <Sheet>
           <SheetTrigger asChild>
             <Button size='sm' className='w-full'>
-              <Upload className='h-3 w-3 mr-1' />
+              <UploadIcon className='mr-1 h-3 w-3' />
               Upload Files
             </Button>
           </SheetTrigger>
@@ -296,7 +298,7 @@ export function FileSheet() {
             </SheetHeader>
             <div className='py-4'>
               <div
-                className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center mb-4 cursor-pointer'
+                className='mb-4 cursor-pointer rounded-lg border-2 border-gray-300 border-dashed p-4 text-center'
                 {...getRootProps()}
               >
                 <input {...getInputProps()} />
@@ -320,11 +322,11 @@ export function FileSheet() {
                     <AlertDialogDescription className='text-black'>
                       This action cannot be undone. This will permanently delete all the files.
                     </AlertDialogDescription>
-                    <div className='flex items-center space-x-2 mt-4'>
-                      <Checkbox id='terms' onCheckedChange={handleConfirmDialogChange} />
+                    <div className='mt-4 flex items-center space-x-2'>
+                      <Checkbox id={doNotShowAgainId} onCheckedChange={handleConfirmDialogChange} />
                       <Label
-                        htmlFor='terms'
-                        className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+                        htmlFor={doNotShowAgainId}
+                        className='font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
                       >
                         Do not show again
                       </Label>
@@ -340,10 +342,10 @@ export function FileSheet() {
                 {uploadedFiles.map(file => (
                   <div
                     key={file.name}
-                    className='flex justify-between items-center mb-2 p-2 bg-white border shadow rounded'
+                    className='mb-2 flex items-center justify-between rounded border bg-white p-2 shadow'
                   >
                     <div>
-                      <div className='text-sm font-medium flex gap-4'>
+                      <div className='flex gap-4 font-medium text-sm'>
                         <Checkbox
                           id={file.name}
                           checked={checkedOptions[file.name] || false}
@@ -351,12 +353,12 @@ export function FileSheet() {
                         />
                         {file.name}
                       </div>
-                      <span className='text-xs text-gray-500 ml-8'>
+                      <span className='ml-8 text-gray-500 text-xs'>
                         Date: {new Date(file.lastModified).toLocaleString()} | Size: {formatBytes(file.size)}
                       </span>
                     </div>
                     <Button variant='ghost' size='icon' onClick={() => removeFile(file.name)}>
-                      <Trash2 className='h-4 w-4' />
+                      <Trash2Icon className='h-4 w-4' />
                     </Button>
                   </div>
                 ))}
@@ -375,7 +377,7 @@ export function FileSheet() {
           Reset Uploads
         </Button>
       </div>
-      <div className='text-xs text-primary italic mt-2'>
+      <div className='mt-2 text-primary text-xs italic'>
         <b>NOTE:</b> The uploaded files will be stored in your browser&apos;s local storage and is not shared with
         anyone.
       </div>

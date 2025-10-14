@@ -176,8 +176,7 @@ async function promptForDetails(answer) {
           ? file
           : `file:///${file.replace(/^\.[\\/]+/, "")}`
       }' AS line
-			CALL {
-				WITH line
+			CALL (line) {
 				WITH line, [alias IN split(line.\`Alias symbols\`, ",") | toUpper(trim(alias))] AS aliases
 				WHERE line.\`Ensembl gene ID\` IS NOT NULL OR line.\`Ensembl ID(supplied by Ensembl)\` IS NOT NULL
 				MERGE (g:Gene { ID: COALESCE(line.\`Ensembl ID(supplied by Ensembl)\`, line.\`Ensembl gene ID\`) })
@@ -205,8 +204,7 @@ async function promptForDetails(answer) {
 
     const deleteQuery = `
 			MATCH (g:Gene) WHERE g.ID IN $geneIDs 
-			CALL {
-				WITH g
+			CALL (g) {
 				DETACH DELETE g
 			} IN TRANSACTIONS;
 		`;

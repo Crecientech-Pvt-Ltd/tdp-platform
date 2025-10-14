@@ -1,9 +1,10 @@
 'use client';
 
+import { ChevronsUpDownIcon, InfoIcon } from 'lucide-react';
+import { useId } from 'react';
 import { forceLayoutOptions } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { ForceSettings } from '@/lib/interface';
-import { ChevronsUpDown, Info } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { Input } from '../ui/input';
@@ -32,31 +33,34 @@ export function NetworkLayout() {
       },
     }));
   };
+
+  const networkAnimationControlId = useId();
+
   return (
     <Collapsible defaultOpen className='text-xs'>
-      <div className='flex items-center justify-between w-full p-2 bg-primary'>
+      <div className='flex w-full items-center justify-between bg-primary p-2'>
         <p className='font-bold text-white'>Network Layout</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
-            <ChevronsUpDown size={15} />
+          <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+            <ChevronsUpDownIcon size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
       <CollapsibleContent className='flex flex-col gap-2 p-1'>
         <div className='flex items-center gap-2 p-3'>
-          <Label htmlFor='network-animation-control' className='text-xs font-semibold'>
+          <Label htmlFor={networkAnimationControlId} className='font-semibold text-xs'>
             Animation
           </Label>
-          <Switch id='network-animation-control' defaultChecked onCheckedChange={handleGraphAnimation} />
+          <Switch id={networkAnimationControlId} defaultChecked onCheckedChange={handleGraphAnimation} />
         </div>
         {forceLayoutOptions.map(option => (
-          <div key={option.key} className='flex space-x-2 items-center px-3 pb-2'>
-            <div className='flex flex-col space-y-1 w-full'>
-              <Label htmlFor={option.key} className='text-xs font-semibold flex gap-1 items-center'>
+          <div key={option.key} className='flex items-center space-x-2 px-3 pb-2'>
+            <div className='flex w-full flex-col space-y-1'>
+              <Label htmlFor={option.key} className='flex items-center gap-1 font-semibold text-xs'>
                 {option.label}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className='shrink-0' size={12} />
+                    <InfoIcon className='shrink-0' size={12} />
                   </TooltipTrigger>
                   <TooltipContent className='max-w-60 text-white' align='end'>
                     {option.tooltip}

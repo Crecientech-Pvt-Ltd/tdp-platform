@@ -1,8 +1,8 @@
-import type { PopUpDataTableProps } from '@/lib/interface';
-import { cn } from '@/lib/utils';
-import { Download } from 'lucide-react';
+import { DownloadIcon } from 'lucide-react';
 import { unparse } from 'papaparse';
 import React from 'react';
+import type { PopUpDataTableProps } from '@/lib/interface';
+import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { DataTable } from './ui/data-table';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from './ui/dialog';
@@ -34,6 +34,7 @@ export default function PopUpDataTable<E, F>({
     element.remove();
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   React.useEffect(() => {
     // esc key to close the dialog
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -41,16 +42,15 @@ export default function PopUpDataTable<E, F>({
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Dialog open={open}>
-      <DialogContent className='max-w-7xl max-h-[90vh] min-h-[60vh] flex flex-col'>
+      <DialogContent className='flex max-h-[90vh] min-h-[60vh] max-w-7xl flex-col'>
         <DialogTitle>{dialogTitle}</DialogTitle>
         <div className='flex-grow overflow-y-scroll'>
           <Tabs defaultValue={tabsTitle?.[0]}>
-            <TabsList className={cn('w-full grid', `grid-cols-${tabsTitle?.length}`)}>
+            <TabsList className={cn('grid w-full', `grid-cols-${tabsTitle?.length}`)}>
               {tabsTitle?.map(title => (
                 <TabsTrigger key={title} value={title}>
                   {title}
@@ -75,11 +75,11 @@ export default function PopUpDataTable<E, F>({
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter className='gap-2 w-full'>
+        <DialogFooter className='w-full gap-2'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size={'icon'} variant={'oldtoolcolor'}>
-                <Download size={20} />
+                <DownloadIcon size={20} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

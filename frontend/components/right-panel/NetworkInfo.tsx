@@ -1,10 +1,10 @@
 'use client';
 
+import React, { useEffect } from 'react';
 import { columnGseaResults, columnSelectedNodes } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { Gsea } from '@/lib/interface';
 import { envURL } from '@/lib/utils';
-import React, { useEffect } from 'react';
 import PopUpDataTable from '../PopUpDataTable';
 import { Button } from '../ui/button';
 
@@ -35,7 +35,7 @@ export function NetworkInfo() {
 
   return (
     <div className=''>
-      <p className='font-bold p-2 py-3 bg-primary text-white'>Network Info</p>
+      <p className='bg-primary p-2 py-3 font-bold text-white'>Network Info</p>
       <div className='flex justify-between p-4'>
         <div className='flex flex-col gap-1'>
           <span>Total Nodes: {totalNodes}</span>

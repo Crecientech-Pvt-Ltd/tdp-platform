@@ -1,30 +1,30 @@
+import Image from 'next/image';
+import Link from 'next/link';
 import { links } from '@/lib/data';
 import { getLatestVersionFromChangelog } from '@/lib/getChangelogVersion';
 import logo from '@/public/image/logo.png';
-import { Link } from 'next-view-transitions';
-import Image from 'next/image';
 import { buttonVariants } from './ui/button';
 
 export default function Navbar() {
   const version = getLatestVersionFromChangelog();
 
   return (
-    <header className='relative text-white bg-teal-600'>
+    <header className='relative bg-teal-600 text-white'>
       <div>
-        <div className='absolute inset-0 bg-black/20 z-10' />
-        <div className='relative z-10 mx-auto flex items-center px-8 p-4'>
-          <div className='w-1/2 flex items-center justify-between'>
+        <div className='absolute inset-0 z-10 bg-black/20' />
+        <div className='relative z-10 mx-auto flex items-center p-4 px-8'>
+          <div className='flex w-1/2 items-center justify-between'>
             <Link href='/' className='flex items-center gap-2'>
               <Image src={logo} alt='TDP logo' className='w-14' />
-              <h1 className='text-xl md:text-4xl font-semibold flex items-end flex-wrap'>
+              <h1 className='flex flex-wrap items-end font-semibold text-xl md:text-4xl'>
                 Target Discovery Platform (TDP)
               </h1>
             </Link>
-            <Link href='/docs/CHANGELOG' className='text-xs self-end font-semibold'>
+            <Link href='/docs/CHANGELOG' className='self-end font-semibold text-xs'>
               Version: {version ?? 'unknown'}
             </Link>
           </div>
-          <nav className='hidden md:flex w-1/2 items-center justify-center space-x-4'>
+          <nav className='hidden w-1/2 items-center justify-center space-x-4 md:flex'>
             {links.map(link => (
               <Link
                 key={link.text}

@@ -1,13 +1,13 @@
 'use client';
 
+import { PaintbrushIcon } from 'lucide-react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useStore } from '@/lib/hooks';
 import type { GraphStore } from '@/lib/interface';
 import { cn } from '@/lib/utils';
-import { Paintbrush } from 'lucide-react';
-import React from 'react';
 
 export function ColorPicker({
   color,
@@ -36,37 +36,37 @@ export function ColorPicker({
         <Button
           variant={'oldtoolcolor'}
           className={cn(
-            'w-[220px] border justify-start text-left font-normal',
+            'w-[220px] justify-start border text-left font-normal',
             !color && 'text-muted-foreground',
             className,
           )}
         >
-          <div className='w-full flex items-center gap-2'>
+          <div className='flex w-full items-center gap-2'>
             {color ? (
-              <div className='h-4 w-4 rounded !bg-center !bg-cover transition-all' style={{ background: color }} />
+              <div className='!bg-center !bg-cover h-4 w-4 rounded transition-all' style={{ background: color }} />
             ) : (
-              <Paintbrush className='h-4 w-4' />
+              <PaintbrushIcon className='h-4 w-4' />
             )}
-            <span className='truncate flex-1'>{color ? color : 'Pick a color'}</span>
+            <span className='flex-1 truncate'>{color ? color : 'Pick a color'}</span>
           </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-36 md:w-64' align='end'>
         <div className='flex flex-wrap'>
           {solids.map(s => (
-            <div
+            <button
+              type='button'
               key={s}
               style={{ background: s }}
               onClick={() => handleNodeColorChange(s, property)}
-              className='rounded-md h-6 w-6 cursor-pointer hover:scale-105'
+              className='h-6 w-6 cursor-pointer rounded-md hover:scale-105'
             />
           ))}
         </div>
 
         <Input
-          id='custom'
           value={inputValue}
-          className='col-span-2 h-8 mt-4'
+          className='col-span-2 mt-4 h-8'
           onChange={e => setInputValue(e.target.value)}
           onKeyDown={e => handleNodeColorChange(e, property)}
         />

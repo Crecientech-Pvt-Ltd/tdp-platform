@@ -26,7 +26,7 @@ const RadioGroupItem = React.forwardRef<
       )}
       {...props}
     >
-      <RadioGroupPrimitive.Indicator className='absolute inset-0 h-full w-full bg-primary border border-secondary rounded-full' />
+      <RadioGroupPrimitive.Indicator className='absolute inset-0 h-full w-full rounded-full border border-secondary bg-primary' />
     </RadioGroupPrimitive.Item>
   );
 });

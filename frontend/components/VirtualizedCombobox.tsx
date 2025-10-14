@@ -1,11 +1,11 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { CheckIcon, ChevronsUpDownIcon, InfoIcon, ListCheckIcon, XIcon } from 'lucide-react';
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { GenePropertyMetadata } from '@/lib/interface';
 import { cn, getProperty } from '@/lib/utils';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { CheckIcon, ChevronsUpDownIcon, InfoIcon, ListCheckIcon, XIcon } from 'lucide-react';
-import * as React from 'react';
 import { Badge } from './ui/badge';
 import { Spinner } from './ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
@@ -64,7 +64,7 @@ const VirtualizedCommand = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className='bg-transparent  hover:bg-muted cursor-pointer p-2 rounded border shadow'
+                className='cursor-pointer rounded border bg-transparent p-2 shadow hover:bg-muted'
                 onClick={() => onSelectOption?.(filteredOptions.slice(0, 50).map(getProperty))}
               >
                 <ListCheckIcon className='h-4 w-4 text-black' />
@@ -77,7 +77,7 @@ const VirtualizedCommand = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className='bg-transparent hover:bg-muted cursor-pointer p-2 rounded border shadow ml-1 text-black text-xs'
+                className='ml-1 cursor-pointer rounded border bg-transparent p-2 text-black text-xs shadow hover:bg-muted'
                 onClick={() => onSelectOption?.([])}
               >
                 Clear All
@@ -102,7 +102,7 @@ const VirtualizedCommand = ({
               const value = getProperty(option);
               return (
                 <CommandItem
-                  className='absolute flex justify-between w-full overflow-visible'
+                  className='absolute flex w-full justify-between overflow-visible'
                   style={{
                     transform: `translateY(${virtualOption.start}px)`,
                   }}
@@ -110,7 +110,7 @@ const VirtualizedCommand = ({
                   value={value}
                   onSelect={onSelectOption}
                 >
-                  <div className='flex item-center'>
+                  <div className='item-center flex'>
                     <CheckIcon
                       className={cn(
                         'mr-2 h-4 w-4',
@@ -124,7 +124,7 @@ const VirtualizedCommand = ({
                   {typeof option !== 'string' && option.description && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoIcon className='h-4 w-4 ml-2 cursor-pointer' />
+                        <InfoIcon className='ml-2 h-4 w-4 cursor-pointer' />
                       </TooltipTrigger>
                       <TooltipContent side='left' align='start' className='max-w-48'>
                         {option.description}
@@ -179,23 +179,24 @@ export function VirtualizedCombobox({
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className={cn('w-[200px] justify-between text-ellipsis text-wrap break-words h-9', className)}
+          className={cn('h-9 w-[200px] justify-between text-ellipsis text-wrap break-words', className)}
         >
           <span className='truncate'>
             {multiselect && value instanceof Set ? (
               value.size ? (
                 showSelectedAsChip ? (
-                  <div className='relative flex gap-1 overflow-x-auto max-w-full'>
+                  <div className='relative flex max-w-full gap-1 overflow-x-auto'>
                     {Array.from(value).map(option => (
                       <Badge
                         key={option}
                         className={cn(
                           'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
                           'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
-                          'flex-shrink-0 text-white'
+                          'flex-shrink-0 text-white',
                         )}
                       >
                         {option}
+                        {/** biome-ignore lint/a11y/noStaticElementInteractions: button can't be inside button (Badge component is button) */}
                         <span
                           className={cn(
                             'ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2',
@@ -211,12 +212,10 @@ export function VirtualizedCombobox({
                           }}
                           onClick={() => {
                             if (value instanceof Set) {
-                              const newSet = new Set(value);
-                              newSet.delete(option);
-                              onChange(newSet);
+                              value.delete(option);
+                              onChange(value);
                             }
                           }}
-                          aria-label={`Remove ${option}`}
                         >
                           <XIcon className='h-3 w-3 text-white hover:text-gray-200' />
                         </span>

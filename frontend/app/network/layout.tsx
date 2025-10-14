@@ -1,18 +1,18 @@
 'use client';
 
+import { ChevronLeftIcon, ChevronRightIcon, FileTextIcon, HomeIcon } from 'lucide-react';
+import Link from 'next/link';
+import React, { useEffect } from 'react';
 import { AppBar } from '@/components/app';
 import { OpenTargetsHeatmap } from '@/components/heatmap';
 import { LeftSideBar } from '@/components/left-panel';
 import { RightSideBar } from '@/components/right-panel';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronLeft, ChevronRight, FileTextIcon, HomeIcon } from 'lucide-react';
-import React, { useEffect } from 'react';
-import { Link } from 'next-view-transitions';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useStore } from '@/lib/hooks';
+import { cn } from '@/lib/utils';
 
 export default function NetworkLayoutPage({ children }: { children: React.ReactNode }) {
   const activeTab = useStore(state => state.activeTab);
@@ -27,13 +27,13 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   }, [activeTab]);
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className='h-screen flex flex-col'>
-      <div className='bg-primary h-12 flex items-center justify-between p-2'>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className='flex h-screen flex-col'>
+      <div className='flex h-12 items-center justify-between bg-primary p-2'>
         <Button variant='oldtool' size='icon' className='h-full' onClick={() => setLeftSidebar(!leftSidebar)}>
-          {leftSidebar ? <ChevronLeft className='h-4 w-4' /> : <ChevronRight className='h-4 w-4' />}
+          {leftSidebar ? <ChevronLeftIcon className='h-4 w-4' /> : <ChevronRightIcon className='h-4 w-4' />}
         </Button>
         <AppBar />
-        <TabsList className='flex items-center gap-4 h-8 w-1/2'>
+        <TabsList className='flex h-8 w-1/2 items-center gap-4'>
           <TabsTrigger className='w-full' value='Network'>
             Network Visualization
           </TabsTrigger>
@@ -44,20 +44,20 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
         <div className='flex items-center gap-4'>
           <Link
             href={'/'}
-            className='inline-flex p-2 items-center h-full transition-colors text-xs border-none rounded-sm hover:bg-opacity-20 hover:text-black hover:underline'
+            className='inline-flex h-full items-center rounded-sm border-none p-2 text-xs transition-colors hover:bg-opacity-20 hover:text-black hover:underline'
           >
-            <HomeIcon className='h-3 w-3 mr-1' /> Home
+            <HomeIcon className='mr-1 h-3 w-3' /> Home
           </Link>
           <Link
             href={'/docs'}
             target='_blank'
-            className='inline-flex p-2 items-center h-full transition-colors text-xs border-none rounded-sm hover:bg-opacity-20 hover:text-black hover:underline'
+            className='inline-flex h-full items-center rounded-sm border-none p-2 text-xs transition-colors hover:bg-opacity-20 hover:text-black hover:underline'
           >
-            <FileTextIcon className='h-3 w-3 mr-1' /> Docs
+            <FileTextIcon className='mr-1 h-3 w-3' /> Docs
           </Link>
         </div>
         <Button variant='oldtool' size='icon' className='h-full' onClick={() => setRightSidebar(!rightSidebar)}>
-          {rightSidebar ? <ChevronRight className='h-4 w-4' /> : <ChevronLeft className='h-4 w-4' />}
+          {rightSidebar ? <ChevronRightIcon className='h-4 w-4' /> : <ChevronLeftIcon className='h-4 w-4' />}
         </Button>
       </div>
 
@@ -66,15 +66,15 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           <LeftSideBar />
         </ResizablePanel>
         <ResizableHandle withHandle className={leftSidebar ? 'flex' : 'hidden'} />
-        <ResizablePanel defaultSize={68} className='bg-white h-full w-full'>
+        <ResizablePanel defaultSize={68} className='h-full w-full bg-white'>
           <TabsContent
             forceMount
             value='Network'
-            className={cn('h-full mt-0', activeTab === 'Network' ? 'visible' : 'invisible fixed')}
+            className={cn('mt-0 h-full', activeTab === 'Network' ? 'visible' : 'invisible fixed')}
           >
             {children}
           </TabsContent>
-          <TabsContent value='Heatmap' className='h-full mt-0'>
+          <TabsContent value='Heatmap' className='mt-0 h-full'>
             <ScrollArea className='h-full'>
               <OpenTargetsHeatmap />
             </ScrollArea>

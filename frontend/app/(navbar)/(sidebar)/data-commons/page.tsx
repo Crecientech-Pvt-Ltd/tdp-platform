@@ -1,14 +1,14 @@
 'use client';
+import { LockKeyholeIcon } from 'lucide-react';
+import Image from 'next/image';
 import React from 'react';
+import FileUploadPopup from '@/components/data-commons/common/FileUploadPopup';
+import PasswordPopup from '@/components/data-commons/common/PasswordPopup';
+import FileSelectionPopup from '@/components/data-commons/common/PopUp';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import FileSelectionPopup from '@/components/data-commons/common/PopUp';
-import PasswordPopup from '@/components/data-commons/common/PasswordPopup';
 import { Spinner } from '@/components/ui/spinner';
-import { LockKeyholeIcon } from 'lucide-react';
-import FileUploadPopup from '@/components/data-commons/common/FileUploadPopup';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -162,25 +162,29 @@ export default function DataCommonsPage() {
   const getImageUrl = (filename: string) =>
     `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`;
 
+  const groupId = React.useId();
+  const programId = React.useId();
+  const projectId = React.useId();
+
   return (
     <div
-      className='w-full border rounded-lg shadow-md'
+      className='w-full rounded-lg border shadow-md'
       style={{ height: '85vh', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
     >
       <h2
         style={{
           background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
         }}
-        className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6 flex-shrink-0'
+        className='mb-6 flex-shrink-0 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
       >
         A Centralized Data Commons of Multi-Omics Data for Exploratory Research
       </h2>
 
       <div className='flex-shrink-0'>
         <form className='px-8 pb-4'>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
             <div>
-              <Label htmlFor='group'>Select Group</Label>
+              <Label htmlFor={groupId}>Select Group</Label>
               <Select
                 value={selectedGroup}
                 onValueChange={val => {
@@ -194,14 +198,14 @@ export default function DataCommonsPage() {
                 }}
                 disabled={structureLoading}
               >
-                <SelectTrigger id='group'>
+                <SelectTrigger id={groupId}>
                   <SelectValue placeholder={structureLoading ? 'Loading groups...' : 'Select group'} />
                 </SelectTrigger>
                 <SelectContent>
                   {structureLoading ? (
                     <div className='flex items-center justify-center py-4'>
                       <Spinner />
-                      <span className='ml-2 text-sm text-gray-500'>Loading groups...</span>
+                      <span className='ml-2 text-gray-500 text-sm'>Loading groups...</span>
                     </div>
                   ) : (
                     structure
@@ -217,7 +221,7 @@ export default function DataCommonsPage() {
             </div>
 
             <div>
-              <Label htmlFor='program'>Select Program</Label>
+              <Label htmlFor={programId}>Select Program</Label>
               <Select
                 value={selectedProgram}
                 onValueChange={val => {
@@ -230,17 +234,17 @@ export default function DataCommonsPage() {
                 }}
                 disabled={structureLoading || !selectedGroup}
               >
-                <SelectTrigger id='program'>
+                <SelectTrigger id={programId}>
                   <SelectValue placeholder={structureLoading ? 'Loading...' : 'Select program'} />
                 </SelectTrigger>
                 <SelectContent>
                   {structureLoading ? (
                     <div className='flex items-center justify-center py-4'>
                       <Spinner />
-                      <span className='ml-2 text-sm text-gray-500'>Loading...</span>
+                      <span className='ml-2 text-gray-500 text-sm'>Loading...</span>
                     </div>
                   ) : programs.length === 0 ? (
-                    <div className='py-4 text-center text-sm text-gray-500'>
+                    <div className='py-4 text-center text-gray-500 text-sm'>
                       {selectedGroup ? 'No programs available' : 'Select a group first'}
                     </div>
                   ) : (
@@ -255,7 +259,7 @@ export default function DataCommonsPage() {
             </div>
 
             <div>
-              <Label htmlFor='project'>Select Project</Label>
+              <Label htmlFor={projectId}>Select Project</Label>
               <Select
                 value={selectedProject}
                 onValueChange={val => {
@@ -267,17 +271,17 @@ export default function DataCommonsPage() {
                 }}
                 disabled={structureLoading || !selectedProgram}
               >
-                <SelectTrigger id='project'>
+                <SelectTrigger id={projectId}>
                   <SelectValue placeholder={structureLoading ? 'Loading...' : 'Select project'} />
                 </SelectTrigger>
                 <SelectContent>
                   {structureLoading ? (
                     <div className='flex items-center justify-center py-4'>
                       <Spinner />
-                      <span className='ml-2 text-sm text-gray-500'>Loading...</span>
+                      <span className='ml-2 text-gray-500 text-sm'>Loading...</span>
                     </div>
                   ) : projects.length === 0 ? (
-                    <div className='py-4 text-center text-sm text-gray-500'>
+                    <div className='py-4 text-center text-gray-500 text-sm'>
                       {selectedProgram ? 'No projects available' : 'Select a program first'}
                     </div>
                   ) : (
@@ -299,7 +303,7 @@ export default function DataCommonsPage() {
         </form>
 
         {selectedGroup && selectedProgram && selectedProject && (
-          <div className='px-8 pb-4'>
+          <div className='space-y-2 px-8 pb-4'>
             <Button
               type='button'
               className='w-full'
@@ -310,7 +314,7 @@ export default function DataCommonsPage() {
             >
               Go to Plots
             </Button>
-            <div className='text-center text-sm text-muted-foreground'>or</div>
+            <div className='text-center text-muted-foreground text-sm'>or</div>
             <Button type='button' variant='outline' className='w-full' onClick={() => setShowFileUploadPopup(true)}>
               Upload Your Own Files
             </Button>
@@ -327,9 +331,9 @@ export default function DataCommonsPage() {
         )}
       </div>
 
-      <div className='px-8 pb-8 flex-1 min-h-0'>
+      <div className='min-h-0 flex-1 px-8 pb-8'>
         <div
-          className='mt-2 flex flex-col items-center justify-center h-full'
+          className='mt-2 flex h-full flex-col items-center justify-center'
           style={{
             maxWidth: '100%',
             width: '100%',
@@ -338,7 +342,7 @@ export default function DataCommonsPage() {
         >
           <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             {(loading || imageLoading) && (
-              <div className='absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10'>
+              <div className='absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/80'>
                 <Spinner />
                 <p className='mt-4 text-gray-500'>{loading ? 'Loading project description...' : 'Loading image...'}</p>
               </div>
@@ -372,6 +376,7 @@ export default function DataCommonsPage() {
                 {descriptionFiles.length > 1 && (
                   <>
                     <button
+                      type='button'
                       aria-label='Previous'
                       onClick={handlePrev}
                       style={{
@@ -392,6 +397,7 @@ export default function DataCommonsPage() {
                       &#8592;
                     </button>
                     <button
+                      type='button'
                       aria-label='Next'
                       onClick={handleNext}
                       style={{
@@ -421,9 +427,11 @@ export default function DataCommonsPage() {
                         gap: 8,
                       }}
                     >
-                      {descriptionFiles.map((_, idx) => (
-                        <span
-                          key={idx}
+                      {descriptionFiles.map((a, idx) => (
+                        <button
+                          key={a}
+                          type='button'
+                          aria-label={`Go to slide ${idx + 1}`}
                           style={{
                             display: 'inline-block',
                             width: 10,
@@ -431,6 +439,7 @@ export default function DataCommonsPage() {
                             borderRadius: '50%',
                             background: idx === currentIndex ? '#1976d2' : '#bbb',
                             cursor: 'pointer',
+                            border: 'none',
                           }}
                           onClick={() => setCurrentIndex(idx)}
                         />

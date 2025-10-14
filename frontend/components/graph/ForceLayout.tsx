@@ -1,18 +1,18 @@
 'use client';
 
-import type EventEmitter from 'events';
-import { useStore } from '@/lib/hooks';
-import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import { useSigma } from '@react-sigma/core';
 import {
-  type Simulation,
-  type SimulationLinkDatum,
   forceCollide,
   forceLink,
   forceManyBody,
   forceSimulation,
+  type Simulation,
+  type SimulationLinkDatum,
 } from 'd3-force';
+import type EventEmitter from 'events';
 import { useCallback, useEffect, useRef } from 'react';
+import { useStore } from '@/lib/hooks';
+import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 
 export function ForceLayout() {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
@@ -38,6 +38,7 @@ export function ForceLayout() {
     });
   }, [sigma]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: No re-initialize on changing network parameters
   useEffect(() => {
     if (!sigma) return;
     (sigma as EventEmitter).once('loaded', () => {
@@ -71,9 +72,9 @@ export function ForceLayout() {
         },
       });
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sigma, tick]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: No re-render on changing size
   useEffect(() => {
     if (!simulation.current || !edges.current) return;
     simulation.current.force(
@@ -84,7 +85,6 @@ export function ForceLayout() {
     );
     simulation.current.force('collide', forceCollide(defaultNodeSize * 8));
     simulation.current.alpha(0.3).restart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forceSettings]);
 
   return null;

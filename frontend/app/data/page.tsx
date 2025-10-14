@@ -1,10 +1,8 @@
 'use client';
 
-import '@react-sigma/core/lib/style.css';
-import { useSearchParams, useRouter } from 'next/navigation';
-import React from 'react';
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { redirect, useSearchParams } from 'next/navigation';
+import React, { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
 
@@ -51,8 +49,6 @@ function PDCSNetworkTabs() {
   const program = searchParams?.get('program');
   const project = searchParams?.get('project');
   const deFile = searchParams?.get('deFiles');
-  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const router = useRouter();
 
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -60,7 +56,7 @@ function PDCSNetworkTabs() {
   const deFilesArray = deFile?.split(',');
 
   const getFileUrl = (filename: string) =>
-    `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
 
   React.useEffect(() => {
     if (uploadMode === 'true') {
@@ -70,7 +66,7 @@ function PDCSNetworkTabs() {
     }
 
     if (!group || !program || !project) {
-      router.push('/data-commons');
+      redirect('/data-commons');
       return;
     }
 
@@ -86,7 +82,7 @@ function PDCSNetworkTabs() {
 
       try {
         const response = await fetch(
-          `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/password`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/password`,
           {
             method: 'POST',
             headers: {
@@ -98,44 +94,44 @@ function PDCSNetworkTabs() {
 
         if (!response.ok) {
           console.error('Password check failed:', response.status);
-          router.push('/data-commons');
+          redirect('/data-commons');
           return;
         }
 
         const result = await response.json();
 
         if (result.hasPassword) {
-          router.push('/data-commons');
+          redirect('/data-commons');
         } else {
           sessionStorage.setItem(authKey, 'authenticated');
           setIsAuthenticated(true);
         }
       } catch (error) {
         console.error('Password check error:', error);
-        router.push('/data-commons');
+        redirect('/data-commons');
       } finally {
         setLoading(false);
       }
     };
 
     checkAuthentication();
-  }, [group, program, project, router, API_BASE]);
+  }, [group, program, project, uploadMode]);
 
   if (loading) {
     return (
-      <div className='flex flex-col items-center justify-center min-h-screen'>
+      <div className='flex min-h-screen flex-col items-center justify-center'>
         <Spinner className='h-12 w-12' />
-        <p className='mt-4 text-lg text-gray-600'>Checking project access...</p>
+        <p className='mt-4 text-gray-600 text-lg'>Checking project access...</p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className='flex flex-col items-center justify-center min-h-screen'>
+      <div className='flex min-h-screen flex-col items-center justify-center'>
         <div className='text-center'>
-          <h2 className='text-2xl font-semibold mb-2'>Access Required</h2>
-          <p className='text-muted-foreground mb-4'>Redirecting to authentication...</p>
+          <h2 className='mb-2 font-semibold text-2xl'>Access Required</h2>
+          <p className='mb-4 text-muted-foreground'>Redirecting to authentication...</p>
           <Spinner className='mx-auto' />
         </div>
       </div>
@@ -144,19 +140,19 @@ function PDCSNetworkTabs() {
 
   return (
     <>
-      <TabsContent value='transcript' className='flex-1 p-6 mt-0 h-full'>
+      <TabsContent value='transcript' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <TranscriptTab group={group ?? ''} program={program ?? ''} project={project ?? ''} />
         </div>
       </TabsContent>
 
-      <TabsContent value='pca' className='flex-1 p-6 mt-0 h-full'>
+      <TabsContent value='pca' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <PCATab group={group ?? ''} program={program ?? ''} project={project ?? ''} />
         </div>
       </TabsContent>
 
-      <TabsContent value='de' className='flex-1 p-6 mt-0 h-full'>
+      <TabsContent value='de' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <DETab
             deFilesArray={deFilesArray}
@@ -173,12 +169,12 @@ function PDCSNetworkTabs() {
 
 export default function NetworkPage() {
   return (
-    <div className='w-full h-full flex flex-col'>
+    <div className='flex h-full w-full flex-col'>
       <Suspense
         fallback={
-          <div className='flex flex-col items-center justify-center min-h-screen'>
+          <div className='flex min-h-screen flex-col items-center justify-center'>
             <Spinner className='h-12 w-12' />
-            <p className='mt-4 text-lg text-gray-600'>Loading components...</p>
+            <p className='mt-4 text-gray-600 text-lg'>Loading components...</p>
           </div>
         }
       >

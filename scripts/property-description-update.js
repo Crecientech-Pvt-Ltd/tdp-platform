@@ -146,8 +146,7 @@ async function promptForDetails(answer) {
         ? file
         : `file:///${file.replace(/^\.[\\/]+/, "")}`
     }' AS line
-		CALL {
-			WITH line
+		CALL (line) {
 			MATCH (p:Property { name: line[0]})
 			SET p.description = line[1]
 		} IN TRANSACTIONS;

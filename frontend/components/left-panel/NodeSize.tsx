@@ -1,13 +1,13 @@
-import { type NodeSizeType, PROPERTY_LABEL_TYPE_MAPPING, nodeSize } from '@/lib/data';
+import { ChevronsUpDownIcon, InfoIcon, RefreshCcwIcon } from 'lucide-react';
+import { type NodeSizeType, nodeSize, PROPERTY_LABEL_TYPE_MAPPING } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
-import { ChevronsUpDown, Info, RefreshCcw } from 'lucide-react';
-import { VirtualizedCombobox } from '../VirtualizedCombobox';
 import { Button } from '../ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { Combobox } from '../ui/combobox';
 import { Label } from '../ui/label';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { VirtualizedCombobox } from '../VirtualizedCombobox';
 
 export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<string>) => void }) {
   const radioValue = useStore(state => state.selectedRadioNodeSize);
@@ -16,9 +16,9 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
 
   return (
     <Collapsible defaultOpen className='mb-2'>
-      <div className='flex items-center justify-between w-full bg-primary p-2'>
+      <div className='flex w-full items-center justify-between bg-primary p-2'>
         <Label className='font-bold text-white'>Node Size</Label>
-        <div className='space-x-1 flex items-center'>
+        <div className='flex items-center space-x-1'>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -26,16 +26,16 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
                 type='button'
                 variant='oldtool'
                 size='icon'
-                className='w-6 h-6'
+                className='h-6 w-6'
               >
-                <RefreshCcw size={15} />
+                <RefreshCcwIcon size={15} />
               </Button>
             </TooltipTrigger>
             <TooltipContent className='text-white'>Reset</TooltipContent>
           </Tooltip>
           <CollapsibleTrigger asChild>
-            <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
-              <ChevronsUpDown size={15} />
+            <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+              <ChevronsUpDownIcon size={15} />
             </Button>
           </CollapsibleTrigger>
         </div>
@@ -55,7 +55,9 @@ export function NodeSize({ onPropChange }: { onPropChange: (prop: string | Set<s
                   <Label htmlFor={label} className='text-xs'>
                     {label}
                   </Label>
-                  <TooltipTrigger asChild>{tooltipContent && <Info size={12} className='shrink-0' />}</TooltipTrigger>
+                  <TooltipTrigger asChild>
+                    {tooltipContent && <InfoIcon size={12} className='shrink-0' />}
+                  </TooltipTrigger>
                 </div>
                 {tooltipContent && (
                   <TooltipContent align='start' className='max-w-80 text-white'>

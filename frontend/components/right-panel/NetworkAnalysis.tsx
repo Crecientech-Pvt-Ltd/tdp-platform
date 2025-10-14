@@ -1,7 +1,7 @@
+import { Label } from '@radix-ui/react-label';
+import { ChevronsUpDownIcon } from 'lucide-react';
 import { algorithms } from '@/lib/data';
 import { Events, eventEmitter } from '@/lib/utils';
-import { Label } from '@radix-ui/react-label';
-import { ChevronsUpDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
@@ -16,16 +16,16 @@ export function NetworkAnalysis() {
   };
 
   return (
-    <Collapsible defaultOpen className='text-xs mb-2'>
-      <div className='flex items-center justify-between w-full p-2 bg-primary'>
-        <p className='font-bold text-white '>Network Analysis</p>
+    <Collapsible defaultOpen className='mb-2 text-xs'>
+      <div className='flex w-full items-center justify-between bg-primary p-2'>
+        <p className='font-bold text-white'>Network Analysis</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='oldtool' size='icon' className='w-6 h-6'>
-            <ChevronsUpDown size={15} />
+          <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+            <ChevronsUpDownIcon size={15} />
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='mt-1 p-4 -mb-2'>
+      <CollapsibleContent className='-mb-2 mt-1 p-4'>
         <RadioGroup defaultValue='None' className='mb-2'>
           {algorithms.map(({ name, parameters }) => (
             <Popover key={name}>
@@ -39,7 +39,7 @@ export function NetworkAnalysis() {
               </PopoverTrigger>
               {parameters.length > 0 && (
                 <PopoverContent className='w-52'>
-                  <form key={name} className='space-y-2 flex flex-col' action={f => handleAlgoQuery(name, f)}>
+                  <form key={name} className='flex flex-col space-y-2' action={f => handleAlgoQuery(name, f)}>
                     {parameters.map(({ name, displayName, type, defaultValue, min, max, step }) => {
                       if (type === 'slider') {
                         return (
@@ -61,7 +61,7 @@ export function NetworkAnalysis() {
                         <div
                           key={name}
                           style={{ gridTemplateColumns: '1fr 2fr' }}
-                          className='grid grid-cols-2 w-full items-center gap-2'
+                          className='grid w-full grid-cols-2 items-center gap-2'
                         >
                           <Label key={name} htmlFor={name} className='font-semibold text-xs'>
                             {displayName}

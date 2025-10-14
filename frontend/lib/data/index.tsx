@@ -1,13 +1,13 @@
-import { GenePropertyMetadata } from '../interface';
+import type { GenePropertyMetadata } from '../interface';
 
 export * from './algorithm';
 export * from './datatable-column';
 export * from './forceLayoutOptions';
 export * from './graphConfig';
+export * from './homeData';
 export * from './nodeColor';
 export * from './nodeSize';
 export * from './radialAnalysisOptions';
-export * from './homeData';
 /**
  * Default edge color
  * PS: Use rgba color format only for this variable

@@ -1,5 +1,11 @@
 'use client';
 
+import { useSigma } from '@react-sigma/core';
+import { downloadAsImage } from '@sigma/export-image';
+import { strToU8, zipSync } from 'fflate';
+import { unparse } from 'papaparse';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import {
   DISEASE_DEPENDENT_PROPERTIES,
   type DiseaseDependentProperties,
@@ -9,12 +15,6 @@ import {
 import { useStore } from '@/lib/hooks';
 import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
-import { useSigma } from '@react-sigma/core';
-import { downloadAsImage } from '@sigma/export-image';
-import { unparse } from 'papaparse';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
-import JSZip from 'jszip';
 
 export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.MutableRefObject<Set<string>> }) {
   const projectTitle = useStore(state => state.projectTitle);
@@ -31,6 +31,7 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
     element.remove();
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     eventEmitter.on(
       Events.EXPORT,
@@ -135,20 +136,22 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
                 });
               }
             } else if (csvType === 'both') {
-              // Zip both files
-              const zip = new JSZip();
-              zip.file(`${projectTitle}-universal.csv`, universalCsv);
+              // Zip both CSV files using fflate
+              const files: Record<string, Uint8Array> = {
+                [`${projectTitle}-universal.csv`]: strToU8(universalCsv),
+              };
               if (interactionCsv) {
-                zip.file(`${projectTitle}-interaction.csv`, interactionCsv);
+                files[`${projectTitle}-interaction.csv`] = strToU8(interactionCsv);
               }
-              const content = await zip.generateAsync({ type: 'blob' });
-              const element = document.createElement('a');
-              element.href = URL.createObjectURL(content);
-              element.download = `${projectTitle}-csv.zip`;
-              document.body.appendChild(element);
-              element.click();
-              URL.revokeObjectURL(element.href);
-              element.remove();
+              const zipped = zipSync(files);
+              const zippedArrayBuffer = zipped.buffer instanceof ArrayBuffer ? zipped.buffer : zipped.slice().buffer; // fallback, but zipSync should return ArrayBuffer-backed Uint8Array
+              const blob = new Blob([zippedArrayBuffer], { type: 'application/zip' });
+              const aElement = document.createElement('a');
+              aElement.href = URL.createObjectURL(blob);
+              aElement.download = `${projectTitle}-csv.zip`;
+              aElement.click();
+              URL.revokeObjectURL(aElement.href);
+              aElement.remove();
             }
             break;
           }
@@ -162,7 +165,6 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
         }
       },
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;

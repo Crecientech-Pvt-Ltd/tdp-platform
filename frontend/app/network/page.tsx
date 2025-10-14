@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 const SigmaContainer = dynamic(() => import('@/components/graph').then(module => module.SigmaContainer), {
   loading: () => (
-    <div className='w-full h-full grid place-items-center'>
+    <div className='grid h-full w-full place-items-center'>
       <div className='flex flex-col items-center'>
         <Spinner />
         Loading...
@@ -19,9 +19,9 @@ const SigmaContainer = dynamic(() => import('@/components/graph').then(module =>
 
 export default function NetworkPage() {
   return (
-    <div className='w-full h-full'>
+    <div className='h-full w-full'>
       <SigmaContainer
-        className='w-full h-full'
+        className='h-full w-full'
         settings={{
           allowInvalidContainer: true,
           enableEdgeEvents: true,

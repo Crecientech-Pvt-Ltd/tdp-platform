@@ -1,5 +1,9 @@
 'use client';
 
+import { useLazyQuery } from '@apollo/client/react';
+import { redirect } from 'next/navigation';
+import React, { useEffect, useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import {
   DISEASE_DEPENDENT_PROPERTIES,
   DISEASE_INDEPENDENT_PROPERTIES,
@@ -18,23 +22,18 @@ import type {
   RadioOptions,
 } from '@/lib/interface';
 import { envURL } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
-import { AnimatePresence, motion } from 'motion/react';
-import { redirect } from 'next/navigation';
-import React, { useEffect, useRef } from 'react';
-import { GeneSearch, NodeColor, NodeSize } from '.';
 import { Export, FileSheet } from '../app';
 import { DiseaseMapCombobox } from '../DiseaseMapCombobox';
 import { RadialAnalysis } from '../right-panel';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
 import { Spinner } from '../ui/spinner';
-import { useShallow } from 'zustand/react/shallow';
+import { GeneSearch, NodeColor, NodeSize } from '.';
 
 export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?: boolean }) {
   const diseaseName = useStore(state => state.diseaseName);
   const geneIDs = useStore(useShallow(state => state.geneNames.map(g => state.geneNameToID.get(g) ?? g)));
-  const bringCommon = useRef<boolean>(true);
+  const skipCommon = useRef<boolean>(false);
   const [diseaseData, setDiseaseData] = React.useState<GetDiseaseData | undefined>(undefined);
   const [diseaseMap, setDiseaseMap] = React.useState<string>('MONDO_0004976');
   useEffect(() => {
@@ -52,17 +51,17 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
     })();
   }, [graphConfigPresent]);
 
-  const [fetchHeader, { loading, called }] = useLazyQuery<GetHeadersData, GetHeadersVariables>(
-    GET_HEADERS_QUERY(bringCommon.current),
-    { returnPartialData: true },
-  );
+  const [fetchHeader, { loading, called }] = useLazyQuery<GetHeadersData, GetHeadersVariables>(GET_HEADERS_QUERY, {
+    returnPartialData: true,
+  });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchHeader is redundant
   useEffect(() => {
     if (!diseaseName) return;
     fetchHeader({
-      query: GET_HEADERS_QUERY(bringCommon.current),
       variables: {
         disease: diseaseName,
+        skipCommon: skipCommon.current,
       },
     })
       .then(val => {
@@ -77,7 +76,7 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
           },
           user: useStore.getState().radioOptions.user,
         };
-        if (bringCommon.current) {
+        if (!skipCommon.current) {
           for (const { name, description } of data.common ?? []) {
             for (const field of DISEASE_INDEPENDENT_PROPERTIES) {
               if (new RegExp(`^${field}_`, 'i').test(name)) {
@@ -89,7 +88,7 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
             }
           }
         }
-        bringCommon.current = false;
+        skipCommon.current = true;
         for (const { name, description } of data.disease ?? []) {
           for (const field of DISEASE_DEPENDENT_PROPERTIES) {
             if (field === 'OpenTargets') continue;
@@ -106,7 +105,6 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
       .catch(err => {
         console.error(err);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diseaseName]);
 
   useEffect(() => {
@@ -138,7 +136,7 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
   }, [geneIDs]);
 
   const [fetchUniversal, { loading: universalLoading }] = useLazyQuery<GeneUniversalData, GeneUniversalDataVariables>(
-    GENE_UNIVERSAL_QUERY(),
+    GENE_UNIVERSAL_QUERY,
   );
   const selectedRadioNodeSize = useStore(state => state.selectedRadioNodeSize);
   const selectedRadioNodeColor = useStore(state => state.selectedRadioNodeColor);
@@ -211,42 +209,29 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
     useStore.setState({ diseaseName: disease });
   }
   return (
-    <ScrollArea className='border-r bg-secondary flex flex-col h-[calc(96vh-1.5px)]'>
+    <ScrollArea className='flex h-[calc(96vh-1.5px)] flex-col border-r bg-secondary'>
       <div className='flex flex-col'>
-        <Label className='font-bold mb-2 pt-4 pl-2'>Disease Map</Label>
-        <div className='flex items-center w-full'>
-          <motion.div
-            layout
-            className='px-2 flex-grow min-w-0'
-            transition={{ duration: 0.1, ease: 'easeInOut' }}
-            animate
-          >
+        <Label className='mb-2 pt-4 pl-2 font-bold'>Disease Map</Label>
+        <div className='flex w-full items-center'>
+          <div className='min-w-0 flex-grow px-2'>
             <DiseaseMapCombobox
               value={diseaseMap}
               onChange={d => typeof d === 'string' && handleDiseaseChange(d)}
               data={diseaseData}
               className='w-full'
             />
-          </motion.div>
-          <AnimatePresence>
-            {(!called || (called && loading) || diseaseData === undefined || universalLoading) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ duration: 0.1 }}
-                className='mr-1'
-              >
-                <Spinner size='small' />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
+          {(!called || (called && loading) || diseaseData === undefined || universalLoading) && (
+            <div className='fade-in zoom-in mr-1 animate-in duration-100'>
+              <Spinner size='small' />
+            </div>
+          )}
         </div>
       </div>
       <NodeColor onPropChange={val => handlePropChange(val, 'color')} />
       <NodeSize onPropChange={val => handlePropChange(val, 'size')} />
       <RadialAnalysis />
-      <div className='flex flex-col space-y-2 mb-6 px-4'>
+      <div className='mb-6 flex flex-col space-y-2 px-4'>
         <GeneSearch />
         <FileSheet />
         <Export />

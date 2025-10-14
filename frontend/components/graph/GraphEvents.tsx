@@ -1,5 +1,7 @@
 'use client';
 
+import { useCamera, useRegisterEvents, useSigma } from '@react-sigma/core';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   DISEASE_DEPENDENT_PROPERTIES,
   type DiseaseDependentProperties,
@@ -7,14 +9,12 @@ import {
   type NodeColorType,
   type NodeSizeType,
 } from '@/lib/data';
+import { drawSelectionBox, findNodesInSelection } from '@/lib/graph';
+import drawEdgeHover from '@/lib/graph/canvas-edge-hover';
 import { useStore } from '@/lib/hooks';
 import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection, SelectionBox } from '@/lib/interface';
 import { Trie } from '@/lib/trie';
 import { cn } from '@/lib/utils';
-import { useCamera, useRegisterEvents, useSigma } from '@react-sigma/core';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { drawSelectionBox, findNodesInSelection } from '@/lib/graph';
-import drawEdgeHover from '@/lib/graph/canvas-edge-hover';
 
 export function GraphEvents({
   clickedNodesRef,
@@ -28,19 +28,21 @@ export function GraphEvents({
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
   const nodeSearchQuery = useStore(state => state.nodeSearchQuery);
   const trieRef = useRef(new Trie<{ key: string; value: string }>());
-  const totalNodes = useStore(state => state.totalNodes);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
+    if (sigma.getGraph().order === 0) return;
     const nodeArr = sigma.getGraph().mapNodes((node, attributes) => ({
       key: attributes.label,
       value: node,
     })) as { key: string; value: string }[];
     if (!Array.isArray(nodeArr)) return;
     trieRef.current = Trie.fromArray(nodeArr, 'key');
-  }, [sigma, totalNodes]);
+  }, [sigma.getGraph().order]);
 
   const { gotoNode } = useCamera();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     const graph = sigma.getGraph();
     if (trieRef.current.size === 0) return;
@@ -69,7 +71,6 @@ export function GraphEvents({
       if (++count === geneNames.size) gotoNode(node, { duration: 100 });
     }
     highlightedNodesRef.current = geneNames;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodeSearchQuery, gotoNode, sigma]);
 
   useEffect(() => {
@@ -176,7 +177,7 @@ export function GraphEvents({
     if (_selectedNodes.length) handleSelectedNodes(_selectedNodes);
   }, [handleSelectedNodes, _selectedNodes]);
 
-  //   biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!canvasRef.current) canvasRef.current = sigma.getCanvases().mouse;
     const context = canvasRef.current?.getContext('2d');
@@ -338,7 +339,6 @@ export function GraphEvents({
         });
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerEvents, sigma, draggedNode, handleMouseUp, handleMouseDown, handleMouseMove]);
 
   const highlightNeighborNodes = useStore(state => state.highlightNeighborNodes);
@@ -353,7 +353,7 @@ export function GraphEvents({
 
   const propertyResolve = useCallback(
     (node: string, selectedRadio: NodeColorType | NodeSizeType | undefined, selectedProperty: string | Set<string>) => {
-      if (!selectedRadio || !selectedProperty) return <></>;
+      if (!selectedRadio || !selectedProperty) return null;
       const diseaseNameOrCommon = DISEASE_DEPENDENT_PROPERTIES?.includes(selectedRadio as DiseaseDependentProperties)
         ? diseaseName
         : 'common';
@@ -366,7 +366,7 @@ export function GraphEvents({
         )?.[selectedRadio]?.[selectedProperty];
         return (
           <div>
-            <h3 className='font-bold break-words'>
+            <h3 className='break-words font-bold'>
               {selectedProperty.startsWith('[USER]') && <span className='text-muted-foreground'>[USER] </span>}
               {selectedProperty.replace('[USER]', '')}
             </h3>
@@ -382,7 +382,7 @@ export function GraphEvents({
             )?.[selectedRadio]?.[prop];
             return (
               <div key={prop}>
-                <h3 className='font-bold break-words'>
+                <h3 className='break-words font-bold'>
                   {prop.startsWith('[USER]') && <span className='text-muted-foreground'>[USER] </span>}
                   {prop.replace('[USER]', '')}
                 </h3>
@@ -399,7 +399,7 @@ export function GraphEvents({
   return (
     <>
       {clickedNode && (
-        <div className='absolute top-0 right-0 space-y-1 text-xs shadow rounded border backdrop-blur p-1 m-1 w-80 max-h-[80vh] overflow-y-auto'>
+        <div className='absolute top-0 right-0 m-1 max-h-[80vh] w-80 space-y-1 overflow-y-auto rounded border p-1 text-xs shadow backdrop-blur'>
           <div>
             <h3 className='font-bold'>Ensembl ID</h3>
             <p>{clickedNode}</p>

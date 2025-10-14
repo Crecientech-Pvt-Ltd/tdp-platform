@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
 import VolcanoPlot from '@/components/data-commons/DifferentialExpression/DE';
+import { useDataFiles } from '@/components/data-commons/upload/hooks/useDataFiles';
 
 export function DETab({
   deFilesArray,
@@ -19,7 +19,7 @@ export function DETab({
 }) {
   const [serverDeFiles, setServerDeFiles] = useState<Record<string, string> | undefined>(undefined);
   const [serverLoading, setServerLoading] = useState(false);
-  
+
   const { deFiles: uploadedFiles, loading: uploadLoading, isUploadMode } = useDataFiles();
 
   useEffect(() => {
@@ -52,14 +52,19 @@ export function DETab({
     });
   }, [deFilesArray, getFileUrl, isUploadMode]);
 
-  const uploadedDeFiles = uploadedFiles && uploadedFiles.length > 0 ? 
-    uploadedFiles.reduce((acc, file, index) => {
-      if (file && (file.content || file.url)) {
-        const filename = file.filename || `differential_expression_${index + 1}.csv`;
-        acc[filename] = file.content || '';
-      }
-      return acc;
-    }, {} as Record<string, string>) : undefined;
+  const uploadedDeFiles =
+    uploadedFiles && uploadedFiles.length > 0
+      ? uploadedFiles.reduce(
+          (acc, file, index) => {
+            if (file && (file.content || file.url)) {
+              const filename = file.filename || `differential_expression_${index + 1}.csv`;
+              acc[filename] = file.content || '';
+            }
+            return acc;
+          },
+          {} as Record<string, string>,
+        )
+      : undefined;
 
   const deFiles = isUploadMode ? uploadedDeFiles : serverDeFiles;
   const loading = isUploadMode ? uploadLoading : serverLoading;

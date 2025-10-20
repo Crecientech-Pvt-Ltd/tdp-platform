@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Res, Post, Body, Req } from '@nestjs/common';
 import type { Response } from 'express';
 import { DataCommonsService } from './dataCommons.service';
 
@@ -76,12 +76,24 @@ export class DataCommonsController {
 
   @Post('project/:group/:program/:project/password')
   async checkProjectPassword(
+    @Req() req: any,
     @Param('group') group: string,
     @Param('program') program: string,
     @Param('project') project: string,
     @Body() body: { password: string },
     @Res() res: any,
   ) {
-    return this.service.checkProjectPassword(group, program, project, body.password || '', res);
+    return this.service.checkProjectPassword(req, group, program, project, body.password || '', res);
+  }
+
+  @Get('project/:group/:program/:project/verify-auth')
+  async getProjectMetadata(
+    @Req() req: any,
+    @Param('group') group: string,
+    @Param('program') program: string,
+    @Param('project') project: string,
+    @Res() res: any,
+  ) {
+    return this.service.verifyAuth(req, group, program, project, res);
   }
 }

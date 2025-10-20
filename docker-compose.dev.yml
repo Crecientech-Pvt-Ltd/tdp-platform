@@ -12,3 +12,6 @@ services:
     ports:
       - "7474:7474"   # HTTP interface
       - "7687:7687"   # Bolt interface
+  postgres:
+    ports:
+      - "5432:5432"   # PostgreSQL default port

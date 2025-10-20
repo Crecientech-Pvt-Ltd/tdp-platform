@@ -3,6 +3,8 @@ import * as fs from 'fs/promises';
 import { existsSync, createReadStream } from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+import * as jwt from 'jsonwebtoken';
+
 import {
   ALLOWED_EXTENSIONS,
   findDifferentialExpressionFiles,
@@ -11,7 +13,10 @@ import {
   getFiles,
 } from './dataCommons.utils';
 
+import { db } from '@/postgress';
+
 const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src', 'data-commons', 'data');
+const JWT_SECRET = process.env.JWT_SECRET || '1234';
 
 @Injectable()
 export class DataCommonsService {
@@ -258,7 +263,7 @@ export class DataCommonsService {
     }
   }
 
-  async checkProjectPassword(group: string, program: string, project: string, password: string, res: any) {
+  async checkProjectPassword(req: any, group: string, program: string, project: string, password: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
@@ -273,19 +278,185 @@ export class DataCommonsService {
       const filePassword = (await fs.readFile(passwordFilePath, 'utf8')).trim();
       const success = password === filePassword;
 
+      if (!success) {
+        res.json({ success: false, hasPassword: true });
+        return;
+      }
+
+      const cookie = req.cookies['data-commons-auth'];
+
+      if (!cookie) {
+        const newSession = await db.session.create({
+          data: {
+            combinations: {
+              create: [
+                {
+                  group: group,
+                  program: program,
+                  project: project,
+                },
+              ],
+            },
+          },
+        });
+
+        const token = jwt.sign({ sessionId: newSession.id }, JWT_SECRET);
+
+        res.cookie('data-commons-auth', token, {
+          httpOnly: true,
+          sameSite: 'none',
+          secure: true,
+        });
+      } else {
+        let decoded: any;
+        try {
+          decoded = jwt.verify(cookie, JWT_SECRET);
+        } catch (err) {
+          console.error('Error verifying JWT:', err);
+          res.status(401).send('Unauthorized');
+          return;
+        }
+
+        const sessionId = decoded.sessionId;
+        const session = await db.session.findUnique({
+          where: { id: sessionId },
+          select: {
+            id: true,
+            combinations: {
+              select: {
+                verifiedAt: true,
+                group: true,
+                program: true,
+                project: true,
+              },
+            },
+          },
+        });
+
+        if (typeof session === 'undefined' || session === null) {
+          const newSession = await db.session.create({
+            data: {
+              combinations: {
+                create: [
+                  {
+                    group: group,
+                    program: program,
+                    project: project,
+                  },
+                ],
+              },
+            },
+          });
+
+          const token = jwt.sign({ sessionId: newSession.id }, JWT_SECRET);
+
+          res.cookie('data-commons-auth', token, {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+          });
+        } else {
+          const hasCombination = session.combinations.some(
+            (combination) =>
+              combination.group === group && combination.program === program && combination.project === project,
+          );
+
+          if (!hasCombination) {
+            await db.combination.create({
+              data: {
+                group: group,
+                program: program,
+                project: project,
+                sessionId: session.id,
+              },
+            });
+          } else {
+            await db.combination.updateMany({
+              where: {
+                sessionId: session.id,
+                group: group,
+                program: program,
+                project: project,
+              },
+              data: {
+                verifiedAt: new Date(),
+              },
+            });
+          }
+        }
+      }
+
       res.json({
         success,
         hasPassword: true,
         message: success ? 'Password correct' : 'Incorrect password',
       });
-    } catch {
-      res.status(500).send('Error reading password file');
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
 
-  hasPasswordProtection(group: string, program: string, project: string) {
+  async verifyAuth(req: any, group: string, program: string, project: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
-    return existsSync(passwordFilePath);
+
+    // Check if password file exists
+    if (!existsSync(passwordFilePath)) {
+      // No password protection
+      res.json({ success: true, hasPassword: false });
+      return;
+    }
+
+    const cookie = req.cookies['data-commons-auth'];
+
+    if (!cookie) {
+      res.json({ success: false, hasPassword: true, message: 'No auth cookie found' });
+      return;
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(cookie, JWT_SECRET);
+    } catch (err) {
+      console.error('Error verifying JWT:', err);
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const sessionId = decoded.sessionId;
+    const session = await db.session.findUnique({
+      where: { id: sessionId },
+      select: {
+        id: true,
+        combinations: {
+          select: {
+            verifiedAt: true,
+            group: true,
+            program: true,
+            project: true,
+          },
+        },
+      },
+    });
+
+    if (typeof session === 'undefined' || session === null) {
+      res.json({ success: false, hasPassword: true, message: 'Invalid session' });
+      return;
+    }
+
+    const hasCombination = session.combinations.some(
+      (combination) =>
+        combination.group === group &&
+        combination.program === program &&
+        combination.project === project &&
+        Date.now() - new Date(combination.verifiedAt).getTime() <= 12 * 60 * 60 * 1000, // 12 hours
+    );
+
+    if (!hasCombination) {
+      res.json({ success: false, hasPassword: true, message: 'No valid combination found or session expired' });
+      return;
+    }
+
+    res.json({ success: true, hasPassword: true, message: 'Authorized' });
   }
 }

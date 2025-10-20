@@ -235,13 +235,36 @@ If you have received `.tsv` files for ClickHouse tables (one file per table), fo
    '
    ```
 
----
-
 **General Guidelines:**  
 - Ensure the `.tsv` files are transferred to the correct directory on the server before running the import command.
 - The application will automatically create all required tables on startup.
 - The `.tsv` files must match the schema expected by the application.
 - If you need to adjust the backup path, update the volume mount and the import command accordingly.
+
+---
+
+## Initializing PostgreSQL Database (for Session Management)
+
+### 1. Initialization
+
+Run the following commands from the `backend` directory to set up your PostgreSQL database schema and generate the Prisma client:
+
+```bash
+cd backend
+npx prisma db push
+npx prisma generate
+```
+
+### 2. Applying Schema Changes
+
+If you make any modifications to the Prisma schema file
+[`/backend/prisma/schema.prisma`](/backend/prisma/schema.prisma),
+use the same commands below to apply the updates to your database and regenerate the client:
+
+```bash
+npx prisma db push
+npx prisma generate
+```
 
 ---
 

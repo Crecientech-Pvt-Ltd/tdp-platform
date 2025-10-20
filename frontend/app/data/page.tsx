@@ -67,47 +67,29 @@ function PDCSNetworkTabs() {
 
     if (!group || !program || !project) {
       redirect('/data-commons');
-      return;
     }
 
     const checkAuthentication = async () => {
-      const authKey = `auth_${group}_${program}_${project}`;
-      const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
-
-      if (isAuthenticated) {
-        setIsAuthenticated(true);
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/password`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ password: '' }),
-          },
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/verify-auth`,
+          { method: 'GET', credentials: 'include' },
         );
 
         if (!response.ok) {
           console.error('Password check failed:', response.status);
           redirect('/data-commons');
-          return;
         }
 
         const result = await response.json();
 
-        if (result.hasPassword) {
+        setIsAuthenticated(result.success);
+
+        if (result.hasPassword && !result.success) {
           redirect('/data-commons');
-        } else {
-          sessionStorage.setItem(authKey, 'authenticated');
-          setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error('Password check error:', error);
+        console.error('Authentication check error:', error);
         redirect('/data-commons');
       } finally {
         setLoading(false);

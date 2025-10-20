@@ -102,42 +102,26 @@ export default function DataCommonsPage() {
 
   const handleGoToPlots = async () => {
     if (selectedGroup && selectedProgram && selectedProject) {
-      const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-      const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
-
-      if (isAuthenticated) {
-        setShowFileSelectionPopup(true);
-        return;
-      }
-
       try {
         const response = await fetch(
-          `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ password: '' }),
-          },
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/verify-auth`,
+          { method: 'GET', credentials: 'include' },
         );
-
         if (!response.ok) {
           console.error('Password check failed:', response.status);
           return;
         }
-
         const result = await response.json();
-
-        if (result.hasPassword) {
-          setShowPasswordPopup(true);
-        } else {
-          sessionStorage.setItem(authKey, 'authenticated');
+        if (result.success) {
           setShowFileSelectionPopup(true);
+          return;
+        } else if (result.hasPassword) {
+          setShowPasswordPopup(true);
+          return;
         }
       } catch (error) {
         console.error('Password check error:', error);
-        setShowFileSelectionPopup(true);
+        setShowFileSelectionPopup(false);
       }
     }
   };

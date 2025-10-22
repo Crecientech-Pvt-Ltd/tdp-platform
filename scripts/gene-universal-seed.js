@@ -309,8 +309,7 @@ async function promptForDetails(answer) {
             .replace(/^\.[\\/]+/, "")
             .replace(/\\/g, "/")}`
     }' AS row
-    CALL {
-      WITH row
+    CALL (row) {
       MATCH (g:Gene { ${
         idType === ID_TYPE[0] ? "ID" : "Gene_name"
       }: row.\`${ID}\` })

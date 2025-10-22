@@ -20,7 +20,6 @@ export type ProcessedData = {
 };
 
 export interface VolcanoPlotProps {
-  contrastUrl?: string;
   deFiles?: Record<string, string>;
   group: string;
   program: string;
@@ -64,7 +63,7 @@ export interface SeeMoreDataItem {
   xDescription: string;
   yDescription: string;
   columns: string[];
-  [key: string]: string | string[]; 
+  [key: string]: string | string[];
 }
 
 export interface PointCounts {

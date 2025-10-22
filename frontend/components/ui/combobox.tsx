@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronsUpDown, Info } from 'lucide-react';
+import { CheckIcon, ChevronsUpDownIcon, InfoIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ export function Combobox({
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className={cn('w-[200px] justify-between text-wrap break-words h-8', className)}
+          className={cn('h-8 w-[200px] justify-between text-wrap break-words', className)}
         >
           <span className='truncate'>
             {multiselect && value instanceof Set
@@ -45,10 +45,10 @@ export function Combobox({
                 : placeholder
               : value || placeholder}
           </span>
-          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0' />
+          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align={align} className={cn('p-0 w-full', className)}>
+      <PopoverContent align={align} className={cn('w-full p-0', className)}>
         <Command>
           <CommandInput placeholder={placeholder} />
           <CommandList>
@@ -68,10 +68,10 @@ export function Combobox({
                         setOpen(false);
                       }
                     }}
-                    className='flex justify-between w-full'
+                    className='flex w-full justify-between'
                   >
                     <div className='flex items-center'>
-                      <Check
+                      <CheckIcon
                         className={cn(
                           'mr-2 h-4 w-4',
                           (multiselect && value instanceof Set ? value.has(propertyName) : value === propertyName)
@@ -85,7 +85,7 @@ export function Combobox({
                     {typeof item !== 'string' && item.description && (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className='h-4 w-4 ml-4 cursor-pointer' />
+                          <InfoIcon className='ml-4 h-4 w-4 cursor-pointer' />
                         </TooltipTrigger>
                         <TooltipContent side='right' align='start' className='max-w-80 text-white'>
                           {item.description}

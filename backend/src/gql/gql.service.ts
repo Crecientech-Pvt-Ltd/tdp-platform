@@ -6,14 +6,7 @@ import {
 } from '@/neo4j/neo4j.constants';
 import { Neo4jService } from '@/neo4j/neo4j.service';
 import { Injectable } from '@nestjs/common';
-import type {
-  Gene,
-  InteractionInput,
-  DataRequired,
-  Header,
-  GeneBase,
-  Description,
-} from './models';
+import type { Gene, InteractionInput, DataRequired, Header, GeneBase, Description } from './models';
 import { createHash } from 'node:crypto';
 import { mergeEdgesAndAverageScore } from '@/utils/mergeEdges';
 
@@ -31,21 +24,12 @@ export interface GetGenesResult {
 export class GqlService {
   constructor(private readonly neo4jService: Neo4jService) {}
 
-  async getGenes(
-    geneIDs: string[],
-    config?: Array<DataRequired> | undefined,
-    bringMeta = true,
-  ) {
+  async getGenes(geneIDs: string[], config?: Array<DataRequired> | undefined, bringMeta = true) {
     const properties = config?.flatMap((item) =>
-      item.properties.map(
-        (prop) => `${item.disease ? `${item.disease}_` : ''}${prop}`,
-      ),
+      item.properties.map((prop) => `${item.disease ? `${item.disease}_` : ''}${prop}`),
     );
     const session = this.neo4jService.getSession();
-    const result = await session.run<{ genes: GetGenesResult }>(
-      GET_GENES_QUERY(properties, bringMeta),
-      { geneIDs },
-    );
+    const result = await session.run<{ genes: GetGenesResult }>(GET_GENES_QUERY(properties, bringMeta), { geneIDs });
     await this.neo4jService.releaseSession(session);
     if (properties?.length) {
       return result.records.map((record) => {
@@ -77,16 +61,13 @@ export class GqlService {
         }, [])
         .sort(
           (a, b) =>
-            (geneIDsIndexMap.get(a.Input) ?? geneIDsIndexMap.get(a.ID)) -
-            (geneIDsIndexMap.get(b.Input) ?? geneIDsIndexMap.get(b.ID)),
+            (geneIDsIndexMap.get(a.Input) ?? geneIDsIndexMap.get(a.ID) ?? 0) -
+            (geneIDsIndexMap.get(b.Input) ?? geneIDsIndexMap.get(b.ID) ?? 0),
         );
     }
   }
 
-  async filterGenes(
-    genes: ReturnType<typeof GqlService.prototype.getGenes>,
-    config: Array<DataRequired>,
-  ) {
+  async filterGenes(genes: ReturnType<typeof GqlService.prototype.getGenes>, config: Array<DataRequired>) {
     return (await genes).map<Gene>((gene: any) => {
       gene.common = {};
       gene.disease = {};
@@ -109,24 +90,16 @@ export class GqlService {
     });
   }
 
-  async getGeneInteractions(
-    input: InteractionInput,
-    order: number,
-    graphName: string,
-    userID: string,
-  ) {
+  async getGeneInteractions(input: InteractionInput, order: number, graphName: string, userID: string) {
     const graphExists = await this.neo4jService.graphExists(graphName);
     const session = this.neo4jService.getSession();
     if (order === 2) {
       order = 0;
       input.geneIDs = (
-        await session.run<{ geneIDs: string[] }>(
-          FIRST_ORDER_GENES_QUERY(input.interactionType),
-          {
-            geneIDs: input.geneIDs,
-            minScore: input.minScore,
-          },
-        )
+        await session.run<{ geneIDs: string[] }>(FIRST_ORDER_GENES_QUERY(input.interactionType), {
+          geneIDs: input.geneIDs,
+          minScore: input.minScore,
+        })
       ).records[0].get('geneIDs');
     }
     const result = await session.run<{
@@ -143,9 +116,7 @@ export class GqlService {
       genes: result.records[0]?.get('genes') ?? [],
       links: mergeEdgesAndAverageScore(
         result.records[0]?.get('links') ?? [],
-        Array.isArray(input.interactionType)
-          ? input.interactionType
-          : [input.interactionType],
+        Array.isArray(input.interactionType) ? input.interactionType : [input.interactionType],
       ),
     };
   }
@@ -156,9 +127,10 @@ export class GqlService {
 
   async getHeaders(disease: string, bringCommon: boolean): Promise<Header> {
     const session = this.neo4jService.getSession();
-    const result = await session.run<
-      Record<'diseaseHeader' | 'commonHeader', Description[]>
-    >(GET_HEADERS_QUERY(bringCommon), { disease });
+    const result = await session.run<Record<'diseaseHeader' | 'commonHeader', Description[]>>(
+      GET_HEADERS_QUERY(bringCommon),
+      { disease },
+    );
     await this.neo4jService.releaseSession(session);
     return {
       disease: result.records[0].get('diseaseHeader'),

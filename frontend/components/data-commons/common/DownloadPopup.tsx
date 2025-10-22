@@ -1,34 +1,34 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useMemo, useCallback } from "react"
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Download, Loader2 } from "lucide-react"
-import { Spinner } from "@/components/ui/spinner"
-import JSZip from "jszip"
+import { strToU8, zipSync } from 'fflate';
+import { DownloadIcon, Loader2Icon } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 export type DownloadFile = {
-  url?: string
-  fileName?: string 
-  name?: string 
-  description?: string
-  content?: string
-}
+  url?: string;
+  fileName?: string;
+  name?: string;
+  description?: string;
+  content?: string;
+};
 
-export type DownloadFileSpec = DownloadFile
+export type DownloadFileSpec = DownloadFile;
 
 function getDisplayName(f: DownloadFile): string | undefined {
-  return f.fileName ?? f.name
+  return f.fileName ?? f.name;
 }
 
 interface DownloadPopupProps {
-  isOpen: boolean
-  onClose: () => void
-  files: DownloadFile[]
-  metadata?: Record<string, unknown>
-  zipName?: string
+  isOpen: boolean;
+  onClose: () => void;
+  files: DownloadFile[];
+  metadata?: Record<string, unknown>;
+  zipName?: string;
 }
 
 export default function DownloadPopup({
@@ -36,137 +36,128 @@ export default function DownloadPopup({
   onClose,
   files,
   metadata,
-  zipName = "data-download.zip",
+  zipName = 'data-download.zip',
 }: DownloadPopupProps) {
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
-  const [isDownloading, setIsDownloading] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const selectableFiles = useMemo(() => {
-    return files.filter((f) => !!getDisplayName(f))
-  }, [files])
+    return files.filter(f => !!getDisplayName(f));
+  }, [files]);
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedFiles(selectableFiles.filter((f) => !!(f.url || f.content)).map((f) => getDisplayName(f)!))
+      setSelectedFiles(selectableFiles.filter(f => !!(f.url || f.content)).map(f => getDisplayName(f)!));
     } else {
-      setSelectedFiles([])
-      setIsDownloading(false)
+      setSelectedFiles([]);
+      setIsDownloading(false);
     }
-  }, [isOpen, selectableFiles])
+  }, [isOpen, selectableFiles]);
 
   const handleFileChange = useCallback((fileName: string, checked: boolean) => {
-    setSelectedFiles((prev) => (checked ? [...prev, fileName] : prev.filter((f) => f !== fileName)))
-  }, [])
+    setSelectedFiles(prev => (checked ? [...prev, fileName] : prev.filter(f => f !== fileName)));
+  }, []);
 
   const handleDownload = useCallback(async () => {
     if (selectedFiles.length === 0) {
-      alert("Please select at least one file to download.")
-      return
+      alert('Please select at least one file to download.');
+      return;
     }
 
-    setIsDownloading(true)
+    setIsDownloading(true);
     try {
-      const zip = new JSZip()
+      const zipFiles: Record<string, Uint8Array> = {};
 
       for (const f of files) {
-        const displayName = getDisplayName(f)
-        if (!displayName) continue
-        if (!selectedFiles.includes(displayName)) continue
+        const displayName = getDisplayName(f);
+        if (!displayName || !selectedFiles.includes(displayName)) continue;
 
         try {
-          let content: string
-          
-          if (f.content) {
-            content = f.content
-          } else if (f.url) {
-            const res = await fetch(f.url)
-            content = await res.text()
-          } else {
-            console.warn(`File ${displayName} has neither content nor URL`)
-            continue
-          }
-          
-          zip.file(displayName, content)
+          const content = f.content ?? (f.url ? await (await fetch(f.url)).text() : '');
+          if (!content) continue;
+
+          zipFiles[displayName] = strToU8(content);
         } catch (err) {
-          console.warn(`Failed to process ${displayName}:`, err)
+          console.warn(`Failed to process ${displayName}:`, err);
         }
       }
 
       if (metadata) {
-        zip.file("metadata.json", JSON.stringify(metadata, null, 2))
+        zipFiles['metadata.json'] = strToU8(JSON.stringify(metadata, null, 2));
       }
 
-      const blob = await zip.generateAsync({ type: "blob" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = zipName
-      a.style.visibility = "hidden"
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      const zipData = zipSync(zipFiles);
+      const zippedArrayBuffer = zipData.buffer instanceof ArrayBuffer ? zipData.buffer : zipData.slice().buffer; // fallback, but zipSync should return ArrayBuffer-backed Uint8Array
 
-      onClose()
+      const blob = new Blob([zippedArrayBuffer], { type: 'application/zip' });
+      const url = URL.createObjectURL(blob);
+      const aElement = document.createElement('a');
+      aElement.href = url;
+      aElement.download = zipName;
+      aElement.click();
+      URL.revokeObjectURL(url);
+      aElement.remove();
+
+      onClose();
     } catch (error) {
-      console.error("Error creating download:", error)
-      alert("Error creating download. Please try again.")
+      console.error('Error creating download:', error);
+      alert('Error creating download. Please try again.');
     } finally {
-      setIsDownloading(false)
+      setIsDownloading(false);
     }
-  }, [files, selectedFiles, metadata, zipName, onClose])
+  }, [files, selectedFiles, metadata, zipName, onClose]);
 
-  const handleClose = useCallback(() => onClose(), [onClose])
+  const handleClose = useCallback(() => onClose(), [onClose]);
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] flex flex-col">
-        <DialogTitle className="text-xl font-semibold">Download Data</DialogTitle>
+      <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-2xl flex-col'>
+        <DialogTitle className='font-semibold text-xl'>Download Data</DialogTitle>
 
-        <div className="flex-grow overflow-y-auto px-1 py-4">
+        <div className='flex-grow overflow-y-auto px-1 py-4'>
           {isDownloading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center text-gray-500">
-                <Spinner className="mx-auto mb-4" />
+            <div className='flex items-center justify-center py-12'>
+              <div className='text-center text-gray-500'>
+                <Spinner className='mx-auto mb-4' />
                 Creating download package...
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="bg-muted/30 rounded-lg p-6 border">
-                <div className="space-y-4">
-                  <Label className="text-base font-semibold">Available Files</Label>
+            <div className='space-y-6'>
+              <div className='rounded-lg border bg-muted/30 p-6'>
+                <div className='space-y-4'>
+                  <Label className='font-semibold text-base'>Available Files</Label>
 
                   {selectableFiles.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No files available for download.</p>
+                    <p className='text-muted-foreground text-sm'>No files available for download.</p>
                   ) : (
-                    <div className="space-y-3">
-                      {selectableFiles.map((file) => {
-                        const displayName = getDisplayName(file)!
-                        const disabled = !(file.url || file.content)
-                        const checked = selectedFiles.includes(displayName)
+                    <div className='space-y-3'>
+                      {selectableFiles.map(file => {
+                        const displayName = getDisplayName(file)!;
+                        const disabled = !(file.url || file.content);
+                        const checked = selectedFiles.includes(displayName);
 
                         return (
                           <div
                             key={displayName}
-                            className="flex items-center space-x-3 p-3 bg-background rounded-md border"
+                            className='flex items-center space-x-3 rounded-md border bg-background p-3'
                           >
                             <Checkbox
                               id={displayName}
                               checked={checked}
-                              onCheckedChange={(val) => handleFileChange(displayName, Boolean(val))}
+                              onCheckedChange={val => handleFileChange(displayName, Boolean(val))}
                               disabled={disabled}
                             />
-                            <div className="flex-1">
-                              <Label htmlFor={displayName} className="text-sm font-medium cursor-pointer">
+                            <div className='flex-1'>
+                              <Label htmlFor={displayName} className='cursor-pointer font-medium text-sm'>
                                 {displayName}
                               </Label>
                               {file.description && (
-                                <p className="text-xs text-muted-foreground mt-1">{file.description}</p>
+                                <p className='mt-1 text-muted-foreground text-xs'>{file.description}</p>
                               )}
                             </div>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   )}
@@ -176,25 +167,25 @@ export default function DownloadPopup({
           )}
         </div>
 
-        <DialogFooter className="gap-2 flex-col sm:flex-row justify-end border-t pt-4">
+        <DialogFooter className='flex-col justify-end gap-2 border-t pt-4 sm:flex-row'>
           <DialogClose asChild>
-            <Button onClick={handleClose} variant="secondary" disabled={isDownloading} className="w-full sm:w-auto">
+            <Button onClick={handleClose} variant='secondary' disabled={isDownloading} className='w-full sm:w-auto'>
               Cancel
             </Button>
           </DialogClose>
           <Button
             onClick={handleDownload}
             disabled={selectedFiles.length === 0 || isDownloading}
-            className="w-full sm:w-auto flex items-center gap-2"
+            className='flex w-full items-center gap-2 sm:w-auto'
           >
             {isDownloading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2Icon className='h-4 w-4 animate-spin' />
                 Creating ZIP...
               </>
             ) : (
               <>
-                <Download className="h-4 w-4" />
+                <DownloadIcon className='h-4 w-4' />
                 Download ({selectedFiles.length})
               </>
             )}
@@ -202,5 +193,5 @@ export default function DownloadPopup({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

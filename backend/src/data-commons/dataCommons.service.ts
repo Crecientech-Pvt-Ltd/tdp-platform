@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
+import { existsSync, createReadStream } from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 import {
@@ -10,39 +11,54 @@ import {
   getFiles,
 } from './dataCommons.utils';
 
-const DATA_PATH =
-  process.env.DATA_COMMONS_PATH ||
-  path.join(process.cwd(), 'src', 'data-commons', 'data');
+const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src', 'data-commons', 'data');
 
 @Injectable()
 export class DataCommonsService {
-  getFullStructure() {
-    const structure = [];
-    const groups = getDirectories(DATA_PATH);
-    for (const group of groups) {
-      const groupObj: any = { name: group, programs: [] };
-      const groupPath = path.join(DATA_PATH, group);
-      const programs = getDirectories(groupPath);
-      for (const program of programs) {
-        const programObj: any = { name: program, projects: [] };
-        const programPath = path.join(groupPath, program);
-        const projects = getDirectories(programPath);
-        for (const project of projects) {
-          const projectObj: any = { name: project, files: [] };
-          const projectPath = path.join(programPath, project);
-          const files = getFiles(projectPath);
-          projectObj.hasData = files.length > 0;
-          projectObj.files = files;
-          programObj.projects.push(projectObj);
-        }
-        groupObj.programs.push(programObj);
-      }
-      structure.push(groupObj);
-    }
+  async getFullStructure() {
+    const groups = await getDirectories(DATA_PATH);
+
+    const structure = await Promise.all(
+      groups.map(async (group) => {
+        const groupPath = path.join(DATA_PATH, group);
+        const programs = await getDirectories(groupPath);
+
+        const programsData = await Promise.all(
+          programs.map(async (program) => {
+            const programPath = path.join(groupPath, program);
+            const projects = await getDirectories(programPath);
+
+            const projectsData = await Promise.all(
+              projects.map(async (project) => {
+                const projectPath = path.join(programPath, project);
+                const files = await getFiles(projectPath);
+
+                return {
+                  name: project,
+                  hasData: files.length > 0,
+                  files,
+                };
+              }),
+            );
+
+            return {
+              name: program,
+              projects: projectsData,
+            };
+          }),
+        );
+
+        return {
+          name: group,
+          programs: programsData,
+        };
+      }),
+    );
+
     return structure;
   }
 
-  getProjectFilesStatus(group: string, program: string, project: string) {
+  async getProjectFilesStatus(group: string, program: string, project: string) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const expectedFiles = [
       'samplesheet.valid.csv',
@@ -59,8 +75,8 @@ export class DataCommonsService {
     const filesPresent: FilesPresent = {};
     let filesInProject: string[] = [];
     try {
-      filesInProject = fs.readdirSync(projectPath);
-    } catch (e) {
+      filesInProject = await fs.readdir(projectPath);
+    } catch {
       return { error: 'Project folder not found', filesPresent: {} };
     }
 
@@ -68,42 +84,24 @@ export class DataCommonsService {
       filesPresent[file] = filesInProject.includes(file);
     }
 
-    const descriptionFile = findFirstFileWithExtension(
-      filesInProject,
-      ALLOWED_EXTENSIONS,
-    );
+    const descriptionFile = findFirstFileWithExtension(filesInProject, ALLOWED_EXTENSIONS);
     filesPresent['project_description'] = descriptionFile || false;
 
     const deFiles = findDifferentialExpressionFiles(filesInProject);
-    filesPresent['DifferentialExpression.csv'] =
-      deFiles.length > 0 ? deFiles : false;
+    filesPresent['DifferentialExpression.csv'] = deFiles.length > 0 ? deFiles : false;
 
     return filesPresent;
   }
 
-  sendProjectDescription(
-    group: string,
-    program: string,
-    project: string,
-    res: any,
-  ) {
+  async sendProjectDescription(group: string, program: string, project: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
-    const allowedExtensions = [
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.gif',
-      '.bmp',
-      '.webp',
-    ];
-    if (!fs.existsSync(projectPath)) {
+    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
+    if (!existsSync(projectPath)) {
       res.status(404).send('Project folder not found');
       return;
     }
-    const files = fs.readdirSync(projectPath);
-    const descriptionFiles = files.filter((f) =>
-      allowedExtensions.some((ext) => f.toLowerCase().endsWith(ext)),
-    );
+    const files = await fs.readdir(projectPath);
+    const descriptionFiles = files.filter((f) => allowedExtensions.some((ext) => f.toLowerCase().endsWith(ext)));
     if (descriptionFiles.length > 0) {
       const result: Record<string, string> = {};
       for (const file of descriptionFiles) {
@@ -115,73 +113,49 @@ export class DataCommonsService {
     }
   }
 
-  sendProjectFile(
-    group: string,
-    program: string,
-    project: string,
-    filename: string,
-    res: any,
-  ) {
+  async sendProjectFile(group: string, program: string, project: string, filename: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!existsSync(filePath)) {
       res.status(404).send(`${filename} not found`);
       return;
     }
     const lowerCaseFileName = filename.toLowerCase();
     if (lowerCaseFileName.includes('differentialexpression')) {
       try {
-        const content = fs.readFileSync(filePath, 'utf8');
+        const content = await fs.readFile(filePath, 'utf8');
         res.json({ [filename]: content });
-      } catch (e) {
+      } catch {
         res.status(500).send('Error reading file');
       }
     } else {
       try {
         res.sendFile(filePath);
-      } catch (e) {
+      } catch {
         res.status(500).send('Error sending file');
       }
     }
   }
 
-  sendDeFile(
-    group: string,
-    program: string,
-    project: string,
-    filename: string,
-    res: any,
-  ) {
+  sendDeFile(group: string, program: string, project: string, filename: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!existsSync(filePath)) {
       res.status(404).send(`${filename} not found`);
       return;
     }
 
     try {
       res.sendFile(filePath);
-    } catch (e) {
+    } catch {
       res.status(500).send('Error sending file');
     }
   }
 
-  sendProjectFileByKey(
-    group: string,
-    program: string,
-    project: string,
-    fileKey: string,
-    res: any,
-  ) {
-    const allowedKeys = [
-      'samplesheet',
-      'gene',
-      'transcript',
-      'pca',
-      'differentialexpression',
-    ];
+  async sendProjectFileByKey(group: string, program: string, project: string, fileKey: string, res: any) {
+    const allowedKeys = ['samplesheet', 'gene', 'transcript', 'pca', 'differentialexpression'];
 
     const allowedKeysDetailed: Record<string, string[] | string> = {
       samplesheet: ['samplesheet', 'sample'],
@@ -191,20 +165,13 @@ export class DataCommonsService {
       differentialexpression: ['differentialexpression'],
     };
 
-    const allowedExtensions = [
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.gif',
-      '.bmp',
-      '.webp',
-    ];
+    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
     const lowerCaseFileKey = fileKey.toLowerCase();
     const projectPath = path.join(DATA_PATH, group, program, project);
 
     if (allowedExtensions.some((ext) => lowerCaseFileKey.endsWith(ext))) {
       const filePath = path.join(projectPath, fileKey);
-      if (fs.existsSync(filePath)) {
+      if (existsSync(filePath)) {
         res.sendFile(filePath);
       } else {
         res.status(404).send(`${fileKey} not found`);
@@ -233,10 +200,8 @@ export class DataCommonsService {
 
     let filesInProject: string[] = [];
     try {
-      filesInProject = fs
-        .readdirSync(projectPath)
-        .filter((f) => f !== 'password.txt');
-    } catch (e) {
+      filesInProject = (await fs.readdir(projectPath)).filter((f) => f !== 'password.txt');
+    } catch {
       res.status(404).send('Project folder not found');
       return;
     }
@@ -256,22 +221,16 @@ export class DataCommonsService {
     res.json(result);
   }
 
-  previewProjectFile(
-    group: string,
-    program: string,
-    project: string,
-    filename: string,
-    res: any,
-  ) {
+  async previewProjectFile(group: string, program: string, project: string, filename: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
-    if (!fs.existsSync(filePath) || filename === 'password.txt') {
+    if (!existsSync(filePath)) {
       res.status(404).send(`${filename} not found`);
       return;
     }
     try {
-      const stream = fs.createReadStream(filePath, { encoding: 'utf8' });
+      const stream = createReadStream(filePath, { encoding: 'utf8' });
       const rl = readline.createInterface({
         input: stream,
         crlfDelay: Infinity,
@@ -294,30 +253,24 @@ export class DataCommonsService {
       rl.on('error', () => {
         res.status(500).send('Error reading file');
       });
-    } catch (e) {
+    } catch {
       res.status(500).send('Error reading file');
     }
   }
 
-  checkProjectPassword(
-    group: string,
-    program: string,
-    project: string,
-    password: string,
-    res: any,
-  ) {
+  async checkProjectPassword(group: string, program: string, project: string, password: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
     // Check if password file exists
-    if (!fs.existsSync(passwordFilePath)) {
+    if (!existsSync(passwordFilePath)) {
       // No password protection
       res.json({ success: true, hasPassword: false });
       return;
     }
 
     try {
-      const filePassword = fs.readFileSync(passwordFilePath, 'utf8').trim();
+      const filePassword = (await fs.readFile(passwordFilePath, 'utf8')).trim();
       const success = password === filePassword;
 
       res.json({
@@ -325,7 +278,7 @@ export class DataCommonsService {
         hasPassword: true,
         message: success ? 'Password correct' : 'Incorrect password',
       });
-    } catch (e) {
+    } catch {
       res.status(500).send('Error reading password file');
     }
   }
@@ -333,6 +286,6 @@ export class DataCommonsService {
   hasPasswordProtection(group: string, program: string, project: string) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
-    return fs.existsSync(passwordFilePath);
+    return existsSync(passwordFilePath);
   }
 }

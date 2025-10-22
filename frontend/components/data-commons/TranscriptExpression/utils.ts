@@ -1,57 +1,57 @@
-import type { FileSource } from "@/components/data-commons/upload/hooks/useDataFiles"
-import type { DownloadFileSpec } from "@/components/data-commons/common/DownloadPopup"
+import type { DownloadFileSpec } from '@/components/data-commons/common/DownloadPopup';
+import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 
 //used for fuzzy matching between gene file and samplesheet
 export function normalizeSampleName(sample: string): string {
-  if (!sample) return ""
+  if (!sample) return '';
   return String(sample)
     .trim()
     .toLowerCase()
-    .replace(/^sample[-_]?/i, "")
-    .replace(/[^a-z0-9]/g, "")
+    .replace(/^sample[-_]?/i, '')
+    .replace(/[^a-z0-9]/g, '');
 }
 
 export function calculateBottomMargin(labels: string[]): number {
-  if (!labels || labels.length === 0) return 120
-  const maxLabelLength = labels.reduce((max, l) => Math.max(max, String(l).length), 0)
-  return Math.max(120, Math.min(80 + maxLabelLength * 6, 250))
+  if (!labels || labels.length === 0) return 120;
+  const maxLabelLength = labels.reduce((max, l) => Math.max(max, String(l).length), 0);
+  return Math.max(120, Math.min(80 + maxLabelLength * 6, 250));
 }
 
 export function createDownloadFiles(
   geneFile: FileSource | null,
   transcriptFile: FileSource | null,
-  sampleFile: FileSource | null
+  sampleFile: FileSource | null,
 ): DownloadFileSpec[] {
-  const files: DownloadFileSpec[] = []
-  
+  const files: DownloadFileSpec[] = [];
+
   if (geneFile?.filename) {
     files.push({
       name: geneFile.filename,
       url: geneFile.url || '',
-      description: "Gene counts matrix",
-      ...(geneFile.content && { content: geneFile.content })
-    })
+      description: 'Gene counts matrix',
+      ...(geneFile.content && { content: geneFile.content }),
+    });
   }
-  
+
   if (transcriptFile?.filename) {
     files.push({
       name: transcriptFile.filename,
       url: transcriptFile.url || '',
-      description: "Transcript counts matrix",
-      ...(transcriptFile.content && { content: transcriptFile.content })
-    })
+      description: 'Transcript counts matrix',
+      ...(transcriptFile.content && { content: transcriptFile.content }),
+    });
   }
-  
+
   if (sampleFile?.filename) {
     files.push({
       name: sampleFile.filename,
       url: sampleFile.url || '',
-      description: "Sample sheet with group assignments",
-      ...(sampleFile.content && { content: sampleFile.content })
-    })
+      description: 'Sample sheet with group assignments',
+      ...(sampleFile.content && { content: sampleFile.content }),
+    });
   }
-  
-  return files
+
+  return files;
 }
 
 export function createMetadata(
@@ -60,7 +60,7 @@ export function createMetadata(
   groupColumn: string,
   group?: string,
   program?: string,
-  project?: string
+  project?: string,
 ) {
   return {
     selectedFiles: downloadFiles.map(f => f.name),
@@ -73,6 +73,6 @@ export function createMetadata(
     group,
     program,
     project,
-    kind: "TranscriptExpression",
-  }
+    kind: 'TranscriptExpression',
+  };
 }

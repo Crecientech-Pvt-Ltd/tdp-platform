@@ -1,12 +1,12 @@
 'use client';
 
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import React from 'react';
 import { LeftSideBar } from '@/components/left-panel';
 import { RightSideBar } from '@/components/right-panel';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import React from 'react';
 
 export default function NetworkLayoutPage({ children }: { children: React.ReactNode }) {
   const tabNames = [
@@ -33,13 +33,13 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   }, []);
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className='h-screen flex flex-col'>
-      <div className='bg-primary h-12 flex items-center p-2'>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className='flex h-screen flex-col'>
+      <div className='flex h-12 items-center bg-primary p-2'>
         <Button variant='oldtool' size='icon' className='h-full' onClick={handleLeftSidebarToggle}>
-          {leftSidebar ? <ChevronLeft className='h-4 w-4' /> : <ChevronRight className='h-4 w-4' />}
+          {leftSidebar ? <ChevronLeftIcon className='h-4 w-4' /> : <ChevronRightIcon className='h-4 w-4' />}
         </Button>
-        <div className='flex-1 flex justify-center'>
-          <TabsList className='flex items-center gap-2 h-8 w-3/4 max-w-4xl'>
+        <div className='flex flex-1 justify-center'>
+          <TabsList className='flex h-8 w-3/4 max-w-4xl items-center gap-2'>
             {tabNames.map(tab => (
               <TabsTrigger key={tab.key} className='flex-1 px-6' value={tab.key}>
                 {tab.label}
@@ -47,11 +47,9 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
             ))}
           </TabsList>
         </div>
-        <div className='flex items-center gap-4'>
-          
-        </div>
+        <div className='flex items-center gap-4'></div>
         <Button variant='oldtool' size='icon' className='h-full' onClick={handleRightSidebarToggle}>
-          {rightSidebar ? <ChevronRight className='h-4 w-4' /> : <ChevronLeft className='h-4 w-4' />}
+          {rightSidebar ? <ChevronRightIcon className='h-4 w-4' /> : <ChevronLeftIcon className='h-4 w-4' />}
         </Button>
       </div>
 
@@ -64,7 +62,10 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
             <ResizableHandle withHandle />
           </>
         )}
-        <ResizablePanel defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100} className='bg-white h-full w-full'>
+        <ResizablePanel
+          defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100}
+          className='h-full w-full bg-white'
+        >
           {children}
         </ResizablePanel>
         {rightSidebar && (

@@ -1,6 +1,6 @@
-import type { PopUpTableProps } from '@/lib/interface';
-import { Download } from 'lucide-react';
+import { DownloadIcon } from 'lucide-react';
 import { unparse } from 'papaparse';
+import type { PopUpTableProps } from '@/lib/interface';
 import { Button } from './ui/button';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTitle } from './ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
@@ -45,7 +45,7 @@ export default function PopUpTable({
 
   return (
     <Dialog open={tableOpen}>
-      <DialogContent className='max-w-5xl w-11/12 max-h-[90vh] min-h-[60vh] flex flex-col'>
+      <DialogContent className='flex max-h-[90vh] min-h-[60vh] w-11/12 max-w-5xl flex-col'>
         <DialogTitle>Results Preview</DialogTitle>
         <div className='flex-grow overflow-y-scroll'>
           <Tabs defaultValue='found'>
@@ -53,7 +53,7 @@ export default function PopUpTable({
               <TabsTrigger value='found'>Found</TabsTrigger>
               <TabsTrigger
                 value='not-found'
-                className={`${notFoundFilteredGeneIDs.length > 0 && 'text-red-500 underline font-semibold'}`}
+                className={`${notFoundFilteredGeneIDs.length > 0 && 'font-semibold text-red-500 underline'}`}
               >
                 Not-Found
               </TabsTrigger>
@@ -75,7 +75,7 @@ export default function PopUpTable({
                     <TableRow key={`${gene.ID}-${gene.Input}`}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{gene.Input}</TableCell>
-                      <TableCell className='underline hover:text-teal-900 cursor-pointer'>
+                      <TableCell className='cursor-pointer underline hover:text-teal-900'>
                         <a
                           className='flex gap-1'
                           target='_blank'
@@ -85,7 +85,7 @@ export default function PopUpTable({
                           {gene.ID}
                         </a>
                       </TableCell>
-                      <TableCell className='underline hover:text-teal-900 cursor-pointer'>
+                      <TableCell className='cursor-pointer underline hover:text-teal-900'>
                         <a
                           className='flex gap-1'
                           target='_blank'
@@ -122,11 +122,11 @@ export default function PopUpTable({
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter className='gap-2 w-full'>
+        <DialogFooter className='w-full gap-2'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size={'icon'} variant={'basic'}>
-                <Download size={20} />
+                <DownloadIcon size={20} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

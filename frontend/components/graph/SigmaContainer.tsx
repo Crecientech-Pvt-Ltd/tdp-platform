@@ -1,19 +1,19 @@
 'use client';
 
-import { NodeGradientProgram } from '@/lib/graph';
-import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import {
+  SigmaContainer as _SigmaContainer,
   ControlsContainer,
   FullScreenControl,
   type SigmaContainerProps,
-  SigmaContainer as _SigmaContainer,
 } from '@react-sigma/core';
-import { NodeBorderProgram, createNodeBorderProgram } from '@sigma/node-border';
+import { createNodeBorderProgram, NodeBorderProgram } from '@sigma/node-border';
 import type { Attributes } from 'graphology-types';
-import { Maximize, Minimize } from 'lucide-react';
+import { MaximizeIcon, MinimizeIcon } from 'lucide-react';
 import React, { Suspense, useEffect } from 'react';
 import type { Sigma } from 'sigma';
-import { EdgeLineProgram, NodeCircleProgram, drawDiscNodeHover } from 'sigma/rendering';
+import { drawDiscNodeHover, EdgeLineProgram, NodeCircleProgram } from 'sigma/rendering';
+import { NodeGradientProgram } from '@/lib/graph';
+import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import {
   ColorAnalysis,
   ForceLayout,
@@ -82,8 +82,8 @@ export const SigmaContainer = React.forwardRef<
       <ControlsContainer position='bottom-right' style={{ zIndex: 0 }}>
         <ZoomControl />
         <FullScreenControl labels={{ enter: 'ENTER', exit: 'EXIT' }}>
-          <Maximize />
-          <Minimize />
+          <MaximizeIcon />
+          <MinimizeIcon />
         </FullScreenControl>
       </ControlsContainer>
     </_SigmaContainer>

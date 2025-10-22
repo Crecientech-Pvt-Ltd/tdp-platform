@@ -1,11 +1,11 @@
 'use client';
 
+import { useSetSettings, useSigma } from '@react-sigma/core';
+import { useEffect, useState } from 'react';
 import { FADED_EDGE_COLOR, HIGHLIGHTED_EDGE_COLOR } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
-import { useSetSettings, useSigma } from '@react-sigma/core';
-import { useEffect, useState } from 'react';
 
 export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.MutableRefObject<Set<string>> }) {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
@@ -60,7 +60,7 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
     });
   }, [defaultLabelSize, setSettings]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!sigma || !defaultNodeSize) return;
     if (selectedRadioNodeSize && selectedNodeSizeProperty) {
@@ -75,9 +75,9 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
         return attr;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultNodeSize, sigma]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     const graph = sigma.getGraph();
     setSettings({
@@ -114,7 +114,6 @@ export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.Mut
         return data;
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hoveredNode, setSettings, sigma]);
 
   return null;

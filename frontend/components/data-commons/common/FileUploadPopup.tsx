@@ -1,15 +1,15 @@
 'use client';
 
+import { EyeIcon, Trash2Icon, UploadIcon, XIcon } from 'lucide-react';
 import React from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { createUploadParams, fileUploadUtils } from '@/components/data-commons/upload/utils/fileUploadUtils';
+import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { X, Eye, Upload, Trash2 } from 'lucide-react';
-import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
-import { fileUploadUtils, createUploadParams } from '@/components/data-commons/upload/utils/fileUploadUtils';
-import FilePreviewModal from './FilePreviewModal';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import FilePreviewModal from './FilePreviewModal';
 
 interface FileUploadPopupProps {
   isOpen: boolean;
@@ -29,8 +29,6 @@ interface FileSelections {
   differentialexpression: UploadedFile[];
   samplesheet: UploadedFile | null;
 }
-
-
 
 export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProps) {
   const [loadingProceed, setLoadingProceed] = React.useState(false);
@@ -103,22 +101,22 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     try {
       if (type === 'differentialexpression') {
         const uploadedFiles: UploadedFile[] = [];
-        
+
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           if (!fileUploadUtils.validateFileType(file)) {
             alert(`Invalid file type for ${file.name}. Please upload CSV, TSV, or TXT files only.`);
             continue;
           }
-          
+
           const content = await fileUploadUtils.readFileAsText(file);
           const id = await fileUploadUtils.storeFile(file.name, content, type);
           uploadedFiles.push({ id, filename: file.name, content });
         }
-        
+
         setSelections(prev => ({
           ...prev,
-          differentialexpression: [...prev.differentialexpression, ...uploadedFiles]
+          differentialexpression: [...prev.differentialexpression, ...uploadedFiles],
         }));
       } else {
         const file = files[0];
@@ -126,18 +124,18 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
           alert(`Invalid file type for ${file.name}. Please upload CSV, TSV, or TXT files only.`);
           return;
         }
-        
+
         if (selections[type]) {
           await indexedDBManager.deleteFile((selections[type] as UploadedFile).id);
         }
-        
+
         const content = await fileUploadUtils.readFileAsText(file);
         const id = await fileUploadUtils.storeFile(file.name, content, type);
         const uploadedFile = { id, filename: file.name, content };
-        
+
         setSelections(prev => ({
           ...prev,
-          [type]: uploadedFile
+          [type]: uploadedFile,
         }));
       }
     } catch (error) {
@@ -154,7 +152,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         await indexedDBManager.deleteFile(fileId);
         setSelections(prev => ({
           ...prev,
-          differentialexpression: prev.differentialexpression.filter(f => f.id !== fileId)
+          differentialexpression: prev.differentialexpression.filter(f => f.id !== fileId),
         }));
       } else if (type !== 'differentialexpression') {
         const file = selections[type] as UploadedFile | null;
@@ -162,7 +160,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
           await indexedDBManager.deleteFile(file.id);
           setSelections(prev => ({
             ...prev,
-            [type]: null
+            [type]: null,
           }));
         }
         if (fileInputRefs.current[type]) {
@@ -210,8 +208,13 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
   };
 
   const canProceed = () => {
-    return selections.gene || selections.transcript || selections.pca || 
-           selections.differentialexpression.length > 0 || selections.samplesheet;
+    return (
+      selections.gene ||
+      selections.transcript ||
+      selections.pca ||
+      selections.differentialexpression.length > 0 ||
+      selections.samplesheet
+    );
   };
 
   const confirmProceed = () => {
@@ -226,15 +229,15 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     }, 600);
   };
 
-  const renderUploadRow = (label: string, type: keyof FileSelections, displayType: string) => {
+  const renderUploadRow = (_label: string, type: keyof FileSelections, displayType: string) => {
     const isUploading = uploading === type;
-    
+
     if (type === 'differentialexpression') {
       return (
-                <div className='py-1.5 border-b last:border-b-0'>
-          <div className='flex items-center gap-2 mb-1'>
-            <Label className='text-xs font-medium'>{displayType}</Label>
-            <span className='text-xs text-muted-foreground'>
+        <div className='border-b py-1.5 last:border-b-0'>
+          <div className='mb-1 flex items-center gap-2'>
+            <Label className='font-medium text-xs'>{displayType}</Label>
+            <span className='text-muted-foreground text-xs'>
               ({selections.differentialexpression.length} files uploaded)
             </span>
             {selections.differentialexpression.length > 0 && (
@@ -246,40 +249,42 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                     className='h-4 w-4 p-0'
                     onClick={() => handlePreview('differentialexpression')}
                   >
-                    <Eye className='h-3 w-3' />
+                    <EyeIcon className='h-3 w-3' />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Preview Files</TooltipContent>
               </Tooltip>
             )}
           </div>
-          
+
           <div className='space-y-1'>
             <input
-              ref={(el) => { fileInputRefs.current.differentialexpression = el; }}
+              ref={el => {
+                fileInputRefs.current.differentialexpression = el;
+              }}
               type='file'
               multiple
               accept='.csv,.tsv,.txt'
-              onChange={(e) => handleFileUpload('differentialexpression', e.target.files)}
+              onChange={e => handleFileUpload('differentialexpression', e.target.files)}
               className='hidden'
               id={`upload-${type}`}
             />
-            
-            <div className='border-2 border-dashed border-muted-foreground/25 rounded-md p-1.5 min-h-[35px] flex items-center'>
+
+            <div className='flex min-h-[35px] items-center rounded-md border-2 border-muted-foreground/25 border-dashed p-1.5'>
               {selections.differentialexpression.length === 0 ? (
                 <label
                   htmlFor={`upload-${type}`}
-                  className='flex items-center justify-center gap-1.5 w-full cursor-pointer hover:text-muted-foreground transition-colors'
+                  className='flex w-full cursor-pointer items-center justify-center gap-1.5 transition-colors hover:text-muted-foreground'
                 >
                   {isUploading ? (
                     <>
                       <Spinner className='h-3 w-3' />
-                      <span className='text-xs text-muted-foreground'>Uploading...</span>
+                      <span className='text-muted-foreground text-xs'>Uploading...</span>
                     </>
                   ) : (
                     <>
-                      <Upload className='h-3 w-3' />
-                      <span className='text-xs text-muted-foreground'>
+                      <UploadIcon className='h-3 w-3' />
+                      <span className='text-muted-foreground text-xs'>
                         Click to upload multiple differential expression files
                       </span>
                     </>
@@ -289,16 +294,16 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                 <div className='w-full space-y-1'>
                   <label
                     htmlFor={`upload-${type}`}
-                    className='flex items-center gap-1 text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors'
+                    className='flex cursor-pointer items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground'
                   >
-                    <Upload className='h-3 w-3' />
+                    <UploadIcon className='h-3 w-3' />
                     Add more files
                   </label>
                   <div className='flex flex-wrap gap-1'>
-                    {selections.differentialexpression.map((file) => (
+                    {selections.differentialexpression.map(file => (
                       <div
                         key={file.id}
-                        className='inline-flex items-center gap-1 bg-muted/80 rounded px-1.5 py-0.5 text-xs'
+                        className='inline-flex items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 text-xs'
                         title={file.filename}
                       >
                         <span>{file.filename}</span>
@@ -308,7 +313,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                           className='h-3 w-3 p-0 hover:bg-destructive/20'
                           onClick={() => handleRemoveFile('differentialexpression', file.id)}
                         >
-                          <X className='h-2 w-2' />
+                          <XIcon className='h-2 w-2' />
                         </Button>
                       </div>
                     ))}
@@ -324,53 +329,48 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     const selectedFile = selections[type] as UploadedFile | null;
 
     return (
-      <div className='py-3 border-b last:border-b-0'>
-        <div className='flex items-center gap-2 mb-2'>
-          <Label className='text-sm font-medium'>{displayType}</Label>
+      <div className='border-b py-3 last:border-b-0'>
+        <div className='mb-2 flex items-center gap-2'>
+          <Label className='font-medium text-sm'>{displayType}</Label>
           {selectedFile && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='h-6 w-6 p-0'
-                  onClick={() => handlePreview(type)}
-                >
-                  <Eye className='h-4 w-4' />
+                <Button variant='ghost' size='icon' className='h-6 w-6 p-0' onClick={() => handlePreview(type)}>
+                  <EyeIcon className='h-4 w-4' />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Preview File</TooltipContent>
             </Tooltip>
           )}
         </div>
-        
+
         <div className='space-y-2'>
           <input
-            ref={(el) => { fileInputRefs.current[type] = el; }}
+            ref={el => {
+              fileInputRefs.current[type] = el;
+            }}
             type='file'
             accept='.csv,.tsv,.txt'
-            onChange={(e) => handleFileUpload(type, e.target.files)}
+            onChange={e => handleFileUpload(type, e.target.files)}
             className='hidden'
             id={`upload-${type}`}
           />
-          
-          <div className='border-2 border-dashed border-muted-foreground/25 rounded-md p-2 min-h-[45px]'>
+
+          <div className='min-h-[45px] rounded-md border-2 border-muted-foreground/25 border-dashed p-2'>
             {!selectedFile ? (
               <label
                 htmlFor={`upload-${type}`}
-                className='flex items-center justify-center gap-2 h-full cursor-pointer hover:text-muted-foreground transition-colors'
+                className='flex h-full cursor-pointer items-center justify-center gap-2 transition-colors hover:text-muted-foreground'
               >
                 {isUploading ? (
                   <>
                     <Spinner className='h-3 w-3' />
-                    <span className='text-xs text-muted-foreground'>Uploading...</span>
+                    <span className='text-muted-foreground text-xs'>Uploading...</span>
                   </>
                 ) : (
                   <>
-                    <Upload className='h-3 w-3' />
-                    <span className='text-xs text-muted-foreground'>
-                      Click to upload {type} file
-                    </span>
+                    <UploadIcon className='h-3 w-3' />
+                    <span className='text-muted-foreground text-xs'>Click to upload {type} file</span>
                   </>
                 )}
               </label>
@@ -378,7 +378,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2'>
                   <div
-                    className='inline-flex items-center gap-1 bg-muted/80 rounded px-1.5 py-0.5 text-xs'
+                    className='inline-flex items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 text-xs'
                     title={selectedFile.filename}
                   >
                     <span>{fileUploadUtils.truncateFilename(selectedFile.filename, 35)}</span>
@@ -388,15 +388,15 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                       className='h-3 w-3 p-0 hover:bg-destructive/20'
                       onClick={() => handleRemoveFile(type)}
                     >
-                      <X className='h-2 w-2' />
+                      <XIcon className='h-2 w-2' />
                     </Button>
                   </div>
                 </div>
                 <label
                   htmlFor={`upload-${type}`}
-                  className='flex items-center gap-1 text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors'
+                  className='flex cursor-pointer items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground'
                 >
-                  <Upload className='h-3 w-3' />
+                  <UploadIcon className='h-3 w-3' />
                   Replace
                 </label>
               </div>
@@ -409,10 +409,8 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className='max-w-3xl w-[95vw] max-h-[85vh] flex flex-col'>
-        <DialogTitle className='text-lg font-semibold'>
-          Upload Analysis Files
-        </DialogTitle>
+      <DialogContent className='flex max-h-[85vh] w-[95vw] max-w-3xl flex-col'>
+        <DialogTitle className='font-semibold text-lg'>Upload Analysis Files</DialogTitle>
 
         <div className='flex-grow overflow-y-auto'>
           <div className='space-y-0'>
@@ -420,24 +418,28 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
             {renderUploadRow('Transcript File', 'transcript', 'Transcript File')}
             {renderUploadRow('Sample Sheet File', 'samplesheet', 'Sample Sheet File')}
             {renderUploadRow('PCA File', 'pca', 'PCA File')}
-            {renderUploadRow('Differential Expression Files', 'differentialexpression', 'Differential Expression Files')}
+            {renderUploadRow(
+              'Differential Expression Files',
+              'differentialexpression',
+              'Differential Expression Files',
+            )}
           </div>
         </div>
 
-        <DialogFooter className='gap-2 flex-col sm:flex-row justify-between border-t pt-4'>
-          <div className='flex gap-2 flex-1'>
+        <DialogFooter className='flex-col justify-between gap-2 border-t pt-4 sm:flex-row'>
+          <div className='flex flex-1 gap-2'>
             <Button variant='outline' onClick={onClose} className='flex items-center gap-2'>
-              <X className='h-4 w-4' />
+              <XIcon className='h-4 w-4' />
               Cancel
             </Button>
-            
+
             <Button
               variant='outline'
               onClick={clearAllSelections}
               disabled={uploading !== null}
               className='flex items-center gap-2'
             >
-              <Trash2 className='h-4 w-4' />
+              <Trash2Icon className='h-4 w-4' />
               Clear All
             </Button>
           </div>

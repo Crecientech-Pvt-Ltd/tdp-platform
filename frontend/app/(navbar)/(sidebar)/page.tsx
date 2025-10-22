@@ -1,5 +1,9 @@
 'use client';
 
+import { useLazyQuery } from '@apollo/client/react';
+import { AlertTriangleIcon, InfoIcon, LoaderIcon } from 'lucide-react';
+import React, { type ChangeEvent, useId } from 'react';
+import { toast } from 'sonner';
 import { DiseaseMapCombobox } from '@/components/DiseaseMapCombobox';
 import History, { type HistoryItem } from '@/components/History';
 import PopUpTable from '@/components/PopUpTable';
@@ -26,10 +30,6 @@ import { graphConfig } from '@/lib/data';
 import { GENE_VERIFICATION_QUERY, TOP_GENES_QUERY } from '@/lib/gql';
 import type { GeneVerificationData, GeneVerificationVariables, GetDiseaseData, GraphConfigForm } from '@/lib/interface';
 import { distinct, envURL } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
-import { AlertTriangle, Info, Loader } from 'lucide-react';
-import React, { type ChangeEvent } from 'react';
-import { toast } from 'sonner';
 
 export default function Home() {
   const [verifyGenes, { data, loading }] = useLazyQuery<GeneVerificationData, GeneVerificationVariables>(
@@ -37,7 +37,10 @@ export default function Home() {
   );
   const [diseaseData, setDiseaseData] = React.useState<GetDiseaseData | undefined>(undefined);
 
-  const [fetchTopGenes, { data: topGenesData, loading: topGenesLoading }] = useLazyQuery(TOP_GENES_QUERY);
+  const [fetchTopGenes, { data: topGenesData, loading: topGenesLoading }] = useLazyQuery<
+    { topGenesByDisease: Array<{ gene_name: string }> },
+    { diseaseId: string; limit: number }
+  >(TOP_GENES_QUERY);
 
   React.useEffect(() => {
     (async () => {
@@ -215,29 +218,34 @@ export default function Home() {
     window.open('/network', '_blank', 'noopener,noreferrer');
   };
 
+  const autoFillNumId = useId();
+  const autoFillToggleId = useId();
+  const seedGenesId = useId();
+  const seedFileId = useId();
+
   return (
-    <div className='mx-auto rounded-lg shadow-md border min-h-[80vh]'>
+    <div className='mx-auto min-h-[80vh] rounded-lg border shadow-md'>
       <h2
         style={{
           background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
         }}
-        className='text-2xl text-white rounded-t-lg font-semibold px-6 py-2 mb-6'
+        className='mb-6 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
       >
         Search by Multiple Proteins
       </h2>
       <ResizablePanelGroup direction='horizontal' className='gap-4 p-4'>
         <ResizablePanel defaultSize={75} minSize={65}>
           <div className='space-y-4'>
-            <div className='flex flex-col sm:flex-row sm:items-center h-8 gap-2 mb-2'>
+            <div className='mb-2 flex h-8 flex-col gap-2 sm:flex-row sm:items-center'>
               <div className='flex items-center gap-2'></div>
-              <Switch checked={autofill} onCheckedChange={setAutofill} id='autofill-toggle' />
-              <Label htmlFor='autofill-toggle' className='whitespace-nowrap'>
+              <Switch checked={autofill} onCheckedChange={setAutofill} id={autoFillToggleId} />
+              <Label htmlFor={autoFillToggleId} className='whitespace-nowrap'>
                 Autofill Seed Genes
               </Label>
               <span className='flex items-center'>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info size={12} />
+                    <InfoIcon size={12} />
                   </TooltipTrigger>
                   <TooltipContent className='max-w-s'>
                     <div>
@@ -255,15 +263,15 @@ export default function Home() {
               <div className='flex items-center gap-2'></div>
               {autofill && (
                 <form onSubmit={handleAutofill} className='flex items-center gap-2 sm:ml-4'>
-                  <Label htmlFor='autofill-num'>No. of genes</Label>
+                  <Label htmlFor={autoFillNumId}>No. of genes</Label>
                   <Input
-                    id='autofill-num'
+                    id={autoFillNumId}
                     type='number'
                     inputMode='numeric'
                     required
                     name='autofill-num'
                     min={1}
-                    className='w-20 h-8'
+                    className='h-8 w-20'
                     placeholder='e.g. 25'
                     defaultValue={25}
                     disabled={autofillLoading || topGenesLoading}
@@ -271,7 +279,7 @@ export default function Home() {
                   <Button
                     type='submit'
                     disabled={autofillLoading || topGenesLoading}
-                    className='ml-2 h-8'
+                    className='ml-2 h-8 cursor-pointer'
                     style={{
                       background:
                         'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
@@ -279,7 +287,7 @@ export default function Home() {
                   >
                     {autofillLoading || topGenesLoading ? (
                       <>
-                        <Loader className='animate-spin mr-2' size={16} />
+                        <LoaderIcon className='mr-2 animate-spin' size={16} />
                         Autofilling...
                       </>
                     ) : (
@@ -291,11 +299,12 @@ export default function Home() {
             </div>
             <div>
               <div className='flex justify-between'>
-                <Label htmlFor='seedGenes'>Seed Genes</Label>
+                <Label htmlFor={seedGenesId}>Seed Genes</Label>
                 <p className='text-zinc-500'>
                   (one-per-line or CSV; examples:
-                  <span
-                    className='underline cursor-pointer'
+                  <button
+                    type='button'
+                    className='cursor-pointer underline'
                     onClick={() => {
                       setFormData({
                         ...formData,
@@ -304,9 +313,10 @@ export default function Home() {
                     }}
                   >
                     #1
-                  </span>{' '}
-                  <span
-                    className='underline cursor-pointer'
+                  </button>{' '}
+                  <button
+                    type='button'
+                    className='cursor-pointer underline'
                     onClick={() => {
                       setFormData({
                         ...formData,
@@ -320,9 +330,10 @@ ENSG00000162063`,
                     }}
                   >
                     #2
-                  </span>{' '}
-                  <span
-                    className='underline cursor-pointer'
+                  </button>{' '}
+                  <button
+                    type='button'
+                    className='cursor-pointer underline'
                     onClick={() => {
                       setFormData({
                         ...formData,
@@ -336,13 +347,13 @@ FIG4`,
                     }}
                   >
                     #3
-                  </span>
+                  </button>
                   )
                 </p>
               </div>
               <Textarea
                 rows={6}
-                id='seedGenes'
+                id={seedGenesId}
                 placeholder='Type seed genes in either , or new line separated format'
                 className='mt-1'
                 value={formData.seedGenes}
@@ -351,23 +362,23 @@ FIG4`,
                 disabled={autofillLoading}
               />
               <center>OR</center>
-              <Label htmlFor='seedFile'>Upload Text File</Label>
+              <Label htmlFor={seedFileId}>Upload Text File</Label>
               <Input
-                id='seedFile'
+                id={seedFileId}
                 type='file'
                 accept='.txt'
-                className='border-2 hover:border-dashed cursor-pointer h-9'
+                className='h-9 cursor-pointer border-2 hover:border-dashed'
                 onChange={handleFileRead}
                 disabled={autofillLoading}
               />
             </div>
-            <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+            <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
               <div className='space-y-1'>
                 <div className='flex items-end gap-1'>
                   <Label htmlFor='diseaseMap'>Disease Map</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info size={12} />
+                      <InfoIcon size={12} />
                     </TooltipTrigger>
                     <TooltipContent>
                       Contains the disease name to be mapped taken from OpenTargets Portal. <br />
@@ -388,7 +399,7 @@ FIG4`,
                     <Label htmlFor={config.id}>{config.name}</Label>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info size={12} />
+                        <InfoIcon size={12} />
                       </TooltipTrigger>
                       <TooltipContent>{config.tooltipContent}</TooltipContent>
                     </Tooltip>
@@ -424,11 +435,11 @@ FIG4`,
                 style={{
                   background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
                 }}
-                className='w-3/4 mb-4'
+                className='mb-4 w-3/4 cursor-pointer'
               >
                 {loading ? (
                   <>
-                    <Loader className='animate-spin mr-2' size={20} />
+                    <LoaderIcon className='mr-2 animate-spin' size={20} />
                     Verifying {geneIDs.length} genes...
                   </>
                 ) : (
@@ -447,15 +458,15 @@ FIG4`,
           <AlertDialog open={showAlert}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle className='text-red-500 flex items-center'>
-                  <AlertTriangle size={24} className='mr-2' />
+                <AlertDialogTitle className='flex items-center text-red-500'>
+                  <AlertTriangleIcon size={24} className='mr-2' />
                   Warning!
                 </AlertDialogTitle>
                 <AlertDialogDescription className='text-black'>
                   You are about to generate a graph with a large number of nodes/edges. This may take a long time to
                   complete.
                 </AlertDialogDescription>
-                <p className='text-black font-semibold'>Are you sure you want to proceed?</p>
+                <p className='font-semibold text-black'>Are you sure you want to proceed?</p>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => setShowAlert(false)}>Cancel</AlertDialogCancel>
@@ -473,7 +484,7 @@ FIG4`,
           </AlertDialog>
         </ResizablePanel>
         <ResizableHandle withHandle className='hidden md:flex' />
-        <ResizablePanel className='h-[65vh] hidden md:block' defaultSize={25} minSize={15}>
+        <ResizablePanel className='hidden h-[65vh] md:block' defaultSize={25} minSize={15}>
           <History history={history} setHistory={setHistory} setFormData={setFormData} />
         </ResizablePanel>
       </ResizablePanelGroup>

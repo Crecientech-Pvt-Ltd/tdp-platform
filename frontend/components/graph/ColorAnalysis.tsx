@@ -1,12 +1,12 @@
 'use client';
 
+import { useSigma } from '@react-sigma/core';
+import { scaleLinear } from 'd3-scale';
+import { useEffect } from 'react';
 import { DEFAULT_EDGE_COLOR } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { P_VALUE_REGEX } from '@/lib/utils';
-import { useSigma } from '@react-sigma/core';
-import { scaleLinear } from 'd3-scale';
-import { useEffect } from 'react';
 
 export function ColorAnalysis() {
   const selectedRadioNodeColor = useStore(state => state.selectedRadioNodeColor);
@@ -19,6 +19,7 @@ export function ColorAnalysis() {
   const radioOptions = useStore(state => state.radioOptions);
   const edgeOpacity = useStore(state => state.edgeOpacity);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!graph) return;
     if (showEdgeColor) {
@@ -35,8 +36,9 @@ export function ColorAnalysis() {
         return attr;
       });
     }
-  }, [showEdgeColor, edgeOpacity, graph]);
+  }, [showEdgeColor, edgeOpacity]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!selectedRadioNodeColor && graph) {
       useStore.setState({ selectedNodeColorProperty: '' });
@@ -45,8 +47,9 @@ export function ColorAnalysis() {
         return attr;
       });
     }
-  }, [graph, selectedRadioNodeColor]);
+  }, [selectedRadioNodeColor]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!selectedNodeColorProperty || !graph || !selectedRadioNodeColor) return;
     const isUserProperty =
@@ -57,8 +60,9 @@ export function ColorAnalysis() {
     if (selectedRadioNodeColor === 'OpenTargets' && typeof selectedNodeColorProperty === 'string') {
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
-          const section = cur[userOrDiseaseIdentifier] as OtherSection;
-          const valString = section?.OpenTargets?.[selectedNodeColorProperty];
+          const valString = (cur[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
+            selectedNodeColorProperty
+          ];
           if (!valString) return acc;
           const value = +valString;
           if (Number.isNaN(value)) return acc;
@@ -80,8 +84,9 @@ export function ColorAnalysis() {
 
       const [min, max] = Object.values(universalData).reduce(
         (acc, cur) => {
-          const section = cur[userOrDiseaseIdentifier] as OtherSection;
-          const valString = section?.LogFC?.[selectedNodeColorProperty];
+          const valString = (cur[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
+            selectedNodeColorProperty
+          ];
           if (!valString) return acc;
           const value = isPValue ? -Math.log10(+valString) : +valString;
           if (Number.isNaN(value)) return acc;
@@ -105,8 +110,9 @@ export function ColorAnalysis() {
     } else if (selectedRadioNodeColor === 'Genetics' && typeof selectedNodeColorProperty === 'string') {
       const [min, max] = Object.values(universalData).reduce(
         (acc, cur) => {
-          const section = cur[userOrDiseaseIdentifier] as OtherSection;
-          const valString = section?.Genetics?.[selectedNodeColorProperty];
+          const valString = (cur[userOrDiseaseIdentifier] as OtherSection)?.[selectedRadioNodeColor][
+            selectedNodeColorProperty
+          ];
           if (!valString) return acc;
           const value = +valString;
           if (Number.isNaN(value)) return acc;
@@ -127,10 +133,10 @@ export function ColorAnalysis() {
       const propertyArray = Array.from(selectedNodeColorProperty);
       const userPathwayArray = radioOptions.user.Pathway;
       graph.updateEachNodeAttributes((node, attr) => {
-        attr.color = propertyArray.some(property => {
-          const section = universalData[node]?.[userPathwayArray.includes(property) ? 'user' : 'common'];
-          return +section?.Pathway?.[property];
-        })
+        attr.color = propertyArray.some(
+          property =>
+            +universalData[node]?.[userPathwayArray.includes(property) ? 'user' : 'common']?.Pathway[property],
+        )
           ? 'red'
           : defaultNodeColor;
         return attr;
@@ -138,8 +144,7 @@ export function ColorAnalysis() {
     } else if (selectedRadioNodeColor === 'Druggability' && typeof selectedNodeColorProperty === 'string') {
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
-          const section = cur[userOrCommonIdentifier];
-          const valString = section?.Druggability?.[selectedNodeColorProperty];
+          const valString = cur[userOrCommonIdentifier]?.[selectedRadioNodeColor][selectedNodeColorProperty];
           if (!valString) return acc;
           const value = +valString;
           if (Number.isNaN(value)) return acc;
@@ -149,7 +154,7 @@ export function ColorAnalysis() {
       );
       const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = universalData[node]?.[userOrCommonIdentifier]?.Druggability?.[selectedNodeColorProperty];
+        const val = universalData[node]?.[userOrCommonIdentifier]?.[selectedRadioNodeColor][selectedNodeColorProperty];
         if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
@@ -167,8 +172,7 @@ export function ColorAnalysis() {
       const minMax = Object.values(universalData).reduce(
         (acc, cur) => {
           const value = propertyArray.reduce((acc2, property) => {
-            const section = cur[userTEArray.includes(property) ? 'user' : 'common'];
-            const val = section?.TE?.[property];
+            const val = cur[userTEArray.includes(property) ? 'user' : 'common']?.[selectedRadioNodeColor][property];
             if (val == null || Number.isNaN(+val)) return acc2;
             return Math.max(acc2, +val);
           }, 0);
@@ -179,8 +183,10 @@ export function ColorAnalysis() {
       const colorScale = scaleLinear<string>(minMax, [defaultNodeColor, 'red']);
       graph.updateEachNodeAttributes((node, attr) => {
         const val = propertyArray.reduce((acc, property) => {
-          const section = universalData[node]?.[userTEArray.includes(property) ? 'user' : 'common'];
-          const value = section?.TE?.[property];
+          const value =
+            universalData[node]?.[userTEArray.includes(property) ? 'user' : 'common']?.[selectedRadioNodeColor][
+              property
+            ];
           if (value == null && Number.isNaN(+value)) return acc;
           return Math.max(acc, +value);
         }, Number.NEGATIVE_INFINITY);
@@ -191,20 +197,20 @@ export function ColorAnalysis() {
     } else if (selectedRadioNodeColor === 'Custom_Color' && typeof selectedNodeColorProperty === 'string') {
       graph.updateEachNodeAttributes((node, attr) => {
         attr.color =
-          universalData[node]?.[userOrCommonIdentifier]?.Custom_Color?.[selectedNodeColorProperty] || defaultNodeColor;
+          universalData[node]?.[userOrCommonIdentifier]?.[selectedRadioNodeColor][selectedNodeColorProperty] ||
+          defaultNodeColor;
         return attr;
       });
     } else if (selectedRadioNodeColor === 'OT_Prioritization' && typeof selectedNodeColorProperty === 'string') {
       const colorScale = scaleLinear<string>([-1, 0, 1], ['red', '#F0C584', 'green']);
       graph.updateEachNodeAttributes((node, attr) => {
-        const val = universalData[node]?.[userOrCommonIdentifier]?.OT_Prioritization?.[selectedNodeColorProperty];
+        const val = universalData[node]?.[userOrCommonIdentifier]?.[selectedRadioNodeColor][selectedNodeColorProperty];
         if (val != null && !Number.isNaN(+val)) attr.color = colorScale(+val);
         else attr.color = undefined;
         return attr;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedNodeColorProperty, graph, universalData, defaultNodeColor]);
+  }, [selectedNodeColorProperty, graph, universalData]);
 
   return null;
 }

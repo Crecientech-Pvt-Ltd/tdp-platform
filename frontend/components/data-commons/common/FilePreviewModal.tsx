@@ -1,110 +1,31 @@
-"use client"
+'use client';
 
-import React from "react"
-import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, X } from "lucide-react"
-import { Spinner } from "@/components/ui/spinner"
-import Papa from "papaparse"
-
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL
+import { ArrowLeftIcon, ArrowRightIcon, XIcon } from 'lucide-react';
+import Papa from 'papaparse';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 
 interface FilePreviewModalProps {
-  open: boolean
-  onClose: () => void
-  filename: string
-  group?: string
-  program?: string
-  project?: string
-  uploadedContent?: string 
-  multiple?: boolean
-  onNext?: () => void
-  onPrev?: () => void
-  fileIndex?: number
-  fileCount?: number
+  open: boolean;
+  onClose: () => void;
+  filename: string;
+  group?: string;
+  program?: string;
+  project?: string;
+  uploadedContent?: string;
+  multiple?: boolean;
+  onNext?: () => void;
+  onPrev?: () => void;
+  fileIndex?: number;
+  fileCount?: number;
 }
 
 type ParsedTable = {
-  headers: string[]
-  rows: string[][]
-  delimiter: "," | "\t"
-}
-
-function detectDelimiter(sample: string): "," | "\t" {
-  const lines = sample.split(/\r?\n/).slice(0, 50)
-  let commaScore = 0
-  let tabScore = 0
-  for (const line of lines) {
-    if (!line.trim()) continue
-    const commas = (line.match(/,/g) || []).length
-    const tabs = (line.match(/\t/g) || []).length
-    if (commas > 0) commaScore += 1
-    if (tabs > 0) tabScore += 1
-  }
-  return tabScore >= commaScore ? "\t" : ","
-}
-
-function parseTable(text: string): ParsedTable | null {
-  const delimiter = detectDelimiter(text)
-  const result = Papa.parse<string[]>(text, {
-    delimiter,
-    skipEmptyLines: true,
-    dynamicTyping: false,
-  })
-
-  if (result.errors?.length) {
-    const alt: "," | "\t" = delimiter === "," ? "\t" : ","
-    const retry = Papa.parse<string[]>(text, {
-      delimiter: alt,
-      skipEmptyLines: true,
-      dynamicTyping: false,
-    })
-    if (!retry.errors?.length) {
-      return buildTable(alt, retry.data)
-    }
-    return null
-  }
-
-  return buildTable(delimiter, result.data)
-}
-
-function buildTable(delimiter: "," | "\t", data: string[][]): ParsedTable | null {
-  const rows: string[][] = data
-    .map((r) => (Array.isArray(r) ? r.map((c) => (c == null ? "" : String(c))) : []))
-    .filter((r) => r.length > 0)
-
-  if (rows.length === 0) return null
-
-  const maxCols = Math.max(...rows.map((r) => r.length))
-  let headers = rows[0] || []
-
-  const looksLikeHeaders = headers.some((h) => isNaN(Number(String(h).trim())))
-  if (!looksLikeHeaders) headers = []
-
-  if (headers.length === 0) {
-    headers = Array.from({ length: maxCols }, (_, i) => `Column ${i + 1}`)
-  } else {
-    headers = [...headers, ...Array(Math.max(maxCols - headers.length, 0)).fill("")].map((h, i) =>
-      h?.toString()?.trim() ? h.toString() : `Column ${i + 1}`,
-    )
-  }
-
-  const dataStart = looksLikeHeaders ? 1 : 0
-  const body = rows.slice(dataStart).map((r) => {
-    const padded = [...r, ...Array(Math.max(headers.length - r.length, 0)).fill("")]
-    return padded
-  })
-
-  const hasDelimiterInText =
-    delimiter === ","
-      ? data.some((r) => Array.isArray(r) && r.some((c) => typeof c === "string" && c.includes(",")))
-      : data.some((r) => Array.isArray(r) && r.some((c) => typeof c === "string" && c.includes("\t")))
-  if (maxCols <= 1 && !hasDelimiterInText) {
-    return null
-  }
-
-  return { headers, rows: body, delimiter }
-}
+  headers: string[];
+  data: Record<string, string>[];
+};
 
 export default function FilePreviewModal({
   open,
@@ -120,178 +41,150 @@ export default function FilePreviewModal({
   fileIndex = 0,
   fileCount = 1,
 }: FilePreviewModalProps) {
-  const [loading, setLoading] = React.useState(false)
-  const [parsing, setParsing] = React.useState(false)
-  const [rawContent, setRawContent] = React.useState<string>("")
-  const [table, setTable] = React.useState<ParsedTable | null>(null)
-  const [error, setError] = React.useState<string | null>(null)
+  const [loading, setLoading] = React.useState(false);
+  const [table, setTable] = React.useState<ParsedTable | null>(null);
+  const [rawContent, setRawContent] = React.useState<string>('');
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (!open || !filename) return
-    let cancelled = false
-    setLoading(true)
-    setParsing(false)
-    setError(null)
-    setRawContent("")
-    setTable(null)
+    if (!open || !filename) return;
+
+    setLoading(true);
+    setError(null);
+    setTable(null);
+    setRawContent('');
+
+    const parseConfig = {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: false,
+      preview: 20, // Only parse first 20 rows for preview
+      transformHeader: (header: string, index: number) => header?.trim() || `Column ${index + 1}`,
+      complete: (results: Papa.ParseResult<Record<string, string>>) => {
+        setLoading(false);
+
+        if (results.errors?.length) {
+          // If parsing failed, show as raw text
+          setTable(null);
+          return;
+        }
+
+        const headers = results.meta.fields || [];
+        if (headers.length > 0 && results.data.length > 0) {
+          setTable({
+            headers,
+            data: results.data,
+          });
+        }
+      },
+      error: (error: Error) => {
+        setLoading(false);
+        setError(error.message);
+      },
+    };
 
     if (uploadedContent) {
-      setRawContent(uploadedContent)
-      setParsing(true)
-      setLoading(false)
-      
-      setTimeout(() => {
-        try {
-          const lines = uploadedContent.split('\n')
-          const previewContent = lines.slice(0, 21).join('\n')
-          const parsed = parseTable(previewContent)
-          if (!cancelled) setTable(parsed)
-        } catch {
-          if (!cancelled) setTable(null)
-        } finally {
-          if (!cancelled) setParsing(false)
-        }
-      }, 0)
-      return
+      // Parse uploaded content directly
+      setRawContent(uploadedContent);
+      Papa.parse(uploadedContent, parseConfig);
+    } else if (group && program && project) {
+      // Parse remote file using Papa Parse's download feature
+      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/preview/${encodeURIComponent(filename)}`;
+
+      Papa.parse(url, {
+        ...parseConfig,
+        download: true,
+        beforeFirstChunk: (chunk: string) => {
+          setRawContent(chunk);
+          return chunk;
+        },
+      });
+    } else {
+      setError('Missing project information for server file preview');
+      setLoading(false);
     }
+  }, [open, filename, group, program, project, uploadedContent]);
 
-    if (!group || !program || !project) {
-      if (!cancelled) {
-        setError("Missing project information for server file preview")
-        setLoading(false)
-      }
-      return
-    }
-
-    const url = `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(
-      program,
-    )}/${encodeURIComponent(project)}/preview/${encodeURIComponent(filename)}`
-
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch preview")
-        return res.text()
-      })
-      .then((text) => {
-        if (cancelled) return
-        setRawContent(text)
-        setParsing(true)
-        setTimeout(() => {
-          try {
-            const parsed = parseTable(text)
-            if (!cancelled) setTable(parsed)
-          } catch {
-            if (!cancelled) setTable(null)
-          } finally {
-            if (!cancelled) setParsing(false)
-          }
-        }, 0)
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load preview")
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [open, filename, group, program, project, uploadedContent])
-
-  const isLoading = loading || parsing
-  const showTable = !!table && table.rows.length > 0
+  const showTable = !!table && table.data.length > 0;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="flex flex-col max-w-[95vw] w-[95vw] max-h-[95vh] h-[95vh] p-0">
-        <div className="flex items-center justify-between p-4 border-b shrink-0">
-          <DialogTitle className="text-lg font-semibold pr-8 truncate">
-            Preview: {filename}
-          </DialogTitle>
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className='flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col p-0'>
+        <div className='flex shrink-0 items-center justify-between border-b p-4'>
+          <DialogTitle className='truncate pr-8 font-semibold text-lg'>Preview: {filename}</DialogTitle>
           <DialogClose asChild>
-            <Button
-              aria-label="Close preview"
-              variant="ghost"
-              size="icon"
-              className="shrink-0"
-              onClick={onClose}
-            >
-              <X className="h-5 w-5" />
-              <span className="sr-only">Close</span>
+            <Button aria-label='Close preview' variant='ghost' size='icon' className='shrink-0' onClick={onClose}>
+              <XIcon className='h-5 w-5' />
+              <span className='sr-only'>Close</span>
             </Button>
           </DialogClose>
         </div>
-        <div className="flex-1 min-h-0 p-4">
-          <div className="h-full rounded border bg-background flex flex-col">
-            {isLoading && (
-              <div className="p-4 border-b shrink-0" role="status" aria-live="polite">
-                <div className="flex items-center gap-2">
-                  <Spinner className="h-4 w-4" />
-                  <span className="text-sm">Loading preview...</span>
+        <div className='min-h-0 flex-1 p-4'>
+          <div className='flex h-full flex-col rounded border bg-background'>
+            {loading && (
+              <div className='shrink-0 border-b p-4' aria-live='polite'>
+                <div className='flex items-center gap-2'>
+                  <Spinner className='h-4 w-4' />
+                  <span className='text-sm'>Loading preview...</span>
                 </div>
               </div>
             )}
-            {error && (
-              <div className="p-4 text-sm text-destructive">
-                Failed to load preview: {error}
-              </div>
-            )}
-            {!error && (isLoading || showTable) && (
-              <div className="flex-1 min-h-0 overflow-hidden" aria-busy={isLoading}>
-                <div className="h-full overflow-auto">
-                  <table className="w-full border-separate border-spacing-0">
-                    <thead className="sticky top-0 z-10 bg-background shadow-sm">
+            {error && <div className='p-4 text-destructive text-sm'>Failed to load preview: {error}</div>}
+            {!error && (loading || showTable) && (
+              <div className='min-h-0 flex-1 overflow-hidden' aria-busy={loading}>
+                <div className='h-full overflow-auto'>
+                  <table className='w-full border-separate border-spacing-0'>
+                    <thead className='sticky top-0 z-10 bg-background shadow-sm'>
                       <tr>
                         <th
-                          scope="col"
-                          className="sticky left-0 z-20 bg-background border px-3 py-2 text-left text-xs font-medium text-muted-foreground min-w-[3rem] w-[3rem]"
+                          scope='col'
+                          className='sticky left-0 z-20 w-[3rem] min-w-[3rem] border bg-background px-3 py-2 text-left font-medium text-muted-foreground text-xs'
                         >
                           #
                         </th>
-                        {(table?.headers || new Array(6).fill("")).map((h, i) => (
+                        {(table?.headers || new Array(6).fill('')).map((h, i) => (
                           <th
+                            // biome-ignore lint/suspicious/noArrayIndexKey: Index is necessary here to replace skeleton
                             key={`h-${i}`}
-                            scope="col"
-                            className="border px-3 py-3 text-left text-xs font-semibold text-foreground align-top whitespace-nowrap min-w-[10rem]"
+                            scope='col'
+                            className='min-w-[10rem] whitespace-nowrap border px-3 py-3 text-left align-top font-semibold text-foreground text-xs'
                           >
-                            {isLoading && !table ? (
-                              <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+                            {loading && !table ? (
+                              <div className='h-4 w-24 animate-pulse rounded bg-muted' />
                             ) : (
-                              <div className="break-words max-w-[12rem]">{h}</div>
+                              <div className='max-w-[12rem] break-words'>{h}</div>
                             )}
                           </th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="text-xs">
-                      {isLoading &&
+                    <tbody className='text-xs'>
+                      {loading &&
                         !table &&
                         Array.from({ length: 10 }).map((_, r) => (
-                          <tr key={`s-${r}`} className={r % 2 === 0 ? "bg-muted/40" : ""}>
-                            <td className="sticky left-0 z-10 bg-background border px-3 py-2 text-muted-foreground">
+                          // biome-ignore lint/suspicious/noArrayIndexKey: had to do for skeleton
+                          <tr key={`s-${r}`} className={r % 2 === 0 ? 'bg-muted/40' : ''}>
+                            <td className='sticky left-0 z-10 border bg-background px-3 py-2 text-muted-foreground'>
                               {r + 1}
                             </td>
                             {Array.from({ length: 6 }).map((_, c) => (
-                              <td key={`s-${r}-${c}`} className="border px-3 py-2">
-                                <div className="h-4 w-20 rounded bg-muted animate-pulse" />
+                              // biome-ignore lint/suspicious/noArrayIndexKey: had to do for skeleton
+                              <td key={`s-${r}-${c}`} className='border px-3 py-2'>
+                                <div className='h-4 w-20 animate-pulse rounded bg-muted' />
                               </td>
                             ))}
                           </tr>
                         ))}
-                      {!isLoading &&
+                      {!loading &&
                         showTable &&
-                        table.rows.map((row, rIdx) => (
-                          <tr key={`r-${rIdx}`} className={rIdx % 2 === 0 ? "bg-muted/30" : ""}>
-                            <td className="sticky left-0 z-10 bg-background border px-3 py-2 text-muted-foreground">
+                        table.data.map((row, rIdx) => (
+                          <tr key={Object.values(row)?.[0]} className={rIdx % 2 === 0 ? 'bg-muted/30' : ''}>
+                            <td className='sticky left-0 z-10 border bg-background px-3 py-2 text-muted-foreground'>
                               {rIdx + 1}
                             </td>
-                            {row.map((cell, cIdx) => (
-                              <td
-                                key={`c-${rIdx}-${cIdx}`}
-                                className="border px-3 py-2 align-top max-w-[12rem]"
-                              >
-                                <div className="break-words whitespace-pre-wrap">{cell}</div>
+                            {table.headers.map(header => (
+                              <td key={header} className='max-w-[12rem] border px-3 py-2 align-top'>
+                                <div className='whitespace-pre-wrap break-words'>{row[header] || ''}</div>
                               </td>
                             ))}
                           </tr>
@@ -301,29 +194,27 @@ export default function FilePreviewModal({
                 </div>
               </div>
             )}
-            {!error && !isLoading && !showTable && (
-              <div className="flex-1 min-h-0 overflow-auto">
-                <pre className="p-4 font-mono text-xs whitespace-pre-wrap break-words h-full">
-                  {rawContent}
-                </pre>
+            {!error && !loading && !showTable && (
+              <div className='min-h-0 flex-1 overflow-auto'>
+                <pre className='h-full whitespace-pre-wrap break-words p-4 font-mono text-xs'>{rawContent}</pre>
               </div>
             )}
           </div>
         </div>
         {multiple && (
-          <div className="flex justify-between items-center p-4 border-t shrink-0">
-            <Button variant="outline" size="sm" onClick={onPrev} disabled={fileCount <= 1}>
-              <ArrowLeft className="h-4 w-4 mr-1" /> Prev
+          <div className='flex shrink-0 items-center justify-between border-t p-4'>
+            <Button variant='outline' size='sm' onClick={onPrev} disabled={fileCount <= 1}>
+              <ArrowLeftIcon className='mr-1 h-4 w-4' /> Prev
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className='text-muted-foreground text-sm'>
               File {fileIndex + 1} of {fileCount}
             </span>
-            <Button variant="outline" size="sm" onClick={onNext} disabled={fileCount <= 1}>
-              Next <ArrowRight className="h-4 w-4 ml-1" />
+            <Button variant='outline' size='sm' onClick={onNext} disabled={fileCount <= 1}>
+              Next <ArrowRightIcon className='ml-1 h-4 w-4' />
             </Button>
           </div>
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

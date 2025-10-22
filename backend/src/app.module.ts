@@ -15,8 +15,7 @@ import { DataCommonsModule } from './data-commons/dataCommons.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'development' ? '.env.local' : '.env',
+      envFilePath: process.env.NODE_ENV === 'development' ? '.env.local' : '.env',
       cache: true,
     }),
     Neo4jModule.forRootAsync({
@@ -25,7 +24,7 @@ import { DataCommonsModule } from './data-commons/dataCommons.module';
         host: configService.get<string>('NEO4J_HOST', 'localhost'),
         port: configService.get<number>('NEO4J_PORT', 7687),
         username: configService.get<string>('NEO4J_USERNAME', 'neo4j'),
-        password: configService.get<string>('NEO4J_PASSWORD'),
+        password: configService.get<string>('NEO4J_PASSWORD', ''),
         database: configService.get<string>('NEO4J_DATABASE', 'pdnet'),
       }),
       inject: [ConfigService],

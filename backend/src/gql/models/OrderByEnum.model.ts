@@ -29,6 +29,5 @@ export enum OrderByEnum {
 
 registerEnumType(OrderByEnum, {
   name: 'OrderByEnum',
-  description:
-    'Available ordering options for target disease association table',
+  description: 'Available ordering options for target disease association table',
 });

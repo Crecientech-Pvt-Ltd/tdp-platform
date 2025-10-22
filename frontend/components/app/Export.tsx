@@ -1,9 +1,11 @@
 'use client';
 
-import { EventMessage, Events, eventEmitter } from '@/lib/utils';
 import { DropdownMenuContent } from '@radix-ui/react-dropdown-menu';
-import { FolderUp } from 'lucide-react';
+import { FolderUpIcon } from 'lucide-react';
+import { useState } from 'react';
+import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -12,8 +14,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { useState } from 'react';
-import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
 
 const exportOptions = [
   { label: 'csv', hasSubmenu: true },
@@ -44,31 +45,31 @@ export function Export() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='oldtool' size='sm' className='text-xs hover:opacity-80 border-none bg-primary rounded-sm '>
-          <FolderUp className='h-3 w-3 mr-1' />
+        <Button variant='oldtool' size='sm' className='rounded-sm border-none bg-primary text-xs hover:opacity-80'>
+          <FolderUpIcon className='mr-1 h-3 w-3' />
           Export
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className='z-10 w-36 bg-zinc-100 border shadow p-1 mb-2 gap-1 rounded-md'>
+      <DropdownMenuContent className='z-10 mb-2 w-36 gap-1 rounded-md border bg-zinc-100 p-1 shadow'>
         {exportOptions.map(opt =>
           opt.hasSubmenu ? (
             <DropdownMenuSub key={opt.label}>
               <DropdownMenuSubTrigger className='cursor-pointer'>{opt.label.toUpperCase()}</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className='z-20 w-48 bg-zinc-100 border shadow p-2 gap-2 rounded-md flex flex-col'>
-                <label className='flex items-center gap-2 px-2 py-1 cursor-pointer'>
+              <DropdownMenuSubContent className='z-20 flex w-48 flex-col gap-2 rounded-md border bg-zinc-100 p-2 shadow'>
+                <Label className='flex cursor-pointer items-center gap-2 px-2 py-1'>
                   <Checkbox
                     checked={csvSelections.universal}
                     onCheckedChange={() => handleCheckboxChange('universal')}
                   />
                   Universal
-                </label>
-                <label className='flex items-center gap-2 px-2 py-1 cursor-pointer'>
+                </Label>
+                <Label className='flex cursor-pointer items-center gap-2 px-2 py-1'>
                   <Checkbox
                     checked={csvSelections.interaction}
                     onCheckedChange={() => handleCheckboxChange('interaction')}
                   />
                   Interaction
-                </label>
+                </Label>
                 <Button
                   size='sm'
                   className='mt-2'

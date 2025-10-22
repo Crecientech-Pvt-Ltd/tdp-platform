@@ -1,8 +1,8 @@
 'use client';
 
+import * as Popover from '@radix-ui/react-popover';
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import * as React from 'react';
-import * as Popover from '@radix-ui/react-popover';
 
 import { cn } from '@/lib/utils';
 
@@ -54,6 +54,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <button
+            type='button'
             ref={setRefs}
             disabled={disabled}
             className={cn(
@@ -77,22 +78,23 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             sideOffset={4}
             style={width ? { width } : undefined}
             className={cn(
-              'z-50 min-w-0 max-h-96 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+              'z-50 max-h-96 min-w-0 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
             )}
           >
             {options.map(option => (
-              <div
+              <button
+                type='button'
                 key={option.value}
                 onClick={() => toggleValue(option.value)}
                 className={cn(
-                  'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground',
+                  'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground',
                 )}
               >
                 <span className='absolute right-2 flex h-3.5 w-3.5 items-center justify-center'>
                   {selected.includes(option.value) && <CheckIcon className='h-4 w-4' />}
                 </span>
                 {option.label}
-              </div>
+              </button>
             ))}
           </Popover.Content>
         </Popover.Portal>

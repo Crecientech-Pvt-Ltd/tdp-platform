@@ -1,24 +1,29 @@
-import { SquareDashedMousePointer } from 'lucide-react';
+import { SquareDashedMousePointerIcon } from 'lucide-react';
 import { Suspense, useState } from 'react';
-import { FileName } from '.';
 import { Input } from '../ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { FileName } from '.';
 
 export function AppBar() {
   const [visible, setVisible] = useState(true);
   return (
-    <div className='flex gap-2 items-center'>
+    <div className='flex items-center gap-2'>
       <Tooltip>
         <TooltipTrigger className='relative'>
           {visible && (
-            <span className='absolute -bottom-2 flex size-2.5' onClick={() => setVisible(false)}>
-              <span className='absolute inline-flex h-[150%] w-[150%] z-50 animate-ping rounded-full -bottom-0.5 bg-sky-400 opacity-75' />
+            // biome-ignore lint/a11y/noStaticElementInteractions: hydration error (button inside button)
+            <span
+              className='-bottom-2 absolute flex size-2.5'
+              onClick={() => setVisible(false)}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setVisible(false)}
+            >
+              <span className='-bottom-0.5 absolute z-50 inline-flex h-[150%] w-[150%] animate-ping rounded-full bg-sky-400 opacity-75' />
               <span className='relative inline-flex size-2.5 rounded-full bg-sky-500' />
             </span>
           )}
-          <SquareDashedMousePointer className='text-white h-4 w-4' />
+          <SquareDashedMousePointerIcon className='h-4 w-4 text-white' />
         </TooltipTrigger>
-        <TooltipContent align='start' className='text-white max-w-96 text-sm'>
+        <TooltipContent align='start' className='max-w-96 text-sm text-white'>
           <ol>
             <li>
               • To select multiple genes and export details or perform GSEA analysis, use the mouse to select the genes
@@ -26,7 +31,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className='border-white border rounded-md px-1'> Shift(⇧) + Click</kbd> & Drag
+              <kbd className='rounded-md border border-white px-1'> Shift(⇧) + Click</kbd> & Drag
             </li>
             <br />
             <li>
@@ -36,7 +41,7 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className='border-white border rounded-md px-1'>Cmd/Ctrl(⌘) + Hover</kbd>
+              <kbd className='rounded-md border border-white px-1'>Cmd/Ctrl(⌘) + Hover</kbd>
             </li>
             <br />
             <li>
@@ -45,12 +50,12 @@ export function AppBar() {
               <b>
                 <i>Shortcut: </i>
               </b>
-              <kbd className='border-white border rounded-md px-1'>Cmd/Ctrl(⌘) + Click</kbd>
+              <kbd className='rounded-md border border-white px-1'>Cmd/Ctrl(⌘) + Click</kbd>
             </li>
           </ol>
         </TooltipContent>
       </Tooltip>
-      <Suspense fallback={<Input className='text-sm font-semibold max-w-fit' value={'Untitled'} />}>
+      <Suspense fallback={<Input className='max-w-fit font-semibold text-sm' value={'Untitled'} />}>
         <FileName />
       </Suspense>
     </div>

@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 
 export interface FileSource {
@@ -51,27 +51,34 @@ export const useDataFiles = (): UseDataFilesReturn => {
   const transcriptFileId = searchParams?.get('transcriptFileId');
   const pcaFileId = searchParams?.get('pcaFileId');
   const sampleFileId = searchParams?.get('sampleFileId');
-  const deFileIds = useMemo(() => 
-    searchParams?.get('deFileIds')?.split(',').filter(id => id) || [],
-    [searchParams]
+  const deFileIds = useMemo(
+    () =>
+      searchParams
+        ?.get('deFileIds')
+        ?.split(',')
+        .filter(id => id) || [],
+    [searchParams],
   );
 
-  const getServerFileUrl = useMemo(() => 
-    (filename: string) => `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`,
-    [API_BASE, group, program, project]
+  const getServerFileUrl = useMemo(
+    () => (filename: string) =>
+      `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`,
+    [API_BASE, group, program, project],
   );
 
   const loadUploadedFile = async (fileId: string): Promise<FileSource | null> => {
     if (!fileId) return null;
-    
+
     try {
       await indexedDBManager.init();
       const file = await indexedDBManager.getFile(fileId);
-      
-      return file ? {
-        content: file.content,
-        filename: file.filename
-      } : null;
+
+      return file
+        ? {
+            content: file.content,
+            filename: file.filename,
+          }
+        : null;
     } catch (error) {
       console.error('Error loading uploaded file:', fileId, error);
       return null;
@@ -80,17 +87,18 @@ export const useDataFiles = (): UseDataFilesReturn => {
 
   const deFileIdsString = deFileIds.join(',');
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
-    const loadFiles = async () => {
+    (async () => {
       setLoading(true);
-      
+
       if (isUploadMode) {
         const [gene, transcript, pca, sample, ...deFilesResults] = await Promise.all([
           loadUploadedFile(geneFileId || ''),
           loadUploadedFile(transcriptFileId || ''),
           loadUploadedFile(pcaFileId || ''),
           loadUploadedFile(sampleFileId || ''),
-          ...deFileIds.map(id => loadUploadedFile(id))
+          ...deFileIds.map(id => loadUploadedFile(id)),
         ]);
 
         setFiles({
@@ -102,25 +110,37 @@ export const useDataFiles = (): UseDataFilesReturn => {
         });
       } else {
         const deFilesArray = deFilesParam?.split(',').filter(f => f) || [];
-        
+
         setFiles({
           geneFile: geneFileName ? { url: getServerFileUrl(geneFileName), filename: geneFileName } : null,
-          transcriptFile: transcriptFileName ? { url: getServerFileUrl(transcriptFileName), filename: transcriptFileName } : null,
+          transcriptFile: transcriptFileName
+            ? { url: getServerFileUrl(transcriptFileName), filename: transcriptFileName }
+            : null,
           pcaFile: pcaFileName ? { url: getServerFileUrl(pcaFileName), filename: pcaFileName } : null,
           sampleFile: sampleFileName ? { url: getServerFileUrl(sampleFileName), filename: sampleFileName } : null,
           deFiles: deFilesArray.map(filename => ({ url: getServerFileUrl(filename), filename })),
         });
       }
-      
       setLoading(false);
-    };
-
-    loadFiles();
+    })();
   }, [
     isUploadMode,
-    geneFileId, transcriptFileId, pcaFileId, sampleFileId, deFileIds, deFileIdsString,
-    geneFileName, transcriptFileName, pcaFileName, sampleFileName, deFilesParam,
-    getServerFileUrl, group, program, project, searchParams
+    geneFileId,
+    transcriptFileId,
+    pcaFileId,
+    sampleFileId,
+    deFileIds,
+    deFileIdsString,
+    geneFileName,
+    transcriptFileName,
+    pcaFileName,
+    sampleFileName,
+    deFilesParam,
+    getServerFileUrl,
+    group,
+    program,
+    project,
+    searchParams,
   ]);
 
   return {

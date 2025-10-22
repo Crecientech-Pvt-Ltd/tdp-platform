@@ -7,29 +7,29 @@ import {
   TopGene,
 } from '@/gql/models';
 import { ClickHouseClient, createClient } from '@clickhouse/client';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'node:path';
+import { promises as fs } from 'fs';
 
 @Injectable()
-export class ClickhouseService {
+export class ClickhouseService implements OnApplicationBootstrap {
   private client: ClickHouseClient;
   private readonly logger = new Logger(ClickhouseService.name);
 
   constructor(private readonly configService: ConfigService) {
     this.client = createClient({
-      url: this.configService.get<string>(
-        'CLICKHOUSE_URL',
-        'http://localhost:8123',
-      ),
+      url: this.configService.get<string>('CLICKHOUSE_URL', 'http://localhost:8123'),
       username: this.configService.get<string>('CLICKHOUSE_USER', 'default'),
       password: this.configService.get<string>('CLICKHOUSE_PASSWORD', ''),
     });
   }
 
-  async getTopGenesByDisease(
-    diseaseId: string,
-    limit: number,
-  ): Promise<TopGene[]> {
+  async onApplicationBootstrap() {
+    await this.#runMigrations();
+  }
+
+  async getTopGenesByDisease(diseaseId: string, limit: number): Promise<TopGene[]> {
     const query = `
       SELECT gene_name
       FROM overall_association_score
@@ -148,15 +148,13 @@ export class ClickhouseService {
           }
 
           // Transform datasourceScores from string array to object array
-          const datasourceScores = data.datasourceScores.map(
-            (scoreStr: string) => {
-              const [key, score] = scoreStr.split(',');
-              return {
-                key,
-                score: Number.parseFloat(score),
-              };
-            },
-          );
+          const datasourceScores = data.datasourceScores.map((scoreStr: string) => {
+            const [key, score] = scoreStr.split(',');
+            return {
+              key,
+              score: Number.parseFloat(score),
+            };
+          });
 
           results.push({
             target: {
@@ -179,9 +177,7 @@ export class ClickhouseService {
     }
   }
 
-  async getBatchPrioritizationTable(
-    geneIds: string[],
-  ): Promise<Map<string, ScoredKeyValue[]>> {
+  async getBatchPrioritizationTable(geneIds: string[]): Promise<Map<string, ScoredKeyValue[]>> {
     const query = `
       SELECT
         gene_id,
@@ -214,7 +210,7 @@ export class ClickhouseService {
 
       const resultMap = new Map<string, ScoredKeyValue[]>();
 
-      for await (const rows of resultSet.stream<Record<string, any>>()) {
+      for await (const rows of resultSet.stream<Record<string, string | number>>()) {
         for (const row of rows) {
           const data = row.json();
           const geneId = data.gene_id;
@@ -227,7 +223,7 @@ export class ClickhouseService {
             score: score as number,
           }));
 
-          resultMap.set(geneId, scoredKeyValues);
+          resultMap.set(geneId as string, scoredKeyValues);
         }
       }
       return resultMap;
@@ -235,5 +231,68 @@ export class ClickhouseService {
       this.logger.error('batch prioritizationTable query failed', error);
       throw error;
     }
+  }
+
+  async #runMigrations() {
+    const migrationDir = join(process.cwd(), 'src/clickhouse/migrations');
+    this.logger.log(`Looking for migrations in: ${migrationDir}`);
+    let files: string[];
+    try {
+      files = (await fs.readdir(migrationDir)).filter((f) => f.endsWith('.sql')).sort();
+    } catch (e) {
+      this.logger.warn(`Migration directory not found: ${migrationDir}`);
+      this.logger.debug(`Error details: ${e}`);
+      return;
+    }
+
+    await this.client.command({
+      query: `
+        CREATE TABLE IF NOT EXISTS migrations (
+          version String,
+          applied_at DateTime DEFAULT now()
+        ) ENGINE = MergeTree()
+        ORDER BY version
+      `,
+    });
+
+    const lastAppliedVersion = await this.#getLastAppliedVersion();
+
+    for (const file of files) {
+      const version = file.split('_')[0];
+      if (lastAppliedVersion && Number(version) <= Number(lastAppliedVersion)) {
+        continue; // Skip already applied migrations
+      }
+      const sql = await fs.readFile(join(migrationDir, file), 'utf8');
+      this.logger.log(`Running migration ${file}...`);
+      try {
+        sql.split(';').forEach(async (stmt) => {
+          if (!stmt.trim()) return;
+          await this.client.command({
+            query: stmt.trim(),
+          });
+        });
+        await this.#markMigrationAsApplied(version);
+        this.logger.log(`Migration ${file} applied.`);
+      } catch (err) {
+        this.logger.error(`Migration ${file} failed: ${err?.message || err}`);
+      }
+    }
+  }
+
+  async #getLastAppliedVersion(): Promise<string | null> {
+    const result = await this.client.query({
+      query: `SELECT version FROM migrations ORDER BY version DESC LIMIT 1`,
+      format: 'JSON',
+    });
+    const rows = await result.json<{ data: Array<Record<string, any>> }>();
+    return rows.data.length > 0 ? rows.data[0]['version'] : null;
+  }
+
+  async #markMigrationAsApplied(version: string) {
+    await this.client.insert({
+      table: 'migrations',
+      values: [{ version }],
+      format: 'JSONEachRow',
+    });
   }
 }

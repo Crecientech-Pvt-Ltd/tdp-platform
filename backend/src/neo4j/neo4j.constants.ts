@@ -8,10 +8,7 @@ export const GET_HEADERS_QUERY = (bringCommon = true) =>
 
 export const GET_DISEASES_QUERY = `MATCH (d:Disease) RETURN d { .* } AS diseases;`;
 
-export function GET_GENES_QUERY(
-  properties?: string[],
-  bringMeta = true,
-): string {
+export function GET_GENES_QUERY(properties?: string[], bringMeta = true): string {
   if (properties?.length) {
     return `MATCH (g:Gene)
     WHERE g.ID IN $geneIDs
@@ -30,11 +27,7 @@ function formatInteractionTypes(interactionTypes: string[]): string {
   return interactionTypes.map((type) => `${type}`).join('|');
 }
 
-export function GENE_INTERACTIONS_QUERY(
-  order: number,
-  interactionTypes: string[],
-  graphExists = true,
-): string {
+export function GENE_INTERACTIONS_QUERY(order: number, interactionTypes: string[], graphExists = true): string {
   const relTypes = formatInteractionTypes(interactionTypes);
   switch (order) {
     case 0:
@@ -67,11 +60,8 @@ export function FIRST_ORDER_GENES_QUERY(interactionTypes: string[]): string {
 }
 
 export const GRAPH_DROP_QUERY = 'CALL gds.graph.drop($graphName)';
-export function LEIDEN_QUERY(
-  minCommunitySize: number,
-  weighted = true,
-): string {
-  return `CALL gds.leiden.stream($graphName, { ${weighted ? 'relationshipWeightProperty: "score",' : ''} gamma: $resolution, minCommunitySize: ${minCommunitySize}, logProgress: false }) YIELD nodeId, communityId RETURN gds.util.asNode(nodeId).ID AS ID, communityId AS community`;
+export function LEIDEN_QUERY(minCommunitySize: number, weighted = true): string {
+  return `CALL gds.leiden.stream($graphName, { ${weighted ? 'relationshipWeightProperty: "score",' : ''} gamma: $resolution, minCommunitySize: ${minCommunitySize}, logProgress: false }) YIELD nodeId, communityId RETURN gds.util.asNode(nodeId).ID AS ID, communityId`;
 }
 
 export function RENEW_QUERY(order: number, interactionTypes: string[]) {

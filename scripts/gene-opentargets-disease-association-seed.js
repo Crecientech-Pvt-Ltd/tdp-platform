@@ -170,8 +170,7 @@ async function promptForDetails(answer) {
             .replace(/^\.[\\/]+/, "")
             .replace(/\\/g, "/")}`
     }' AS line
-    CALL {
-      WITH line
+    CALL (line) {
       MATCH (g:Gene { ID: line[0] })
       CALL apoc.create.setProperty(g, line[1], toFloat(line[2])) YIELD node FINISH
     } IN 24 CONCURRENT TRANSACTIONS;

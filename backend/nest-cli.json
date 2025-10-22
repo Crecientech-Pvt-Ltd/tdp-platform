@@ -3,8 +3,6 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "manualRestart": true,
-    "watchAssets": true
-  },
-  "language": "ts"
+    "deleteOutDir": true
+  }
 }

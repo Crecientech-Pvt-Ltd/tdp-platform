@@ -191,8 +191,7 @@ async function promptForDetails(answer) {
         ? file
         : `file:///${file.replace(/^\.[\\/]+/, "")}`
     }' AS line
-		CALL {
-			WITH line
+		CALL (line) {
 			MATCH (g1:Gene {${
         idType === ID_TYPE[0] ? "ID" : "Gene_name"
       }: toUpper(line[0])})

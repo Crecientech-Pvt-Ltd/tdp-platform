@@ -23,7 +23,7 @@ class IndexedDBManager {
         resolve();
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result;
         if (!db.objectStoreNames.contains(STORE_NAME)) {
           const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
@@ -35,7 +35,7 @@ class IndexedDBManager {
 
   async storeFile(filename: string, content: string, type: string): Promise<string> {
     if (!this.db) await this.init();
-    
+
     const id = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const file: StoredFile = {
       id,
@@ -91,7 +91,7 @@ class IndexedDBManager {
       const request = index.openCursor(IDBKeyRange.only(type));
 
       request.onerror = () => reject(request.error);
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = (event.target as IDBRequest).result;
         if (cursor) {
           cursor.delete();

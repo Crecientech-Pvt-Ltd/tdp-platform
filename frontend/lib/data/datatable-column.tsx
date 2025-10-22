@@ -1,15 +1,14 @@
+import type { Column, ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Gsea, SelectedNodeProperty } from '@/lib/interface';
-import type { Column, ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
 
 function headerHelper<TData>(columnName: string) {
-  // eslint-disable-next-line react/display-name
   return ({ column }: { column: Column<TData> }) => {
     return (
       <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         {columnName}
-        <ArrowUpDown className='ml-2 h-4 w-4' />
+        <ArrowUpDownIcon className='ml-2 h-4 w-4' />
       </Button>
     );
   };

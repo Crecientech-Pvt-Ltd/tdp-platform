@@ -1,16 +1,16 @@
 'use client';
 
-import { GENE_UNIVERSAL_QUERY } from '@/lib/gql';
-import { useStore } from '@/lib/hooks';
-import type { EdgeAttributes, GeneUniversalData, GeneUniversalDataVariables, NodeAttributes } from '@/lib/interface';
-import { type EventMessage, Events, envURL, eventEmitter } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client/react';
 import { useSigma } from '@react-sigma/core';
 import { fitViewportToNodes } from '@sigma/utils';
 import { scaleLinear } from 'd3-scale';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { GENE_UNIVERSAL_QUERY } from '@/lib/gql';
+import { useStore } from '@/lib/hooks';
+import type { EdgeAttributes, GeneUniversalData, GeneUniversalDataVariables, NodeAttributes } from '@/lib/interface';
+import { type EventMessage, Events, envURL, eventEmitter } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 
@@ -45,8 +45,9 @@ export function GraphAnalysis({
   const nodeDegreeProperty = useStore(state => state.radialAnalysis.nodeDegreeProperty);
   const universalData = useStore(state => state.universalData);
 
-  const [fetchUniversal] = useLazyQuery<GeneUniversalData, GeneUniversalDataVariables>(GENE_UNIVERSAL_QUERY());
+  const [fetchUniversal] = useLazyQuery<GeneUniversalData, GeneUniversalDataVariables>(GENE_UNIVERSAL_QUERY);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     (async () => {
       let nodeCount = 0;
@@ -99,9 +100,9 @@ export function GraphAnalysis({
       }, 0);
       useStore.setState({ totalNodes: nodeCount, totalEdges: edgeCount });
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [radialAnalysis.nodeDegreeCutOff, nodeDegreeProperty]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (radialAnalysis.hubGeneEdgeCount < 1) {
       graph.updateEachNodeAttributes((node, attr) => {
@@ -126,8 +127,7 @@ export function GraphAnalysis({
         return attr;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [radialAnalysis.hubGeneEdgeCount, highlightedNodesRef]);
+  }, [radialAnalysis.hubGeneEdgeCount]);
 
   async function renewSession() {
     const res = await fetch(`${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/algorithm/renew-session`, {
@@ -141,6 +141,7 @@ export function GraphAnalysis({
 
   const searchParams = useSearchParams();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: One time setup
   useEffect(() => {
     eventEmitter.on(Events.ALGORITHM, async ({ name, parameters }: EventMessage[Events.ALGORITHM]) => {
       if (name === 'None') {
@@ -238,7 +239,6 @@ export function GraphAnalysis({
         })();
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getReadableTextColor = useCallback((hex: string) => {
@@ -250,7 +250,7 @@ export function GraphAnalysis({
   return (
     <>
       {Object.keys(communityMap).length > 0 && (
-        <div className='absolute bottom-2 left-2 space-y-1 flex flex-col max-h-56 overflow-scroll border shadow rounded-md backdrop-blur p-2'>
+        <div className='absolute bottom-2 left-2 flex max-h-56 flex-col space-y-1 overflow-scroll rounded-md border p-2 shadow backdrop-blur'>
           {Object.entries(communityMap).map(([id, val], idx) => (
             <div key={id} className='flex items-center gap-1'>
               <Checkbox

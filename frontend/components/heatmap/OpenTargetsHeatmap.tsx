@@ -1,22 +1,22 @@
 'use client';
 
-import { type TargetDiseaseAssociationRow, associationColumns, prioritizationColumns } from '@/lib/data';
-import { OPENTARGET_HEATMAP_QUERY } from '@/lib/gql';
-import { useStore } from '@/lib/hooks';
-import { type OpenTargetsTableData, type OpenTargetsTableVariables } from '@/lib/interface';
-import { type EventMessage, Events, eventEmitter, orderByStringToEnum } from '@/lib/utils';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client/react';
 import type { CheckedState } from '@radix-ui/react-checkbox';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { VirtualizedCombobox } from '../VirtualizedCombobox';
+import { associationColumns, prioritizationColumns, type TargetDiseaseAssociationRow } from '@/lib/data';
+import { OPENTARGET_HEATMAP_QUERY } from '@/lib/gql';
+import { useStore } from '@/lib/hooks';
+import type { OpenTargetsTableData, OpenTargetsTableVariables } from '@/lib/interface';
+import { type EventMessage, Events, eventEmitter, orderByStringToEnum } from '@/lib/utils';
 import { AssociationScoreLegend, PrioritizationIndicatorLegend } from '../legends';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { HeatmapTable } from './HeatmapTable';
+import { VirtualizedCombobox } from '../VirtualizedCombobox';
 import { assocColorScale, prioritizationColorScale } from './colorScales';
+import { HeatmapTable } from './HeatmapTable';
 
 export function OpenTargetsHeatmap() {
   const geneNames = useStore(state => state.geneNames);
@@ -64,6 +64,7 @@ export function OpenTargetsHeatmap() {
       };
     }) || [];
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     eventEmitter.on(Events.VISIBLE_NODES_RESULTS, (data: EventMessage[Events.VISIBLE_NODES_RESULTS]) => {
       const selectedGeneIds = new Set<string>();
@@ -89,11 +90,11 @@ export function OpenTargetsHeatmap() {
     return () => {
       eventEmitter.removeAllListeners(Events.VISIBLE_NODES_RESULTS);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diseaseId]);
 
   const isFirstMount = useRef(true);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!showOnlyVisible) return;
     if (isFirstMount.current) {
@@ -105,9 +106,9 @@ export function OpenTargetsHeatmap() {
       eventEmitter.emit(Events.VISIBLE_NODES);
     }, 500);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodeDegreeCutOff]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (showOnlyVisible) {
       eventEmitter.emit(Events.VISIBLE_NODES);
@@ -122,7 +123,6 @@ export function OpenTargetsHeatmap() {
       });
       setGeneIdsToQuery(geneIds);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diseaseId, geneIds]);
 
   const toggleOnlyVisible = (checked: CheckedState) => {
@@ -204,7 +204,7 @@ export function OpenTargetsHeatmap() {
   return (
     <div className='h-full'>
       <div className='flex items-center gap-4 p-4'>
-        <div className='flex text-nowrap font-semibold items-center gap-2'>
+        <div className='flex items-center gap-2 text-nowrap font-semibold'>
           <Checkbox checked={showOnlyVisible} onCheckedChange={toggleOnlyVisible} className='shrink-0' />
           Show only visible
         </div>
@@ -264,8 +264,8 @@ export function OpenTargetsHeatmap() {
           </div>
         </TabsContent>
       </Tabs>
-      <div className='flex flex-col items-center w-full mt-2 gap-2'>
-        <div className='flex items-center justify-center gap-2 w-full'>
+      <div className='mt-2 flex w-full flex-col items-center gap-2'>
+        <div className='flex w-full items-center justify-center gap-2'>
           <Button
             variant='outline'
             size='sm'

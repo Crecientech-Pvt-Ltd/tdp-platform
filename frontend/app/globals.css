@@ -1,6 +1,50 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Optional: import Nextra theme styles */
+@import "nextra-theme-docs/style.css";
+
+@variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: #fff;
+  --color-popover-foreground: hsl(var(--old-tool-primary));
+
+  --color-primary: hsl(var(--old-tool-primary));
+  --color-primary-foreground: #000;
+
+  --color-secondary: hsl(var(--old-tool-secondary));
+  --color-secondary-foreground: #000;
+
+  --color-muted: hsl(var(--old-tool-secondary));
+  --color-muted-foreground: hsl(var(--old-tool-primary));
+
+  --color-accent: hsl(var(--old-tool-primary));
+  --color-accent-foreground: #fff;
+
+  --color-destructive: hsl(var(--old-tool-primary));
+  --color-destructive-foreground: hsl(var(--old-tool-secondary));
+
+  --color-border: hsl(var(--old-tool-primary));
+  --color-input: hsl(var(--old-tool-primary));
+  --color-ring: hsl(var(--old-tool-primary));
+
+  --color-chart-1: hsl(var(--old-tool-primary));
+  --color-chart-2: hsl(var(--old-tool-primary));
+  --color-chart-3: hsl(var(--old-tool-primary));
+  --color-chart-4: hsl(var(--old-tool-primary));
+  --color-chart-5: hsl(var(--old-tool-primary));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
 
 @layer base {
   :root {
@@ -32,7 +76,7 @@
     --old-tool-primary: 200 36% 38%; /* Old tool blue-ish teal */
     --old-tool-secondary: 200 67% 90%; /* Old tool light blue-ish teal */
   }
-  
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -72,8 +116,8 @@
 
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
     margin: 0;
+    -webkit-appearance: none;
   }
 
   input[type="number"] {

@@ -70,7 +70,11 @@ export function LoadGraph() {
             fileData = JSON.parse(fileText);
             fields = Object.keys(fileData?.[0] as object);
           } else {
-            const parsedResult = Papa.parse(fileText, { header: true, skipEmptyLines: true });
+            const parsedResult = Papa.parse(fileText, {
+              header: true,
+              skipEmptyLines: true,
+              dynamicTyping: { score: true },
+            });
             fileData = parsedResult.data as Array<Record<string, string | number>>;
             fields = parsedResult.meta.fields || [];
           }

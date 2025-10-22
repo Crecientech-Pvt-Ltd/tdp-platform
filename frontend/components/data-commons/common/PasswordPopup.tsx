@@ -86,6 +86,8 @@ export default function PasswordPopup({
     }
   };
 
+  const passwordId = React.useId();
+
   return (
     <Dialog open={isOpen}>
       <DialogContent className='w-[90vw] max-w-md'>
@@ -108,10 +110,10 @@ export default function PasswordPopup({
 
           <form onSubmit={handleSubmit} className='space-y-4'>
             <div>
-              <Label htmlFor='password'>Password</Label>
+              <Label htmlFor={passwordId}>Password</Label>
               <div className='relative'>
                 <Input
-                  id={Math.random().toString(36).substring(2)}
+                  id={passwordId}
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}

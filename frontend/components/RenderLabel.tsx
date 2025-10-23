@@ -136,7 +136,7 @@ const FlexibleLabelList = ({
             <div
               key={label}
               className={`rounded px-2 py-1 text-gray-800 text-sm transition-colors hover:bg-gray-100 ${label === '•' ? 'text-center text-gray-400 hover:bg-transparent' : ''}
-                ${truncateX ? 'overflow-hidden text-ellipsis whitespace-nowrap' : 'break-words'}
+                ${truncateX ? 'overflow-hidden text-ellipsis whitespace-nowrap' : 'wrap-break-word'}
                 ${labelClassName}
               `}
               title={label !== '•' ? label : ''}

@@ -138,7 +138,7 @@ export default function FilePreviewModal({
                       <tr>
                         <th
                           scope='col'
-                          className='sticky left-0 z-20 w-[3rem] min-w-[3rem] border bg-background px-3 py-2 text-left font-medium text-muted-foreground text-xs'
+                          className='sticky left-0 z-20 w-12 min-w-12 border bg-background px-3 py-2 text-left font-medium text-muted-foreground text-xs'
                         >
                           #
                         </th>
@@ -147,12 +147,12 @@ export default function FilePreviewModal({
                             // biome-ignore lint/suspicious/noArrayIndexKey: Index is necessary here to replace skeleton
                             key={`h-${i}`}
                             scope='col'
-                            className='min-w-[10rem] whitespace-nowrap border px-3 py-3 text-left align-top font-semibold text-foreground text-xs'
+                            className='min-w-40 whitespace-nowrap border px-3 py-3 text-left align-top font-semibold text-foreground text-xs'
                           >
                             {loading && !table ? (
                               <div className='h-4 w-24 animate-pulse rounded bg-muted' />
                             ) : (
-                              <div className='max-w-[12rem] break-words'>{h}</div>
+                              <div className='wrap-break-word max-w-48'>{h}</div>
                             )}
                           </th>
                         ))}
@@ -183,8 +183,8 @@ export default function FilePreviewModal({
                               {rIdx + 1}
                             </td>
                             {table.headers.map(header => (
-                              <td key={header} className='max-w-[12rem] border px-3 py-2 align-top'>
-                                <div className='whitespace-pre-wrap break-words'>{row[header] || ''}</div>
+                              <td key={header} className='max-w-48 border px-3 py-2 align-top'>
+                                <div className='wrap-break-word whitespace-pre-wrap'>{row[header] || ''}</div>
                               </td>
                             ))}
                           </tr>
@@ -196,7 +196,7 @@ export default function FilePreviewModal({
             )}
             {!error && !loading && !showTable && (
               <div className='min-h-0 flex-1 overflow-auto'>
-                <pre className='h-full whitespace-pre-wrap break-words p-4 font-mono text-xs'>{rawContent}</pre>
+                <pre className='wrap-break-word h-full whitespace-pre-wrap p-4 font-mono text-xs'>{rawContent}</pre>
               </div>
             )}
           </div>

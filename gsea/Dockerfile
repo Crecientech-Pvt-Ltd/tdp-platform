@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:0.8.22 /uv /uvx /bin/
+COPY --from=docker.io/astral/uv:0.9 /uv /uvx /bin/
 
 # Copy dependency files
 COPY pyproject.toml uv.lock ./

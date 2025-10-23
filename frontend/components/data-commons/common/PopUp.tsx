@@ -597,7 +597,7 @@ export default function FileSelectionPopup({
           {isEditing ? 'Edit Analysis Files' : 'Confirm File Selection'}
         </DialogTitle>
 
-        <div className='flex-grow overflow-y-auto'>
+        <div className='grow overflow-y-auto'>
           {loading ? (
             <div className='flex items-center justify-center py-12'>
               <div className='text-center'>

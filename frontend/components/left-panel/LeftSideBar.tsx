@@ -213,7 +213,7 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
       <div className='flex flex-col'>
         <Label className='mb-2 pt-4 pl-2 font-bold'>Disease Map</Label>
         <div className='flex w-full items-center'>
-          <div className='min-w-0 flex-grow px-2'>
+          <div className='min-w-0 grow px-2'>
             <DiseaseMapCombobox
               value={diseaseMap}
               onChange={d => typeof d === 'string' && handleDiseaseChange(d)}

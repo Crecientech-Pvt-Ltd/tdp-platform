@@ -412,7 +412,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
       <DialogContent className='flex max-h-[85vh] w-[95vw] max-w-3xl flex-col'>
         <DialogTitle className='font-semibold text-lg'>Upload Analysis Files</DialogTitle>
 
-        <div className='flex-grow overflow-y-auto'>
+        <div className='grow overflow-y-auto'>
           <div className='space-y-0'>
             {renderUploadRow('Gene File', 'gene', 'Gene File')}
             {renderUploadRow('Transcript File', 'transcript', 'Transcript File')}

@@ -59,7 +59,8 @@ export default function UploadFile() {
           .split('\n')
           .slice(1)
           .flatMap(line => line.split(',').slice(0, 2))
-          .map(gene => gene.trim().toUpperCase()),
+          .map(gene => gene.trim().toUpperCase())
+          .filter(Boolean),
       );
     }
     if (distinctSeedGenes.length < 2) {

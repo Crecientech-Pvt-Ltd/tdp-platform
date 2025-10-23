@@ -142,7 +142,7 @@ export default memo(function SeeMore({
       <Dialog open={isOpen}>
         <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-4xl flex-col'>
           <DialogTitle className='font-semibold text-xl'>Plot Configuration & Data Information</DialogTitle>
-          <div className='flex-grow overflow-y-auto px-1 py-4'>
+          <div className='grow overflow-y-auto px-1 py-4'>
             <div className='space-y-8'>
               <div className='rounded-lg border bg-muted/30 p-6'>
                 <h3 className='mb-4 font-semibold text-lg text-primary'>Axis Configuration</h3>

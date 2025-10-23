@@ -48,7 +48,7 @@ export default function PopUpDataTable<E, F>({
     <Dialog open={open}>
       <DialogContent className='flex max-h-[90vh] min-h-[60vh] max-w-7xl flex-col'>
         <DialogTitle>{dialogTitle}</DialogTitle>
-        <div className='flex-grow overflow-y-scroll'>
+        <div className='grow overflow-y-scroll'>
           <Tabs defaultValue={tabsTitle?.[0]}>
             <TabsList className={cn('grid w-full', `grid-cols-${tabsTitle?.length}`)}>
               {tabsTitle?.map(title => (

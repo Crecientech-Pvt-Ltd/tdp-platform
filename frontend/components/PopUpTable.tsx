@@ -47,7 +47,7 @@ export default function PopUpTable({
     <Dialog open={tableOpen}>
       <DialogContent className='flex max-h-[90vh] min-h-[60vh] w-11/12 max-w-5xl flex-col'>
         <DialogTitle>Results Preview</DialogTitle>
-        <div className='flex-grow overflow-y-scroll'>
+        <div className='grow overflow-y-scroll'>
           <Tabs defaultValue='found'>
             <TabsList className='grid w-full grid-cols-2'>
               <TabsTrigger value='found'>Found</TabsTrigger>

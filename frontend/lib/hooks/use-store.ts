@@ -26,7 +26,7 @@ export const useStore = create<GraphStore>(set => ({
   totalNodes: 0,
   totalEdges: 0,
   radialAnalysis: {
-    edgeWeightCutOff: 0.4,
+    edgeWeightCutOff: 0,
     nodeDegreeCutOff: 0,
     hubGeneEdgeCount: 0,
     nodeDegreeProperty: 'Gene Degree',

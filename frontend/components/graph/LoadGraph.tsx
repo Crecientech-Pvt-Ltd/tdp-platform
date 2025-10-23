@@ -1,8 +1,8 @@
 'use client';
 import { useLazyQuery } from '@apollo/client/react';
 import { useLoadGraph } from '@react-sigma/core';
-import type Graph from 'graphology';
-import type { SerializedEdge, SerializedGraph } from 'graphology-types';
+import Graph from 'graphology';
+import type { SerializedGraph } from 'graphology-types';
 import { AlertTriangleIcon } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Papa from 'papaparse';
@@ -36,7 +36,7 @@ import { Spinner } from '../ui/spinner';
 export function LoadGraph() {
   const searchParams = useSearchParams();
   const loadGraph = useLoadGraph();
-  const variable = JSON.parse(localStorage.getItem('graphConfig') || '{}');
+  const graphConfig = JSON.parse(localStorage.getItem('graphConfig') || '{}');
   const [fetchData, { loading }] = useLazyQuery<GeneGraphData, GeneGraphVariables>(GENE_GRAPH_QUERY);
 
   const [fetchFileData] = useLazyQuery<GeneVerificationData, GeneVerificationVariables>(GENE_VERIFICATION_QUERY);
@@ -47,6 +47,9 @@ export function LoadGraph() {
     const abortController = new AbortController();
     const fileName = searchParams?.get('file');
     (async () => {
+      const graph = new Graph<NodeAttributes, EdgeAttributes>({
+        type: 'undirected',
+      });
       if (fileName) {
         const fileType = fileName.split('.').pop();
         const store = await openDB('network', 'readonly');
@@ -73,7 +76,7 @@ export function LoadGraph() {
             const parsedResult = Papa.parse(fileText, {
               header: true,
               skipEmptyLines: true,
-              dynamicTyping: { score: true },
+              dynamicTyping: true,
             });
             fileData = parsedResult.data as Array<Record<string, string | number>>;
             fields = parsedResult.meta.fields || [];
@@ -90,8 +93,8 @@ export function LoadGraph() {
           }
           const geneIDs = new Set<string>();
           for (const gene of fileData) {
-            geneIDs.add(gene[fields?.[0]] as string);
-            geneIDs.add(gene[fields?.[1]] as string);
+            if (gene[fields?.[0]]) geneIDs.add(gene[fields?.[0]] as string);
+            if (gene[fields?.[1]]) geneIDs.add(gene[fields?.[1]] as string);
           }
           const geneIDArray = Array.from(geneIDs);
           const result = await fetchFileData({
@@ -112,51 +115,44 @@ export function LoadGraph() {
           if (!result || !result.data) return;
           const geneNameToID = new Map<string, string>();
           const geneNames: string[] = [];
-          const nodes = result.data.genes.map(gene => {
+          for (const gene of result.data?.genes ?? []) {
             geneNames.push(gene.Gene_name ?? gene.ID);
             if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
-            return {
-              key: gene.ID,
-              attributes: {
-                label: gene.Gene_name || '',
-                ID: gene.ID,
-                description: gene.Description || '',
-              },
-            };
-          });
-          const serializedGraph: Partial<SerializedGraph<NodeAttributes, EdgeAttributes>> = {
-            nodes,
-            edges: fileData
-              .map(gene => {
-                const source = geneNameToID.get(gene[fields?.[0]] as string);
-                const target = geneNameToID.get(gene[fields?.[1]] as string);
-                if (!source || !target) return null;
-                return {
-                  key: `${source}-${target}`,
-                  source,
-                  target,
-                  attributes: {
-                    score: gene[fields?.[2]] as number,
-                    label: gene[fields?.[2]].toString(),
-                  },
-                };
-              })
-              .filter(Boolean) as Array<SerializedEdge<EdgeAttributes>>,
-            options: {
-              type: 'directed',
-            },
+            graph.addNode(gene.ID, {
+              label: gene.Gene_name,
+              ID: gene.ID,
+              description: gene.Description,
+            });
+          }
+
+          const getGeneID = (value: string | null) => {
+            if (!value) return null;
+            if (value.toLowerCase().startsWith('ensg')) {
+              return value;
+            }
+            return geneNameToID.get(value);
           };
-          // Forcefully made this as it was only way to successfuly load graph in this version (don't try to solve it)
-          loadGraph(serializedGraph as unknown as Graph<NodeAttributes, EdgeAttributes>);
+
+          for (const gene of fileData) {
+            const source = getGeneID(gene[fields?.[0]] as string);
+            const target = getGeneID(gene[fields?.[1]] as string);
+
+            if (!source || !target) continue;
+            graph.mergeEdgeWithKey(`${source}-${target}`, source, target, {
+              score: gene[fields?.[2]] as number,
+              label: gene[fields?.[2]].toString(),
+            });
+          }
+          loadGraph(graph);
           useStore.setState({ geneNames, totalNodes: geneIDs.size, totalEdges: fileData.length });
         };
       } else {
         const result = await fetchData({
           variables: {
-            geneIDs: variable.geneIDs,
-            interactionType: variable.interactionType,
-            minScore: variable.minScore,
-            order: variable.order,
+            geneIDs: graphConfig.geneIDs,
+            interactionType: graphConfig.interactionType,
+            minScore: graphConfig.minScore,
+            order: graphConfig.order,
           },
         });
         if (result.error) {
@@ -181,8 +177,8 @@ export function LoadGraph() {
             setShowWarning(true);
           }
           // store graphName in JSON in graphConfig key in localStorage
-          localStorage.setItem('graphConfig', JSON.stringify({ ...variable, graphName }));
-          useStore.setState({ graphConfig: { ...variable, graphName } });
+          localStorage.setItem('graphConfig', JSON.stringify({ ...graphConfig, graphName }));
+          useStore.setState({ graphConfig: { ...graphConfig, graphName } });
           const transformedData: Partial<SerializedGraph<NodeAttributes, EdgeAttributes>> = {
             nodes: genes.map(gene => ({
               key: gene.ID,
@@ -207,8 +203,8 @@ export function LoadGraph() {
             },
           };
           if (transformedData) {
-            // Forcefully made this as it was only way to successfuly load graph in this version (don't try to solve it)
-            loadGraph(transformedData as unknown as Graph<NodeAttributes, EdgeAttributes>);
+            graph.import(transformedData);
+            loadGraph(graph);
             const geneNameToID = new Map<string, string>();
             for (const gene of genes) {
               if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);

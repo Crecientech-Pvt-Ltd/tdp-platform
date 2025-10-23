@@ -35,6 +35,7 @@
     ".next/types/**/*.ts",
     "theme.config.jsx",
     "pages/_error.jsx",
+    ".next\\dev/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [

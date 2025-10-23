@@ -243,7 +243,7 @@ export default memo(function DownloadPopup({
           <p className='text-muted-foreground'>Export your differential expression analysis results</p>
         </div>
 
-        <div className='flex-grow overflow-y-auto px-1 py-1'>
+        <div className='grow overflow-y-auto px-1 py-1'>
           {isDownloading ? (
             <div className='flex items-center justify-center py-16'>
               <div className='text-center'>

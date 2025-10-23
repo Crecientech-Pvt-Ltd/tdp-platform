@@ -1,7 +1,6 @@
 'use client';
 
 import { ChevronsUpDownIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { PROPERTY_TYPE_LABEL_MAPPING } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import { P_VALUE_REGEX } from '@/lib/utils';
@@ -13,12 +12,14 @@ export function Legend() {
   const selectedRadioNodeColor = useStore(state => state.selectedRadioNodeColor);
   const selectedNodeColorProperty = useStore(state => state.selectedNodeColorProperty);
   const showEdgeColor = useStore(state => state.showEdgeColor);
-  const [minScore, setMinScore] = useState(0);
   const defaultNodeColor = useStore(state => state.defaultNodeColor);
 
-  useEffect(() => {
-    setMinScore(Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0);
-  }, []);
+  const minScore =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).has('file')
+        ? 0
+        : (Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0)
+      : 0;
 
   return (
     <Collapsible defaultOpen className='text-xs'>

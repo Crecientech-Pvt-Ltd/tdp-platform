@@ -179,7 +179,7 @@ export function VirtualizedCombobox({
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className={cn('h-9 w-[200px] justify-between text-ellipsis text-wrap break-words', className)}
+          className={cn('wrap-break-word h-9 w-[200px] justify-between text-ellipsis text-wrap', className)}
         >
           <span className='truncate'>
             {multiselect && value instanceof Set ? (
@@ -190,9 +190,9 @@ export function VirtualizedCombobox({
                       <Badge
                         key={option}
                         className={cn(
-                          'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
-                          'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
-                          'flex-shrink-0 text-white',
+                          'data-disabled:bg-muted-foreground data-disabled:text-muted data-disabled:hover:bg-muted-foreground',
+                          'data-fixed:bg-muted-foreground data-fixed:text-muted data-fixed:hover:bg-muted-foreground',
+                          'shrink-0 text-white',
                         )}
                       >
                         {option}

@@ -114,7 +114,7 @@ export default function DownloadPopup({
       <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-2xl flex-col'>
         <DialogTitle className='font-semibold text-xl'>Download Data</DialogTitle>
 
-        <div className='flex-grow overflow-y-auto px-1 py-4'>
+        <div className='grow overflow-y-auto px-1 py-4'>
           {isDownloading ? (
             <div className='flex items-center justify-center py-12'>
               <div className='text-center text-gray-500'>

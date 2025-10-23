@@ -19,11 +19,17 @@ export function ColorAnalysis() {
   const radioOptions = useStore(state => state.radioOptions);
   const edgeOpacity = useStore(state => state.edgeOpacity);
 
+  const minScore =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).has('file')
+        ? 0
+        : (Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0)
+      : 0;
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (!graph) return;
     if (showEdgeColor) {
-      const minScore = Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0;
       const colorScale = scaleLinear<string>([minScore, 1], ['yellow', 'red']);
       graph.updateEachEdgeAttributes((_edge, attr) => {
         if (attr.score) attr.color = colorScale(attr.score).replace(/^rgb/, 'rgba').replace(/\)/, `, ${edgeOpacity})`);

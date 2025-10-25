@@ -160,12 +160,12 @@ export default function DataCommonsPage() {
         style={{
           background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
         }}
-        className='mb-6 flex-shrink-0 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
+        className='mb-6 shrink-0 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
       >
         A Centralized Data Commons of Multi-Omics Data for Exploratory Research
       </h2>
 
-      <div className='flex-shrink-0'>
+      <div className='shrink-0'>
         <form className='px-8 pb-4'>
           <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
             <div>

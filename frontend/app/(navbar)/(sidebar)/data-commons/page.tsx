@@ -104,7 +104,7 @@ export default function DataCommonsPage() {
     if (selectedGroup && selectedProgram && selectedProject) {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/verify-auth`,
+          `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/verify-auth`,
           { method: 'GET', credentials: 'include' },
         );
         if (!response.ok) {

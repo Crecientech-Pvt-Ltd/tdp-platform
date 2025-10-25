@@ -11,15 +11,6 @@ export class DataCommonsController {
     return this.service.getFullStructure();
   }
 
-  @Get('project/:group/:program/:project/file-status')
-  getProjectFilesStatus(
-    @Param('group') group: string,
-    @Param('program') program: string,
-    @Param('project') project: string,
-  ) {
-    return this.service.getProjectFilesStatus(group, program, project);
-  }
-
   @Get('project/:group/:program/:project/description')
   async getProjectDescription(
     @Param('group') group: string,
@@ -52,15 +43,14 @@ export class DataCommonsController {
     return this.service.sendDeFile(group, program, project, filename, res);
   }
 
-  @Get('project/:group/:program/:project/files/keys/:fileKey')
-  async getProjectFileByKey(
+  @Get('project/:group/:program/:project/initializedFiles')
+  async getInitializedFiles(
     @Param('group') group: string,
     @Param('program') program: string,
     @Param('project') project: string,
-    @Param('fileKey') fileKey: string,
     @Res() res: Response,
   ) {
-    return this.service.sendProjectFileByKey(group, program, project, fileKey, res);
+    return this.service.initializedFiles(group, program, project, res);
   }
 
   @Get('project/:group/:program/:project/preview/:filename')
@@ -87,7 +77,7 @@ export class DataCommonsController {
   }
 
   @Get('project/:group/:program/:project/verify-auth')
-  async getProjectMetadata(
+  async verifyProjectAuthorization(
     @Req() req: any,
     @Param('group') group: string,
     @Param('program') program: string,

@@ -27,6 +27,8 @@ type ParsedTable = {
   data: Record<string, string>[];
 };
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export default function FilePreviewModal({
   open,
   onClose,
@@ -89,7 +91,7 @@ export default function FilePreviewModal({
       Papa.parse(uploadedContent, parseConfig);
     } else if (group && program && project) {
       // Parse remote file using Papa Parse's download feature
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/preview/${encodeURIComponent(filename)}`;
+      const url = `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/preview/${encodeURIComponent(filename)}`;
 
       Papa.parse(url, {
         ...parseConfig,

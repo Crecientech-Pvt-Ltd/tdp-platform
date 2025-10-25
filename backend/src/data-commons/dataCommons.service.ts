@@ -5,13 +5,7 @@ import * as path from 'path';
 import * as readline from 'readline';
 import * as jwt from 'jsonwebtoken';
 
-import {
-  ALLOWED_EXTENSIONS,
-  findDifferentialExpressionFiles,
-  findFirstFileWithExtension,
-  getDirectories,
-  getFiles,
-} from './dataCommons.utils';
+import { getDirectories, getFiles } from './dataCommons.utils';
 
 import { db } from '@/postgress';
 
@@ -61,41 +55,6 @@ export class DataCommonsService {
     );
 
     return structure;
-  }
-
-  async getProjectFilesStatus(group: string, program: string, project: string) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
-    const expectedFiles = [
-      'samplesheet.valid.csv',
-      'contrastsheet.valid.csv',
-      'salmon.merged.gene_counts.tsv',
-      'salmon.merged.transcript_counts.tsv',
-      'PCA.csv',
-    ];
-
-    type FilesPresent = {
-      [key: string]: boolean | string[] | string | false;
-    };
-
-    const filesPresent: FilesPresent = {};
-    let filesInProject: string[] = [];
-    try {
-      filesInProject = await fs.readdir(projectPath);
-    } catch {
-      return { error: 'Project folder not found', filesPresent: {} };
-    }
-
-    for (const file of expectedFiles) {
-      filesPresent[file] = filesInProject.includes(file);
-    }
-
-    const descriptionFile = findFirstFileWithExtension(filesInProject, ALLOWED_EXTENSIONS);
-    filesPresent['project_description'] = descriptionFile || false;
-
-    const deFiles = findDifferentialExpressionFiles(filesInProject);
-    filesPresent['DifferentialExpression.csv'] = deFiles.length > 0 ? deFiles : false;
-
-    return filesPresent;
   }
 
   async sendProjectDescription(group: string, program: string, project: string, res: any) {
@@ -159,71 +118,86 @@ export class DataCommonsService {
     }
   }
 
-  async sendProjectFileByKey(group: string, program: string, project: string, fileKey: string, res: any) {
-    const allowedKeys = ['samplesheet', 'gene', 'transcript', 'pca', 'differentialexpression'];
-
-    const allowedKeysDetailed: Record<string, string[] | string> = {
-      samplesheet: ['samplesheet', 'sample'],
-      gene: ['gene'],
-      transcript: ['transcript'],
-      pca: ['pca'],
-      differentialexpression: ['differentialexpression'],
-    };
-
-    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
-    const lowerCaseFileKey = fileKey.toLowerCase();
+  async initializedFiles(group: string, program: string, project: string, res: any) {
     const projectPath = path.join(DATA_PATH, group, program, project);
+    const allFiles = await getFiles(projectPath);
 
-    if (allowedExtensions.some((ext) => lowerCaseFileKey.endsWith(ext))) {
-      const filePath = path.join(projectPath, fileKey);
-      if (existsSync(filePath)) {
-        res.sendFile(filePath);
+    const diffExpRegex =
+      /^(?:.*)(?:(?:differential|diff)(?:[-_ ]?(?:exp|expression))?|(?:differential|de))(?:[-_ ]?)(.+?)\.(csv|tsv|xls|xlsx|txt)$/i;
+
+    // Separate files into diffExp and non-diffExp arrays
+    const diffExpFiles: string[] = [];
+    const nonDiffExpFiles: string[] = [];
+
+    for (const file of allFiles) {
+      const fileName = path.basename(file);
+      if (diffExpRegex.test(fileName)) {
+        diffExpFiles.push(fileName);
       } else {
-        res.status(404).send(`${fileKey} not found`);
+        nonDiffExpFiles.push(fileName);
       }
-      return;
     }
 
-    if (!allowedKeys.includes(lowerCaseFileKey)) {
-      res.status(403).send({
-        allowedKeys: allowedKeys,
-        message: 'File key not allowed',
-        fileKey: lowerCaseFileKey,
-      });
-      return;
+    // Segregate diffExp files into transcript and gene arrays
+    const transcriptDiffExpFiles: string[] = [];
+    const geneDiffExpFiles: string[] = [];
+
+    for (const file of diffExpFiles) {
+      const fileName = path.basename(file).toLowerCase();
+      if (fileName.includes('transcript')) {
+        transcriptDiffExpFiles.push(file);
+      } else {
+        geneDiffExpFiles.push(file);
+      }
     }
 
-    let matchTerms = allowedKeysDetailed[lowerCaseFileKey];
-    if (!matchTerms) {
-      res.status(403).send('No match terms found for this key');
-      return;
+    // Find specific files from non-diffExp files
+    const geneRegex = /^.*gene.*(?:count|fpkm|tpm).*?\.(tsv|csv|txt)$/i;
+    const transcriptRegex = /^.*transcript.*(?:count|fpkm|tpm).*?\.(csv|tsv|txt)$/i;
+    const sampleRegex = /^(?:.*sample.*|sample(?:[ _.,-]?meta)?|meta[ _.,-]?data)\.(csv|tsv|txt)$/i;
+
+    let geneFile: string | undefined;
+    let transcriptFile: string | undefined;
+    let sampleFile: string | undefined;
+    let pcaFile: string | undefined;
+
+    for (const file of nonDiffExpFiles) {
+      const fileName = path.basename(file);
+
+      if (!geneFile && geneRegex.test(fileName)) {
+        geneFile = file;
+      }
+
+      if (!transcriptFile && transcriptRegex.test(fileName)) {
+        transcriptFile = file;
+      }
+
+      if (!sampleFile && sampleRegex.test(fileName)) {
+        sampleFile = file;
+      }
+
+      if (!pcaFile && fileName.toLowerCase().includes('pca')) {
+        pcaFile = file;
+      }
+
+      // Exit early if all files are found
+      if (geneFile && transcriptFile && sampleFile && pcaFile) {
+        break;
+      }
     }
 
-    if (typeof matchTerms === 'string') {
-      matchTerms = [matchTerms];
-    }
-
-    let filesInProject: string[] = [];
-    try {
-      filesInProject = (await fs.readdir(projectPath)).filter((f) => f !== 'password.txt');
-    } catch {
-      res.status(404).send('Project folder not found');
-      return;
-    }
-
-    const matchingFiles = filesInProject.filter((f) => {
-      const lowerF = f.toLowerCase();
-      return matchTerms.some((term) => lowerF.includes(term.toLowerCase()));
+    res.status(200).json({
+      allFiles,
+      initializedFiles: {
+        gene: geneFile || '',
+        transcript: transcriptFile || '',
+        pca: pcaFile || '',
+        samplesheet: sampleFile || '',
+        differentialexpression: [...geneDiffExpFiles, ...transcriptDiffExpFiles],
+        geneDiffExpFiles: geneDiffExpFiles,
+        transcriptDiffExpFiles: transcriptDiffExpFiles,
+      },
     });
-
-    const result = {
-      label: fileKey,
-      selectedFile: matchingFiles.length > 0 ? matchingFiles[0] : '',
-      filesHavingSameKey: matchingFiles,
-      allFiles: filesInProject,
-    };
-
-    res.json(result);
   }
 
   async previewProjectFile(group: string, program: string, project: string, filename: string, res: any) {

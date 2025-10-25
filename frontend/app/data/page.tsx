@@ -6,6 +6,8 @@ import React, { Suspense } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 const TranscriptTab = dynamic(
   () =>
     import('@/components/data-commons/TranscriptExpression/TranscriptTab').then(mod => ({
@@ -56,7 +58,7 @@ function PDCSNetworkTabs() {
   const deFilesArray = deFile?.split(',');
 
   const getFileUrl = (filename: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
+    `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
 
   React.useEffect(() => {
     if (uploadMode === 'true') {
@@ -72,7 +74,7 @@ function PDCSNetworkTabs() {
     const checkAuthentication = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/verify-auth`,
+          `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/verify-auth`,
           { method: 'GET', credentials: 'include' },
         );
 

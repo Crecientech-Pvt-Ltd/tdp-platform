@@ -3,7 +3,7 @@
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DownloadFileSpec } from '@/components/data-commons/common/DownloadPopup';
-import { SeeMore } from '@/components/data-commons/common/SeeMore';
+import SeeMore from '@/components/data-commons/common/SeeMore';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
 import { usePCAColumns, usePCAData, useSampleColumns, useViewportHeight } from './hooks';

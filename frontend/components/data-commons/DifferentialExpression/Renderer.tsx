@@ -121,7 +121,7 @@ export const VolcanoPlotRenderer = memo(
 
     return (
       <div className='flex h-full w-full flex-col'>
-        <div className='relative flex-grow'>
+        <div className='relative grow'>
           <Plot
             key={`${contrast}-${selectedGenes.size}`}
             data={plotData}

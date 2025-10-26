@@ -1,12 +1,12 @@
-import { Resolver, Query, Args, Context, Info, Int } from '@nestjs/graphql';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { GqlService } from './gql.service';
 import { RedisService } from '@/redis/redis.service';
-import { isUUID } from 'class-validator';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DataRequired, Gene, GeneInteractionOutput, Header, InteractionInput } from './models';
-import type { FieldNode, GraphQLResolveInfo } from 'graphql';
+import { Args, Context, Info, Int, Query, Resolver } from '@nestjs/graphql';
+import { isUUID } from 'class-validator';
 import type { Request } from 'express';
+import { Kind, type GraphQLResolveInfo } from 'graphql';
+import { GqlService } from './gql.service';
+import { GeneInteractionOutput, GeneMetadata, Headers, InteractionInput } from './models';
 
 @Resolver('gql')
 export class GqlResolver {
@@ -16,25 +16,30 @@ export class GqlResolver {
     private readonly configService: ConfigService,
   ) {}
 
-  @Query(() => [Gene])
-  async genes(
-    @Args('geneIDs', { type: () => [String] }) geneIDs: string[],
-    @Args('config', { type: () => [DataRequired], nullable: true })
-    config: Array<DataRequired> | undefined,
-    @Info() info: GraphQLResolveInfo,
-  ): Promise<Gene[]> {
-    const bringMeta = info.fieldNodes[0].selectionSet?.selections.some(
-      (selection: FieldNode) => !['ID', 'common', 'disease'].includes(selection?.name.value),
-    );
-    const genes = this.gqlService.getGenes(geneIDs, config, bringMeta);
-    return config ? this.gqlService.filterGenes(genes, config) : genes;
+  @Query(() => [GeneMetadata])
+  async genes(@Args('geneIDs', { type: () => [String] }) geneIDs: string[]): Promise<GeneMetadata[]> {
+    return this.gqlService.getGenes(geneIDs);
   }
 
-  @Query(() => Header)
-  async headers(@Args('disease', { type: () => String }) disease: string, @Info() info: GraphQLResolveInfo) {
-    const bringCommon =
-      info.fieldNodes[0].selectionSet?.selections.find((val: FieldNode) => val.name.value === 'common') !== undefined;
-    return this.gqlService.getHeaders(disease, bringCommon);
+  @Query(() => Headers)
+  async headers(
+    @Args('diseaseId', { type: () => String }) diseaseId: string,
+    @Info() info: GraphQLResolveInfo,
+  ): Promise<Headers> {
+    const key = `headers:common`;
+    let result: Headers | null = null;
+    const cached = await this.redisService.redisClient.get(key);
+    if (cached) {
+      result = JSON.parse(cached) as Headers;
+      const isDbQueryNeeded =
+        info.fieldNodes[0].selectionSet?.selections.find(
+          (val) => val.kind === Kind.FIELD && ['differentialExpression', 'genetics'].includes(val.name.value),
+        ) !== undefined;
+      if (isDbQueryNeeded === false) return result;
+    }
+    result = await this.gqlService.getHeaders(diseaseId, result);
+    await this.redisService.redisClient.set(key, JSON.stringify(result), 'EX', 86400);
+    return result;
   }
 
   @Query(() => GeneInteractionOutput)

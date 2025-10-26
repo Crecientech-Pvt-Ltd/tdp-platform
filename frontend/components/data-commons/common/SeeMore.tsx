@@ -165,7 +165,7 @@ export default function SeeMore({
         <DialogContent className='flex max-h-[90vh] w-[95vw] max-w-4xl flex-col'>
           <DialogTitle className='font-semibold text-xl'>{title}</DialogTitle>
 
-          <div className='flex-grow overflow-y-auto px-1 py-4'>
+          <div className='grow overflow-y-auto px-1 py-4'>
             <div className='space-y-8'>
               {axisEnabled && (
                 <div className='rounded-lg border bg-muted/30 p-6'>
@@ -345,5 +345,3 @@ export default function SeeMore({
     </>
   );
 }
-
-export { SeeMore };

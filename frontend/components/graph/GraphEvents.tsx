@@ -366,11 +366,11 @@ export function GraphEvents({
         )?.[selectedRadio]?.[selectedProperty];
         return (
           <div>
-            <h3 className='break-words font-bold'>
+            <h3 className='wrap-break-word font-bold'>
               {selectedProperty.startsWith('[USER]') && <span className='text-muted-foreground'>[USER] </span>}
               {selectedProperty.replace('[USER]', '')}
             </h3>
-            <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
+            <p className={cn(value ? 'italic' : '')}>{value ?? 'N/A'}</p>
           </div>
         );
       }
@@ -382,11 +382,11 @@ export function GraphEvents({
             )?.[selectedRadio]?.[prop];
             return (
               <div key={prop}>
-                <h3 className='break-words font-bold'>
+                <h3 className='wrap-break-word font-bold'>
                   {prop.startsWith('[USER]') && <span className='text-muted-foreground'>[USER] </span>}
                   {prop.replace('[USER]', '')}
                 </h3>
-                <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
+                <p className={cn(value ? 'italic' : '')}>{value ?? 'N/A'}</p>
               </div>
             );
           })

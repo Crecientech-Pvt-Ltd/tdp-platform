@@ -177,26 +177,27 @@ export function FileSheet() {
 
               // GWAS alias of Genetics
               if (/^GWAS_/i.test(prop)) {
-                universalData[geneID].user.Genetics[prop.replace(/^GWAS_/i, '')] = row[prop];
+                universalData[geneID].user.Genetics[prop.replace(/^GWAS_/i, '')] = Number.parseFloat(row[prop]);
                 continue;
               }
 
               // GDA alias of OpenTargets
               if (/^GDA_/i.test(prop)) {
-                universalData[geneID].user.OpenTargets[prop.replace(/^GDA_/i, '')] = row[prop];
+                universalData[geneID].user.OpenTargets[prop.replace(/^GDA_/i, '')] = Number.parseFloat(row[prop]);
                 continue;
               }
 
-              // P_Val alias of DEG
+              // P_Val alias of LogFC
               if (P_VALUE_REGEX.test(prop)) {
-                universalData[geneID].user.LogFC[prop] = row[prop];
+                universalData[geneID].user.LogFC[prop] = Number.parseFloat(row[prop]);
                 continue;
               }
 
               for (const field of [...DISEASE_DEPENDENT_PROPERTIES, ...DISEASE_INDEPENDENT_PROPERTIES]) {
                 const fieldRegex = new RegExp(`^${field}_`, 'i');
                 if (fieldRegex.test(prop)) {
-                  universalData[geneID].user[field][`[USER] ${prop.replace(fieldRegex, '')}`] = row[prop];
+                  universalData[geneID].user[field][`[USER] ${prop.replace(fieldRegex, '')}`] =
+                    field === 'Custom_Color' ? row[prop] : Number.parseFloat(row[prop]);
                   break;
                 }
               }
@@ -217,7 +218,7 @@ export function FileSheet() {
               continue;
             }
 
-            // P_Val alias of DEG
+            // P_Val alias of LogFC
             if (P_VALUE_REGEX.test(prop)) {
               radioOptions.user.LogFC.push(prop);
               continue;

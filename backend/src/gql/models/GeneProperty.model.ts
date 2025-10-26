@@ -1,0 +1,35 @@
+import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { ScoredKeyValue } from './TargetDiseaseAssociation.model';
+
+@ObjectType()
+export class GeneProperty {
+  @Field(() => ID)
+  ID: string;
+
+  @Field(() => [GenePropertyData])
+  data: GenePropertyData[];
+}
+
+@ObjectType()
+export class GenePropertyData extends ScoredKeyValue {
+  @Field(() => String, { nullable: true })
+  diseaseId?: string;
+
+  @Field(() => GenePropertyCategoryEnum)
+  category: GenePropertyCategoryEnum;
+}
+
+export enum GenePropertyCategoryEnum {
+  DIFFERENTIAL_EXPRESSION = 'LogFC',
+  OPEN_TARGETS = 'OpenTargets',
+  GENETICS = 'Genetics',
+  OT_PRIORITIZATION = 'OT_Prioritization',
+  PATHWAY = 'Pathway',
+  DRUGGABILITY = 'Druggability',
+  TISSUE_EXPRESSION = 'TE',
+}
+
+registerEnumType(GenePropertyCategoryEnum, {
+  name: 'GenePropertyCategoryEnum',
+  description: 'Available categories for gene properties',
+});

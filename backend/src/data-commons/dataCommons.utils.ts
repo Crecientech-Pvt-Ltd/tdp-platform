@@ -1,4 +1,5 @@
 import * as fs from 'fs/promises';
+import path from 'path';
 
 export const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.pdf', '.ppt', '.pptx', '.doc', '.docx'];
 
@@ -9,7 +10,18 @@ export async function getDirectories(dirPath: string): Promise<string[]> {
 
 export async function getFiles(dirPath: string): Promise<string[]> {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  return entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
+
+  return entries
+    .filter((entry) => {
+      if (!entry.isFile()) return false;
+
+      const fileName = entry.name.toLowerCase();
+      const ext = path.extname(fileName);
+      const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp'];
+
+      return fileName !== 'password.txt' && !imageExts.includes(ext);
+    })
+    .map((entry) => entry.name);
 }
 
 export function findFirstFileWithExtension(files: string[], extensions: string[]): string | undefined {

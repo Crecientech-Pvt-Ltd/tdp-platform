@@ -85,6 +85,12 @@ export class DataCommonsService {
       res.status(404).send(`${filename} not found`);
       return;
     }
+
+    if (filename.toLowerCase().includes('password')) {
+      res.status(403).send('Access to password file is forbidden');
+      return;
+    }
+
     const lowerCaseFileName = filename.toLowerCase();
     if (lowerCaseFileName.includes('differentialexpression')) {
       try {
@@ -166,22 +172,16 @@ export class DataCommonsService {
 
       if (!geneFile && geneRegex.test(fileName)) {
         geneFile = file;
-      }
-
-      if (!transcriptFile && transcriptRegex.test(fileName)) {
+      } else if (!transcriptFile && transcriptRegex.test(fileName)) {
         transcriptFile = file;
-      }
-
-      if (!sampleFile && sampleRegex.test(fileName)) {
+      } else if (!sampleFile && sampleRegex.test(fileName)) {
         sampleFile = file;
-      }
-
-      if (!pcaFile && fileName.toLowerCase().includes('pca')) {
+      } else if (!pcaFile && (fileName.toLowerCase().includes('pca') || (geneFile && transcriptFile && sampleFile))) {
         pcaFile = file;
       }
 
       // Exit early if all files are found
-      if (geneFile && transcriptFile && sampleFile && pcaFile) {
+      else if (geneFile && transcriptFile && sampleFile && pcaFile) {
         break;
       }
     }
@@ -208,6 +208,12 @@ export class DataCommonsService {
       res.status(404).send(`${filename} not found`);
       return;
     }
+
+    if (filename.toLowerCase().includes('password')) {
+      res.status(403).send('Access to password file is forbidden');
+      return;
+    }
+
     try {
       const stream = createReadStream(filePath, { encoding: 'utf8' });
       const rl = readline.createInterface({
@@ -285,8 +291,12 @@ export class DataCommonsService {
         let decoded: any;
         try {
           decoded = jwt.verify(cookie, JWT_SECRET);
-        } catch (err) {
-          console.error('Error verifying JWT:', err);
+        } catch {
+          res.clearCookie('data-commons-auth', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+          });
           res.status(401).send('Unauthorized');
           return;
         }
@@ -391,8 +401,12 @@ export class DataCommonsService {
     let decoded: any;
     try {
       decoded = jwt.verify(cookie, JWT_SECRET);
-    } catch (err) {
-      console.error('Error verifying JWT:', err);
+    } catch {
+      res.clearCookie('data-commons-auth', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
       res.status(401).send('Unauthorized');
       return;
     }

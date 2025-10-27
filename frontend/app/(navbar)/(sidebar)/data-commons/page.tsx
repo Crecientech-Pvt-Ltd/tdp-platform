@@ -108,7 +108,8 @@ export default function DataCommonsPage() {
           { method: 'GET', credentials: 'include' },
         );
         if (!response.ok) {
-          console.error('Password check failed:', response.status);
+          // console.error('Password check failed:', response.status);
+          setShowPasswordPopup(true);
           return;
         }
         const result = await response.json();

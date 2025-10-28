@@ -24,9 +24,9 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
               <Button
                 onClick={() => useStore.setState({ selectedRadioNodeColor: undefined })}
                 type='button'
-                variant='oldtool'
+                variant='basic'
                 size='icon'
-                className='h-6 w-6'
+                className='size-6'
               >
                 <RefreshCcwIcon size={15} />
               </Button>
@@ -34,7 +34,7 @@ export function NodeColor({ onPropChange }: { onPropChange: (prop: string | Set<
             <TooltipContent className='text-white'>Reset</TooltipContent>
           </Tooltip>
           <CollapsibleTrigger asChild>
-            <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+            <Button type='button' variant='basic' size='icon' className='size-6'>
               <ChevronsUpDownIcon size={15} />
             </Button>
           </CollapsibleTrigger>

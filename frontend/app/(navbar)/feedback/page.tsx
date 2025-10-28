@@ -95,7 +95,7 @@ export default function AboutPage() {
               submitted !== 'failed' ? (
                 <div className='flex flex-col items-center justify-center space-y-4 py-6 text-center'>
                   <div className='rounded-full bg-teal-100 p-3 dark:bg-teal-900/30'>
-                    <CheckCircleIcon className='h-8 w-8 text-teal-600 dark:text-teal-400' />
+                    <CheckCircleIcon className='size-8 text-teal-600 dark:text-teal-400' />
                   </div>
                   <h3 className='font-medium text-xl'>Thank You!</h3>
                   <p className='text-muted-foreground'>Your feedback has been submitted successfully.</p>
@@ -110,7 +110,7 @@ export default function AboutPage() {
               ) : (
                 <div className='flex flex-col items-center justify-center space-y-4 py-6 text-center'>
                   <div className='rounded-full bg-red-100 p-3 dark:bg-red-900/30'>
-                    <CircleXIcon className='h-8 w-8 text-red-600 dark:text-red-400' />
+                    <CircleXIcon className='size-8 text-red-600 dark:text-red-400' />
                   </div>
                   <h3 className='font-medium text-xl'>Submission Failed</h3>
                   <p>Please try submitting your feedback again later.</p>

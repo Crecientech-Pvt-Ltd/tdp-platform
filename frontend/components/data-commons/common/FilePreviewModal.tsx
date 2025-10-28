@@ -116,7 +116,7 @@ export default function FilePreviewModal({
           <DialogTitle className='truncate pr-8 font-semibold text-lg'>Preview: {filename}</DialogTitle>
           <DialogClose asChild>
             <Button aria-label='Close preview' variant='ghost' size='icon' className='shrink-0' onClick={onClose}>
-              <XIcon className='h-5 w-5' />
+              <XIcon className='size-5' />
               <span className='sr-only'>Close</span>
             </Button>
           </DialogClose>
@@ -126,7 +126,7 @@ export default function FilePreviewModal({
             {loading && (
               <div className='shrink-0 border-b p-4' aria-live='polite'>
                 <div className='flex items-center gap-2'>
-                  <Spinner className='h-4 w-4' />
+                  <Spinner className='size-4' />
                   <span className='text-sm'>Loading preview...</span>
                 </div>
               </div>
@@ -206,13 +206,13 @@ export default function FilePreviewModal({
         {multiple && (
           <div className='flex shrink-0 items-center justify-between border-t p-4'>
             <Button variant='outline' size='sm' onClick={onPrev} disabled={fileCount <= 1}>
-              <ArrowLeftIcon className='mr-1 h-4 w-4' /> Prev
+              <ArrowLeftIcon className='size-4' /> Prev
             </Button>
             <span className='text-muted-foreground text-sm'>
               File {fileIndex + 1} of {fileCount}
             </span>
             <Button variant='outline' size='sm' onClick={onNext} disabled={fileCount <= 1}>
-              Next <ArrowRightIcon className='ml-1 h-4 w-4' />
+              Next <ArrowRightIcon className='ml-1 size-4' />
             </Button>
           </div>
         )}

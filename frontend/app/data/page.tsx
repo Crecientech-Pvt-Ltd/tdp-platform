@@ -104,7 +104,7 @@ function PDCSNetworkTabs() {
   if (loading) {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center'>
-        <Spinner className='h-12 w-12' />
+        <Spinner className='size-12' />
         <p className='mt-4 text-gray-600 text-lg'>Checking project access...</p>
       </div>
     );
@@ -157,7 +157,7 @@ export default function NetworkPage() {
       <Suspense
         fallback={
           <div className='flex min-h-screen flex-col items-center justify-center'>
-            <Spinner className='h-12 w-12' />
+            <Spinner className='size-12' />
             <p className='mt-4 text-gray-600 text-lg'>Loading components...</p>
           </div>
         }

@@ -191,20 +191,20 @@ export const VolcanoPlotRenderer = memo(
         <div className='mt-2 rounded-lg border bg-gray-50 p-2 text-xs'>
           <div className='flex items-center justify-center gap-4'>
             <div className='flex items-center gap-1'>
-              <div className='h-3 w-3 rounded-full bg-red-500'></div>
+              <div className='size-3 rounded-full bg-red-500'></div>
               <span>Up: {counts?.red || 0}</span>
             </div>
             <div className='flex items-center gap-1'>
-              <div className='h-3 w-3 rounded-full bg-blue-500'></div>
+              <div className='size-3 rounded-full bg-blue-500'></div>
               <span>Down: {counts?.blue || 0}</span>
             </div>
             <div className='flex items-center gap-1'>
-              <div className='h-3 w-3 rounded-full bg-gray-500'></div>
+              <div className='size-3 rounded-full bg-gray-500'></div>
               <span>None: {counts?.gray || 0}</span>
             </div>
             {selectedGenes.size > 0 && (
               <div className='flex items-center gap-1'>
-                <div className='h-3 w-3 rounded-full border-2 border-black bg-orange-500'></div>
+                <div className='size-3 rounded-full border-2 border-black bg-orange-500'></div>
                 <span>Selected: {selectedGenes.size}</span>
               </div>
             )}

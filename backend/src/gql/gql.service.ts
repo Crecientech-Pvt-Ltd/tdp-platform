@@ -8,7 +8,7 @@ import { Neo4jService } from '@/neo4j/neo4j.service';
 import { mergeEdgesAndAverageScore } from '@/utils/mergeEdges';
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import type { DataRequired, Description, GeneBase, GeneMetadata, Headers, InteractionInput } from './models';
+import type { Description, GeneBase, GeneMetadata, Headers, InteractionInput } from './models';
 
 export interface GetGenesResult {
   ID: string;
@@ -52,29 +52,6 @@ export class GqlService {
           (geneIDsIndexMap.get(a.Input) ?? geneIDsIndexMap.get(a.ID) ?? 0) -
           (geneIDsIndexMap.get(b.Input) ?? geneIDsIndexMap.get(b.ID) ?? 0),
       );
-  }
-
-  async filterGenes(genes: ReturnType<typeof GqlService.prototype.getGenes>, config: Array<DataRequired>) {
-    return (await genes).map<GeneMetadata>((gene: any) => {
-      gene.common = {};
-      gene.disease = {};
-      for (const { diseaseId: diseaseName, properties } of config) {
-        if (!diseaseName) {
-          for (const prop of properties) {
-            gene.common[prop] = gene[prop];
-            delete gene[prop];
-          }
-        } else {
-          gene.disease[diseaseName] = {};
-          for (const prop of properties) {
-            const propName = `${diseaseName}_${prop}`;
-            gene.disease[diseaseName][prop] = gene[propName];
-            delete gene[propName];
-          }
-        }
-      }
-      return gene;
-    });
   }
 
   async getGeneInteractions(input: InteractionInput, order: number, graphName: string, userID: string) {

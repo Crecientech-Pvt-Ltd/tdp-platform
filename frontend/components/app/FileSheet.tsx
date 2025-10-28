@@ -276,8 +276,8 @@ export function FileSheet() {
       <div className='flex flex-col justify-between gap-2 lg:flex-row'>
         <Sheet>
           <SheetTrigger asChild>
-            <Button size='sm' className='w-full'>
-              <UploadIcon className='mr-1 h-3 w-3' />
+            <Button size='sm' className='w-1/2 text-xs'>
+              <UploadIcon className='size-3' />
               Upload Files
             </Button>
           </SheetTrigger>
@@ -359,7 +359,7 @@ export function FileSheet() {
                       </span>
                     </div>
                     <Button variant='ghost' size='icon' onClick={() => removeFile(file.name)}>
-                      <Trash2Icon className='h-4 w-4' />
+                      <Trash2Icon className='size-4' />
                     </Button>
                   </div>
                 ))}
@@ -374,7 +374,7 @@ export function FileSheet() {
             </SheetFooter>
           </SheetContent>
         </Sheet>
-        <Button variant={'default'} size={'sm'} className='w-full' onClick={handleReset}>
+        <Button size={'sm'} className='w-1/2' onClick={handleReset}>
           Reset Uploads
         </Button>
       </div>

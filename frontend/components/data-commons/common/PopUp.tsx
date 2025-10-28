@@ -404,10 +404,10 @@ export default function FileSelectionPopup({
                         <Button
                           variant='ghost'
                           size='icon'
-                          className='h-6 w-6 p-0'
+                          className='size-6 p-0'
                           onClick={() => handlePreview('differentialexpression')}
                         >
-                          <EyeIcon className='h-4 w-4' />
+                          <EyeIcon className='size-4' />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Preview File</TooltipContent>
@@ -425,7 +425,7 @@ export default function FileSelectionPopup({
                 )}
                 {loading ? (
                   <div className='flex items-center justify-center rounded-md border bg-muted/50 py-4'>
-                    <Spinner className='mr-2 h-4 w-4' />
+                    <Spinner className='mr-2 size-4' />
                     <span className='text-muted-foreground text-sm'>Loading files...</span>
                   </div>
                 ) : (
@@ -454,10 +454,10 @@ export default function FileSelectionPopup({
                         <Button
                           variant='ghost'
                           size='icon'
-                          className='h-6 w-6 p-0'
+                          className='size-6 p-0'
                           onClick={() => handlePreview('differentialexpression')}
                         >
-                          <EyeIcon className='h-4 w-4' />
+                          <EyeIcon className='size-4' />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Preview File</TooltipContent>
@@ -502,8 +502,8 @@ export default function FileSelectionPopup({
             {selectedFile && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant='ghost' size='icon' className='h-6 w-6 p-0' onClick={() => handlePreview(type)}>
-                    <EyeIcon className='h-4 w-4' />
+                  <Button variant='ghost' size='icon' className='size-6 p-0' onClick={() => handlePreview(type)}>
+                    <EyeIcon className='size-4' />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Preview File</TooltipContent>
@@ -512,7 +512,7 @@ export default function FileSelectionPopup({
           </div>
           {loading ? (
             <div className='flex items-center gap-2 py-2'>
-              <Spinner className='h-4 w-4' />
+              <Spinner className='size-4' />
               <span className='text-muted-foreground text-sm'>Loading files...</span>
             </div>
           ) : isEditing ? (
@@ -577,7 +577,7 @@ export default function FileSelectionPopup({
         <DialogFooter className='flex-col justify-between gap-2 border-t pt-4 sm:flex-row'>
           <div className='flex flex-1 gap-2'>
             <Button variant='outline' onClick={handleCloseButton} className='flex items-center gap-2'>
-              <XIcon className='h-4 w-4' />
+              <XIcon className='size-4' />
               Cancel
             </Button>
 
@@ -595,7 +595,7 @@ export default function FileSelectionPopup({
                 disabled={loading || isDownloading}
                 className='flex items-center gap-2'
               >
-                <DownloadIcon className='h-4 w-4' />
+                <DownloadIcon className='size-4' />
                 {isDownloading ? 'Downloading...' : showDownloadCheckboxes ? 'Download Selected' : 'Download'}
               </Button>
             )}
@@ -616,7 +616,7 @@ export default function FileSelectionPopup({
                 >
                   {loadingProceed ? (
                     <div className='flex items-center gap-2'>
-                      <Spinner className='h-4 w-4' />
+                      <Spinner className='size-4' />
                       <span>Loading...</span>
                     </div>
                   ) : (

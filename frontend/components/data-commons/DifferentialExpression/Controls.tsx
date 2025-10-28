@@ -106,7 +106,7 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
               size='sm'
               className='flex h-6 items-center gap-1 px-2 sm:h-7'
             >
-              <InfoIcon className='h-3 w-3' />
+              <InfoIcon className='size-3' />
               <span className='hidden text-xs sm:inline'>Settings</span>
             </Button>
           </div>

@@ -26,7 +26,7 @@ export function Legend() {
       <div className='flex w-full items-center justify-between bg-primary p-2'>
         <p className='font-bold text-white'>Legends</p>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+          <Button type='button' variant='basic' size='icon' className='size-6'>
             <ChevronsUpDownIcon size={15} />
           </Button>
         </CollapsibleTrigger>

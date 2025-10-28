@@ -79,7 +79,7 @@ export const PCAHeader = memo(function PCAHeader({ xAxisColumn, yAxisColumn, onS
       </h2>
       <div className='flex gap-2'>
         <Button onClick={onSeeMoreClick} variant='outline' size='sm' className='flex items-center gap-2'>
-          <InfoIcon className='h-4 w-4' />
+          <InfoIcon className='size-4' />
           Settings
         </Button>
       </div>

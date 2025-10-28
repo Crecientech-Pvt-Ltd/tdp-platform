@@ -35,8 +35,8 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='flex h-screen flex-col'>
       <div className='flex h-12 items-center bg-primary p-2'>
-        <Button variant='oldtool' size='icon' className='h-full' onClick={handleLeftSidebarToggle}>
-          {leftSidebar ? <ChevronLeftIcon className='h-4 w-4' /> : <ChevronRightIcon className='h-4 w-4' />}
+        <Button variant='basic' size='icon' className='h-full' onClick={handleLeftSidebarToggle}>
+          {leftSidebar ? <ChevronLeftIcon className='size-4' /> : <ChevronRightIcon className='size-4' />}
         </Button>
         <div className='flex flex-1 justify-center'>
           <TabsList className='flex h-8 w-3/4 max-w-4xl items-center gap-2'>
@@ -48,8 +48,8 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           </TabsList>
         </div>
         <div className='flex items-center gap-4'></div>
-        <Button variant='oldtool' size='icon' className='h-full' onClick={handleRightSidebarToggle}>
-          {rightSidebar ? <ChevronRightIcon className='h-4 w-4' /> : <ChevronLeftIcon className='h-4 w-4' />}
+        <Button variant='basic' size='icon' className='h-full' onClick={handleRightSidebarToggle}>
+          {rightSidebar ? <ChevronRightIcon className='size-4' /> : <ChevronLeftIcon className='size-4' />}
         </Button>
       </div>
 

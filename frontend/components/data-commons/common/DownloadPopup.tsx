@@ -180,12 +180,12 @@ export default function DownloadPopup({
           >
             {isDownloading ? (
               <>
-                <Loader2Icon className='h-4 w-4 animate-spin' />
+                <Loader2Icon className='size-4 animate-spin' />
                 Creating ZIP...
               </>
             ) : (
               <>
-                <DownloadIcon className='h-4 w-4' />
+                <DownloadIcon className='size-4' />
                 Download ({selectedFiles.length})
               </>
             )}

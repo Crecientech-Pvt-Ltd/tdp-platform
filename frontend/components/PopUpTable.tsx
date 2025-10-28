@@ -125,7 +125,7 @@ export default function PopUpTable({
         <DialogFooter className='w-full gap-2'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size={'icon'} variant={'basic'}>
+              <Button size={'icon'}>
                 <DownloadIcon size={20} />
               </Button>
             </DropdownMenuTrigger>
@@ -134,9 +134,7 @@ export default function PopUpTable({
               <DropdownMenuItem onClick={() => handleDownload(false)}>Not-Found</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => handleGenerateGraph()} className='bg-primary text-white hover:bg-primary'>
-            Submit
-          </Button>
+          <Button onClick={() => handleGenerateGraph()}>Submit</Button>
           <DialogClose asChild>
             <Button type='button' variant={'secondary'} onClick={() => setTableOpen(false)}>
               Close

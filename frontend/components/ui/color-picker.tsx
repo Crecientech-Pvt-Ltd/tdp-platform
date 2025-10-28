@@ -34,7 +34,7 @@ export function ColorPicker({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant={'oldtoolcolor'}
+          variant={'outline'}
           className={cn(
             'w-[220px] justify-start border text-left font-normal',
             !color && 'text-muted-foreground',
@@ -43,9 +43,9 @@ export function ColorPicker({
         >
           <div className='flex w-full items-center gap-2'>
             {color ? (
-              <div className='!bg-center !bg-cover h-4 w-4 rounded transition-all' style={{ background: color }} />
+              <div className='size-4 rounded bg-center! bg-cover! transition-all' style={{ background: color }} />
             ) : (
-              <PaintbrushIcon className='h-4 w-4' />
+              <PaintbrushIcon className='size-4' />
             )}
             <span className='flex-1 truncate'>{color ? color : 'Pick a color'}</span>
           </div>
@@ -59,7 +59,7 @@ export function ColorPicker({
               key={s}
               style={{ background: s }}
               onClick={() => handleNodeColorChange(s, property)}
-              className='h-6 w-6 cursor-pointer rounded-md hover:scale-105'
+              className='size-6 cursor-pointer rounded-md hover:scale-105'
             />
           ))}
         </div>

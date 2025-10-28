@@ -70,7 +70,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                     .join(', ')
                 : placeholder}
             </span>
-            <ChevronsUpDownIcon className='h-4 w-4 opacity-50' />
+            <ChevronsUpDownIcon className='size-4 opacity-50' />
           </button>
         </Popover.Trigger>
         <Popover.Portal>
@@ -91,7 +91,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                 )}
               >
                 <span className='absolute right-2 flex h-3.5 w-3.5 items-center justify-center'>
-                  {selected.includes(option.value) && <CheckIcon className='h-4 w-4' />}
+                  {selected.includes(option.value) && <CheckIcon className='size-4' />}
                 </span>
                 {option.label}
               </button>

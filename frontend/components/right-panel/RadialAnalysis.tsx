@@ -37,7 +37,7 @@ export function RadialAnalysis() {
       <div className='flex items-center justify-between bg-primary p-2 text-white'>
         <Label className='font-bold'>Radial Analysis</Label>
         <CollapsibleTrigger asChild>
-          <Button type='button' variant='oldtool' size='icon' className='h-6 w-6'>
+          <Button type='button' variant='basic' size='icon' className='size-6'>
             <ChevronsUpDownIcon size={15} />
           </Button>
         </CollapsibleTrigger>

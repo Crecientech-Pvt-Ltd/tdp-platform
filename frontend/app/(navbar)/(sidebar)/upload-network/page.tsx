@@ -160,7 +160,7 @@ export default function UploadFile() {
             type='submit'
             className='w-full'
           >
-            {loading && <LoaderIcon className='mr-2 animate-spin' size={20} />} Submit
+            {loading && <LoaderIcon className='animate-spin' size={20} />} Submit
           </Button>
         </div>
       </form>

@@ -29,8 +29,8 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='flex h-screen flex-col'>
       <div className='flex h-12 items-center justify-between bg-primary p-2'>
-        <Button variant='oldtool' size='icon' className='h-full' onClick={() => setLeftSidebar(!leftSidebar)}>
-          {leftSidebar ? <ChevronLeftIcon className='h-4 w-4' /> : <ChevronRightIcon className='h-4 w-4' />}
+        <Button variant='basic' size='icon' className='h-full' onClick={() => setLeftSidebar(!leftSidebar)}>
+          {leftSidebar ? <ChevronLeftIcon className='size-4' /> : <ChevronRightIcon className='size-4' />}
         </Button>
         <AppBar />
         <TabsList className='flex h-8 w-1/2 items-center gap-4'>
@@ -44,20 +44,20 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
         <div className='flex items-center gap-4'>
           <Link
             href={'/'}
-            className='inline-flex h-full items-center rounded-sm border-none p-2 text-xs transition-colors hover:bg-opacity-20 hover:text-black hover:underline'
+            className='inline-flex items-center rounded-sm border-none p-2 text-muted text-xs transition-colors hover:bg-opacity-20 hover:text-white hover:underline'
           >
-            <HomeIcon className='mr-1 h-3 w-3' /> Home
+            <HomeIcon className='mr-1 size-3' /> Home
           </Link>
           <Link
             href={'/docs'}
             target='_blank'
-            className='inline-flex h-full items-center rounded-sm border-none p-2 text-xs transition-colors hover:bg-opacity-20 hover:text-black hover:underline'
+            className='inline-flex items-center rounded-sm border-none p-2 text-muted text-xs transition-colors hover:bg-opacity-20 hover:text-white hover:underline'
           >
-            <FileTextIcon className='mr-1 h-3 w-3' /> Docs
+            <FileTextIcon className='mr-1 size-3' /> Docs
           </Link>
         </div>
-        <Button variant='oldtool' size='icon' className='h-full' onClick={() => setRightSidebar(!rightSidebar)}>
-          {rightSidebar ? <ChevronRightIcon className='h-4 w-4' /> : <ChevronLeftIcon className='h-4 w-4' />}
+        <Button variant='basic' size='icon' className='h-full' onClick={() => setRightSidebar(!rightSidebar)}>
+          {rightSidebar ? <ChevronRightIcon className='size-4' /> : <ChevronLeftIcon className='size-4' />}
         </Button>
       </div>
 

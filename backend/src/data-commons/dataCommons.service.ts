@@ -8,8 +8,9 @@ import * as jwt from 'jsonwebtoken';
 import { getDirectories, getFiles } from './dataCommons.utils';
 
 import { db } from '@/postgress';
+import type { Request, Response } from 'express';
 
-const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src', 'data-commons', 'data');
+const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src/data-commons/data');
 const JWT_SECRET = process.env.JWT_SECRET || '1234';
 
 @Injectable()
@@ -57,7 +58,7 @@ export class DataCommonsService {
     return structure;
   }
 
-  async sendProjectDescription(group: string, program: string, project: string, res: any) {
+  async sendProjectDescription(group: string, program: string, project: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
     if (!existsSync(projectPath)) {
@@ -77,7 +78,7 @@ export class DataCommonsService {
     }
   }
 
-  async sendProjectFile(group: string, program: string, project: string, filename: string, res: any) {
+  async sendProjectFile(group: string, program: string, project: string, filename: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
@@ -108,7 +109,7 @@ export class DataCommonsService {
     }
   }
 
-  sendDeFile(group: string, program: string, project: string, filename: string, res: any) {
+  sendDeFile(group: string, program: string, project: string, filename: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
@@ -124,7 +125,7 @@ export class DataCommonsService {
     }
   }
 
-  async initializedFiles(group: string, program: string, project: string, res: any) {
+  async initializedFiles(group: string, program: string, project: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const allFiles = await getFiles(projectPath);
 
@@ -200,7 +201,7 @@ export class DataCommonsService {
     });
   }
 
-  async previewProjectFile(group: string, program: string, project: string, filename: string, res: any) {
+  async previewProjectFile(group: string, program: string, project: string, filename: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
@@ -243,7 +244,14 @@ export class DataCommonsService {
     }
   }
 
-  async checkProjectPassword(req: any, group: string, program: string, project: string, password: string, res: any) {
+  async checkProjectPassword(
+    req: Request,
+    group: string,
+    program: string,
+    project: string,
+    password: string,
+    res: Response,
+  ) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
@@ -263,7 +271,7 @@ export class DataCommonsService {
         return;
       }
 
-      const cookie = req.cookies['data-commons-auth'];
+      const cookie: string | undefined = req.cookies['data-commons-auth'];
 
       if (!cookie) {
         const newSession = await db.session.create({
@@ -288,9 +296,9 @@ export class DataCommonsService {
           secure: true,
         });
       } else {
-        let decoded: any;
+        let decoded: jwt.JwtPayload;
         try {
-          decoded = jwt.verify(cookie, JWT_SECRET);
+          decoded = jwt.verify(cookie, JWT_SECRET) as jwt.JwtPayload;
         } catch {
           res.clearCookie('data-commons-auth', {
             httpOnly: true,
@@ -380,7 +388,7 @@ export class DataCommonsService {
     }
   }
 
-  async verifyAuth(req: any, group: string, program: string, project: string, res: any) {
+  async verifyAuth(req: Request, group: string, program: string, project: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
@@ -391,16 +399,16 @@ export class DataCommonsService {
       return;
     }
 
-    const cookie = req.cookies['data-commons-auth'];
+    const cookie: string | undefined = req.cookies['data-commons-auth'];
 
     if (!cookie) {
       res.json({ success: false, hasPassword: true, message: 'No auth cookie found' });
       return;
     }
 
-    let decoded: any;
+    let decoded: jwt.JwtPayload;
     try {
-      decoded = jwt.verify(cookie, JWT_SECRET);
+      decoded = jwt.verify(cookie, JWT_SECRET) as jwt.JwtPayload;
     } catch {
       res.clearCookie('data-commons-auth', {
         httpOnly: true,

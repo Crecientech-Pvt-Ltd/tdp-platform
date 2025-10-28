@@ -287,7 +287,7 @@ export default function Home() {
                   >
                     {autofillLoading || topGenesLoading ? (
                       <>
-                        <LoaderIcon className='mr-2 animate-spin' size={16} />
+                        <LoaderIcon className='animate-spin' size={16} />
                         Autofilling...
                       </>
                     ) : (
@@ -439,7 +439,7 @@ FIG4`,
               >
                 {loading ? (
                   <>
-                    <LoaderIcon className='mr-2 animate-spin' size={20} />
+                    <LoaderIcon className='animate-spin' size={20} />
                     Verifying {geneIDs.length} genes...
                   </>
                 ) : (

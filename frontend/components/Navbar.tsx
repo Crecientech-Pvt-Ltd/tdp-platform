@@ -31,6 +31,7 @@ export default function Navbar() {
                 href={link.href}
                 className={`${buttonVariants({ variant: 'navbar' })} font-semibold text-base`}
               >
+                {link.icon}
                 {link.text}
               </Link>
             ))}

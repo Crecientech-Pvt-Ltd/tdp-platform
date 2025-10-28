@@ -26,6 +26,7 @@ services:
       - neo4j
       - clickhouse
       - redis
+      - postgres
     env_file:
       - backend/.env
     environment:

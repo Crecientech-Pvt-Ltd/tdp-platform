@@ -46,11 +46,4 @@ CREATE TABLE IF NOT EXISTS genetics
 ENGINE = MergeTree()
 ORDER BY (disease_id, gene_id, property_name);
 
-CREATE TABLE IF NOT EXISTS target_prioritization_factors_v2
-(
-    gene_id LowCardinality(String),
-    property_name LowCardinality(String),
-    score Float32
-)
-ENGINE = MergeTree()
-ORDER BY (gene_id, property_name);
+DROP TABLE IF EXISTS target_prioritization_factors;

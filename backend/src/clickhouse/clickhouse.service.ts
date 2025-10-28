@@ -444,7 +444,10 @@ export class ClickhouseService implements OnApplicationBootstrap {
       if (lastAppliedVersion && Number(version) <= Number(lastAppliedVersion)) {
         continue; // Skip already applied migrations
       }
-      const sql = await fs.readFile(join(migrationDir, file), 'utf8');
+      const sql = (await fs.readFile(join(migrationDir, file), 'utf8'))
+        .split('\n')
+        .filter((line) => line && !line.startsWith('--'))
+        .join('\n');
       this.logger.log(`Running migration ${file}...`);
       try {
         for (const stmt of sql.split(';')) {

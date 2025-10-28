@@ -1,3 +1,5 @@
+*Dockerfile*
+
 # Deps and git
 .git
 node_modules/
@@ -25,3 +27,6 @@ src/**/*.test.ts
 
 # Markdown files
 *.md
+
+# Generated files
+generated/

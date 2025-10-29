@@ -21,9 +21,9 @@ export function GraphEvents({
   highlightedNodesRef,
   hubGenesNodesRef,
 }: {
-  clickedNodesRef?: React.MutableRefObject<Set<string>>;
-  highlightedNodesRef: React.MutableRefObject<Set<string>>;
-  hubGenesNodesRef: React.MutableRefObject<Set<string>>;
+  clickedNodesRef?: React.RefObject<Set<string>>;
+  highlightedNodesRef: React.RefObject<Set<string>>;
+  hubGenesNodesRef: React.RefObject<Set<string>>;
 }) {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
   const nodeSearchQuery = useStore(state => state.nodeSearchQuery);

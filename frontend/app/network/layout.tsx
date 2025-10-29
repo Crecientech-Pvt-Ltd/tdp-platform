@@ -28,7 +28,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='flex h-screen flex-col'>
-      <div className='flex h-12 items-center justify-between bg-primary p-2'>
+      <div className='flex h-12 items-center justify-between border-muted/10 border-b-2 bg-primary p-2'>
         <Button variant='basic' size='icon' className='h-full' onClick={() => setLeftSidebar(!leftSidebar)}>
           {leftSidebar ? <ChevronLeftIcon className='size-4' /> : <ChevronRightIcon className='size-4' />}
         </Button>

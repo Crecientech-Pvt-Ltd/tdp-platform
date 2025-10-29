@@ -5,6 +5,7 @@ import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { Button } from './button';
 
 interface MultiSelectOption {
   label: string;
@@ -36,9 +37,9 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
 
     const setRefs = (node: HTMLButtonElement | null) => {
       if (typeof ref === 'function') ref(node);
-      else if (ref && 'current' in ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
+      else if (ref && 'current' in ref) (ref as React.RefObject<HTMLButtonElement | null>).current = node;
       if (triggerRef && 'current' in triggerRef) {
-        (triggerRef as React.MutableRefObject<HTMLButtonElement | null>).current = node;
+        (triggerRef as React.RefObject<HTMLButtonElement | null>).current = node;
       }
     };
 
@@ -53,12 +54,13 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
     return (
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <button
+          <Button
             type='button'
+            variant={'outline'}
             ref={setRefs}
             disabled={disabled}
             className={cn(
-              'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+              'flex h-9 w-full items-center justify-between border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
               className,
             )}
           >
@@ -71,14 +73,14 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                 : placeholder}
             </span>
             <ChevronsUpDownIcon className='size-4 opacity-50' />
-          </button>
+          </Button>
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content
             sideOffset={4}
             style={width ? { width } : undefined}
             className={cn(
-              'z-50 max-h-96 min-w-0 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+              'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-96 min-w-0 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=closed]:animate-out data-[state=open]:animate-in',
             )}
           >
             {options.map(option => (

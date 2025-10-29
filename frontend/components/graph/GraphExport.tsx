@@ -16,7 +16,7 @@ import { useStore } from '@/lib/hooks';
 import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
 
-export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.MutableRefObject<Set<string>> }) {
+export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.RefObject<Set<string>> }) {
   const projectTitle = useStore(state => state.projectTitle);
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
 

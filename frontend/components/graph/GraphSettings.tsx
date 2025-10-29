@@ -7,7 +7,7 @@ import { useStore } from '@/lib/hooks';
 import type { EdgeAttributes, NodeAttributes } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
 
-export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.MutableRefObject<Set<string>> }) {
+export function GraphSettings({ clickedNodesRef }: { clickedNodesRef?: React.RefObject<Set<string>> }) {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
   const [hoveredNode, setHoveredNode] = useState<{ node: string; ctrlKey: boolean } | null>(null);
 

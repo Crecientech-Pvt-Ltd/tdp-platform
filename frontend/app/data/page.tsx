@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { redirect, useSearchParams } from 'next/navigation';
 import React, { Suspense } from 'react';
+import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
 
@@ -60,6 +61,19 @@ function PDCSNetworkTabs() {
   const getFileUrl = (filename: string) =>
     `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
 
+  React.useEffect(() => {
+    const initializeDB = async () => {
+      try {
+        await indexedDBManager.init();
+      } catch (error) {
+        console.error('Error initializing IndexedDB:', error);
+      }
+    };
+
+    if (uploadMode === 'true') {
+      initializeDB();
+    }
+  }, [uploadMode]);
   React.useEffect(() => {
     if (uploadMode === 'true') {
       setIsAuthenticated(true);

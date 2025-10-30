@@ -187,6 +187,22 @@ export class DataCommonsService {
       }
     }
 
+    for (const file of nonDiffExpFiles) {
+      const fileName = path.basename(file);
+
+      if (
+        !pcaFile &&
+        geneFile &&
+        transcriptFile &&
+        sampleFile &&
+        (fileName !== geneFile || fileName !== transcriptFile || fileName !== sampleFile)
+      ) {
+        pcaFile = file;
+      } else if (geneFile && transcriptFile && sampleFile && pcaFile) {
+        break;
+      }
+    }
+
     res.status(200).json({
       allFiles,
       initializedFiles: {

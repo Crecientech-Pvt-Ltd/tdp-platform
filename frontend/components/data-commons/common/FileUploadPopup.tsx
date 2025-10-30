@@ -33,6 +33,7 @@ interface FileSelections {
 export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProps) {
   const [loadingProceed, setLoadingProceed] = React.useState(false);
   const [uploading, setUploading] = React.useState<string | null>(null);
+  const [hasStartedUploading, setHasStartedUploading] = React.useState(false);
 
   const [selections, setSelections] = React.useState<FileSelections>({
     gene: null,
@@ -70,6 +71,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         differentialexpression: [],
         samplesheet: null,
       });
+      setHasStartedUploading(false);
       Object.values(fileInputRefs.current).forEach(input => {
         if (input) input.value = '';
       });
@@ -86,6 +88,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         differentialexpression: [],
         samplesheet: null,
       });
+      setHasStartedUploading(false);
       Object.values(fileInputRefs.current).forEach(input => {
         if (input) input.value = '';
       });
@@ -99,6 +102,10 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
 
     setUploading(type);
     try {
+      if (!hasStartedUploading) {
+        await indexedDBManager.clearAll();
+        setHasStartedUploading(true);
+      }
       if (type === 'differentialexpression') {
         const uploadedFiles: UploadedFile[] = [];
 

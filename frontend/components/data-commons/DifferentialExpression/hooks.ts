@@ -115,6 +115,7 @@ export const useContrastData = (
   const [availableGenes, setAvailableGenes] = useState<string[]>([]);
   const [xAxisColumn, setXAxisColumn] = useState('logFC');
   const [yAxisColumn, setYAxisColumn] = useState('PValue');
+  const [idColumns, setIdColumns] = useState<Record<string, string>>({});
 
   // Use ref to track which contrasts have been fetched to avoid infinite loops
   const fetchedContrastsRef = useRef<Set<string>>(new Set());
@@ -128,6 +129,7 @@ export const useContrastData = (
 
     const newData: Record<string, GenericRow[]> = {};
     const allGenes = new Set<string>();
+    const newIdColumns: Record<string, string> = {}; 
 
     toFetch.forEach(contrast => {
       let csvText = '';
@@ -164,6 +166,8 @@ export const useContrastData = (
           });
 
           const idKey = headers[0] || 'id';
+          newIdColumns[contrast] = idKey; 
+          
           filtered.forEach((row: GenericRow) => {
             const geneId = String(row[idKey] || row[''] || '');
             if (geneId.trim()) {
@@ -173,7 +177,6 @@ export const useContrastData = (
 
           newData[contrast] = filtered;
 
-          // Update available columns (merge with existing)
           setAvailableColumns(prev => Array.from(new Set([...prev, ...headers])));
         });
       }
@@ -187,6 +190,7 @@ export const useContrastData = (
 
       setContrastData(prev => ({ ...prev, ...newData }));
       setAvailableGenes(prev => Array.from(new Set([...prev, ...allGenes])).sort());
+      setIdColumns(prev => ({ ...prev, ...newIdColumns })); 
     }
   }, [debouncedContrasts, deFiles]);
 
@@ -216,6 +220,7 @@ export const useContrastData = (
     availableGenes,
     xAxisColumn,
     yAxisColumn,
+    idColumns,
     setXAxisColumn,
     setYAxisColumn,
   };

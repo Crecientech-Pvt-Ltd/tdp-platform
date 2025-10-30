@@ -34,21 +34,25 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='flex h-screen flex-col'>
-      <div className='flex h-12 items-center bg-primary p-2'>
-        <Button variant='basic' size='icon' className='h-full' onClick={handleLeftSidebarToggle}>
+      <div className='flex min-h-12 items-center bg-primary p-2'>
+        <Button variant='basic' size='icon' className='h-9 shrink-0' onClick={handleLeftSidebarToggle}>
           {leftSidebar ? <ChevronLeftIcon className='size-4' /> : <ChevronRightIcon className='size-4' />}
         </Button>
-        <div className='flex flex-1 justify-center'>
-          <TabsList className='flex h-8 w-3/4 max-w-4xl items-center gap-2'>
+        <div className='flex min-w-0 flex-1 justify-center px-1 sm:px-2'>
+          <TabsList className='flex h-auto min-h-8 w-full max-w-4xl items-center gap-1 py-1 sm:gap-2'>
             {tabNames.map(tab => (
-              <TabsTrigger key={tab.key} className='flex-1 px-6' value={tab.key}>
+              <TabsTrigger
+                key={tab.key}
+                className='flex-1 whitespace-normal px-2 py-1 text-center text-xs leading-tight sm:px-4 sm:text-sm md:px-6'
+                value={tab.key}
+              >
                 {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
         </div>
         <div className='flex items-center gap-4'></div>
-        <Button variant='basic' size='icon' className='h-full' onClick={handleRightSidebarToggle}>
+        <Button variant='basic' size='icon' className='h-9 shrink-0' onClick={handleRightSidebarToggle}>
           {rightSidebar ? <ChevronRightIcon className='size-4' /> : <ChevronLeftIcon className='size-4' />}
         </Button>
       </div>

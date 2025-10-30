@@ -55,7 +55,7 @@ export function AppBar() {
           </ol>
         </TooltipContent>
       </Tooltip>
-      <Suspense fallback={<Input className='max-w-fit font-semibold text-sm' value={'Untitled'} />}>
+      <Suspense fallback={<Input className='max-w-fit font-semibold text-sm' defaultValue='Untitled' />}>
         <FileName />
       </Suspense>
     </div>

@@ -94,7 +94,7 @@ class IndexedDBManager {
     });
   }
 
-  private isValidStoredFile(file: any): file is StoredFile {
+  private isValidStoredFile(file: Partial<StoredFile> | Record<string, unknown>): file is StoredFile {
     return (
       typeof file === 'object' &&
       file !== null &&
@@ -116,7 +116,7 @@ class IndexedDBManager {
 
       for (const file of allFiles) {
         if (!this.isValidStoredFile(file)) {
-          if (file.id) {
+          if (file.id && typeof file.id === 'string') {
             filesToDelete.push(file.id);
           }
           continue;
@@ -135,7 +135,7 @@ class IndexedDBManager {
     }
   }
 
-  private async getAllFilesRaw(): Promise<any[]> {
+  private async getAllFilesRaw(): Promise<Array<Partial<StoredFile> | Record<string, unknown>>> {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
@@ -229,8 +229,8 @@ class IndexedDBManager {
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
-        const files = request.result || [];
-        const validFiles = files.filter((file: any) => this.isValidStoredFile(file));
+        const files: Array<Partial<StoredFile> | Record<string, unknown>> = request.result || [];
+        const validFiles = files.filter((file): file is StoredFile => this.isValidStoredFile(file));
         resolve(validFiles);
       };
     });
@@ -247,8 +247,8 @@ class IndexedDBManager {
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
-        const files = request.result || [];
-        const validFiles = files.filter((file: any) => this.isValidStoredFile(file));
+        const files: Array<Partial<StoredFile> | Record<string, unknown>> = request.result || [];
+        const validFiles = files.filter((file): file is StoredFile => this.isValidStoredFile(file));
         resolve(validFiles);
       };
     });

@@ -115,6 +115,7 @@ export function GraphAnalysis({
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (radialAnalysis.hubGeneEdgeCount < 1) {
+      hubGenesNodesRef.current.clear();
       graph.updateEachNodeAttributes((node, attr) => {
         if (highlightedNodesRef?.current.has(node)) {
           attr.type = 'highlight';
@@ -130,8 +131,10 @@ export function GraphAnalysis({
           attr.type = 'border';
           hubGenesNodesRef.current.add(node);
         } else if (highlightedNodesRef?.current.has(node)) {
+          hubGenesNodesRef.current.delete(node);
           attr.type = 'highlight';
         } else {
+          hubGenesNodesRef.current.delete(node);
           attr.type = 'circle';
         }
         return attr;

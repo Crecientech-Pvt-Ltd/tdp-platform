@@ -129,10 +129,6 @@ export default function DataCommonsPage() {
 
   const handlePasswordSuccess = () => {
     setShowPasswordPopup(false);
-
-    const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-    sessionStorage.setItem(authKey, 'authenticated');
-
     setShowFileSelectionPopup(true);
   };
 
@@ -173,10 +169,6 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedGroup}
                 onValueChange={val => {
-                  if (selectedGroup && selectedProgram && selectedProject) {
-                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-                    sessionStorage.removeItem(oldAuthKey);
-                  }
                   setSelectedGroup(val);
                   setSelectedProgram('');
                   setSelectedProject('');
@@ -210,10 +202,6 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedProgram}
                 onValueChange={val => {
-                  if (selectedGroup && selectedProgram && selectedProject) {
-                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-                    sessionStorage.removeItem(oldAuthKey);
-                  }
                   setSelectedProgram(val);
                   setSelectedProject('');
                 }}
@@ -248,10 +236,6 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedProject}
                 onValueChange={val => {
-                  if (selectedGroup && selectedProgram && selectedProject) {
-                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-                    sessionStorage.removeItem(oldAuthKey);
-                  }
                   setSelectedProject(val);
                 }}
                 disabled={structureLoading || !selectedProgram}

@@ -236,7 +236,7 @@ export default function Home() {
       <ResizablePanelGroup direction='horizontal' className='gap-4 p-4'>
         <ResizablePanel defaultSize={75} minSize={65}>
           <div className='space-y-4'>
-            <div className='mb-2 flex h-8 flex-col gap-2 sm:flex-row sm:items-center'>
+            <div className='mb-2 flex h-8 items-center gap-2'>
               <div className='flex items-center gap-2'></div>
               <Switch checked={autofill} onCheckedChange={setAutofill} id={autoFillToggleId} />
               <Label htmlFor={autoFillToggleId} className='whitespace-nowrap'>
@@ -299,8 +299,10 @@ export default function Home() {
             </div>
             <div>
               <div className='flex justify-between'>
-                <Label htmlFor={seedGenesId}>Seed Genes</Label>
-                <p className='text-zinc-500'>
+                <Label htmlFor={seedGenesId} className='whitespace-nowrap'>
+                  Seed Genes
+                </Label>
+                <p className='text-sm text-zinc-500 sm:text-base'>
                   (one-per-line or CSV; examples:
                   <button
                     type='button'

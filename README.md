@@ -9,6 +9,7 @@ For other IDEs, refer to their mannual for enabling markdown rendering feature.
 ## Table of Contents
 
 - [Description](#description)
+- [Architecture](./ARCHITECTURE.md)
 - [Installation](#installation)
 - [Importing/Exporting Neo4j Data Dump](#importingexporting-neo4j-data-dump)
 - [ClickHouse Data Export/Import](#clickhouse-data-exportimport)
@@ -91,19 +92,31 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
    sudo chmod -R 755 scripts
    ```
 
-7. Once, data is seeded successfully and database is ready. Now restart the neo4j service and start all the services.
+7. Once, data is seeded successfully and database is ready. Now restart the neo4j service and start all the services including the API Gateway.
 
    ```bash
    docker compose down neo4j
    docker compose up -d --build
    ```
 
+   This will start all services behind the API Gateway. Access the application at `http://localhost:5000/` in production mode and `http://localhost:8080/` in development mode.
+
    > 💡 **NOTE**
-   > If you are a developer, you can run use [docker-compose.dev.yml](../docker-compose.dev.yml) file to run the services in development mode. This will allow you to make changes in the code and see the changes reflected in the browser without restarting the services.
+   > If you are a developer, you can use [docker-compose.dev.yml](./docker-compose.dev.yml) file to run the services in development mode with additional port mappings for direct access. This allows you to make changes in the code and see them reflected without restarting services, and also access services directly without going through the API Gateway.
 
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
    ```
+
+   In development mode, you can access services both through the API Gateway and directly:
+   - **Via API Gateway (Development)**: 
+     - Frontend: `http://localhost:8080/`
+     - NestJS API: `http://localhost:8080/api/nestjs/`
+     - GSEA API: `http://localhost:8080/api/gsea/`
+   - **Direct Access** (bypassing gateway):
+     - Frontend: `http://localhost:3000`
+     - NestJS API: `http://localhost:4000`
+     - GSEA API: `http://localhost:5000`
 
 8. Load ClickHouse data into the database (if you have `.tsv` backup files):
 

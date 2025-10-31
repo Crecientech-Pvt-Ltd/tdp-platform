@@ -28,5 +28,6 @@ src/**/*.test.ts
 # Markdown files
 *.md
 
-# Generated files
+# Generated files and data-commons folder
 generated/
+src/data-commons/data/

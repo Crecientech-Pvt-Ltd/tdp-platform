@@ -10,7 +10,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.enableCors({
     origin: (requestOrigin, callback) => {
-      if (configService.get('NODE_ENV', 'development') === 'production') {
+      if (requestOrigin && configService.get('NODE_ENV', 'development') === 'production') {
         const FRONTEND_URL = configService.get('FRONTEND_URL');
         if (!FRONTEND_URL || requestOrigin === FRONTEND_URL) {
           callback(null, true);

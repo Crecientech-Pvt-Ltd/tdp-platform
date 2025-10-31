@@ -23,6 +23,4 @@ COPY --from=build /app/prisma /app/prisma
 COPY --from=build /app/generated /app/generated
 COPY --from=build /app/src/clickhouse/migrations /app/src/clickhouse/migrations
 
-COPY --from=build /app/src/data-commons/data /app/src/data-commons/data
-
 CMD ["sh", "-c", "npx prisma db push && node dist/main"]

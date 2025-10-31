@@ -7,14 +7,17 @@ import * as jwt from 'jsonwebtoken';
 
 import { getDirectories, getFiles } from './dataCommons.utils';
 
-import { db } from '@/postgress';
+import { db } from '@/postgres';
 import type { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src/data-commons/data');
 const JWT_SECRET = process.env.JWT_SECRET || '1234';
 
 @Injectable()
 export class DataCommonsService {
+  constructor(private readonly configService: ConfigService) {}
+
   async getFullStructure() {
     const groups = await getDirectories(DATA_PATH);
 
@@ -308,8 +311,10 @@ export class DataCommonsService {
 
         res.cookie('data-commons-auth', token, {
           httpOnly: true,
-          sameSite: 'none',
-          secure: true,
+          secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+          sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+            ? 'strict'
+            : 'none',
         });
       } else {
         let decoded: jwt.JwtPayload;
@@ -318,8 +323,10 @@ export class DataCommonsService {
         } catch {
           res.clearCookie('data-commons-auth', {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+            sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+              ? 'strict'
+              : 'none',
           });
           res.status(401).send('Unauthorized');
           return;
@@ -360,8 +367,10 @@ export class DataCommonsService {
 
           res.cookie('data-commons-auth', token, {
             httpOnly: true,
-            sameSite: 'none',
-            secure: true,
+            secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+            sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+              ? 'strict'
+              : 'none',
           });
         } else {
           const hasCombination = session.combinations.some(
@@ -428,8 +437,10 @@ export class DataCommonsService {
     } catch {
       res.clearCookie('data-commons-auth', {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+        sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+          ? 'strict'
+          : 'none',
       });
       res.status(401).send('Unauthorized');
       return;

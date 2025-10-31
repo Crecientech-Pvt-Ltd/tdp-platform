@@ -1,4 +1,21 @@
 services:
+  # Development-only: Expose individual service ports for direct access
+  api-gateway:
+    ports:
+      - "8080:80"       # API Gateway
+
+  nestjs:
+    ports:
+      - "4000:4000"   # NestJS Backend
+
+  frontend:
+    ports:
+      - "3000:80"     # Frontend
+
+  gsea:
+    ports:
+      - "5000:5000"   # GSEA Python API
+
   clickhouse:
     ports:
       - "8123:8123"   # HTTP interface
@@ -12,6 +29,7 @@ services:
     ports:
       - "7474:7474"   # HTTP interface
       - "7687:7687"   # Bolt interface
+
   postgres:
     ports:
       - "5432:5432"   # PostgreSQL default port

@@ -61,8 +61,10 @@ export class GqlResolver {
       req.res?.cookie('user-id', userID, {
         maxAge: this.configService.get('REDIS_USER_EXPIRY', 7200) * 1000,
         httpOnly: true,
-        secure: this.configService.get('NODE_ENV') === 'production',
-        sameSite: 'strict',
+        secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+        sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+          ? 'strict'
+          : 'none',
       });
     }
     const graphName =

@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 
-@app.post("/gsea")
+@app.post("/")
 async def gsea(
     gene_list: list[str] = Body(
         ..., title="Gene List", description="Comma-separated list of genes"

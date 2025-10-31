@@ -7,9 +7,15 @@ import { scaleLinear } from 'd3-scale';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { GENE_UNIVERSAL_QUERY } from '@/lib/gql';
+import { GENE_PROPERTIES_QUERY } from '@/lib/gql';
 import { useStore } from '@/lib/hooks';
-import type { EdgeAttributes, GeneUniversalData, GeneUniversalDataVariables, NodeAttributes } from '@/lib/interface';
+import {
+  type EdgeAttributes,
+  type GenePropertiesData,
+  type GenePropertiesDataVariables,
+  GenePropertyCategoryEnum,
+  type NodeAttributes,
+} from '@/lib/interface';
 import { type EventMessage, Events, envURL, eventEmitter } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -18,8 +24,8 @@ export function GraphAnalysis({
   highlightedNodesRef,
   hubGenesNodesRef,
 }: {
-  highlightedNodesRef?: React.MutableRefObject<Set<string>>;
-  hubGenesNodesRef: React.MutableRefObject<Set<string>>;
+  highlightedNodesRef?: React.RefObject<Set<string>>;
+  hubGenesNodesRef: React.RefObject<Set<string>>;
 }) {
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
   const graph = sigma.getGraph();
@@ -45,7 +51,7 @@ export function GraphAnalysis({
   const nodeDegreeProperty = useStore(state => state.radialAnalysis.nodeDegreeProperty);
   const universalData = useStore(state => state.universalData);
 
-  const [fetchUniversal] = useLazyQuery<GeneUniversalData, GeneUniversalDataVariables>(GENE_UNIVERSAL_QUERY);
+  const [fetchUniversal] = useLazyQuery<GenePropertiesData, GenePropertiesDataVariables>(GENE_PROPERTIES_QUERY);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
@@ -57,19 +63,23 @@ export function GraphAnalysis({
       const isNodeDegree = nodeDegreeProperty === 'Gene Degree';
       if (!isNodeDegree) {
         await fetchUniversal({
-          variables: { geneIDs: graph.nodes(), config: [{ properties: [`TE_${nodeDegreeProperty}`] }] },
+          variables: {
+            geneIds: graph.nodes(),
+            config: [
+              {
+                category: GenePropertyCategoryEnum.TISSUE_EXPRESSION,
+                properties: [nodeDegreeProperty],
+              },
+            ],
+          },
         }).then(({ data }) => {
           const minMax = [Number.POSITIVE_INFINITY, 0];
-          for (const gene of data?.genes ?? []) {
-            const value = gene.common?.[`TE_${nodeDegreeProperty}`];
-            if (value) {
-              universalData[gene.ID][userOrCommonIdentifier].TE[nodeDegreeProperty] = value;
-              const num = +value;
-              if (!Number.isNaN(num)) {
-                minMax[0] = Math.min(minMax[0], num);
-                minMax[1] = Math.max(minMax[1], num);
-              }
-            }
+          for (const gene of data?.geneProperties ?? []) {
+            const score = gene.data[0].score;
+            if (score === null || score === undefined || Number.isNaN(score)) continue;
+            universalData[gene.ID][userOrCommonIdentifier].TE[nodeDegreeProperty] = score;
+            minMax[0] = Math.min(minMax[0], score);
+            minMax[1] = Math.max(minMax[1], score);
           }
           const sizeScale = scaleLinear<number, number>(minMax, [0, 1]);
           graph.updateEachNodeAttributes((node, attr) => {
@@ -105,6 +115,7 @@ export function GraphAnalysis({
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     if (radialAnalysis.hubGeneEdgeCount < 1) {
+      hubGenesNodesRef.current.clear();
       graph.updateEachNodeAttributes((node, attr) => {
         if (highlightedNodesRef?.current.has(node)) {
           attr.type = 'highlight';
@@ -120,8 +131,10 @@ export function GraphAnalysis({
           attr.type = 'border';
           hubGenesNodesRef.current.add(node);
         } else if (highlightedNodesRef?.current.has(node)) {
+          hubGenesNodesRef.current.delete(node);
           attr.type = 'highlight';
         } else {
+          hubGenesNodesRef.current.delete(node);
           attr.type = 'circle';
         }
         return attr;
@@ -200,8 +213,16 @@ export function GraphAnalysis({
         (async function louvain() {
           const { graphName } = useStore.getState().graphConfig!;
           const res = await fetch(
-            `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/algorithm/louvain?graphName=${encodeURIComponent(graphName)}&minCommunitySize=${minCommunitySize}${resolution ? `&resolution=${resolution}` : ''}&weighted=${encodeURIComponent(!!weighted)}`,
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+            `${envURL(process.env.NEXT_PUBLIC_BACKEND_URL)}/algorithm/louvain?graphName=${encodeURIComponent(
+              graphName,
+            )}&minCommunitySize=${minCommunitySize}${
+              resolution ? `&resolution=${resolution}` : ''
+            }&weighted=${encodeURIComponent(!!weighted)}`,
+            {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+            },
           );
           if (res.ok) {
             const data: Record<string, { name: string; genes: string[]; color: string }> = await res.json();
@@ -263,7 +284,10 @@ export function GraphAnalysis({
                 }}
               />
               <Button
-                style={{ backgroundColor: val.color, color: getReadableTextColor(val.color) }}
+                style={{
+                  backgroundColor: val.color,
+                  color: getReadableTextColor(val.color),
+                }}
                 className='h-5 w-32'
                 onClick={() => fitViewportToNodes(sigma, val.genes, { animate: true })}
               >

@@ -21,7 +21,7 @@ export function NetworkInfo() {
     (async () => {
       setGseaLoading(true);
       setShowTable(true);
-      const response = await fetch(`${envURL(process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL)}/gsea`, {
+      const response = await fetch(envURL(process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL), {
         method: 'POST',
         body: JSON.stringify(selectedNodes.map(node => node.Gene_Name)),
         headers: { 'Content-Type': 'application/json' },

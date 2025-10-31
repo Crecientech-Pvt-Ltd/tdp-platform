@@ -33,6 +33,7 @@ interface FileSelections {
 export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProps) {
   const [loadingProceed, setLoadingProceed] = React.useState(false);
   const [uploading, setUploading] = React.useState<string | null>(null);
+  const [hasStartedUploading, setHasStartedUploading] = React.useState(false);
 
   const [selections, setSelections] = React.useState<FileSelections>({
     gene: null,
@@ -70,6 +71,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         differentialexpression: [],
         samplesheet: null,
       });
+      setHasStartedUploading(false);
       Object.values(fileInputRefs.current).forEach(input => {
         if (input) input.value = '';
       });
@@ -86,6 +88,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         differentialexpression: [],
         samplesheet: null,
       });
+      setHasStartedUploading(false);
       Object.values(fileInputRefs.current).forEach(input => {
         if (input) input.value = '';
       });
@@ -99,6 +102,10 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
 
     setUploading(type);
     try {
+      if (!hasStartedUploading) {
+        await indexedDBManager.clearAll();
+        setHasStartedUploading(true);
+      }
       if (type === 'differentialexpression') {
         const uploadedFiles: UploadedFile[] = [];
 
@@ -246,10 +253,10 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                   <Button
                     variant='ghost'
                     size='icon'
-                    className='h-4 w-4 p-0'
+                    className='size-4 p-0'
                     onClick={() => handlePreview('differentialexpression')}
                   >
-                    <EyeIcon className='h-3 w-3' />
+                    <EyeIcon className='size-3' />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Preview Files</TooltipContent>
@@ -278,12 +285,12 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                 >
                   {isUploading ? (
                     <>
-                      <Spinner className='h-3 w-3' />
+                      <Spinner className='size-3' />
                       <span className='text-muted-foreground text-xs'>Uploading...</span>
                     </>
                   ) : (
                     <>
-                      <UploadIcon className='h-3 w-3' />
+                      <UploadIcon className='size-3' />
                       <span className='text-muted-foreground text-xs'>
                         Click to upload multiple differential expression files
                       </span>
@@ -296,7 +303,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                     htmlFor={`upload-${type}`}
                     className='flex cursor-pointer items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground'
                   >
-                    <UploadIcon className='h-3 w-3' />
+                    <UploadIcon className='size-3' />
                     Add more files
                   </label>
                   <div className='flex flex-wrap gap-1'>
@@ -310,10 +317,10 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                         <Button
                           variant='ghost'
                           size='icon'
-                          className='h-3 w-3 p-0 hover:bg-destructive/20'
+                          className='size-3 p-0 hover:bg-destructive/20'
                           onClick={() => handleRemoveFile('differentialexpression', file.id)}
                         >
-                          <XIcon className='h-2 w-2' />
+                          <XIcon className='size-2' />
                         </Button>
                       </div>
                     ))}
@@ -335,8 +342,8 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
           {selectedFile && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant='ghost' size='icon' className='h-6 w-6 p-0' onClick={() => handlePreview(type)}>
-                  <EyeIcon className='h-4 w-4' />
+                <Button variant='ghost' size='icon' className='size-6 p-0' onClick={() => handlePreview(type)}>
+                  <EyeIcon className='size-4' />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Preview File</TooltipContent>
@@ -364,12 +371,12 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
               >
                 {isUploading ? (
                   <>
-                    <Spinner className='h-3 w-3' />
+                    <Spinner className='size-3' />
                     <span className='text-muted-foreground text-xs'>Uploading...</span>
                   </>
                 ) : (
                   <>
-                    <UploadIcon className='h-3 w-3' />
+                    <UploadIcon className='size-3' />
                     <span className='text-muted-foreground text-xs'>Click to upload {type} file</span>
                   </>
                 )}
@@ -385,10 +392,10 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                     <Button
                       variant='ghost'
                       size='icon'
-                      className='h-3 w-3 p-0 hover:bg-destructive/20'
+                      className='size-3 p-0 hover:bg-destructive/20'
                       onClick={() => handleRemoveFile(type)}
                     >
-                      <XIcon className='h-2 w-2' />
+                      <XIcon className='size-2' />
                     </Button>
                   </div>
                 </div>
@@ -396,7 +403,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
                   htmlFor={`upload-${type}`}
                   className='flex cursor-pointer items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground'
                 >
-                  <UploadIcon className='h-3 w-3' />
+                  <UploadIcon className='size-3' />
                   Replace
                 </label>
               </div>
@@ -429,7 +436,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         <DialogFooter className='flex-col justify-between gap-2 border-t pt-4 sm:flex-row'>
           <div className='flex flex-1 gap-2'>
             <Button variant='outline' onClick={onClose} className='flex items-center gap-2'>
-              <XIcon className='h-4 w-4' />
+              <XIcon className='size-4' />
               Cancel
             </Button>
 
@@ -439,7 +446,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
               disabled={uploading !== null}
               className='flex items-center gap-2'
             >
-              <Trash2Icon className='h-4 w-4' />
+              <Trash2Icon className='size-4' />
               Clear All
             </Button>
           </div>
@@ -452,7 +459,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
             >
               {loadingProceed ? (
                 <div className='flex items-center gap-2'>
-                  <Spinner className='h-4 w-4' />
+                  <Spinner className='size-4' />
                   <span>Loading...</span>
                 </div>
               ) : (

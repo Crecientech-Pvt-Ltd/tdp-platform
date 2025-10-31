@@ -132,7 +132,7 @@ export function Controls({
           </div>
           <div className='min-w-fit flex-shrink-0'>
             <Button variant='outline' size='sm' onClick={onShowSeeMore} className='flex items-center gap-2'>
-              <InfoIcon className='h-4 w-4' />
+              <InfoIcon className='size-4' />
               Settings
             </Button>
           </div>

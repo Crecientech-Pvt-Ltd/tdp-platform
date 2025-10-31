@@ -73,14 +73,14 @@ const VirtualizedCommand = ({ options, selectedOption, onSelectOption }: Virtual
                 >
                   <div className='item-center flex'>
                     <CheckIcon
-                      className={cn('mr-2 h-4 w-4', selectedOption === option.id ? 'opacity-100' : 'opacity-0')}
+                      className={cn('mr-2 size-4', selectedOption === option.id ? 'opacity-100' : 'opacity-0')}
                     />
                     {`${option.label}`}
                   </div>
                   {option.description && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoIcon className='ml-2 h-4 w-4 cursor-pointer' />
+                        <InfoIcon className='ml-2 size-4 cursor-pointer' />
                       </TooltipTrigger>
                       <TooltipContent side='left' align='start' className='max-w-48'>
                         {option.description}
@@ -142,10 +142,16 @@ export function DiseaseMapCombobox({
           className={cn('wrap-break-word h-9 w-[200px] justify-between text-ellipsis text-wrap', className)}
         >
           <span className='truncate'>{optionsMap.get(value)?.label || 'Search Disease...'}</span>
-          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronsUpDownIcon className='ml-2 size-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align={align} className={cn('w-[800px] p-0', className)}>
+      <PopoverContent
+        align={align}
+        className={cn(
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 w-[800px] p-0',
+          className,
+        )}
+      >
         <VirtualizedCommand
           options={searchItems}
           selectedOption={value}

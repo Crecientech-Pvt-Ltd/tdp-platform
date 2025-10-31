@@ -102,52 +102,33 @@ export default function DataCommonsPage() {
 
   const handleGoToPlots = async () => {
     if (selectedGroup && selectedProgram && selectedProject) {
-      const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-      const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
-
-      if (isAuthenticated) {
-        setShowFileSelectionPopup(true);
-        return;
-      }
-
       try {
         const response = await fetch(
-          `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ password: '' }),
-          },
+          `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/verify-auth`,
+          { method: 'GET', credentials: 'include' },
         );
-
         if (!response.ok) {
-          console.error('Password check failed:', response.status);
+          // console.error('Password check failed:', response.status);
+          setShowPasswordPopup(true);
           return;
         }
-
         const result = await response.json();
-
-        if (result.hasPassword) {
-          setShowPasswordPopup(true);
-        } else {
-          sessionStorage.setItem(authKey, 'authenticated');
+        if (result.success) {
           setShowFileSelectionPopup(true);
+          return;
+        } else if (result.hasPassword) {
+          setShowPasswordPopup(true);
+          return;
         }
       } catch (error) {
         console.error('Password check error:', error);
-        setShowFileSelectionPopup(true);
+        setShowFileSelectionPopup(false);
       }
     }
   };
 
   const handlePasswordSuccess = () => {
     setShowPasswordPopup(false);
-
-    const authKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-    sessionStorage.setItem(authKey, 'authenticated');
-
     setShowFileSelectionPopup(true);
   };
 
@@ -175,12 +156,12 @@ export default function DataCommonsPage() {
         style={{
           background: 'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
         }}
-        className='mb-6 flex-shrink-0 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
+        className='mb-6 shrink-0 rounded-t-lg px-6 py-2 font-semibold text-2xl text-white'
       >
         A Centralized Data Commons of Multi-Omics Data for Exploratory Research
       </h2>
 
-      <div className='flex-shrink-0'>
+      <div className='shrink-0'>
         <form className='px-8 pb-4'>
           <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
             <div>
@@ -188,10 +169,6 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedGroup}
                 onValueChange={val => {
-                  if (selectedGroup && selectedProgram && selectedProject) {
-                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-                    sessionStorage.removeItem(oldAuthKey);
-                  }
                   setSelectedGroup(val);
                   setSelectedProgram('');
                   setSelectedProject('');
@@ -225,10 +202,6 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedProgram}
                 onValueChange={val => {
-                  if (selectedGroup && selectedProgram && selectedProject) {
-                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-                    sessionStorage.removeItem(oldAuthKey);
-                  }
                   setSelectedProgram(val);
                   setSelectedProject('');
                 }}
@@ -263,10 +236,6 @@ export default function DataCommonsPage() {
               <Select
                 value={selectedProject}
                 onValueChange={val => {
-                  if (selectedGroup && selectedProgram && selectedProject) {
-                    const oldAuthKey = `auth_${selectedGroup}_${selectedProgram}_${selectedProject}`;
-                    sessionStorage.removeItem(oldAuthKey);
-                  }
                   setSelectedProject(val);
                 }}
                 disabled={structureLoading || !selectedProgram}

@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import EventEmitter from 'events';
 import { twMerge } from 'tailwind-merge';
-import { type GenePropertyMetadata, OrderByEnum } from './interface';
+import { GenePropertyCategoryEnum, type GenePropertyMetadata, OrderByEnum } from './interface';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -124,4 +124,30 @@ export function orderByStringToEnum(orderBy: string): OrderByEnum {
     IMPC: OrderByEnum.IMPC,
   };
   return mapping[orderBy] || OrderByEnum.SCORE;
+}
+
+export function selectedRadioStringToEnum(selectedRadio: string): GenePropertyCategoryEnum {
+  const mapping: Record<string, GenePropertyCategoryEnum> = {
+    LogFC: GenePropertyCategoryEnum.DIFFERENTIAL_EXPRESSION,
+    OpenTargets: GenePropertyCategoryEnum.OPEN_TARGETS,
+    Genetics: GenePropertyCategoryEnum.GENETICS,
+    OT_Prioritization: GenePropertyCategoryEnum.OT_PRIORITIZATION,
+    Druggability: GenePropertyCategoryEnum.DRUGGABILITY,
+    Pathway: GenePropertyCategoryEnum.PATHWAY,
+    TE: GenePropertyCategoryEnum.TISSUE_EXPRESSION,
+  };
+  return mapping[selectedRadio];
+}
+
+export function genePropertyCategoryEnumToString(category: GenePropertyCategoryEnum) {
+  const mapping = {
+    [GenePropertyCategoryEnum.DIFFERENTIAL_EXPRESSION]: 'LogFC',
+    [GenePropertyCategoryEnum.OPEN_TARGETS]: 'OpenTargets',
+    [GenePropertyCategoryEnum.GENETICS]: 'Genetics',
+    [GenePropertyCategoryEnum.OT_PRIORITIZATION]: 'OT_Prioritization',
+    [GenePropertyCategoryEnum.DRUGGABILITY]: 'Druggability',
+    [GenePropertyCategoryEnum.PATHWAY]: 'Pathway',
+    [GenePropertyCategoryEnum.TISSUE_EXPRESSION]: 'TE',
+  } as const;
+  return mapping[category];
 }

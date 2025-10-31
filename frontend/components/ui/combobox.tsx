@@ -45,7 +45,7 @@ export function Combobox({
                 : placeholder
               : value || placeholder}
           </span>
-          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0' />
+          <ChevronsUpDownIcon className='ml-2 size-4 shrink-0' />
         </Button>
       </PopoverTrigger>
       <PopoverContent align={align} className={cn('w-full p-0', className)}>
@@ -73,7 +73,7 @@ export function Combobox({
                     <div className='flex items-center'>
                       <CheckIcon
                         className={cn(
-                          'mr-2 h-4 w-4',
+                          'mr-2 size-4',
                           (multiselect && value instanceof Set ? value.has(propertyName) : value === propertyName)
                             ? 'opacity-100'
                             : 'opacity-0',
@@ -85,7 +85,7 @@ export function Combobox({
                     {typeof item !== 'string' && item.description && (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <InfoIcon className='ml-4 h-4 w-4 cursor-pointer' />
+                          <InfoIcon className='ml-4 size-4 cursor-pointer' />
                         </TooltipTrigger>
                         <TooltipContent side='right' align='start' className='max-w-80 text-white'>
                           {item.description}

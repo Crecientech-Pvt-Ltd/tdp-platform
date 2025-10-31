@@ -236,7 +236,7 @@ export default memo(function DownloadPopup({
         <div className='mb-1 border-b pb-4'>
           <DialogTitle className='mb-1 flex items-center gap-3 font-bold text-2xl'>
             <div className='rounded-lg bg-muted p-2'>
-              <DownloadIcon className='h-6 w-6' />
+              <DownloadIcon className='size-6' />
             </div>
             Download Volcano Plot Data
           </DialogTitle>
@@ -248,9 +248,9 @@ export default memo(function DownloadPopup({
             <div className='flex items-center justify-center py-16'>
               <div className='text-center'>
                 <div className='relative mb-4'>
-                  <div className='mx-auto h-16 w-16 animate-spin rounded-full border-4 border-muted border-t-foreground'></div>
+                  <div className='mx-auto size-16 animate-spin rounded-full border-4 border-muted border-t-foreground'></div>
                   <div className='absolute inset-0 flex items-center justify-center'>
-                    <DownloadIcon className='h-6 w-6' />
+                    <DownloadIcon className='size-6' />
                   </div>
                 </div>
                 <h3 className='mb-1 font-semibold text-xl'>Creating Download Package</h3>
@@ -263,7 +263,7 @@ export default memo(function DownloadPopup({
                 <div className='rounded-t-xl border-b bg-muted/30 px-6 py-3'>
                   <div className='flex items-center gap-3'>
                     <div className='rounded-lg border bg-background p-2'>
-                      <FileTextIcon className='h-5 w-5' />
+                      <FileTextIcon className='size-5' />
                     </div>
                     <div>
                       <Label className='font-semibold text-lg'>Differential Expression Files</Label>
@@ -273,7 +273,7 @@ export default memo(function DownloadPopup({
 
                 <div className='space-y-3 p-4'>
                   <div className='mb-2 flex items-center gap-2'>
-                    <div className='h-3 w-3 rounded-full bg-foreground'></div>
+                    <div className='size-3 rounded-full bg-foreground'></div>
                     <span className='font-medium text-sm'>
                       Selected: <span className='font-bold'>{selectedFiles.length}</span> of {availableFiles.length}{' '}
                       files
@@ -296,7 +296,7 @@ export default memo(function DownloadPopup({
                 <div className='rounded-t-xl border-b bg-muted/30 px-6 py-3'>
                   <div className='flex items-center gap-3'>
                     <div className='rounded-lg border bg-background p-2'>
-                      <PaletteIcon className='h-5 w-5' />
+                      <PaletteIcon className='size-5' />
                     </div>
                     <div>
                       <Label className='font-semibold text-lg'>Data Categories</Label>
@@ -322,7 +322,7 @@ export default memo(function DownloadPopup({
                             }`}
                           >
                             <div
-                              className={`h-3 w-3 rounded-full ${
+                              className={`size-3 rounded-full ${
                                 type === 'red'
                                   ? 'bg-red-500'
                                   : type === 'blue'
@@ -371,12 +371,12 @@ export default memo(function DownloadPopup({
           >
             {isDownloading ? (
               <>
-                <Loader2Icon className='mr-2 h-4 w-4 animate-spin' />
+                <Loader2Icon className='size-4 animate-spin' />
                 Creating ZIP...
               </>
             ) : (
               <>
-                <DownloadIcon className='mr-2 h-4 w-4' />
+                <DownloadIcon className='size-4' />
                 Download {totalFilesCount > 0 && `(${totalFilesCount} files)`}
               </>
             )}

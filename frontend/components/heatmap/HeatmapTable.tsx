@@ -145,12 +145,12 @@ export function HeatmapTable<T extends object>({
                     ) : colIndex === 1 ? (
                       // Association score column gets a square skeleton
                       <div className='flex h-8 items-center justify-center'>
-                        <Skeleton className='h-6 w-6 rounded-md' />
+                        <Skeleton className='size-6 rounded-md' />
                       </div>
                     ) : (
                       // Other columns get circular skeletons
                       <div className='flex h-8 items-center justify-center'>
-                        <Skeleton className='h-6 w-6 rounded-full' />
+                        <Skeleton className='size-6 rounded-full' />
                       </div>
                     )}
                   </TableCell>
@@ -198,7 +198,7 @@ export function HeatmapTable<T extends object>({
                             <div className='flex h-8 items-center justify-start'>
                               <span
                                 className={cn(
-                                  'inline-block h-6 w-6 border border-gray-400',
+                                  'inline-block size-6 border border-gray-400',
                                   cell.column.id === 'Association Score' ? 'rounded-md' : 'rounded-full',
                                 )}
                                 style={{ background: colorScale?.(value, cell.column.id) ?? '#e3f0fa' }}

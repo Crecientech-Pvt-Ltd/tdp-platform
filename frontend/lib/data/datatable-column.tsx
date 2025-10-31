@@ -8,7 +8,7 @@ function headerHelper<TData>(columnName: string) {
     return (
       <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         {columnName}
-        <ArrowUpDownIcon className='ml-2 h-4 w-4' />
+        <ArrowUpDownIcon className='ml-2 size-4' />
       </Button>
     );
   };

@@ -1,27 +1,38 @@
 export const NEO4J_CONFIG: string = 'NEO4J_CONFIG';
 export const NEO4J_DRIVER: string = 'NEO4J_DRIVER';
 
-export const GET_HEADERS_QUERY = (bringCommon = true) =>
-  `${bringCommon ? 'MATCH (cp:Common&Property) WITH COLLECT(cp { .* }) AS commonHeader' : ''}
-  OPTIONAL MATCH (:Disease { ID: $disease })-[:HAS_PROPERTY]-(dp:Property)
-  RETURN COLLECT( dp { .* }) AS diseaseHeader ${bringCommon ? ', commonHeader' : ''}`;
+export const GET_HEADERS_QUERY = (cache = false) =>
+  `MATCH (p:Property)${cache ? '<-[:HAS_PROPERTY]-(:Disease { ID: $diseaseId })' : ''}
+  ${
+    !cache
+      ? `WHERE NOT EXISTS((p)<-[:HAS_PROPERTY]-(:Disease)) OR 
+         EXISTS((p)<-[:HAS_PROPERTY]-(:Disease { ID: $diseaseId }))`
+      : 'WHERE p.category = "LogFC" OR p.category = "Genetics"'
+  }
+  WITH COLLECT(p) AS allProps
+  RETURN
+  ${
+    cache
+      ? ''
+      : `[prop IN allProps WHERE prop.category = "OpenTargets" | { name: prop.name, description: prop.description }] AS openTargets,
+        [prop IN allProps WHERE prop.category = "OT_Prioritization" | { name: prop.name, description: prop.description }] AS targetPrioritization,
+        [prop IN allProps WHERE prop.category = "Druggability" | { name: prop.name, description: prop.description }] AS druggability,
+        [prop IN allProps WHERE prop.category = "Pathway" | { name: prop.name, description: prop.description }] AS pathway,
+        [prop IN allProps WHERE prop.category = "TE" | { name: prop.name, description: prop.description }] AS tissueSpecificity,`
+  }
+    [prop IN allProps WHERE prop.category = "LogFC" | { name: prop.name, description: prop.description }] AS differentialExpression,
+    [prop IN allProps WHERE prop.category = "Genetics" | { name: prop.name, description: prop.description }] AS genetics
+  `;
 
 export const GET_DISEASES_QUERY = `MATCH (d:Disease) RETURN d { .* } AS diseases;`;
 
-export function GET_GENES_QUERY(properties?: string[], bringMeta = true): string {
-  if (properties?.length) {
-    return `MATCH (g:Gene)
-    WHERE g.ID IN $geneIDs
-    RETURN g { ${properties ? `${properties.map((prop) => `.\`${prop}\``).join(', ')},` : ''} ${bringMeta ? '.Gene_name, .Description, .hgnc_gene_id, .Aliases,' : ''} .ID } AS genes`;
-  }
-  return `MATCH (g:Gene)
+export const GET_GENES_QUERY = `MATCH (g:Gene)
     WHERE g.ID IN $geneIDs OR g.Gene_name IN $geneIDs
-    RETURN g { Input: g.Gene_name, Gene_name: g.Gene_name, Description: g.Description, hgnc_gene_id: g.hgnc_gene_id, ID: g.ID, Aliases: g.Aliases } AS genes
+    RETURN { Input: g.Gene_name, Gene_name: g.Gene_name, Description: g.Description, hgnc_gene_id: g.hgnc_gene_id, ID: g.ID, Aliases: g.Aliases } AS genes
     UNION ALL
     MATCH (a:GeneAlias)-[:ALIAS_OF]->(g:Gene)
     WHERE a.Gene_name IN $geneIDs
-    RETURN g { Input: a.Gene_name, Gene_name: g.Gene_name, Description: g.Description, hgnc_gene_id: g.hgnc_gene_id, ID: g.ID, Aliases: g.Aliases } AS genes`;
-}
+    RETURN { Input: a.Gene_name, Gene_name: g.Gene_name, Description: g.Description, hgnc_gene_id: g.hgnc_gene_id, ID: g.ID, Aliases: g.Aliases } AS genes`;
 
 function formatInteractionTypes(interactionTypes: string[]): string {
   return interactionTypes.map((type) => `${type}`).join('|');

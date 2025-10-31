@@ -21,7 +21,7 @@ export function AppBar() {
               <span className='relative inline-flex size-2.5 rounded-full bg-sky-500' />
             </span>
           )}
-          <SquareDashedMousePointerIcon className='h-4 w-4 text-white' />
+          <SquareDashedMousePointerIcon className='size-4 text-white' />
         </TooltipTrigger>
         <TooltipContent align='start' className='max-w-96 text-sm text-white'>
           <ol>
@@ -55,7 +55,7 @@ export function AppBar() {
           </ol>
         </TooltipContent>
       </Tooltip>
-      <Suspense fallback={<Input className='max-w-fit font-semibold text-sm' value={'Untitled'} />}>
+      <Suspense fallback={<Input className='max-w-fit font-semibold text-sm' defaultValue='Untitled' />}>
         <FileName />
       </Suspense>
     </div>

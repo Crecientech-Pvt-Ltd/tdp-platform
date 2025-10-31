@@ -9,6 +9,7 @@ For other IDEs, refer to their mannual for enabling markdown rendering feature.
 ## Table of Contents
 
 - [Description](#description)
+- [Architecture](./ARCHITECTURE.md)
 - [Installation](#installation)
 - [Importing/Exporting Neo4j Data Dump](#importingexporting-neo4j-data-dump)
 - [ClickHouse Data Export/Import](#clickhouse-data-exportimport)
@@ -23,88 +24,107 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
 
 1. Clone the repository
 
-    ```bash
-    git clone https://github.com/Crecientech-Pvt-Ltd/tdp-platform.git && cd tdp-platform
-    ```
+   ```bash
+   git clone https://github.com/Crecientech-Pvt-Ltd/tdp-platform.git && cd tdp-platform
+   ```
 
-2. Fill environment variables in `.env`, `frontend/.env`  `backend/.env` using the `.env.example` files in their respective directory.
+2. Fill environment variables in `.env`, `frontend/.env` `backend/.env` using the `.env.example` files in their respective directory.
 
-    ```bash
-    cp .env.example .env
-    cp backend/.env.example backend/.env
-    cp frontend/.env.example frontend/.env
-    ```
+   ```bash
+   cp .env.example .env
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
 
 3. **[FOR DEVELOPMENT ONLY]** Install all dependencies in frontend and backend repository. Also, install the dependencies in the root directory to setup git hooks and lint-staging along with commitlinting.
 
-    ```bash
-    npm install
-    cd frontend && npm install && cd ..
-    cd backend && npm install && cd ..
-    ```
+   ```bash
+   npm install
+   cd frontend && npm install && cd ..
+   cd backend && npm install && cd ..
+   ```
 
 ##### Video Upload
+
 4. Download the video files from the following link and place them inside the [`frontend/public/video`](./frontend/public/video/) folder.
 
-    > [!NOTE]
-    > This is not the most conventional & intuitive place to keep the videos, but this was hard-coded in the frontend code, so directed to keep the videos in this folder. This will soon be changed and once done will be updated in the manual. Also, this workflow will be gradually improved to avoid these steps, but currently the video size exceeds 100MB limit of commit size, so this is the workaround.
+   > [!NOTE]
+   > This is not the most conventional & intuitive place to keep the videos, but this was hard-coded in the frontend code, so directed to keep the videos in this folder. This will soon be changed and once done will be updated in the manual. Also, this workflow will be gradually improved to avoid these steps, but currently the video size exceeds 100MB limit of commit size, so this is the workaround.
 
-    [Video Files](https://drive.google.com/drive/folders/1ZnQ7802kUhu9uGyD7rXONvULb4ELSv4l)
-    
+   [Video Files](https://drive.google.com/drive/folders/1ZnQ7802kUhu9uGyD7rXONvULb4ELSv4l)
 
 5. Docker compose up the database and seed the data.
-    > 💡 **NOTE**
-    > In case, the server doesn't have the dump data. Transfer the files using the following command:
-    > ```bash
-    > # Transfer files to the server
-    > scp -r <source-path> <username>@<server-ip>:<destination-path>/data/backup
-    > ```
-    > > 💡 **NOTE**  
-    > > Replace `<destination-path>` with the path specified in the [docker-compose.yml](../docker-compose.yml) file.
-    > > ```yaml
-    > > services:
-    > >   neo4j:
-    > >     ...
-    > >     volumes:
-    > >       - <destination-path>:/var/lib/neo4j/import
-    > > ```
-    > > **For this project, by default in [docker-compose.yml](../docker-compose.yml) file, the path to keep the database dump is inside [backup](./scripts/data/backup/) folder.**
 
-    #### Database Load Command
-    ```bash
-    docker compose up -d neo4j
-    docker exec -it neo4j neo4j-admin database load --from-path=/var/lib/neo4j/import/data/backup pdnet
-    # Change the username (default username is neo4j) and password
-    docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD "CREATE DATABASE pdnet; START pdnet;"
-    ```
+   > 💡 **NOTE**
+   > In case, the server doesn't have the dump data. Transfer the files using the following command:
+   >
+   > ```bash
+   > # Transfer files to the server
+   > scp -r <source-path> <username>@<server-ip>:<destination-path>/data/backup
+   > ```
+   >
+   > > 💡 **NOTE**  
+   > > Replace `<destination-path>` with the path specified in the [docker-compose.yml](../docker-compose.yml) file.
+   > >
+   > > ```yaml
+   > > services:
+   > >   neo4j:
+   > >     ...
+   > >     volumes:
+   > >       - <destination-path>:/var/lib/neo4j/import
+   > > ```
+   > >
+   > > **For this project, by default in [docker-compose.yml](../docker-compose.yml) file, the path to keep the database dump is inside [backup](./scripts/data/backup/) folder.**
+
+   #### Database Load Command
+
+   ```bash
+   docker compose up -d neo4j
+   docker exec -it neo4j neo4j-admin database load --from-path=/var/lib/neo4j/import/data/backup pdnet
+   # Change the username (default username is neo4j) and password
+   docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD "CREATE DATABASE pdnet; START pdnet;"
+   ```
 
 6. For some systems, if you are not the admin user, there may be some restriction in the folder permissions. In such cases, you can change the folder permissions to allow yourself access to the scripts folder.
 
-    ```bash
-    # Change the folder permissions (you can have more granular control over this by changing the numbers)
-    sudo chmod -R 755 scripts
-    ```
+   ```bash
+   # Change the folder permissions (you can have more granular control over this by changing the numbers)
+   sudo chmod -R 755 scripts
+   ```
 
-7. Once, data is seeded successfully and database is ready. Now restart the neo4j service and start all the services.
+7. Once, data is seeded successfully and database is ready. Now restart the neo4j service and start all the services including the API Gateway.
 
-    ```bash
-    docker compose down neo4j
-    docker compose up -d --build
-    ```
+   ```bash
+   docker compose down neo4j
+   docker compose up -d --build
+   ```
 
-    > 💡 **NOTE**
-    > If you are a developer, you can run use [docker-compose.dev.yml](../docker-compose.dev.yml) file to run the services in development mode. This will allow you to make changes in the code and see the changes reflected in the browser without restarting the services.
+   This will start all services behind the API Gateway. Access the application at `http://localhost:5000/` in production mode and `http://localhost:8080/` in development mode.
 
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-    ```
+   > 💡 **NOTE**
+   > If you are a developer, you can use [docker-compose.dev.yml](./docker-compose.dev.yml) file to run the services in development mode with additional port mappings for direct access. This allows you to make changes in the code and see them reflected without restarting services, and also access services directly without going through the API Gateway.
+
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+   ```
+
+   In development mode, you can access services both through the API Gateway and directly:
+   - **Via API Gateway (Development)**: 
+     - Frontend: `http://localhost:8080/`
+     - NestJS API: `http://localhost:8080/api/nestjs/`
+     - GSEA API: `http://localhost:8080/api/gsea/`
+   - **Direct Access** (bypassing gateway):
+     - Frontend: `http://localhost:3000`
+     - NestJS API: `http://localhost:4000`
+     - GSEA API: `http://localhost:5000`
 
 8. Load ClickHouse data into the database (if you have `.tsv` backup files):
 
-    - Ensure your `.tsv` files are placed in the [`scripts/data/backup/clickhouse`](./scripts/data/backup/clickhouse/) directory.
-    - Ensure all services (including ClickHouse) are already running, as tables are created automatically by the application.
+   - Ensure your `.tsv` files are placed in the [`scripts/data/backup/clickhouse`](./scripts/data/backup/clickhouse/) directory.
+   - Ensure all services (including ClickHouse) are already running, as tables are created automatically by the application.
+   - Load all tables from the backup:
 
-    - Load all tables from the backup:
+     1. If tables are in TSV format:
 
         ```bash
         docker exec -it clickhouse bash -c '
@@ -125,10 +145,57 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
         '
         ```
 
-    > 💡 **NOTE**  
-    > The application will auto-create tables on startup. Ensure the `.tsv` files match the expected schema.
-    > For more details on importing/exporting ClickHouse data, see the [ClickHouse Data Export/Import](#clickhouse-data-exportimport) section below.
+     2. If tables are in Native format:
+        ```bash
+        docker exec -it clickhouse bash -c '
+          set -e
+          for f in /backup/clickhouse/*.native /backup/clickhouse/*.native.gz; do
+            table_name=$(sed -E "s/\.native(\.gz)?$//" <<< "$(basename $f)")
+            if [[ $table_name == "*" ]]; then
+              continue
+            fi
+            clickhouse-client --query="TRUNCATE TABLE $table_name"
+            if [[ $f == *.gz ]]; then
+              gunzip -c "$f" | clickhouse-client --query="INSERT INTO $table_name FORMAT Native"
+            else
+              clickhouse-client --query="INSERT INTO $table_name FORMAT Native" < "$f"
+            fi
+            echo "Loaded $table_name from $f"
+          done
+        '
+        ```
 
+   > 💡 **NOTE**
+   > If Materialized Views table is not created, you can create it manually using the following command:
+   > ```bash
+   > docker exec -it clickhouse clickhouse-client --query "DROP TABLE IF EXISTS mv_datasource_association_score_overall_association_score;"
+   >
+   > docker exec -it clickhouse clickhouse-client --query "CREATE MATERIALIZED VIEW IF NOT EXISTS mv_datasource_association_score_overall_association_score
+   > ENGINE = MergeTree()
+   > ORDER BY (disease_id, gene_id)
+   > POPULATE
+   > AS
+   > SELECT
+   >   das.gene_id,
+   >   das.gene_name,
+   >   das.disease_id,
+   >   das.datasource_id,
+   >   das.score AS datasource_score,
+   >   oas.score AS overall_score
+   > FROM datasource_association_score das
+   > JOIN overall_association_score oas
+   >   ON das.gene_id = oas.gene_id AND das.disease_id = oas.disease_id;"
+   > ```
+
+   > 💡 **NOTE**  
+   > The application will auto-create tables on startup. Ensure the `.tsv` files match the expected schema.
+   > For more details on importing/exporting ClickHouse data, see the [ClickHouse Data Export/Import](#clickhouse-data-exportimport) section below.
+
+   > 💡 **NOTE**
+   > If you are a developer, you can run use [docker-compose.dev.yml](../docker-compose.dev.yml) file to run the services in development mode. This will allow you to make changes in the code and see the changes reflected in the browser without restarting the services.
+   > ```bash
+   > docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+   > ```
 
 For more information of backend and frontend, refer to the respective README files in the [backend](./backend/README.md) and [frontend](./frontend/README.md) directories.
 
@@ -136,28 +203,28 @@ For more information of backend and frontend, refer to the respective README fil
 
 1. Export the database dump from the database.
 
-    ```bash
-    # Dump the database
-    docker exec -it neo4j neo4j-admin database dump --overwrite-destination --to-path=/var/lib/neo4j/import/data/backup pdnet 
-    ```
+   ```bash
+   # Dump the database
+   docker exec -it neo4j neo4j-admin database dump --overwrite-destination --to-path=/var/lib/neo4j/import/data/backup pdnet
+   ```
 
-  Now, the database dump is available in the [backup](./scripts/data/backup) folder. If there's already a dump file present, it will overwrite it. It's better to rename the existing dump file before exporting the data in case something goes wrong, you do not lose the data. This dump file is now ready to be imported into another database.
+Now, the database dump is available in the [backup](./scripts/data/backup) folder. If there's already a dump file present, it will overwrite it. It's better to rename the existing dump file before exporting the data in case something goes wrong, you do not lose the data. This dump file is now ready to be imported into another database.
 
 2. The database dump can be imported into another database using the following command.
 
-    ```bash
-    # First, make the database offline
-    docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD "STOP DATABASE pdnet;"
-    # Now, you can import the database dump
-    docker exec -it neo4j neo4j-admin database load --overwrite-destination --from-path=/var/lib/neo4j/import/data/backup pdnet
-    # Now, restart the container
-    docker compose down neo4j && docker compose up -d neo4j
-    # Now, you can start the database
-    docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD "CREATE DATABASE pdnet IF NOT EXISTS; START DATABASE pdnet;"
-    ```
+   ```bash
+   # First, make the database offline
+   docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD "STOP DATABASE pdnet;"
+   # Now, you can import the database dump
+   docker exec -it neo4j neo4j-admin database load --overwrite-destination --from-path=/var/lib/neo4j/import/data/backup pdnet
+   # Now, restart the container
+   docker compose down neo4j && docker compose up -d neo4j
+   # Now, you can start the database
+   docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD "CREATE DATABASE pdnet IF NOT EXISTS; START DATABASE pdnet;"
+   ```
 
-    > 💡 **NOTE**  
-    > The above command will overwrite the existing database. If you want to keep the existing database, you can create a new database and import the data into that database and then switch to the new database.
+   > 💡 **NOTE**  
+   > The above command will overwrite the existing database. If you want to keep the existing database, you can create a new database and import the data into that database and then switch to the new database.
 
 3. For ingesting data into the database, refer to the [Scripts Usage Documentation](./scripts/README.md).
 
@@ -171,43 +238,60 @@ To export all ClickHouse tables as `.tsv` files (one file per table):
 
 1. **Run this command inside your ClickHouse container:**  
    (Run on the server)
-    ```bash
-    docker exec -it clickhouse bash -c '
-      mkdir -p /backup/clickhouse
-      for t in $(clickhouse-client --query="SHOW TABLES" --format=TabSeparated); do
-        clickhouse-client --query="SELECT * FROM $t FORMAT TabSeparated" > /backup/clickhouse/${t}.tsv
-        echo "Exported $t to /backup/clickhouse/${t}.tsv"
-      done
-    '
-    ```
-    - This will create one `.tsv` file per table in the `/scripts/data/backup/clickhouse` directory (mounted as `/backup/clickhouse` in the container).
+
+   ```bash
+   docker exec -it clickhouse bash -c '
+     mkdir -p /backup/clickhouse
+     for t in $(clickhouse-client --query="SHOW TABLES" --format=TabSeparatedWithNames); do
+       clickhouse-client --query="SELECT * FROM $t FORMAT TabSeparatedWithNames" > /backup/clickhouse/${t}.tsv
+       echo "Exported $t to /backup/clickhouse/${t}.tsv"
+     done
+   '
+   ```
+
+   - This will create one `.tsv` file per table in the `/scripts/data/backup/clickhouse` directory (mounted as `/backup/clickhouse` in the container).
 
 2. **Transfer the `.tsv` files to your local machine:**  
    (Run on your local machine)
-    ```bash
-    scp -P <port> -r <username>@<server-ip>:/path/to/server/scripts/data/backup/clickhouse/*.tsv /path/to/local/backup/
-    ```
-    - Replace `<port>`, `<username>`, and `<server-ip>` with your server details.
+   ```bash
+   scp -P <port> -r <username>@<server-ip>:/path/to/server/scripts/data/backup/clickhouse/*.tsv /path/to/local/backup/
+   ```
+   - Replace `<port>`, `<username>`, and `<server-ip>` with your server details.
 
 ---
 
+To export tables in `.native` format instead of `.tsv`, use this command instead:
+
+```bash
+docker exec -it clickhouse bash -c '
+  mkdir -p /backup/clickhouse
+  for t in $(clickhouse-client --query="SHOW TABLES" --format=TabSeparatedWithNames); do
+    clickhouse-client --query="SELECT * FROM $t FORMAT Native" > /backup/clickhouse/${t}.native
+    echo "Exported $t to /backup/clickhouse/${t}.native"
+  done
+'
+```
+
 ### Importing ClickHouse Data
 
-If you have received `.tsv` files for ClickHouse tables (one file per table), follow these steps to load all data into your ClickHouse instance:
+If you have received `.tsv` or `.native` files for ClickHouse tables (one file per table), follow these steps to load all data into your ClickHouse instance:
 
-1. **Transfer the `.tsv` files to the server**  
+1. **Transfer the `.tsv` or `.native` files to the server**  
    (Run on your local machine)
-   Use `scp` or another secure copy method to transfer all `.tsv` files to the server.  
+   Use `scp` or another secure copy method to transfer all `.tsv` or `.native` files to the server.  
    For example:
+
    ```bash
    scp -P <port> -r /path/to/local/backup/*.tsv <username>@<server-ip>:/path/to/server/scripts/data/backup/clickhouse/
    ```
+
    - Replace `<port>`, `<username>`, and `<server-ip>` with your server details.
    - Adjust the destination path as needed to match your server's directory structure.
 
 2. **Ensure the backup directory is mounted in Docker**  
    (Check on the server)
    Your `docker-compose.yml` should include this volume for the ClickHouse service:
+
    ```yaml
    services:
      clickhouse:
@@ -219,6 +303,7 @@ If you have received `.tsv` files for ClickHouse tables (one file per table), fo
 
 3. **Start all services (tables will be auto-created by the app):**  
    (Run on the server)
+
    ```bash
    docker compose up -d
    ```
@@ -230,14 +315,24 @@ If you have received `.tsv` files for ClickHouse tables (one file per table), fo
    docker exec -it clickhouse bash -c '
      for f in /backup/clickhouse/*.tsv; do
        t=$(basename "$f" .tsv)
-       clickhouse-client --query="INSERT INTO $t FORMAT TabSeparated" < "$f"
+       clickhouse-client --query="INSERT INTO $t FORMAT TabSeparatedWithNames" < "$f"
      done
    '
    ```
 
----
+   If your files are in `.native` format instead of `.tsv`, use this command instead:
+   ```bash
+   docker exec -it clickhouse bash -c '
+     for f in /backup/clickhouse/*.native; do
+       t=$(basename "$f" .native)
+       clickhouse-client --query="INSERT INTO $t FORMAT Native" < "$f"
+       echo "Loaded $t from $f"
+     done
+   '
+   ```
 
-**General Guidelines:**  
+**General Guidelines:**
+
 - Ensure the `.tsv` files are transferred to the correct directory on the server before running the import command.
 - The application will automatically create all required tables on startup.
 - The `.tsv` files must match the schema expected by the application.
@@ -245,21 +340,48 @@ If you have received `.tsv` files for ClickHouse tables (one file per table), fo
 
 ---
 
+## Initializing PostgreSQL Database (for Session Management)
+
+### 1. Initialization
+
+Run the following commands from the `backend` directory to set up your PostgreSQL database schema and generate the Prisma client:
+
+```bash
+cd backend
+npx prisma db push
+npx prisma generate
+```
+
+### 2. Applying Schema Changes
+
+If you make any modifications to the Prisma schema file
+[`/backend/prisma/schema.prisma`](/backend/prisma/schema.prisma),
+use the same commands below to apply the updates to your database and regenerate the client:
+
+```bash
+npx prisma db push
+npx prisma generate
+```
+
+---
+
 ## Troubleshooting & FAQs
 
 1. File permissions error in frontend container running leading to unable to view pages on website. This may occur when working on company servers.
 
-    **Fix:**
-    ```bash
-    docker exec -it frontend chmod -R 755 /usr/share/nginx/html
-    ```
+   **Fix:**
+
+   ```bash
+   docker exec -it frontend chmod -R 755 /usr/share/nginx/html
+   ```
 
 2. If you can't access the [`scripts`](./scripts) folder while running the docker container, you can change the folder permissions to allow yourself access to the scripts folder.
 
-    **Fix:**
-    ```bash
-    # Change the folder permissions (you can have more granular control over this by changing the numbers)
-    sudo chmod -R 755 scripts
-    ```
+   **Fix:**
+
+   ```bash
+   # Change the folder permissions (you can have more granular control over this by changing the numbers)
+   sudo chmod -R 755 scripts
+   ```
 
 3. If Video is not working, please Refer to [this point](#video-upload).

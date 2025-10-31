@@ -370,7 +370,7 @@ export function GraphEvents({
               {selectedProperty.startsWith('[USER]') && <span className='text-muted-foreground'>[USER] </span>}
               {selectedProperty.replace('[USER]', '')}
             </h3>
-            <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
+            <p className={cn(value ? 'italic' : '')}>{value ?? 'N/A'}</p>
           </div>
         );
       }
@@ -386,7 +386,7 @@ export function GraphEvents({
                   {prop.startsWith('[USER]') && <span className='text-muted-foreground'>[USER] </span>}
                   {prop.replace('[USER]', '')}
                 </h3>
-                <p className={cn(value ? 'italic' : '')}>{value || 'N/A'}</p>
+                <p className={cn(value ? 'italic' : '')}>{value ?? 'N/A'}</p>
               </div>
             );
           })

@@ -45,6 +45,7 @@ export interface ContrastData {
   availableGenes: string[];
   xAxisColumn: string;
   yAxisColumn: string;
+  idColumns: Record<string, string>;
   setXAxisColumn: (column: string) => void;
   setYAxisColumn: (column: string) => void;
 }

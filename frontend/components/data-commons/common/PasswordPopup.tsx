@@ -33,7 +33,6 @@ export default function PasswordPopup({
   const [showPassword, setShowPassword] = React.useState(false);
 
   React.useEffect(() => {
-    console.log('PasswordPopup isOpen:', isOpen);
     if (!isOpen) {
       setPassword('');
       setError('');
@@ -54,11 +53,10 @@ export default function PasswordPopup({
 
     try {
       const response = await fetch(
-        `${API_BASE}/data-commons/project/${encodeURIComponent(
-          selectedGroup,
-        )}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
+        `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -94,7 +92,7 @@ export default function PasswordPopup({
     <Dialog open={isOpen}>
       <DialogContent className='w-[90vw] max-w-md'>
         <DialogTitle className='flex items-center gap-2 font-semibold text-lg'>
-          <Lock className='h-5 w-5' />
+          <Lock className='size-5' />
           Project Access Required
         </DialogTitle>
 
@@ -105,7 +103,7 @@ export default function PasswordPopup({
 
           {error && (
             <div className='flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/15 p-3 text-destructive text-sm'>
-              <AlertCircle className='h-4 w-4 shrink-0' />
+              <AlertCircle className='size-4 shrink-0' />
               <span>{error}</span>
             </div>
           )}
@@ -129,14 +127,14 @@ export default function PasswordPopup({
                   type='button'
                   variant='ghost'
                   size='icon'
-                  className='absolute top-1 right-0 h-8 w-8 hover:bg-transparent'
+                  className='absolute top-1 right-0 size-8 hover:bg-transparent'
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={loading}
                 >
                   {showPassword ? (
-                    <EyeOff className='h-4 w-4 text-muted-foreground' />
+                    <EyeOff className='size-4 text-muted-foreground' />
                   ) : (
-                    <Eye className='h-4 w-4 text-muted-foreground' />
+                    <Eye className='size-4 text-muted-foreground' />
                   )}
                   <span className='sr-only'>{showPassword ? 'Hide password' : 'Show password'}</span>
                 </Button>
@@ -147,7 +145,7 @@ export default function PasswordPopup({
 
         <DialogFooter className='flex-col gap-2 sm:flex-row'>
           <Button variant='outline' onClick={onClose} disabled={loading} className='flex items-center gap-2'>
-            <X className='h-4 w-4' />
+            <X className='size-4' />
             Cancel
           </Button>
 
@@ -158,12 +156,12 @@ export default function PasswordPopup({
           >
             {loading ? (
               <>
-                <Spinner className='h-4 w-4' />
+                <Spinner className='size-4' />
                 Verifying...
               </>
             ) : (
               <>
-                <Lock className='h-4 w-4' />
+                <Lock className='size-4' />
                 Access Project
               </>
             )}

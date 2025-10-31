@@ -182,9 +182,10 @@ export const processDataToPoints = (
   yThreshold: number,
   selectedGenes: Set<string>,
   availableColumns: string[],
+  idKey?: string,
   minNonZeroReplacement: number = 1e-300,
 ): Point[] => {
-  const idKey = availableColumns[0] || 'id';
+  const contrastIdKey = idKey || availableColumns[0] || 'id';
   const points: Point[] = [];
 
   let minNonZero: number | null = null;
@@ -208,7 +209,7 @@ export const processDataToPoints = (
   for (const row of rawData) {
     const xValue = row[xAxisColumn];
     let pValue = row[yAxisColumn];
-    const geneId = String(row[idKey] || row[''] || '');
+    const geneId = String(row[contrastIdKey] || row[''] || '');
 
     if (typeof xValue !== 'number' || typeof pValue !== 'number' || Number.isNaN(xValue) || Number.isNaN(pValue)) {
       continue;

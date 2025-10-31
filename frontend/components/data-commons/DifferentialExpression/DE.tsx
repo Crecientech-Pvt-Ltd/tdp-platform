@@ -22,8 +22,16 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
   const debouncedContrasts = useDebounce(selectedContrasts, 150);
   const thresholds = useThresholds(1, 0.01);
   const { viewportHeight } = useViewportDimensions();
-  const { contrastData, availableColumns, availableGenes, xAxisColumn, yAxisColumn, setXAxisColumn, setYAxisColumn } =
-    useContrastData(deFiles, debouncedContrasts);
+  const {
+    contrastData,
+    availableColumns,
+    availableGenes,
+    xAxisColumn,
+    yAxisColumn,
+    idColumns,
+    setXAxisColumn,
+    setYAxisColumn,
+  } = useContrastData(deFiles, debouncedContrasts);
 
   useEffect(() => {
     if (externalLoading) {
@@ -54,6 +62,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
 
     debouncedContrasts.forEach(contrast => {
       const rawData = contrastData[contrast] || [];
+      const idKey = idColumns[contrast];
       const points = processDataToPoints(
         rawData,
         xAxisColumn,
@@ -63,6 +72,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
         thresholds.yThreshold,
         selectedGenes,
         availableColumns,
+        idKey,
       );
 
       result[contrast] = {
@@ -81,6 +91,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
     yAxisColumn,
     availableColumns,
     selectedGenes,
+    idColumns,
   ]);
 
   const pointCounts = useMemo<Record<string, PointCounts>>(() => {
@@ -226,6 +237,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
             thresholds.yThreshold,
             selectedGenes,
             headers,
+            idKey,
           );
 
           resolve({ rawData: filtered, points });
@@ -278,12 +290,19 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
           <div className='h-full space-y-2'>
             {debouncedContrasts.length === 1 ? (
               <div className='w-full' style={{ height: `${viewportHeight * 0.8 - 16}px` }}>
-                <h3 className='mb-2 text-center font-semibold text-lg'>
+                <h3
+                  className='mb-2 line-clamp-2 px-2 text-center font-semibold text-lg leading-tight'
+                  title={
+                    debouncedContrasts[0] === 'default'
+                      ? 'Differential Expression'
+                      : debouncedContrasts[0].toUpperCase()
+                  }
+                >
                   {debouncedContrasts[0] === 'default'
                     ? 'Differential Expression'
                     : debouncedContrasts[0].toUpperCase()}
                 </h3>
-                <div className='h-[calc(100%-2rem)] w-full'>{renderPlot(debouncedContrasts[0])}</div>
+                <div className='h-[calc(100%-4rem)] w-full'>{renderPlot(debouncedContrasts[0])}</div>
               </div>
             ) : (
               <div
@@ -302,23 +321,14 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
                             : `${viewportHeight * 0.8 - 48}px`,
                     }}
                   >
-                    <div className='h-full'>
+                    <div className='flex h-full flex-col'>
                       <h3
-                        className={`text-center font-semibold ${debouncedContrasts.length >= 3 ? 'mb-1 text-sm' : 'mb-2 text-lg'}`}
+                        className={`line-clamp-2 px-2 text-center font-semibold leading-tight ${debouncedContrasts.length >= 3 ? 'mb-1 h-10 text-xs' : 'mb-2 h-12 text-sm'}`}
+                        title={contrast === 'default' ? 'Differential Expression' : contrast.toUpperCase()}
                       >
                         {contrast === 'default' ? 'Differential Expression' : contrast.toUpperCase()}
                       </h3>
-                      <div
-                        className='w-full'
-                        style={{
-                          height:
-                            debouncedContrasts.length >= 3
-                              ? `${viewportHeight * 0.4 - 48}px`
-                              : `${viewportHeight * 0.75 - 64}px`,
-                        }}
-                      >
-                        {renderPlot(contrast)}
-                      </div>
+                      <div className='w-full flex-1'>{renderPlot(contrast)}</div>
                     </div>
                   </div>
                 ))}

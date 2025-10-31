@@ -6,4 +6,5 @@ node_modules
 scripts/**/*.csv
 scripts/**/*.tsv
 scripts/**/*.cypher
+scripts/**/*.native
 backend/src/data-commons/data/

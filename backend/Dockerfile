@@ -13,13 +13,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 FROM deps AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . .
+RUN pnpm exec prisma generate
 RUN pnpm run build
 
 FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
+COPY --from=build /app/prisma /app/prisma
+COPY --from=build /app/generated /app/generated
 COPY --from=build /app/src/clickhouse/migrations /app/src/clickhouse/migrations
 
-COPY --from=build /app/src/data-commons/data /app/src/data-commons/data
-
-CMD [ "node", "dist/main" ]
+CMD ["sh", "-c", "npx prisma db push && node dist/main"]

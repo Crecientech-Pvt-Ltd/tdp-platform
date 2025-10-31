@@ -3,18 +3,21 @@ import * as fs from 'fs/promises';
 import { existsSync, createReadStream } from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import {
-  ALLOWED_EXTENSIONS,
-  findDifferentialExpressionFiles,
-  findFirstFileWithExtension,
-  getDirectories,
-  getFiles,
-} from './dataCommons.utils';
+import * as jwt from 'jsonwebtoken';
 
-const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src', 'data-commons', 'data');
+import { getDirectories, getFiles } from './dataCommons.utils';
+
+import { db } from '@/postgres';
+import type { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+
+const DATA_PATH = process.env.DATA_COMMONS_PATH || path.join(process.cwd(), 'src/data-commons/data');
+const JWT_SECRET = process.env.JWT_SECRET || '1234';
 
 @Injectable()
 export class DataCommonsService {
+  constructor(private readonly configService: ConfigService) {}
+
   async getFullStructure() {
     const groups = await getDirectories(DATA_PATH);
 
@@ -58,42 +61,7 @@ export class DataCommonsService {
     return structure;
   }
 
-  async getProjectFilesStatus(group: string, program: string, project: string) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
-    const expectedFiles = [
-      'samplesheet.valid.csv',
-      'contrastsheet.valid.csv',
-      'salmon.merged.gene_counts.tsv',
-      'salmon.merged.transcript_counts.tsv',
-      'PCA.csv',
-    ];
-
-    type FilesPresent = {
-      [key: string]: boolean | string[] | string | false;
-    };
-
-    const filesPresent: FilesPresent = {};
-    let filesInProject: string[] = [];
-    try {
-      filesInProject = await fs.readdir(projectPath);
-    } catch {
-      return { error: 'Project folder not found', filesPresent: {} };
-    }
-
-    for (const file of expectedFiles) {
-      filesPresent[file] = filesInProject.includes(file);
-    }
-
-    const descriptionFile = findFirstFileWithExtension(filesInProject, ALLOWED_EXTENSIONS);
-    filesPresent['project_description'] = descriptionFile || false;
-
-    const deFiles = findDifferentialExpressionFiles(filesInProject);
-    filesPresent['DifferentialExpression.csv'] = deFiles.length > 0 ? deFiles : false;
-
-    return filesPresent;
-  }
-
-  async sendProjectDescription(group: string, program: string, project: string, res: any) {
+  async sendProjectDescription(group: string, program: string, project: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
     if (!existsSync(projectPath)) {
@@ -113,7 +81,7 @@ export class DataCommonsService {
     }
   }
 
-  async sendProjectFile(group: string, program: string, project: string, filename: string, res: any) {
+  async sendProjectFile(group: string, program: string, project: string, filename: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
@@ -121,6 +89,12 @@ export class DataCommonsService {
       res.status(404).send(`${filename} not found`);
       return;
     }
+
+    if (filename.toLowerCase().includes('password')) {
+      res.status(403).send('Access to password file is forbidden');
+      return;
+    }
+
     const lowerCaseFileName = filename.toLowerCase();
     if (lowerCaseFileName.includes('differentialexpression')) {
       try {
@@ -138,7 +112,7 @@ export class DataCommonsService {
     }
   }
 
-  sendDeFile(group: string, program: string, project: string, filename: string, res: any) {
+  sendDeFile(group: string, program: string, project: string, filename: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
@@ -154,74 +128,99 @@ export class DataCommonsService {
     }
   }
 
-  async sendProjectFileByKey(group: string, program: string, project: string, fileKey: string, res: any) {
-    const allowedKeys = ['samplesheet', 'gene', 'transcript', 'pca', 'differentialexpression'];
-
-    const allowedKeysDetailed: Record<string, string[] | string> = {
-      samplesheet: ['samplesheet', 'sample'],
-      gene: ['gene'],
-      transcript: ['transcript'],
-      pca: ['pca'],
-      differentialexpression: ['differentialexpression'],
-    };
-
-    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
-    const lowerCaseFileKey = fileKey.toLowerCase();
+  async initializedFiles(group: string, program: string, project: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
+    const allFiles = await getFiles(projectPath);
 
-    if (allowedExtensions.some((ext) => lowerCaseFileKey.endsWith(ext))) {
-      const filePath = path.join(projectPath, fileKey);
-      if (existsSync(filePath)) {
-        res.sendFile(filePath);
+    const diffExpRegex =
+      /^(?:.*)(?:(?:differential|diff)(?:[-_ ]?(?:exp|expression))?|(?:differential|de))(?:[-_ ]?)(.+?)\.(csv|tsv|xls|xlsx|txt)$/i;
+
+    // Separate files into diffExp and non-diffExp arrays
+    const diffExpFiles: string[] = [];
+    const nonDiffExpFiles: string[] = [];
+
+    for (const file of allFiles) {
+      const fileName = path.basename(file);
+      if (diffExpRegex.test(fileName)) {
+        diffExpFiles.push(fileName);
       } else {
-        res.status(404).send(`${fileKey} not found`);
+        nonDiffExpFiles.push(fileName);
       }
-      return;
     }
 
-    if (!allowedKeys.includes(lowerCaseFileKey)) {
-      res.status(403).send({
-        allowedKeys: allowedKeys,
-        message: 'File key not allowed',
-        fileKey: lowerCaseFileKey,
-      });
-      return;
+    // Segregate diffExp files into transcript and gene arrays
+    const transcriptDiffExpFiles: string[] = [];
+    const geneDiffExpFiles: string[] = [];
+
+    for (const file of diffExpFiles) {
+      const fileName = path.basename(file).toLowerCase();
+      if (fileName.includes('transcript')) {
+        transcriptDiffExpFiles.push(file);
+      } else {
+        geneDiffExpFiles.push(file);
+      }
     }
 
-    let matchTerms = allowedKeysDetailed[lowerCaseFileKey];
-    if (!matchTerms) {
-      res.status(403).send('No match terms found for this key');
-      return;
+    // Find specific files from non-diffExp files
+    const geneRegex = /^.*gene.*(?:count|fpkm|tpm).*?\.(tsv|csv|txt)$/i;
+    const transcriptRegex = /^.*transcript.*(?:count|fpkm|tpm).*?\.(csv|tsv|txt)$/i;
+    const sampleRegex = /^(?:.*sample.*|sample(?:[ _.,-]?meta)?|meta[ _.,-]?data)\.(csv|tsv|txt)$/i;
+
+    let geneFile: string | undefined;
+    let transcriptFile: string | undefined;
+    let sampleFile: string | undefined;
+    let pcaFile: string | undefined;
+
+    for (const file of nonDiffExpFiles) {
+      const fileName = path.basename(file);
+
+      if (!geneFile && geneRegex.test(fileName)) {
+        geneFile = file;
+      } else if (!transcriptFile && transcriptRegex.test(fileName)) {
+        transcriptFile = file;
+      } else if (!sampleFile && sampleRegex.test(fileName)) {
+        sampleFile = file;
+      } else if (!pcaFile && (fileName.toLowerCase().includes('pca') || (geneFile && transcriptFile && sampleFile))) {
+        pcaFile = file;
+      }
+
+      // Exit early if all files are found
+      else if (geneFile && transcriptFile && sampleFile && pcaFile) {
+        break;
+      }
     }
 
-    if (typeof matchTerms === 'string') {
-      matchTerms = [matchTerms];
+    for (const file of nonDiffExpFiles) {
+      const fileName = path.basename(file);
+
+      if (
+        !pcaFile &&
+        geneFile &&
+        transcriptFile &&
+        sampleFile &&
+        (fileName !== geneFile || fileName !== transcriptFile || fileName !== sampleFile)
+      ) {
+        pcaFile = file;
+      } else if (geneFile && transcriptFile && sampleFile && pcaFile) {
+        break;
+      }
     }
 
-    let filesInProject: string[] = [];
-    try {
-      filesInProject = (await fs.readdir(projectPath)).filter((f) => f !== 'password.txt');
-    } catch {
-      res.status(404).send('Project folder not found');
-      return;
-    }
-
-    const matchingFiles = filesInProject.filter((f) => {
-      const lowerF = f.toLowerCase();
-      return matchTerms.some((term) => lowerF.includes(term.toLowerCase()));
+    res.status(200).json({
+      allFiles,
+      initializedFiles: {
+        gene: geneFile || '',
+        transcript: transcriptFile || '',
+        pca: pcaFile || '',
+        samplesheet: sampleFile || '',
+        differentialexpression: [...geneDiffExpFiles, ...transcriptDiffExpFiles],
+        geneDiffExpFiles: geneDiffExpFiles,
+        transcriptDiffExpFiles: transcriptDiffExpFiles,
+      },
     });
-
-    const result = {
-      label: fileKey,
-      selectedFile: matchingFiles.length > 0 ? matchingFiles[0] : '',
-      filesHavingSameKey: matchingFiles,
-      allFiles: filesInProject,
-    };
-
-    res.json(result);
   }
 
-  async previewProjectFile(group: string, program: string, project: string, filename: string, res: any) {
+  async previewProjectFile(group: string, program: string, project: string, filename: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const filePath = path.join(projectPath, filename);
 
@@ -229,6 +228,12 @@ export class DataCommonsService {
       res.status(404).send(`${filename} not found`);
       return;
     }
+
+    if (filename.toLowerCase().includes('password')) {
+      res.status(403).send('Access to password file is forbidden');
+      return;
+    }
+
     try {
       const stream = createReadStream(filePath, { encoding: 'utf8' });
       const rl = readline.createInterface({
@@ -258,7 +263,14 @@ export class DataCommonsService {
     }
   }
 
-  async checkProjectPassword(group: string, program: string, project: string, password: string, res: any) {
+  async checkProjectPassword(
+    req: Request,
+    group: string,
+    program: string,
+    project: string,
+    password: string,
+    res: Response,
+  ) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
@@ -273,19 +285,201 @@ export class DataCommonsService {
       const filePassword = (await fs.readFile(passwordFilePath, 'utf8')).trim();
       const success = password === filePassword;
 
+      if (!success) {
+        res.json({ success: false, hasPassword: true });
+        return;
+      }
+
+      const cookie: string | undefined = req.cookies['data-commons-auth'];
+
+      if (!cookie) {
+        const newSession = await db.session.create({
+          data: {
+            combinations: {
+              create: [
+                {
+                  group: group,
+                  program: program,
+                  project: project,
+                },
+              ],
+            },
+          },
+        });
+
+        const token = jwt.sign({ sessionId: newSession.id }, JWT_SECRET);
+
+        res.cookie('data-commons-auth', token, {
+          httpOnly: true,
+          secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+          sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+            ? 'strict'
+            : 'none',
+        });
+      } else {
+        let decoded: jwt.JwtPayload;
+        try {
+          decoded = jwt.verify(cookie, JWT_SECRET) as jwt.JwtPayload;
+        } catch {
+          res.clearCookie('data-commons-auth', {
+            httpOnly: true,
+            secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+            sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+              ? 'strict'
+              : 'none',
+          });
+          res.status(401).send('Unauthorized');
+          return;
+        }
+
+        const sessionId = decoded.sessionId;
+        const session = await db.session.findUnique({
+          where: { id: sessionId },
+          select: {
+            id: true,
+            combinations: {
+              select: {
+                verifiedAt: true,
+                group: true,
+                program: true,
+                project: true,
+              },
+            },
+          },
+        });
+
+        if (typeof session === 'undefined' || session === null) {
+          const newSession = await db.session.create({
+            data: {
+              combinations: {
+                create: [
+                  {
+                    group: group,
+                    program: program,
+                    project: project,
+                  },
+                ],
+              },
+            },
+          });
+
+          const token = jwt.sign({ sessionId: newSession.id }, JWT_SECRET);
+
+          res.cookie('data-commons-auth', token, {
+            httpOnly: true,
+            secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+            sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+              ? 'strict'
+              : 'none',
+          });
+        } else {
+          const hasCombination = session.combinations.some(
+            (combination) =>
+              combination.group === group && combination.program === program && combination.project === project,
+          );
+
+          if (!hasCombination) {
+            await db.combination.create({
+              data: {
+                group: group,
+                program: program,
+                project: project,
+                sessionId: session.id,
+              },
+            });
+          } else {
+            await db.combination.updateMany({
+              where: {
+                sessionId: session.id,
+                group: group,
+                program: program,
+                project: project,
+              },
+              data: {
+                verifiedAt: new Date(),
+              },
+            });
+          }
+        }
+      }
+
       res.json({
         success,
         hasPassword: true,
         message: success ? 'Password correct' : 'Incorrect password',
       });
-    } catch {
-      res.status(500).send('Error reading password file');
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
 
-  hasPasswordProtection(group: string, program: string, project: string) {
+  async verifyAuth(req: Request, group: string, program: string, project: string, res: Response) {
     const projectPath = path.join(DATA_PATH, group, program, project);
     const passwordFilePath = path.join(projectPath, 'password.txt');
-    return existsSync(passwordFilePath);
+
+    // Check if password file exists
+    if (!existsSync(passwordFilePath)) {
+      // No password protection
+      res.json({ success: true, hasPassword: false });
+      return;
+    }
+
+    const cookie: string | undefined = req.cookies['data-commons-auth'];
+
+    if (!cookie) {
+      res.json({ success: false, hasPassword: true, message: 'No auth cookie found' });
+      return;
+    }
+
+    let decoded: jwt.JwtPayload;
+    try {
+      decoded = jwt.verify(cookie, JWT_SECRET) as jwt.JwtPayload;
+    } catch {
+      res.clearCookie('data-commons-auth', {
+        httpOnly: true,
+        secure: this.configService.get<string>('NODE_ENV', '') !== 'production',
+        sameSite: ['testing', 'production'].includes(this.configService.get<string>('NODE_ENV', ''))
+          ? 'strict'
+          : 'none',
+      });
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const sessionId = decoded.sessionId;
+    const session = await db.session.findUnique({
+      where: { id: sessionId },
+      select: {
+        id: true,
+        combinations: {
+          select: {
+            verifiedAt: true,
+            group: true,
+            program: true,
+            project: true,
+          },
+        },
+      },
+    });
+
+    if (typeof session === 'undefined' || session === null) {
+      res.json({ success: false, hasPassword: true, message: 'Invalid session' });
+      return;
+    }
+
+    const hasCombination = session.combinations.some(
+      (combination) =>
+        combination.group === group &&
+        combination.program === program &&
+        combination.project === project &&
+        Date.now() - new Date(combination.verifiedAt).getTime() <= 12 * 60 * 60 * 1000, // 12 hours
+    );
+
+    if (!hasCombination) {
+      res.json({ success: false, hasPassword: true, message: 'No valid combination found or session expired' });
+      return;
+    }
+
+    res.json({ success: true, hasPassword: true, message: 'Authorized' });
   }
 }

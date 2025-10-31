@@ -1,0 +1,33 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Session {
+  id          String        @id @default(uuid())  // Unique session ID stored in JWT
+  createdAt   DateTime      @default(now())
+  combinations Combination[]
+}
+
+model Combination {
+  session    Session     @relation(fields: [sessionId], references: [id])
+  sessionId  String
+  group      String
+  program    String
+  project    String
+  verifiedAt DateTime    @default(now())
+
+  @@id([sessionId, group, program, project])
+  @@index([sessionId, group, program, project])
+}

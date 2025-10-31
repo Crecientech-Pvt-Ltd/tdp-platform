@@ -16,7 +16,7 @@ import { useStore } from '@/lib/hooks';
 import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
 
-export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.MutableRefObject<Set<string>> }) {
+export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.RefObject<Set<string>> }) {
   const projectTitle = useStore(state => state.projectTitle);
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
 
@@ -65,7 +65,7 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
             const nodeIds = all ? sigma.getGraph().nodes() : Array.from(highlightedNodesRef?.current ?? []);
             const universalCsv = unparse(
               nodeIds.map(nodeId => {
-                const universalProperties: Record<string, string> = {};
+                const universalProperties: Record<string, string | number> = {};
                 if (selectedRadioNodeColor) {
                   if (typeof selectedNodeColorProperty === 'string') {
                     universalProperties[selectedNodeColorProperty] = (

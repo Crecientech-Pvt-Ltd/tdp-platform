@@ -1,46 +1,44 @@
-# GSEA Installation
+# GSEA Service
 
-## Configuring nginx
+The GSEA (Gene Set Enrichment Analysis) service is a Python-based API for performing gene set enrichment analysis.
 
-```bash
-# Create a new server block (change filename as per requirement)
-sudo vim /etc/nginx/conf.d/pdnet-rnd-papis.conf
-# Frontend configuration
-```
+## API Gateway Access
 
-```bash
-server {
-    listen 80;
-    # Can change the hosting link accordingly
-    server_name pdnet-rnd-papis.crecientech.com;
+The GSEA service is now accessed through the API Gateway at the `/api/gsea` namespace:
 
-    location / {
-        # Change the port as per requirement
-        proxy_pass http://localhost:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
+- **Production**: `https://domain.com/api/gsea/`
+- **Local**: `http://localhost:8080/api/gsea/`
+- **Development (direct)**: `http://localhost:5000/`
 
-```bash
-# Test nginx configuration
-sudo nginx -t
-
-# Reload nginx
-sudo systemctl reload nginx
-```
-
-> Note 📝: SSL Encryption have to be enabled for the subdomain. You may use certbot application, if you want to implement that and the company allows it. Procedure for the same is available in main README file.
-
-## Starting the container
+## Starting the Container
 
 > Attention ℹ️: This command needs to be executed in the root directory of the project where the `docker-compose.yml` file is located.
 
 ```bash
-# --build tag can be removed if the image is already built and not modified
+# Start all services (including GSEA and API Gateway)
+docker compose up -d --build
+
+# Or start only GSEA service (API Gateway must be running)
 docker compose up -d --build gsea
+```
+
+## Accessing the API
+
+### Via API Gateway (Production -> 5000 | Development -> 8080)
+
+```bash
+# Example request through API Gateway
+curl http://localhost/:5000/api/gsea/
+```
+
+### Direct Access (Development Only)
+
+For development, you can access the service directly:
+
+```bash
+# Start with development configuration to expose port 5000
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+# Access directly
+curl http://localhost:5000/
 ```

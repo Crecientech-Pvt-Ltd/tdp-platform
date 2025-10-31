@@ -67,7 +67,7 @@ const VirtualizedCommand = ({
                 className='cursor-pointer rounded border bg-transparent p-2 shadow hover:bg-muted'
                 onClick={() => onSelectOption?.(filteredOptions.slice(0, 50).map(getProperty))}
               >
-                <ListCheckIcon className='h-4 w-4 text-black' />
+                <ListCheckIcon className='size-4 text-black' />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Select all (only first 50 items are selected at max)</TooltipContent>
@@ -113,7 +113,7 @@ const VirtualizedCommand = ({
                   <div className='item-center flex'>
                     <CheckIcon
                       className={cn(
-                        'mr-2 h-4 w-4',
+                        'mr-2 size-4',
                         (selectedOption instanceof Set ? selectedOption.has(value) : selectedOption === value)
                           ? 'opacity-100'
                           : 'opacity-0',
@@ -124,7 +124,7 @@ const VirtualizedCommand = ({
                   {typeof option !== 'string' && option.description && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoIcon className='ml-2 h-4 w-4 cursor-pointer' />
+                        <InfoIcon className='ml-2 size-4 cursor-pointer' />
                       </TooltipTrigger>
                       <TooltipContent side='left' align='start' className='max-w-48'>
                         {option.description}
@@ -217,7 +217,7 @@ export function VirtualizedCombobox({
                             }
                           }}
                         >
-                          <XIcon className='h-3 w-3 text-white hover:text-gray-200' />
+                          <XIcon className='size-3 text-white hover:text-gray-200' />
                         </span>
                       </Badge>
                     ))}
@@ -232,7 +232,7 @@ export function VirtualizedCombobox({
               value || searchPlaceholder
             )}
           </span>
-          <ChevronsUpDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronsUpDownIcon className='ml-2 size-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
       <PopoverContent align={align} className={cn(`w-[${width || '200px'}] p-0`, className)}>

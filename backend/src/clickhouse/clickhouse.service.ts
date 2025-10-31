@@ -1,4 +1,8 @@
 import {
+  DataRequired,
+  GeneProperty,
+  GenePropertyCategoryEnum,
+  GenePropertyData,
   OrderByEnum,
   Pagination,
   ScoredKeyValue,
@@ -9,8 +13,9 @@ import {
 import { ClickHouseClient, createClient } from '@clickhouse/client';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'node:path';
 import { promises as fs } from 'fs';
+import { GraphQLError } from 'graphql/error/GraphQLError';
+import { join } from 'node:path';
 
 @Injectable()
 export class ClickhouseService implements OnApplicationBootstrap {
@@ -181,24 +186,10 @@ export class ClickhouseService implements OnApplicationBootstrap {
     const query = `
       SELECT
         gene_id,
-        \`Membrane protein\`,
-        \`Secreted protein\`,
-        \`Known safety events\`,
-        \`Predicted pockets\`,
-        \`Ligand binder\`,
-        \`Small molecule binder\`,
-        \`Genetic constraint\`,
-        \`Paralogues\`,
-        \`Mouse ortholog identity\`,
-        \`Cancer driver gene\`,
-        \`Gene essentiality\`,
-        \`Mouse models\`,
-        \`Chemical probes\`,
-        \`Target in clinic\`,
-        \`Tissue specificity\`,
-        \`Tissue distribution\`
+        groupArray(concat(property_name, ',', toString(score))) AS properties
       FROM target_prioritization_factors
       WHERE gene_id IN ({geneIds:Array(String)})
+      GROUP BY gene_id
     `;
 
     try {
@@ -210,20 +201,19 @@ export class ClickhouseService implements OnApplicationBootstrap {
 
       const resultMap = new Map<string, ScoredKeyValue[]>();
 
-      for await (const rows of resultSet.stream<Record<string, string | number>>()) {
+      for await (const rows of resultSet.stream<{ gene_id: string; properties: string[] }>()) {
         for (const row of rows) {
           const data = row.json();
-          const geneId = data.gene_id;
+          // Transform properties from string array to ScoredKeyValue array
+          const scoredKeyValues = data.properties.map((propStr: string) => {
+            const [key, score] = propStr.split(',');
+            return {
+              key,
+              score: Number.parseFloat(score),
+            };
+          });
 
-          // Remove gene_id from the data and convert to ScoredKeyValue array
-          delete data.gene_id;
-
-          const scoredKeyValues = Object.entries(data).map(([key, score]) => ({
-            key,
-            score: score as number,
-          }));
-
-          resultMap.set(geneId as string, scoredKeyValues);
+          resultMap.set(data.gene_id, scoredKeyValues);
         }
       }
       return resultMap;
@@ -231,6 +221,198 @@ export class ClickhouseService implements OnApplicationBootstrap {
       this.logger.error('batch prioritizationTable query failed', error);
       throw error;
     }
+  }
+
+  async getGeneProperties(geneIds: string[], config: DataRequired[]): Promise<GeneProperty[]> {
+    const genePropertyMap = new Map<string, GenePropertyData[]>();
+
+    for (const configItem of config) {
+      const { category, properties } = configItem;
+      let diseaseId = configItem.diseaseId;
+      if (properties.length === 0) continue;
+      let query: string;
+      let queryParams: Record<string, any>;
+
+      switch (category) {
+        case GenePropertyCategoryEnum.DIFFERENTIAL_EXPRESSION: {
+          if (diseaseId) {
+            query = `
+              SELECT gene_id, groupArray(concat(property_name, ',', toString(score))) AS properties
+              FROM differential_expression
+              WHERE disease_id = {diseaseId:String}
+                AND gene_id IN ({geneIds:Array(String)})
+                AND property_name IN ({properties:Array(String)})
+              GROUP BY gene_id
+            `;
+            queryParams = { geneIds, diseaseId, properties };
+          } else {
+            throw new GraphQLError('Disease ID is required for LogFC category', {
+              extensions: { code: 'BAD_USER_INPUT' },
+            });
+          }
+          break;
+        }
+
+        case GenePropertyCategoryEnum.OPEN_TARGETS: {
+          if (diseaseId) {
+            const dataSourceProperties = properties.filter((prop) => prop !== 'Overall_Association Score');
+            if (dataSourceProperties.length === properties.length) {
+              query = `
+                SELECT gene_id, groupArray(concat(datasource_id, ',', toString(score))) AS properties
+                FROM datasource_association_score
+                WHERE disease_id = {diseaseId:String}
+                AND gene_id IN ({geneIds:Array(String)})
+                AND datasource_id IN ({properties:Array(String)})
+                GROUP BY gene_id
+              `;
+              queryParams = { geneIds, diseaseId, properties };
+            } else if (dataSourceProperties.length === 0) {
+              query = `
+                SELECT gene_id, groupArray(concat('Overall_Association Score,', toString(score))) AS properties
+                FROM overall_association_score
+                WHERE disease_id = {diseaseId:String}
+                AND gene_id IN ({geneIds:Array(String)})
+                GROUP BY gene_id
+              `;
+              queryParams = { geneIds, diseaseId };
+            } else {
+              query = `
+                SELECT gene_id, groupArray(concat(datasource_id, ',', toString(score))) AS properties
+                FROM datasource_association_score
+                WHERE disease_id = {diseaseId:String}
+                AND gene_id IN ({geneIds:Array(String)})
+                AND datasource_id IN ({properties:Array(String)})
+                GROUP BY gene_id
+                UNION ALL
+                SELECT gene_id, groupArray(concat('Overall_Association Score,', toString(score))) AS properties
+                FROM overall_association_score
+                WHERE disease_id = {diseaseId:String}
+                AND gene_id IN ({geneIds:Array(String)})
+                GROUP BY gene_id
+              `;
+              queryParams = { geneIds, diseaseId, properties: dataSourceProperties };
+            }
+          } else {
+            throw new GraphQLError('Disease ID is required for OpenTargets category', {
+              extensions: { code: 'BAD_USER_INPUT' },
+            });
+          }
+          break;
+        }
+
+        case GenePropertyCategoryEnum.GENETICS: {
+          if (diseaseId) {
+            query = `
+              SELECT gene_id, groupArray(concat(property_name, ',', toString(score))) AS properties
+              FROM genetics
+              WHERE disease_id = {diseaseId:String}
+                AND gene_id IN ({geneIds:Array(String)})
+                AND property_name IN ({properties:Array(String)})
+              GROUP BY gene_id
+            `;
+            queryParams = { geneIds, diseaseId, properties };
+          } else {
+            throw new GraphQLError('Disease ID is required for Genetics category', {
+              extensions: { code: 'BAD_USER_INPUT' },
+            });
+          }
+          break;
+        }
+
+        case GenePropertyCategoryEnum.OT_PRIORITIZATION: {
+          query = `
+            SELECT gene_id, groupArray(concat(property_name, ',', toString(score))) AS properties
+            FROM target_prioritization_factors
+            WHERE gene_id IN ({geneIds:Array(String)})
+            AND property_name IN ({properties:Array(String)})
+            GROUP BY gene_id
+          `;
+          queryParams = { geneIds, properties };
+          diseaseId = undefined;
+          break;
+        }
+
+        case GenePropertyCategoryEnum.PATHWAY: {
+          query = `
+            SELECT gene_id, groupArray(concat(property_name, ',', toString(score))) AS properties
+            FROM pathway
+            WHERE gene_id IN ({geneIds:Array(String)})
+            AND property_name IN ({properties:Array(String)})
+            GROUP BY gene_id
+          `;
+          queryParams = { geneIds, properties };
+          diseaseId = undefined;
+          break;
+        }
+
+        case GenePropertyCategoryEnum.DRUGGABILITY: {
+          query = `
+            SELECT gene_id, groupArray(concat(property_name, ',', toString(score))) AS properties
+            FROM druggability
+            WHERE gene_id IN ({geneIds:Array(String)})
+            AND property_name IN ({properties:Array(String)})
+            GROUP BY gene_id
+          `;
+          queryParams = { geneIds, properties };
+          diseaseId = undefined;
+          break;
+        }
+
+        case GenePropertyCategoryEnum.TISSUE_EXPRESSION: {
+          // TISSUE_EXPRESSION
+          query = `
+            SELECT gene_id, groupArray(concat(property_name, ',', toString(score))) AS properties
+            FROM tissue_specificity
+            WHERE gene_id IN ({geneIds:Array(String)})
+            AND property_name IN ({properties:Array(String)})
+            GROUP BY gene_id
+          `;
+          queryParams = { geneIds, properties };
+          diseaseId = undefined;
+          break;
+        }
+
+        default:
+          this.logger.warn(`Unknown category: ${category}`);
+          continue;
+      }
+
+      try {
+        const resultSet = await this.client.query({
+          query,
+          query_params: queryParams,
+          format: 'JSONEachRow',
+        });
+
+        for await (const rows of resultSet.stream<{ gene_id: string; properties: string[] }>()) {
+          for (const row of rows) {
+            const data = row.json();
+            const properties = data.properties.map((propStr: string) => {
+              const [key, score] = propStr.split(',');
+              return {
+                key,
+                score: Number.parseFloat(score),
+                category,
+                diseaseId,
+              };
+            });
+
+            if (!genePropertyMap.has(data.gene_id)) {
+              genePropertyMap.set(data.gene_id, []);
+            }
+            genePropertyMap.get(data.gene_id)?.push(...properties);
+          }
+        }
+      } catch (error) {
+        this.logger.error(`Failed to fetch ${category} properties:`, error);
+      }
+    }
+
+    // Convert map to final result format
+    return geneIds.map((geneId) => ({
+      ID: geneId,
+      data: genePropertyMap.get(geneId) || [],
+    }));
   }
 
   async #runMigrations() {
@@ -262,15 +444,18 @@ export class ClickhouseService implements OnApplicationBootstrap {
       if (lastAppliedVersion && Number(version) <= Number(lastAppliedVersion)) {
         continue; // Skip already applied migrations
       }
-      const sql = await fs.readFile(join(migrationDir, file), 'utf8');
+      const sql = (await fs.readFile(join(migrationDir, file), 'utf8'))
+        .split('\n')
+        .filter((line) => line && !line.startsWith('--'))
+        .join('\n');
       this.logger.log(`Running migration ${file}...`);
       try {
-        sql.split(';').forEach(async (stmt) => {
-          if (!stmt.trim()) return;
+        for (const stmt of sql.split(';')) {
+          if (!stmt.trim()) continue;
           await this.client.command({
             query: stmt.trim(),
           });
-        });
+        }
         await this.#markMigrationAsApplied(version);
         this.logger.log(`Migration ${file} applied.`);
       } catch (err) {

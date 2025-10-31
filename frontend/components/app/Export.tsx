@@ -45,8 +45,8 @@ export function Export() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='oldtool' size='sm' className='rounded-sm border-none bg-primary text-xs hover:opacity-80'>
-          <FolderUpIcon className='mr-1 h-3 w-3' />
+        <Button variant='basic' size='sm' className='rounded-sm border-none bg-primary text-xs hover:opacity-80'>
+          <FolderUpIcon className='size-3' />
           Export
         </Button>
       </DropdownMenuTrigger>

@@ -220,7 +220,7 @@ export default memo(function SeeMore({
                     variant='outline'
                     className='flex items-center gap-2'
                   >
-                    <DownloadIcon className='h-4 w-4' />
+                    <DownloadIcon className='size-4' />
                     Download Data
                   </Button>
                   <Button
@@ -229,7 +229,7 @@ export default memo(function SeeMore({
                     className='flex items-center gap-2'
                     disabled={previewableFiles.length === 0}
                   >
-                    <EyeIcon className='h-4 w-4' />
+                    <EyeIcon className='size-4' />
                     Preview Files
                   </Button>
                 </>

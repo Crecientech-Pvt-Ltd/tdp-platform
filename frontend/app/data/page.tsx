@@ -3,8 +3,11 @@
 import dynamic from 'next/dynamic';
 import { redirect, useSearchParams } from 'next/navigation';
 import React, { Suspense } from 'react';
+import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
+
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const TranscriptTab = dynamic(
   () =>
@@ -56,8 +59,21 @@ function PDCSNetworkTabs() {
   const deFilesArray = deFile?.split(',');
 
   const getFileUrl = (filename: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
+    `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
 
+  React.useEffect(() => {
+    const initializeDB = async () => {
+      try {
+        await indexedDBManager.init();
+      } catch (error) {
+        console.error('Error initializing IndexedDB:', error);
+      }
+    };
+
+    if (uploadMode === 'true') {
+      initializeDB();
+    }
+  }, [uploadMode]);
   React.useEffect(() => {
     if (uploadMode === 'true') {
       setIsAuthenticated(true);
@@ -67,45 +83,29 @@ function PDCSNetworkTabs() {
 
     if (!group || !program || !project) {
       redirect('/data-commons');
-      return;
     }
 
     const checkAuthentication = async () => {
-      const authKey = `auth_${group}_${program}_${project}`;
-      const isAuthenticated = sessionStorage.getItem(authKey) === 'authenticated';
-      if (isAuthenticated) {
-        setIsAuthenticated(true);
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/password`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ password: '' }),
-          },
+          `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/verify-auth`,
+          { method: 'GET', credentials: 'include' },
         );
 
         if (!response.ok) {
           console.error('Password check failed:', response.status);
           redirect('/data-commons');
-          return;
         }
 
         const result = await response.json();
-        if (result.hasPassword) {
+
+        setIsAuthenticated(result.success);
+
+        if (result.hasPassword && !result.success) {
           redirect('/data-commons');
-        } else {
-          sessionStorage.setItem(authKey, 'authenticated');
-          setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error('Password check error:', error);
+        console.error('Authentication check error:', error);
         redirect('/data-commons');
       } finally {
         setLoading(false);
@@ -118,7 +118,7 @@ function PDCSNetworkTabs() {
   if (loading) {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center'>
-        <Spinner className='h-12 w-12' />
+        <Spinner className='size-12' />
         <p className='mt-4 text-gray-600 text-lg'>Checking project access...</p>
       </div>
     );
@@ -171,7 +171,7 @@ export default function NetworkPage() {
       <Suspense
         fallback={
           <div className='flex min-h-screen flex-col items-center justify-center'>
-            <Spinner className='h-12 w-12' />
+            <Spinner className='size-12' />
             <p className='mt-4 text-gray-600 text-lg'>Loading components...</p>
           </div>
         }

@@ -1,16 +1,36 @@
 'use client';
 
 import Papa from 'papaparse';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
+import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
 import { VolcanoPlotControls } from './Controls';
-import { useContrastData, useDebounce, useThresholds, useViewportDimensions } from './hooks';
+import {
+  useDebounce,
+  useGeneContrastData,
+  useThresholds,
+  useTranscriptContrastData,
+  useViewportDimensions,
+} from './hooks';
 import { VolcanoPlotRenderer } from './Renderer';
 import SeeMore from './SeeMore';
 import type { GenericRow, Point, PointCounts, ProcessedData, SeeMoreDataItem, VolcanoPlotProps } from './types';
 import { calculateBounds, findColumnKeys, getContrastCsvText, parseContrastNames, processDataToPoints } from './utils';
 
-export default function xVolcanoPlot({ deFiles, group, program, project, loading: externalLoading }: VolcanoPlotProps) {
+export default function xVolcanoPlot({
+  deGeneFilesContent,
+  deTranscriptFilesContent,
+  group,
+  program,
+  project,
+  loading: externalLoading,
+}: VolcanoPlotProps) {
+  const hasGene = deGeneFilesContent && Object.keys(deGeneFilesContent).length > 0;
+  const hasTranscript = deTranscriptFilesContent && Object.keys(deTranscriptFilesContent).length > 0;
+
+  const [selectedType, setSelectedType] = useState<'gene' | 'transcript'>(hasGene ? 'gene' : 'transcript');
+
   const [availableContrasts, setAvailableContrasts] = useState<string[]>([]);
   const [selectedContrasts, setSelectedContrasts] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,20 +38,57 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
   const [useLog, setUseLog] = useState<1 | 0>(1);
   const [showSeeMore, setShowSeeMore] = useState<boolean>(false);
   const [selectedGenes, setSelectedGenes] = useState<Set<string>>(new Set());
+  const [searchGenes, setSearchGenes] = useState<string[]>([]);
 
   const debouncedContrasts = useDebounce(selectedContrasts, 150);
   const thresholds = useThresholds(1, 0.01);
   const { viewportHeight } = useViewportDimensions();
+  const typeToggleId = useId();
+
+  const activeFiles = selectedType === 'gene' ? deGeneFilesContent : deTranscriptFilesContent;
+
   const {
-    contrastData,
-    availableColumns,
-    availableGenes,
-    xAxisColumn,
-    yAxisColumn,
-    idColumns,
-    setXAxisColumn,
-    setYAxisColumn,
-  } = useContrastData(deFiles, debouncedContrasts);
+    geneContrastData,
+    geneAvailableColumns,
+    geneAvailableGenes,
+    geneXAxisColumn,
+    geneYAxisColumn,
+    geneIdColumns,
+    setGeneXAxisColumn,
+    setGeneYAxisColumn,
+  } = useGeneContrastData(deGeneFilesContent, debouncedContrasts);
+
+  const {
+    transcriptContrastData,
+    transcriptAvailableColumns,
+    transcriptAvailableGenes,
+    transcriptXAxisColumn,
+    transcriptYAxisColumn,
+    transcriptIdColumns,
+    setTranscriptXAxisColumn,
+    setTranscriptYAxisColumn,
+  } = useTranscriptContrastData(deTranscriptFilesContent, debouncedContrasts);
+
+  // Select active data based on selectedType
+  const contrastData = selectedType === 'gene' ? geneContrastData : transcriptContrastData;
+  const availableColumns = selectedType === 'gene' ? geneAvailableColumns : transcriptAvailableColumns;
+  const availableGenes = selectedType === 'gene' ? geneAvailableGenes : transcriptAvailableGenes;
+  const xAxisColumn = selectedType === 'gene' ? geneXAxisColumn : transcriptXAxisColumn;
+  const yAxisColumn = selectedType === 'gene' ? geneYAxisColumn : transcriptYAxisColumn;
+  const idColumns = selectedType === 'gene' ? geneIdColumns : transcriptIdColumns;
+  const setXAxisColumn = selectedType === 'gene' ? setGeneXAxisColumn : setTranscriptXAxisColumn;
+  const setYAxisColumn = selectedType === 'gene' ? setGeneYAxisColumn : setTranscriptYAxisColumn;
+
+  // Update selectedType when file availability changes
+  useEffect(() => {
+    if (hasGene && !hasTranscript) setSelectedType('gene');
+    else if (!hasGene && hasTranscript) setSelectedType('transcript');
+  }, [hasGene, hasTranscript]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional dependencies
+  useEffect(() => {
+    thresholds.setThresholdsFromPlot(1, 0.01);
+  }, [selectedType]);
 
   useEffect(() => {
     if (externalLoading) {
@@ -40,7 +97,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
       return;
     }
 
-    if (!deFiles || Object.keys(deFiles).length === 0) {
+    if (!activeFiles || Object.keys(activeFiles).length === 0) {
       setAvailableContrasts([]);
       setSelectedContrasts([]);
       setAllDataLoaded(true);
@@ -50,12 +107,18 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
 
     setLoading(true);
 
-    const contrastNames = parseContrastNames(deFiles);
+    const contrastNames = parseContrastNames(activeFiles);
     setAvailableContrasts(contrastNames);
     setSelectedContrasts([contrastNames[0]]);
     setAllDataLoaded(true);
     setLoading(false);
-  }, [deFiles, externalLoading]);
+  }, [activeFiles, externalLoading]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional dependencies
+  useEffect(() => {
+    setSelectedGenes(new Set());
+    setSearchGenes([]);
+  }, [selectedType]);
 
   const processedData = useMemo<Record<string, ProcessedData>>(() => {
     const result: Record<string, ProcessedData> = {};
@@ -161,16 +224,16 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
   };
 
   const seeMoreData = useMemo<SeeMoreDataItem[]>(() => {
-    if (!deFiles) return [];
+    if (!activeFiles) return [];
 
-    return Object.keys(deFiles).map(filename => ({
+    return Object.keys(activeFiles).map(filename => ({
       filename,
-      description: `Differential expression analysis results for ${filename.replace(/^differentialexpression[-_]?/i, '').replace(/\.(csv|tsv|txt)$/i, '') || 'default contrast'}`,
+      description: `${selectedType === 'gene' ? 'Gene' : 'Transcript'} differential expression analysis results for ${filename.replace(/^differentialexpression[-_]?/i, '').replace(/\.(csv|tsv|txt)$/i, '') || 'default contrast'}`,
       xDescription: `Log fold change values representing the magnitude of expression difference between conditions. Positive values indicate upregulation, negative values indicate downregulation.`,
       yDescription: `Statistical significance values (p-values) from differential expression testing. Lower values indicate higher confidence in the observed differences.`,
       columns: availableColumns,
     }));
-  }, [deFiles, availableColumns]);
+  }, [activeFiles, availableColumns, selectedType]);
 
   const renderPlot = (contrast: string) => {
     const data = processedData[contrast];
@@ -193,9 +256,9 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
   };
 
   const processDataForDownload = (contrastName: string) => {
-    if (!deFiles) return null;
+    if (!activeFiles) return null;
 
-    const csvText = getContrastCsvText(contrastName, deFiles);
+    const csvText = getContrastCsvText(contrastName, activeFiles);
     if (!csvText) return null;
 
     return new Promise<{ rawData: GenericRow[]; points: Point[] } | null>(resolve => {
@@ -248,6 +311,11 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
 
   const showDropdown = availableContrasts.length > 1;
 
+  const handleGenesChange = (genes: string[]) => {
+    setSearchGenes(genes);
+    setSelectedGenes(new Set(genes));
+  };
+
   if (loading || !allDataLoaded) {
     return (
       <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
@@ -259,7 +327,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
     );
   }
 
-  if ((!deFiles || Object.keys(deFiles).length === 0) && allDataLoaded) {
+  if ((!activeFiles || Object.keys(activeFiles).length === 0) && allDataLoaded) {
     return (
       <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
         <div className='flex min-h-[60vh] flex-col items-center justify-center'>
@@ -273,6 +341,24 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
 
   return (
     <div className='resizable-panel-container mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
+      {hasGene && hasTranscript && (
+        <div className='mb-6 flex justify-center'>
+          <div className='flex min-w-fit items-center gap-3'>
+            <Label htmlFor={typeToggleId} className='whitespace-nowrap font-medium text-sm'>
+              Gene Differential Expression
+            </Label>
+            <Switch
+              id={typeToggleId}
+              checked={selectedType === 'transcript'}
+              onCheckedChange={checked => setSelectedType(checked ? 'transcript' : 'gene')}
+            />
+            <Label htmlFor={typeToggleId} className='whitespace-nowrap font-medium text-sm'>
+              Transcript Differential Expression
+            </Label>
+          </div>
+        </div>
+      )}
+
       <VolcanoPlotControls
         showDropdown={showDropdown}
         availableContrasts={availableContrasts}
@@ -281,8 +367,10 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
         thresholds={thresholds}
         availableGenes={availableGenes}
         selectedGenes={selectedGenes}
-        onGenesChange={setSelectedGenes}
+        onGenesChange={handleGenesChange}
         onShowSettings={() => setShowSeeMore(true)}
+        searchGenes={searchGenes}
+        selectedType={selectedType}
       />
 
       <div className='w-full' style={{ maxHeight: `${viewportHeight * 0.9}px` }}>
@@ -294,13 +382,13 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
                   className='mb-2 line-clamp-2 px-2 text-center font-semibold text-lg leading-tight'
                   title={
                     debouncedContrasts[0] === 'default'
-                      ? 'Differential Expression'
-                      : debouncedContrasts[0].toUpperCase()
+                      ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
+                      : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${debouncedContrasts[0].toUpperCase()}`
                   }
                 >
                   {debouncedContrasts[0] === 'default'
-                    ? 'Differential Expression'
-                    : debouncedContrasts[0].toUpperCase()}
+                    ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
+                    : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${debouncedContrasts[0].toUpperCase()}`}
                 </h3>
                 <div className='h-[calc(100%-4rem)] w-full'>{renderPlot(debouncedContrasts[0])}</div>
               </div>
@@ -324,9 +412,15 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
                     <div className='flex h-full flex-col'>
                       <h3
                         className={`line-clamp-2 px-2 text-center font-semibold leading-tight ${debouncedContrasts.length >= 3 ? 'mb-1 h-10 text-xs' : 'mb-2 h-12 text-sm'}`}
-                        title={contrast === 'default' ? 'Differential Expression' : contrast.toUpperCase()}
+                        title={
+                          contrast === 'default'
+                            ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
+                            : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${contrast.toUpperCase()}`
+                        }
                       >
-                        {contrast === 'default' ? 'Differential Expression' : contrast.toUpperCase()}
+                        {contrast === 'default'
+                          ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
+                          : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${contrast.toUpperCase()}`}
                       </h3>
                       <div className='w-full flex-1'>{renderPlot(contrast)}</div>
                     </div>
@@ -365,7 +459,7 @@ export default function xVolcanoPlot({ deFiles, group, program, project, loading
         group={group}
         program={program}
         project={project}
-        deFiles={deFiles}
+        deFiles={activeFiles}
       />
     </div>
   );

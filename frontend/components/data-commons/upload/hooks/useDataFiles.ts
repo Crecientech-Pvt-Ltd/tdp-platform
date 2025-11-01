@@ -13,7 +13,8 @@ export interface UseDataFilesReturn {
   transcriptFile: FileSource | null;
   pcaFile: FileSource | null;
   sampleFile: FileSource | null;
-  deFiles: FileSource[];
+  deGeneFiles: FileSource[];
+  deTranscriptFiles: FileSource[];
   isUploadMode: boolean;
   loading: boolean;
 }
@@ -26,13 +27,15 @@ export const useDataFiles = (): UseDataFilesReturn => {
     transcriptFile: FileSource | null;
     pcaFile: FileSource | null;
     sampleFile: FileSource | null;
-    deFiles: FileSource[];
+    deGeneFiles: FileSource[];
+    deTranscriptFiles: FileSource[];
   }>({
     geneFile: null,
     transcriptFile: null,
     pcaFile: null,
     sampleFile: null,
-    deFiles: [],
+    deGeneFiles: [],
+    deTranscriptFiles: [],
   });
 
   const isUploadMode = searchParams?.get('uploadMode') === 'true';
@@ -45,16 +48,34 @@ export const useDataFiles = (): UseDataFilesReturn => {
   const transcriptFileName = searchParams?.get('transcriptFile');
   const pcaFileName = searchParams?.get('pcaFile');
   const sampleFileName = searchParams?.get('sampleFile');
-  const deFilesParam = searchParams?.get('deFiles');
+  const _deFilesParam = searchParams?.get('deFiles');
 
   const geneFileId = searchParams?.get('geneFileId');
   const transcriptFileId = searchParams?.get('transcriptFileId');
   const pcaFileId = searchParams?.get('pcaFileId');
   const sampleFileId = searchParams?.get('sampleFileId');
-  const deFileIds = useMemo(
+  const _deFileIds = useMemo(
     () =>
       searchParams
         ?.get('deFileIds')
+        ?.split(',')
+        .filter(id => id) || [],
+    [searchParams],
+  );
+
+  const deGeneFileIds = useMemo(
+    () =>
+      searchParams
+        ?.get('deGeneFileIds')
+        ?.split(',')
+        .filter(id => id) || [],
+    [searchParams],
+  );
+
+  const deTranscriptFileIds = useMemo(
+    () =>
+      searchParams
+        ?.get('deTranscriptFileIds')
         ?.split(',')
         .filter(id => id) || [],
     [searchParams],
@@ -85,7 +106,8 @@ export const useDataFiles = (): UseDataFilesReturn => {
     }
   };
 
-  const deFileIdsString = deFileIds.join(',');
+  const deGeneFileIdsString = deGeneFileIds.join(',');
+  const deTranscriptFileIdsString = deTranscriptFileIds.join(',');
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
@@ -93,23 +115,30 @@ export const useDataFiles = (): UseDataFilesReturn => {
       setLoading(true);
 
       if (isUploadMode) {
-        const [gene, transcript, pca, sample, ...deFilesResults] = await Promise.all([
+        const [gene, transcript, pca, sample, ...deGeneResults] = await Promise.all([
           loadUploadedFile(geneFileId || ''),
           loadUploadedFile(transcriptFileId || ''),
           loadUploadedFile(pcaFileId || ''),
           loadUploadedFile(sampleFileId || ''),
-          ...deFileIds.map(id => loadUploadedFile(id)),
+          ...deGeneFileIds.map(id => loadUploadedFile(id)),
         ]);
+
+        const deTranscriptResults = await Promise.all(deTranscriptFileIds.map(id => loadUploadedFile(id)));
 
         setFiles({
           geneFile: gene,
           transcriptFile: transcript,
           pcaFile: pca,
           sampleFile: sample,
-          deFiles: deFilesResults.filter((file): file is FileSource => file !== null),
+          deGeneFiles: deGeneResults.filter((file): file is FileSource => file !== null),
+          deTranscriptFiles: deTranscriptResults.filter((file): file is FileSource => file !== null),
         });
       } else {
-        const deFilesArray = deFilesParam?.split(',').filter(f => f) || [];
+        const deGeneFilesParam = searchParams?.get('deGeneFiles');
+        const deTranscriptFilesParam = searchParams?.get('deTranscriptFiles');
+
+        const deGeneFilesArray = deGeneFilesParam?.split(',').filter(f => f) || [];
+        const deTranscriptFilesArray = deTranscriptFilesParam?.split(',').filter(f => f) || [];
 
         setFiles({
           geneFile: geneFileName ? { url: getServerFileUrl(geneFileName), filename: geneFileName } : null,
@@ -118,7 +147,8 @@ export const useDataFiles = (): UseDataFilesReturn => {
             : null,
           pcaFile: pcaFileName ? { url: getServerFileUrl(pcaFileName), filename: pcaFileName } : null,
           sampleFile: sampleFileName ? { url: getServerFileUrl(sampleFileName), filename: sampleFileName } : null,
-          deFiles: deFilesArray.map(filename => ({ url: getServerFileUrl(filename), filename })),
+          deGeneFiles: deGeneFilesArray.map(filename => ({ url: getServerFileUrl(filename), filename })),
+          deTranscriptFiles: deTranscriptFilesArray.map(filename => ({ url: getServerFileUrl(filename), filename })),
         });
       }
       setLoading(false);
@@ -129,13 +159,12 @@ export const useDataFiles = (): UseDataFilesReturn => {
     transcriptFileId,
     pcaFileId,
     sampleFileId,
-    deFileIds,
-    deFileIdsString,
+    deGeneFileIdsString,
+    deTranscriptFileIdsString,
     geneFileName,
     transcriptFileName,
     pcaFileName,
     sampleFileName,
-    deFilesParam,
     getServerFileUrl,
     group,
     program,
@@ -143,9 +172,19 @@ export const useDataFiles = (): UseDataFilesReturn => {
     searchParams,
   ]);
 
+  const deGeneFiles = useMemo(() => {
+    return files.deGeneFiles;
+  }, [files]);
+
+  const deTranscriptFiles = useMemo(() => {
+    return files.deTranscriptFiles;
+  }, [files]);
+
   return {
     ...files,
     isUploadMode,
     loading,
+    deGeneFiles,
+    deTranscriptFiles,
   };
 };

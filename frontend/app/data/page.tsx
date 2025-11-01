@@ -51,12 +51,14 @@ function PDCSNetworkTabs() {
   const group = searchParams?.get('group');
   const program = searchParams?.get('program');
   const project = searchParams?.get('project');
-  const deFile = searchParams?.get('deFiles');
+  const deGeneFiles = searchParams?.get('deGeneFiles');
+  const deTranscriptFiles = searchParams?.get('deTranscriptFiles');
 
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
 
-  const deFilesArray = deFile?.split(',');
+  const deGeneFilesArray = deGeneFiles?.split(',').filter(Boolean);
+  const deTranscriptFilesArray = deTranscriptFiles?.split(',').filter(Boolean);
 
   const getFileUrl = (filename: string) =>
     `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
@@ -153,7 +155,8 @@ function PDCSNetworkTabs() {
       <TabsContent value='de' className='mt-0 h-full flex-1 p-6'>
         <div className='mt-4'>
           <DETab
-            deFilesArray={deFilesArray}
+            deGeneFilesArray={deGeneFilesArray}
+            deTranscriptFilesArray={deTranscriptFilesArray}
             getFileUrl={getFileUrl}
             group={group ?? ''}
             program={program ?? ''}

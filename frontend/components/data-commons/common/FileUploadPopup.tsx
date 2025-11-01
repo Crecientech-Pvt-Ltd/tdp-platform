@@ -26,8 +26,9 @@ interface FileSelections {
   gene: UploadedFile | null;
   transcript: UploadedFile | null;
   pca: UploadedFile | null;
-  differentialexpression: UploadedFile[];
   samplesheet: UploadedFile | null;
+  geneDiffExpFiles: UploadedFile[];
+  transcriptDiffExpFiles: UploadedFile[];
 }
 
 export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProps) {
@@ -39,8 +40,9 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     gene: null,
     transcript: null,
     pca: null,
-    differentialexpression: [],
     samplesheet: null,
+    geneDiffExpFiles: [],
+    transcriptDiffExpFiles: [],
   });
 
   const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -52,14 +54,16 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     gene: HTMLInputElement | null;
     transcript: HTMLInputElement | null;
     pca: HTMLInputElement | null;
-    differentialexpression: HTMLInputElement | null;
     samplesheet: HTMLInputElement | null;
+    geneDiffExp: HTMLInputElement | null;
+    transcriptDiffExp: HTMLInputElement | null;
   }>({
     gene: null,
     transcript: null,
     pca: null,
-    differentialexpression: null,
     samplesheet: null,
+    geneDiffExp: null,
+    transcriptDiffExp: null,
   });
 
   React.useEffect(() => {
@@ -68,8 +72,9 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         gene: null,
         transcript: null,
         pca: null,
-        differentialexpression: [],
         samplesheet: null,
+        geneDiffExpFiles: [],
+        transcriptDiffExpFiles: [],
       });
       setHasStartedUploading(false);
       Object.values(fileInputRefs.current).forEach(input => {
@@ -85,8 +90,9 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         gene: null,
         transcript: null,
         pca: null,
-        differentialexpression: [],
         samplesheet: null,
+        geneDiffExpFiles: [],
+        transcriptDiffExpFiles: [],
       });
       setHasStartedUploading(false);
       Object.values(fileInputRefs.current).forEach(input => {
@@ -106,7 +112,8 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
         await indexedDBManager.clearAll();
         setHasStartedUploading(true);
       }
-      if (type === 'differentialexpression') {
+
+      if (type === 'geneDiffExpFiles' || type === 'transcriptDiffExpFiles') {
         const uploadedFiles: UploadedFile[] = [];
 
         for (let i = 0; i < files.length; i++) {
@@ -123,7 +130,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
 
         setSelections(prev => ({
           ...prev,
-          differentialexpression: [...prev.differentialexpression, ...uploadedFiles],
+          [type]: [...prev[type], ...uploadedFiles],
         }));
       } else {
         const file = files[0];
@@ -155,13 +162,13 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
 
   const handleRemoveFile = async (type: keyof FileSelections, fileId?: string) => {
     try {
-      if (type === 'differentialexpression' && fileId) {
+      if ((type === 'geneDiffExpFiles' || type === 'transcriptDiffExpFiles') && fileId) {
         await indexedDBManager.deleteFile(fileId);
         setSelections(prev => ({
           ...prev,
-          differentialexpression: prev.differentialexpression.filter(f => f.id !== fileId),
+          [type]: (prev[type] as UploadedFile[]).filter(f => f.id !== fileId),
         }));
-      } else if (type !== 'differentialexpression') {
+      } else if (type !== 'geneDiffExpFiles' && type !== 'transcriptDiffExpFiles') {
         const file = selections[type] as UploadedFile | null;
         if (file) {
           await indexedDBManager.deleteFile(file.id);
@@ -170,8 +177,8 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
             [type]: null,
           }));
         }
-        if (fileInputRefs.current[type]) {
-          fileInputRefs.current[type]!.value = '';
+        if (fileInputRefs.current[type as 'gene' | 'transcript' | 'pca' | 'samplesheet']) {
+          fileInputRefs.current[type as 'gene' | 'transcript' | 'pca' | 'samplesheet']!.value = '';
         }
       }
     } catch (error) {
@@ -180,8 +187,8 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
   };
 
   const handlePreview = (type: keyof FileSelections, fileId?: string) => {
-    if (type === 'differentialexpression') {
-      const files = selections.differentialexpression;
+    if (type === 'geneDiffExpFiles' || type === 'transcriptDiffExpFiles') {
+      const files = selections[type] as UploadedFile[];
       if (!files.length) return;
       const fileIndex = fileId ? files.findIndex(f => f.id === fileId) : 0;
       setPreviewFileList(files);
@@ -202,7 +209,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     if (previewFileList.length > 1) {
       const nextIdx = (previewFileIndex + 1) % previewFileList.length;
       setPreviewFileIndex(nextIdx);
-      setPreviewFile({ file: previewFileList[nextIdx], type: previewFile?.type || 'differentialexpression' });
+      setPreviewFile({ file: previewFileList[nextIdx], type: previewFile?.type || 'geneDiffExpFiles' });
     }
   };
 
@@ -210,7 +217,7 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     if (previewFileList.length > 1) {
       const prevIdx = (previewFileIndex - 1 + previewFileList.length) % previewFileList.length;
       setPreviewFileIndex(prevIdx);
-      setPreviewFile({ file: previewFileList[prevIdx], type: previewFile?.type || 'differentialexpression' });
+      setPreviewFile({ file: previewFileList[prevIdx], type: previewFile?.type || 'geneDiffExpFiles' });
     }
   };
 
@@ -219,7 +226,8 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
       selections.gene ||
       selections.transcript ||
       selections.pca ||
-      selections.differentialexpression.length > 0 ||
+      selections.geneDiffExpFiles.length > 0 ||
+      selections.transcriptDiffExpFiles.length > 0 ||
       selections.samplesheet
     );
   };
@@ -236,103 +244,12 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     }, 600);
   };
 
-  const renderUploadRow = (_label: string, type: keyof FileSelections, displayType: string) => {
+  const renderUploadRow = (
+    _label: string,
+    type: 'gene' | 'transcript' | 'pca' | 'samplesheet',
+    displayType: string,
+  ) => {
     const isUploading = uploading === type;
-
-    if (type === 'differentialexpression') {
-      return (
-        <div className='border-b py-1.5 last:border-b-0'>
-          <div className='mb-1 flex items-center gap-2'>
-            <Label className='font-medium text-xs'>{displayType}</Label>
-            <span className='text-muted-foreground text-xs'>
-              ({selections.differentialexpression.length} files uploaded)
-            </span>
-            {selections.differentialexpression.length > 0 && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='size-4 p-0'
-                    onClick={() => handlePreview('differentialexpression')}
-                  >
-                    <EyeIcon className='size-3' />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Preview Files</TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-
-          <div className='space-y-1'>
-            <input
-              ref={el => {
-                fileInputRefs.current.differentialexpression = el;
-              }}
-              type='file'
-              multiple
-              accept='.csv,.tsv,.txt'
-              onChange={e => handleFileUpload('differentialexpression', e.target.files)}
-              className='hidden'
-              id={`upload-${type}`}
-            />
-
-            <div className='flex min-h-[35px] items-center rounded-md border-2 border-muted-foreground/25 border-dashed p-1.5'>
-              {selections.differentialexpression.length === 0 ? (
-                <label
-                  htmlFor={`upload-${type}`}
-                  className='flex w-full cursor-pointer items-center justify-center gap-1.5 transition-colors hover:text-muted-foreground'
-                >
-                  {isUploading ? (
-                    <>
-                      <Spinner className='size-3' />
-                      <span className='text-muted-foreground text-xs'>Uploading...</span>
-                    </>
-                  ) : (
-                    <>
-                      <UploadIcon className='size-3' />
-                      <span className='text-muted-foreground text-xs'>
-                        Click to upload multiple differential expression files
-                      </span>
-                    </>
-                  )}
-                </label>
-              ) : (
-                <div className='w-full space-y-1'>
-                  <label
-                    htmlFor={`upload-${type}`}
-                    className='flex cursor-pointer items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground'
-                  >
-                    <UploadIcon className='size-3' />
-                    Add more files
-                  </label>
-                  <div className='flex flex-wrap gap-1'>
-                    {selections.differentialexpression.map(file => (
-                      <div
-                        key={file.id}
-                        className='inline-flex items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 text-xs'
-                        title={file.filename}
-                      >
-                        <span>{file.filename}</span>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='size-3 p-0 hover:bg-destructive/20'
-                          onClick={() => handleRemoveFile('differentialexpression', file.id)}
-                        >
-                          <XIcon className='size-2' />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     const selectedFile = selections[type] as UploadedFile | null;
 
     return (
@@ -414,6 +331,98 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
     );
   };
 
+  const renderDiffExpUploadSection = (
+    label: string,
+    type: 'geneDiffExpFiles' | 'transcriptDiffExpFiles',
+    refKey: 'geneDiffExp' | 'transcriptDiffExp',
+  ) => {
+    const files = selections[type];
+    const isUploading = uploading === type;
+
+    return (
+      <div className='border-b py-1.5 last:border-b-0'>
+        <div className='mb-1 flex items-center gap-2'>
+          <Label className='font-medium text-xs'>{label}</Label>
+          <span className='text-muted-foreground text-xs'>({files.length} files uploaded)</span>
+          {files.length > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant='ghost' size='icon' className='size-4 p-0' onClick={() => handlePreview(type)}>
+                  <EyeIcon className='size-3' />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Preview Files</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+
+        <div className='space-y-1'>
+          <input
+            ref={el => {
+              fileInputRefs.current[refKey] = el;
+            }}
+            type='file'
+            multiple
+            accept='.csv,.tsv,.txt'
+            onChange={e => handleFileUpload(type, e.target.files)}
+            className='hidden'
+            id={`upload-${type}`}
+          />
+
+          <div className='flex min-h-[35px] items-center rounded-md border-2 border-muted-foreground/25 border-dashed p-1.5'>
+            {files.length === 0 ? (
+              <label
+                htmlFor={`upload-${type}`}
+                className='flex w-full cursor-pointer items-center justify-center gap-1.5 transition-colors hover:text-muted-foreground'
+              >
+                {isUploading ? (
+                  <>
+                    <Spinner className='size-3' />
+                    <span className='text-muted-foreground text-xs'>Uploading...</span>
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className='size-3' />
+                    <span className='text-muted-foreground text-xs'>Click to upload {label.toLowerCase()}</span>
+                  </>
+                )}
+              </label>
+            ) : (
+              <div className='w-full space-y-1'>
+                <label
+                  htmlFor={`upload-${type}`}
+                  className='flex cursor-pointer items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground'
+                >
+                  <UploadIcon className='size-3' />
+                  Add more files
+                </label>
+                <div className='flex flex-wrap gap-1'>
+                  {files.map(file => (
+                    <div
+                      key={file.id}
+                      className='inline-flex items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 text-xs'
+                      title={file.filename}
+                    >
+                      <span>{file.filename}</span>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='size-3 p-0 hover:bg-destructive/20'
+                        onClick={() => handleRemoveFile(type, file.id)}
+                      >
+                        <XIcon className='size-2' />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={isOpen}>
       <DialogContent className='flex max-h-[85vh] w-[95vw] max-w-3xl flex-col'>
@@ -425,10 +434,11 @@ export default function FileUploadPopup({ isOpen, onClose }: FileUploadPopupProp
             {renderUploadRow('Transcript File', 'transcript', 'Transcript File')}
             {renderUploadRow('Sample Sheet File', 'samplesheet', 'Sample Sheet File')}
             {renderUploadRow('PCA File', 'pca', 'PCA File')}
-            {renderUploadRow(
-              'Differential Expression Files',
-              'differentialexpression',
-              'Differential Expression Files',
+            {renderDiffExpUploadSection('Gene Differential Expression Files', 'geneDiffExpFiles', 'geneDiffExp')}
+            {renderDiffExpUploadSection(
+              'Transcript Differential Expression Files',
+              'transcriptDiffExpFiles',
+              'transcriptDiffExp',
             )}
           </div>
         </div>

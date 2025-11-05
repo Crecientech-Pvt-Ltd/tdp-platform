@@ -41,15 +41,25 @@ export const createUploadParams = (selections: {
   gene: { id: string } | null;
   transcript: { id: string } | null;
   pca: { id: string } | null;
-  differentialexpression: { id: string }[];
   samplesheet: { id: string } | null;
+  geneDiffExpFiles: { id: string }[];
+  transcriptDiffExpFiles: { id: string }[];
 }): URLSearchParams => {
-  return new URLSearchParams({
-    uploadMode: 'true',
-    geneFileId: selections.gene?.id || '',
-    transcriptFileId: selections.transcript?.id || '',
-    pcaFileId: selections.pca?.id || '',
-    deFileIds: selections.differentialexpression.map(f => f.id).join(','),
-    sampleFileId: selections.samplesheet?.id || '',
-  });
+  const params = new URLSearchParams();
+  params.set('uploadMode', 'true');
+
+  if (selections.gene) params.set('geneFileId', selections.gene.id);
+  if (selections.transcript) params.set('transcriptFileId', selections.transcript.id);
+  if (selections.pca) params.set('pcaFileId', selections.pca.id);
+  if (selections.samplesheet) params.set('sampleFileId', selections.samplesheet.id);
+
+  if (selections.geneDiffExpFiles.length > 0) {
+    params.set('deGeneFileIds', selections.geneDiffExpFiles.map(f => f.id).join(','));
+  }
+
+  if (selections.transcriptDiffExpFiles.length > 0) {
+    params.set('deTranscriptFileIds', selections.transcriptDiffExpFiles.map(f => f.id).join(','));
+  }
+
+  return params;
 };

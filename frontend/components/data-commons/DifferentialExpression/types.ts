@@ -20,7 +20,8 @@ export type ProcessedData = {
 };
 
 export interface VolcanoPlotProps {
-  deFiles?: Record<string, string>;
+  deGeneFilesContent?: Record<string, string>;
+  deTranscriptFilesContent?: Record<string, string>;
   group: string;
   program: string;
   project: string;

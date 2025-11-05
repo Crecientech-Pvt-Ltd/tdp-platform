@@ -114,28 +114,19 @@ export const getContrastCsvText = (contrast: string, deFiles: Record<string, str
  * Extract contrast names from file names
  */
 export const parseContrastNames = (deFiles: Record<string, string>): string[] => {
+  const diffExpRegex =
+    /^(?:.*)(?:(?:differential|diff)(?:[-_ ]?(?:expression|exp))?|(?:differential|de))(?:[-_ ]?)(.+?)\.(csv|tsv|xls|xlsx|txt)$/i;
+
   return Object.keys(deFiles).map(filename => {
-    const lowerCaseFileName = filename.toLowerCase();
+    const match = filename.match(diffExpRegex);
 
-    if (
-      lowerCaseFileName === 'differentialexpression.csv' ||
-      lowerCaseFileName === 'differentialexpression.tsv' ||
-      lowerCaseFileName === 'differentialexpression.txt'
-    ) {
-      return 'default';
+    if (match?.[1]) {
+      // Return the captured contrast name (group 1)
+      return match[1];
     }
 
-    let match = lowerCaseFileName.match(/^differentialexpression([-_\s]+)(.+)\.(csv|tsv|txt)$/);
-    if (match?.[2]) {
-      return match[2];
-    }
-
-    match = lowerCaseFileName.match(/^de([-_\s]+)(.+)\.(csv|tsv|txt)$/);
-    if (match?.[2]) {
-      return match[2];
-    }
-
-    return filename.replace(/\.(csv|tsv|txt)$/i, '');
+    // If no match, return 'default' or the filename without extension as fallback
+    return filename.replace(/\.(csv|tsv|xls|xlsx|txt)$/i, '');
   });
 };
 

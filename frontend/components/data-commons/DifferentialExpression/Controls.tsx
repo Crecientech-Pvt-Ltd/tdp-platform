@@ -1,5 +1,6 @@
 import { InfoIcon } from 'lucide-react';
 import type React from 'react';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multiselect';
@@ -14,8 +15,10 @@ interface VolcanoPlotControlsProps {
   thresholds: ThresholdControls;
   availableGenes: string[];
   selectedGenes: Set<string>;
-  onGenesChange: (genes: Set<string>) => void;
+  onGenesChange: (genes: string[]) => void;
   onShowSettings: () => void;
+  searchGenes?: string[];
+  selectedType: 'gene' | 'transcript';
 }
 
 export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
@@ -25,9 +28,10 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
   onContrastChange,
   thresholds,
   availableGenes,
-  selectedGenes,
   onGenesChange,
   onShowSettings,
+  searchGenes = [],
+  selectedType,
 }) => {
   const multiSelectOptions = availableContrasts
     .filter(c => c !== 'default')
@@ -35,6 +39,14 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
       label: contrast.toUpperCase(),
       value: contrast,
     }));
+
+  const geneSet = useMemo(() => new Set(searchGenes), [searchGenes]);
+
+  const handleGeneChange = (newValue: string | Set<string>) => {
+    if (newValue instanceof Set) {
+      onGenesChange(Array.from(newValue));
+    }
+  };
 
   return (
     <div className='mb-1'>
@@ -81,19 +93,22 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
 
           {availableGenes.length > 0 && (
             <div className='flex min-w-0 items-center gap-1 sm:flex-1 sm:gap-2 lg:max-w-lg'>
-              <Label className='shrink-0 whitespace-nowrap font-medium text-gray-700 text-xs'>Genes:</Label>
+              <Label className='shrink-0 whitespace-nowrap font-medium text-gray-700 text-xs'>
+                {selectedType === 'gene' ? 'Genes' : 'Transcripts'}
+              </Label>
               <div className='relative z-10 min-w-0 flex-1'>
                 <VirtualizedCombobox
                   data={availableGenes}
-                  value={selectedGenes}
-                  onChange={value => onGenesChange(value as Set<string>)}
-                  placeholder='Search...'
+                  value={geneSet}
+                  onChange={handleGeneChange}
                   multiselect={true}
-                  showSelectedAsChip={true}
+                  showSelectedAsChip={geneSet.size <= 10}
                   showSelectAll={false}
                   showClearAll={true}
-                  className='w-full text-xs'
+                  placeholder={selectedType === 'gene' ? 'Search genes...' : 'Search transcripts...'}
                   width='100%'
+                  className='w-full text-xs'
+                  align='start'
                 />
               </div>
             </div>

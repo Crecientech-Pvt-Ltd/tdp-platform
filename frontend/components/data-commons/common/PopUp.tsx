@@ -65,15 +65,25 @@ export default function FileSelectionPopup({
     gene: '',
     transcript: '',
     pca: '',
-    differentialexpression: [] as string[],
     samplesheet: '',
+    geneDiffExpFiles: [] as string[],
+    transcriptDiffExpFiles: [] as string[],
+  });
+
+  const [originalSelections, setOriginalSelections] = React.useState({
+    gene: '',
+    transcript: '',
+    pca: '',
+    samplesheet: '',
+    geneDiffExpFiles: [] as string[],
+    transcriptDiffExpFiles: [] as string[],
   });
 
   const [previewState, setPreviewState] = React.useState({
     open: false,
     file: null as {
       filename: string;
-      type: 'gene' | 'transcript' | 'pca' | 'differentialexpression' | 'samplesheet';
+      type: 'gene' | 'transcript' | 'pca' | 'geneDiffExp' | 'transcriptDiffExp' | 'samplesheet';
     } | null,
     fileList: [] as string[],
     fileIndex: 0,
@@ -116,14 +126,18 @@ export default function FileSelectionPopup({
 
         if (isCancelled) return;
 
-        setAllFiles(json.allFiles || []);
-        setSelections({
+        const initializedData = {
           gene: json.initializedFiles?.gene || '',
           transcript: json.initializedFiles?.transcript || '',
           pca: json.initializedFiles?.pca || '',
           samplesheet: json.initializedFiles?.samplesheet || '',
-          differentialexpression: json.initializedFiles?.differentialexpression || [],
-        });
+          geneDiffExpFiles: json.initializedFiles?.geneDiffExpFiles || [],
+          transcriptDiffExpFiles: json.initializedFiles?.transcriptDiffExpFiles || [],
+        };
+
+        setAllFiles(json.allFiles || []);
+        setSelections(initializedData);
+        setOriginalSelections(initializedData);
 
         setLoading(false);
       } catch (error) {
@@ -139,7 +153,10 @@ export default function FileSelectionPopup({
   }, [isOpen, selectedGroup, selectedProgram, selectedProject]);
 
   const handleChange = React.useCallback(
-    (type: 'gene' | 'transcript' | 'pca' | 'differentialexpression' | 'samplesheet', value: string | string[]) => {
+    (
+      type: 'gene' | 'transcript' | 'pca' | 'geneDiffExpFiles' | 'transcriptDiffExpFiles' | 'samplesheet',
+      value: string | string[],
+    ) => {
       setSelections(prev => ({
         ...prev,
         [type]: value === '__none__' ? '' : value,
@@ -150,9 +167,11 @@ export default function FileSelectionPopup({
 
   const handleCloseButton = React.useCallback(() => {
     if (showDownloadCheckboxes) setShowDownloadCheckboxes(false);
-    else if (isEditing) setIsEditing(false);
-    else onClose();
-  }, [showDownloadCheckboxes, isEditing, onClose]);
+    else if (isEditing) {
+      setSelections(originalSelections);
+      setIsEditing(false);
+    } else onClose();
+  }, [showDownloadCheckboxes, isEditing, originalSelections, onClose]);
 
   const confirmProceed = React.useCallback(() => {
     setLoadingProceed(true);
@@ -164,7 +183,8 @@ export default function FileSelectionPopup({
       geneFile: selections.gene,
       transcriptFile: selections.transcript,
       pcaFile: selections.pca,
-      deFiles: selections.differentialexpression.join(','),
+      deGeneFiles: selections.geneDiffExpFiles.join(','),
+      deTranscriptFiles: selections.transcriptDiffExpFiles.join(','),
       sampleFile: selections.samplesheet,
     });
 
@@ -193,13 +213,15 @@ export default function FileSelectionPopup({
       transcript: string[];
       pca: string[];
       samplesheet: string[];
-      differentialexpression: string[];
+      geneDiffExp: string[];
+      transcriptDiffExp: string[];
     } = {
       gene: [],
       transcript: [],
       pca: [],
       samplesheet: [],
-      differentialexpression: [],
+      geneDiffExp: [],
+      transcriptDiffExp: [],
     };
 
     if (downloadSelections.has('gene') && selections.gene) {
@@ -214,8 +236,11 @@ export default function FileSelectionPopup({
     if (downloadSelections.has('samplesheet') && selections.samplesheet) {
       files.samplesheet.push(selections.samplesheet);
     }
-    if (downloadSelections.has('differentialexpression')) {
-      files.differentialexpression.push(...selections.differentialexpression);
+    if (downloadSelections.has('geneDiffExp')) {
+      files.geneDiffExp.push(...selections.geneDiffExpFiles);
+    }
+    if (downloadSelections.has('transcriptDiffExp')) {
+      files.transcriptDiffExp.push(...selections.transcriptDiffExpFiles);
     }
 
     return files;
@@ -228,7 +253,8 @@ export default function FileSelectionPopup({
     if (selections.transcript) initialSelections.add('transcript');
     if (selections.pca) initialSelections.add('pca');
     if (selections.samplesheet) initialSelections.add('samplesheet');
-    if (selections.differentialexpression.length > 0) initialSelections.add('differentialexpression');
+    if (selections.geneDiffExpFiles.length > 0) initialSelections.add('geneDiffExp');
+    if (selections.transcriptDiffExpFiles.length > 0) initialSelections.add('transcriptDiffExp');
 
     return initialSelections;
   }, [selections]);
@@ -254,11 +280,13 @@ export default function FileSelectionPopup({
       if (allFiles.length === 1) {
         const file = allFiles[0];
         const fileUrl =
-          file.type === 'differentialexpression' ? getDeFileUrl(file.filename) : getFileUrl(file.filename);
+          file.type === 'geneDiffExp' || file.type === 'transcriptDiffExp'
+            ? getDeFileUrl(file.filename)
+            : getFileUrl(file.filename);
         const response = await fetch(fileUrl);
 
         let blob: Blob;
-        if (file.type === 'differentialexpression') {
+        if (file.type === 'geneDiffExp' || file.type === 'transcriptDiffExp') {
           const text = await response.text();
           const colonIndex = text.indexOf(':');
           if (colonIndex !== -1) {
@@ -284,10 +312,12 @@ export default function FileSelectionPopup({
 
         for (const file of allFiles) {
           const fileUrl =
-            file.type === 'differentialexpression' ? getDeFileUrl(file.filename) : getFileUrl(file.filename);
+            file.type === 'geneDiffExp' || file.type === 'transcriptDiffExp'
+              ? getDeFileUrl(file.filename)
+              : getFileUrl(file.filename);
           const response = await fetch(fileUrl);
 
-          if (file.type === 'differentialexpression') {
+          if (file.type === 'geneDiffExp' || file.type === 'transcriptDiffExp') {
             const text = await response.text();
             const colonIndex = text.indexOf(':');
             const fileData = colonIndex !== -1 ? text.substring(colonIndex + 1).trim() : text;
@@ -322,9 +352,18 @@ export default function FileSelectionPopup({
   }, [getFilesToDownload, getDeFileUrl, getFileUrl, selectedProject]);
 
   const handlePreview = React.useCallback(
-    (type: 'gene' | 'transcript' | 'pca' | 'differentialexpression' | 'samplesheet', filename?: string) => {
-      if (type === 'differentialexpression') {
-        const files = selections.differentialexpression;
+    (type: 'gene' | 'transcript' | 'pca' | 'geneDiffExp' | 'transcriptDiffExp' | 'samplesheet', filename?: string) => {
+      if (type === 'geneDiffExp') {
+        const files = selections.geneDiffExpFiles;
+        if (!files.length) return;
+        setPreviewState({
+          open: true,
+          file: { filename: filename || files[0], type },
+          fileList: files,
+          fileIndex: filename ? files.indexOf(filename) : 0,
+        });
+      } else if (type === 'transcriptDiffExp') {
+        const files = selections.transcriptDiffExpFiles;
         if (!files.length) return;
         setPreviewState({
           open: true,
@@ -352,7 +391,7 @@ export default function FileSelectionPopup({
       setPreviewState(prev => ({
         ...prev,
         fileIndex: nextIdx,
-        file: { filename: prev.fileList[nextIdx], type: prev.file?.type || 'differentialexpression' },
+        file: { filename: prev.fileList[nextIdx], type: prev.file?.type || 'geneDiffExp' },
       }));
     }
   }, [previewState.fileList, previewState.fileIndex]);
@@ -363,127 +402,12 @@ export default function FileSelectionPopup({
       setPreviewState(prev => ({
         ...prev,
         fileIndex: prevIdx,
-        file: { filename: prev.fileList[prevIdx], type: prev.file?.type || 'differentialexpression' },
+        file: { filename: prev.fileList[prevIdx], type: prev.file?.type || 'geneDiffExp' },
       }));
     }
   }, [previewState.fileList, previewState.fileIndex]);
 
-  const renderRow = (
-    _label: string,
-    type: 'gene' | 'transcript' | 'pca' | 'differentialexpression' | 'samplesheet',
-    displayType: string,
-  ) => {
-    if (type === 'differentialexpression') {
-      return (
-        <div className='flex items-start gap-4 border-b py-3 last:border-b-0'>
-          {showDownloadCheckboxes && (
-            <Checkbox
-              checked={downloadSelections.has(type)}
-              onCheckedChange={() => toggleDownloadSelection(type)}
-              className='mt-1'
-            />
-          )}
-          <div className='flex-1 overflow-x-hidden'>
-            {isEditing ? (
-              <div className='space-y-3'>
-                <div className='flex items-center gap-2'>
-                  <Label className='font-medium text-sm'>{displayType}</Label>
-                  <span className='text-muted-foreground text-sm'>
-                    {' '}
-                    <strong>
-                      {loading
-                        ? 'Loading...'
-                        : selections.differentialexpression.length > 0
-                          ? `${selections.differentialexpression.length} files`
-                          : 'None'}
-                    </strong>
-                  </span>
-                  {selections.differentialexpression.length > 0 && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='size-6 p-0'
-                          onClick={() => handlePreview('differentialexpression')}
-                        >
-                          <EyeIcon className='size-4' />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Preview File</TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-                {!loading && selections.differentialexpression.length > 0 && (
-                  <FlexibleLabelList
-                    labels={selections.differentialexpression.map(
-                      (file, index) => `${index + 1}. ${truncateFilename(file, 60)}`,
-                    )}
-                    bgColor='bg-white'
-                    rowsToShow={selections.differentialexpression.length}
-                  />
-                )}
-                {loading ? (
-                  <div className='flex items-center justify-center rounded-md border bg-muted/50 py-4'>
-                    <Spinner className='mr-2 size-4' />
-                    <span className='text-muted-foreground text-sm'>Loading files...</span>
-                  </div>
-                ) : (
-                  <MultiSelect
-                    options={allFiles.map(file => ({
-                      label: file,
-                      value: file,
-                    }))}
-                    selectedValues={selections.differentialexpression}
-                    onChange={v => handleChange('differentialexpression', v)}
-                    placeholder='Select Differential Expression files'
-                    className='w-full'
-                  />
-                )}
-              </div>
-            ) : (
-              <>
-                <div className='mb-2 flex items-center gap-2'>
-                  <Label className='font-medium text-sm'>{displayType}</Label>
-                  <span className='text-muted-foreground text-sm'>
-                    ({selections.differentialexpression.length} files selected)
-                  </span>
-                  {selections.differentialexpression.length > 0 && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='size-6 p-0'
-                          onClick={() => handlePreview('differentialexpression')}
-                        >
-                          <EyeIcon className='size-4' />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Preview File</TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-                <div className='max-h-32 overflow-y-auto rounded-md bg-muted/50 p-2'>
-                  {selections.differentialexpression.length === 0 ? (
-                    <span className='text-muted-foreground text-sm'>No files selected</span>
-                  ) : (
-                    <div className='space-y-1'>
-                      {selections.differentialexpression.map((file, index) => (
-                        <div key={file} className='text-sm' title={file}>
-                          {index + 1}. {truncateFilename(file, 60)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      );
-    }
-
+  const renderRow = (_label: string, type: 'gene' | 'transcript' | 'pca' | 'samplesheet', displayType: string) => {
     const selectedFile = selections[type];
 
     return (
@@ -548,6 +472,114 @@ export default function FileSelectionPopup({
     );
   };
 
+  const renderDiffExpSection = (
+    label: string,
+    type: 'geneDiffExpFiles' | 'transcriptDiffExpFiles',
+    previewType: 'geneDiffExp' | 'transcriptDiffExp',
+    downloadType: 'geneDiffExp' | 'transcriptDiffExp',
+  ) => {
+    const files = selections[type];
+
+    return (
+      <div className='flex items-start gap-4 border-b py-3 last:border-b-0'>
+        {showDownloadCheckboxes && (
+          <Checkbox
+            checked={downloadSelections.has(downloadType)}
+            onCheckedChange={() => toggleDownloadSelection(downloadType)}
+            disabled={files.length === 0}
+            className='mt-1'
+          />
+        )}
+        <div className='flex-1 overflow-x-hidden'>
+          {isEditing ? (
+            <div className='space-y-3'>
+              <div className='flex items-center gap-2'>
+                <Label className='font-medium text-sm'>{label}</Label>
+                <span className='text-muted-foreground text-sm'>
+                  <strong>{loading ? 'Loading...' : files.length > 0 ? `${files.length} files` : 'None'}</strong>
+                </span>
+                {files.length > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='size-6 p-0'
+                        onClick={() => handlePreview(previewType)}
+                      >
+                        <EyeIcon className='size-4' />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Preview File</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+              {!loading && files.length > 0 && (
+                <FlexibleLabelList
+                  labels={files.map((file, index) => `${index + 1}. ${truncateFilename(file, 60)}`)}
+                  bgColor='bg-white'
+                  rowsToShow={files.length}
+                />
+              )}
+              {loading ? (
+                <div className='flex items-center justify-center rounded-md border bg-muted/50 py-4'>
+                  <Spinner className='mr-2 size-4' />
+                  <span className='text-muted-foreground text-sm'>Loading files...</span>
+                </div>
+              ) : (
+                <MultiSelect
+                  options={allFiles.map(file => ({
+                    label: file,
+                    value: file,
+                  }))}
+                  selectedValues={files}
+                  onChange={v => handleChange(type, v)}
+                  placeholder={`Select ${label}`}
+                  className='w-full'
+                />
+              )}
+            </div>
+          ) : (
+            <>
+              <div className='mb-2 flex items-center gap-2'>
+                <Label className='font-medium text-sm'>{label}</Label>
+                <span className='text-muted-foreground text-sm'>({files.length} files)</span>
+                {files.length > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='size-6 p-0'
+                        onClick={() => handlePreview(previewType)}
+                      >
+                        <EyeIcon className='size-4' />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Preview File</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+              <div className='max-h-32 overflow-y-auto rounded-md bg-muted/50 p-2'>
+                {files.length === 0 ? (
+                  <span className='text-muted-foreground text-sm'>No files found</span>
+                ) : (
+                  <div className='space-y-1'>
+                    {files.map((file, index) => (
+                      <div key={file} className='text-sm' title={file}>
+                        {index + 1}. {truncateFilename(file, 60)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={isOpen}>
       <DialogContent className='flex max-h-[85vh] w-[95vw] max-w-3xl flex-col'>
@@ -569,7 +601,18 @@ export default function FileSelectionPopup({
               {renderRow('Transcript File', 'transcript', 'Transcript File')}
               {renderRow('Sample Sheet File', 'samplesheet', 'Sample Sheet File')}
               {renderRow('PCA File', 'pca', 'PCA File')}
-              {renderRow('Differential Expression Files', 'differentialexpression', 'Differential Expression Files')}
+              {renderDiffExpSection(
+                'Gene Differential Expression Files',
+                'geneDiffExpFiles',
+                'geneDiffExp',
+                'geneDiffExp',
+              )}
+              {renderDiffExpSection(
+                'Transcript Differential Expression Files',
+                'transcriptDiffExpFiles',
+                'transcriptDiffExp',
+                'transcriptDiffExp',
+              )}
             </div>
           )}
         </div>
@@ -626,7 +669,10 @@ export default function FileSelectionPopup({
               </>
             ) : (
               <Button
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setOriginalSelections(selections);
+                  setIsEditing(false);
+                }}
                 disabled={!canProceed}
                 className='bg-primary text-white hover:bg-primary/90'
               >

@@ -152,7 +152,7 @@ function PDCSNetworkTabs() {
         </div>
       </TabsContent>
 
-      <TabsContent value='de' className='mt-0 h-full flex-1 p-6'>
+      <TabsContent value='de' className='mt-0 h-full flex-1 p-6 pt-0'>
         <div className='mt-4'>
           <DETab
             deGeneFilesArray={deGeneFilesArray}

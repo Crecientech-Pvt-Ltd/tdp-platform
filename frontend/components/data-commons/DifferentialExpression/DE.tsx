@@ -342,7 +342,7 @@ export default function xVolcanoPlot({
   return (
     <div className='resizable-panel-container mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
       {hasGene && hasTranscript && (
-        <div className='mb-6 flex justify-center'>
+        <div className='mb-6 flex justify-center lg:mb-3'>
           <div className='flex min-w-fit items-center gap-3'>
             <Label htmlFor={typeToggleId} className='whitespace-nowrap font-medium text-sm'>
               Gene Differential Expression
@@ -373,22 +373,22 @@ export default function xVolcanoPlot({
         selectedType={selectedType}
       />
 
-      <div className='w-full' style={{ maxHeight: `${viewportHeight * 0.9}px` }}>
+      <div className='w-full' style={{ maxHeight: `${viewportHeight * 0.85}px` }}>
         {debouncedContrasts.length > 0 && (
           <div className='h-full space-y-2'>
             {debouncedContrasts.length === 1 ? (
-              <div className='w-full' style={{ height: `${viewportHeight * 0.8 - 16}px` }}>
+              <div className='w-full' style={{ height: `${viewportHeight * 0.7 - 16}px` }}>
                 <h3
                   className='mb-2 line-clamp-2 px-2 text-center font-semibold text-lg leading-tight'
                   title={
                     debouncedContrasts[0] === 'default'
-                      ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
-                      : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${debouncedContrasts[0].toUpperCase()}`
+                      ? `Differential Expression`
+                      : `${debouncedContrasts[0].toUpperCase()}`
                   }
                 >
                   {debouncedContrasts[0] === 'default'
-                    ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
-                    : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${debouncedContrasts[0].toUpperCase()}`}
+                    ? `Differential Expression`
+                    : `${debouncedContrasts[0].toUpperCase()}`}
                 </h3>
                 <div className='h-[calc(100%-4rem)] w-full'>{renderPlot(debouncedContrasts[0])}</div>
               </div>
@@ -403,24 +403,18 @@ export default function xVolcanoPlot({
                     style={{
                       height:
                         debouncedContrasts.length >= 3
-                          ? `${viewportHeight * 0.4 - 16}px`
+                          ? `${viewportHeight * 0.38 - 16}px`
                           : debouncedContrasts.length === 2
-                            ? `${viewportHeight * 0.75 - 32}px`
-                            : `${viewportHeight * 0.8 - 48}px`,
+                            ? `${viewportHeight * 0.65 - 32}px`
+                            : `${viewportHeight * 0.7 - 48}px`,
                     }}
                   >
                     <div className='flex h-full flex-col'>
                       <h3
-                        className={`line-clamp-2 px-2 text-center font-semibold leading-tight ${debouncedContrasts.length >= 3 ? 'mb-1 h-10 text-xs' : 'mb-2 h-12 text-sm'}`}
-                        title={
-                          contrast === 'default'
-                            ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
-                            : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${contrast.toUpperCase()}`
-                        }
+                        className={`line-clamp-2 px-2 text-center font-semibold leading-tight ${debouncedContrasts.length >= 3 ? 'mb-1 h-10 text-base' : 'mb-2 h-12 text-base'}`}
+                        title={contrast === 'default' ? `Differential Expression` : `${contrast.toUpperCase()}`}
                       >
-                        {contrast === 'default'
-                          ? `${selectedType === 'gene' ? 'Gene' : 'Transcript'} Differential Expression`
-                          : `${selectedType === 'gene' ? 'Gene' : 'Transcript'} - ${contrast.toUpperCase()}`}
+                        {contrast === 'default' ? `Differential Expression` : `${contrast.toUpperCase()}`}
                       </h3>
                       <div className='w-full flex-1'>{renderPlot(contrast)}</div>
                     </div>

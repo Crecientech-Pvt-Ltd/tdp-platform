@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { createRef, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@/lib/hooks';
 import { Events, eventEmitter } from '@/lib/utils';
 import { Textarea } from '../ui/textarea';
@@ -10,7 +10,9 @@ export function GeneSearch() {
   const nodeSearchQuery = useStore(state => state.nodeSearchQuery);
   const suggestions = useStore(state => state.nodeSuggestions);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const textareaRef = createRef<HTMLTextAreaElement>();
+  const [cursorPosition, setCursorPosition] = useState({ top: 0, left: 0 });
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const measureSpanRef = useRef<HTMLSpanElement | null>(null);
   const { geneIDs } = useStore(state => state.graphConfig) ?? { geneIDs: [] };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -23,33 +25,81 @@ export function GeneSearch() {
     } else if (e.key === 'Enter' && selectedIndex >= 0) {
       e.preventDefault();
       appendSuggestion(suggestions[selectedIndex]);
+    } else if (e.key === 'Tab' && suggestions.length > 0) {
+      e.preventDefault();
+      appendSuggestion(suggestions[0]);
     }
   };
 
   const appendSuggestion = (suggestion: string) => {
-    const words = nodeSearchQuery.split(/[\n,]/);
+    const words = nodeSearchQuery.split(/[\n,]/).filter(w => w.trim().length > 0);
     words.pop();
     words.push(suggestion);
-    useStore.setState({ nodeSearchQuery: `${words.join(', ')}, ` });
-    useStore.setState({ nodeSuggestions: [] });
+
+    useStore.setState({
+      nodeSearchQuery: `${words.join(', ')}, `,
+      nodeSuggestions: [],
+    });
     textareaRef.current?.focus();
     setSelectedIndex(-1);
   };
 
+  const updateCursorPosition = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const computedStyle = window.getComputedStyle(textarea);
+
+    // Create reusable span once
+    if (!measureSpanRef.current) {
+      const span = document.createElement('span');
+      span.style.visibility = 'hidden';
+      span.style.position = 'absolute';
+      span.style.whiteSpace = 'pre';
+      span.style.pointerEvents = 'none';
+      document.body.appendChild(span);
+      measureSpanRef.current = span;
+      span.style.font = computedStyle.font;
+      span.style.fontSize = computedStyle.fontSize;
+      span.style.fontFamily = computedStyle.fontFamily;
+      span.style.fontWeight = computedStyle.fontWeight;
+      span.style.letterSpacing = computedStyle.letterSpacing;
+    }
+    const span = measureSpanRef.current;
+
+    // Calculate position
+    const lineHeight = Number.parseFloat(computedStyle.lineHeight);
+    const paddingTop = Number.parseFloat(computedStyle.paddingTop);
+    const paddingLeft = Number.parseFloat(computedStyle.paddingLeft);
+
+    const textBeforeCursor = nodeSearchQuery.substring(0, textarea.selectionStart);
+    const lines = textBeforeCursor.split('\n');
+    const currentLine = lines.length - 1;
+
+    // Measure text width
+    span.textContent = lines[lines.length - 1];
+    const textWidth = span.getBoundingClientRect().width;
+
+    setCursorPosition({
+      top: paddingTop + currentLine * lineHeight - textarea.scrollTop,
+      left: paddingLeft + textWidth,
+    });
+  };
+
   useEffect(() => {
-    let previousGenes = ''; // ✅ Local variable to track previous genes
+    let previousGenes = '';
     const handleSeedGenesToggle = (enabled: boolean) => {
       useStore.setState(state => {
         if (enabled) {
-          previousGenes = state.nodeSearchQuery; // ✅ Store existing input before updating
+          previousGenes = state.nodeSearchQuery;
           return {
             ...state,
-            nodeSearchQuery: state.nodeSearchQuery || geneIDs.join('\n'), // ✅ Show existing or default genes
+            nodeSearchQuery: state.nodeSearchQuery || geneIDs.join('\n'),
           };
         }
         return {
           ...state,
-          nodeSearchQuery: previousGenes, // ✅ Restore previous input
+          nodeSearchQuery: previousGenes,
         };
       });
     };
@@ -57,7 +107,7 @@ export function GeneSearch() {
     return () => {
       eventEmitter.off(Events.TOGGLE_SEED_GENES, handleSeedGenesToggle);
     };
-  }, [geneIDs]); // ✅ Dependency ensures latest values
+  }, [geneIDs]);
 
   useEffect(() => {
     if (!nodeSearchQuery || nodeSearchQuery.split(/[\n,]/).pop()?.trim().length === 0) {
@@ -65,32 +115,50 @@ export function GeneSearch() {
     }
   }, [nodeSearchQuery]);
 
+  // Cleanup: Remove measure span on unmount
+  useEffect(() => {
+    return () => {
+      if (measureSpanRef.current) {
+        document.body.removeChild(measureSpanRef.current);
+        measureSpanRef.current = null;
+      }
+    };
+  }, []);
+
   return (
-    <div>
-      <div className='relative w-full'>
-        {suggestions.length > 0 && (
-          <ul className='absolute z-10 mt-0.5 max-h-32 w-full overflow-auto rounded-md border border-gray-300 bg-white text-xs shadow-sm'>
-            {suggestions.map((suggestion, index) => (
-              // biome-ignore lint/a11y/useKeyWithClickEvents: Not possible to use key events with click events
-              <li
-                key={suggestion}
-                className={`cursor-pointer px-2 py-1 hover:bg-gray-100 ${index === selectedIndex ? 'bg-gray-100' : ''}`}
-                onClick={() => appendSuggestion(suggestion)}
-              >
-                {suggestion}
-              </li>
-            ))}
-          </ul>
-        )}
-        <Textarea
-          ref={textareaRef}
-          placeholder='Search Genes...'
-          className='min-h-20 bg-white text-xs'
-          value={nodeSearchQuery}
-          onChange={e => useStore.setState({ nodeSearchQuery: e.target.value })}
-          onKeyDown={handleKeyDown}
-        />
-      </div>
+    <div className='relative w-full'>
+      <Textarea
+        ref={textareaRef}
+        placeholder='Search Genes...'
+        className='min-h-20 bg-white text-xs'
+        value={nodeSearchQuery}
+        onChange={e => {
+          useStore.setState({ nodeSearchQuery: e.target.value });
+          updateCursorPosition();
+        }}
+        onKeyDown={handleKeyDown}
+        onClick={updateCursorPosition}
+      />
+      {suggestions.length > 0 && (
+        <ul
+          className='absolute z-50 max-h-32 w-48 overflow-auto rounded-md border border-gray-300 bg-white text-xs shadow-lg'
+          style={{
+            top: `${cursorPosition.top + 20}px`,
+            left: `${cursorPosition.left}px`,
+          }}
+        >
+          {suggestions.map((suggestion, index) => (
+            // biome-ignore lint/a11y/useKeyWithClickEvents: Not possible to use key events with click events
+            <li
+              key={suggestion}
+              className={`cursor-pointer px-2 py-1 hover:bg-gray-100 ${index === selectedIndex ? 'bg-gray-100' : ''}`}
+              onClick={() => appendSuggestion(suggestion)}
+            >
+              {suggestion}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

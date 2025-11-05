@@ -23,6 +23,5 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
     </CheckboxPrimitive.Root>
   );
 }
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 
 export { Checkbox };

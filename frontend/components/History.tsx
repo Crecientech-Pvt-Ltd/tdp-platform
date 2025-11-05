@@ -102,13 +102,13 @@ export default function History({
         <ScrollArea className='h-full'>
           <div className='flex flex-col space-y-4 pr-2'>
             {history.map((item, index) => (
-              <Card key={`${item.title}-${item.createdAt ?? index}`}>
+              <Card key={`${item.title}-${item.createdAt ?? index}`} className='gap-0 py-0'>
                 <CardHeader className='p-2'>
                   <CardTitle>
                     <Input
                       type='text'
                       name='title'
-                      className='h-fit w-fit border-none bg-transparent p-1 underline shadow-none'
+                      className='h-fit w-full border-none bg-transparent p-1 underline shadow-none'
                       defaultValue={item.title}
                       onBlur={e => {
                         const newHistory = history.map(historyItem =>

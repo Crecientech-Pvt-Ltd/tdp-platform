@@ -18,10 +18,14 @@ export default function Navbar() {
           {/* Left: Logo + Title */}
           <div className='flex min-w-0 items-center gap-3'>
             <Link href='/' className='flex min-w-0 items-center gap-2'>
-              <Image src={logo} alt='TDP logo' className='w-12 sm:w-14' />
-              <h1 className='wrap-break-word font-semibold text-base leading-tight tracking-tight sm:text-lg md:text-2xl lg:text-4xl'>
+              <Image src={logo} alt='TDP logo' className='w-12 shrink-0 sm:w-14' />
+              <h1 className='wrap-break-word font-semibold text-[clamp(1rem,2vw+0.5rem,2.25rem)] leading-tight tracking-tight'>
                 Target Discovery Platform (TDP)
               </h1>
+            </Link>
+            {/* Version link (hide on very small screens to give title room) */}
+            <Link href='/docs/CHANGELOG' className='self-end font-semibold text-xs'>
+              Version: {version ?? 'unknown'}
             </Link>
           </div>
 
@@ -40,11 +44,6 @@ export default function Navbar() {
                 </Link>
               ))}
             </nav>
-
-            {/* Version link (hide on very small screens to give title room) */}
-            <Link href='/docs/CHANGELOG' className='self-end font-semibold text-xs'>
-              Version: {version ?? 'unknown'}
-            </Link>
 
             {/* Mobile dropdown menu */}
             <DropdownMenu>

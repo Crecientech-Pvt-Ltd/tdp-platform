@@ -105,4 +105,3 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
     );
   },
 );
-MultiSelect.displayName = 'MultiSelect';

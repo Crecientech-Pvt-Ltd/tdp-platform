@@ -15,7 +15,7 @@ export const FileName = () => {
 
   return (
     <Input
-      className='max-w-fit font-semibold text-sm'
+      className='max-w-fit font-semibold text-gray-200 text-sm'
       value={projectTitle}
       onChange={e => useStore.setState({ projectTitle: e.target.value })}
     />

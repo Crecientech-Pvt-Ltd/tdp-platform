@@ -81,8 +81,8 @@ export default function AboutPage() {
           </Button>
         </Link>
       </div>
-      <Card className='grid border md:grid-cols-2'>
-        <div>
+      <Card className='grid border py-0 md:grid-cols-2'>
+        <div className='py-6'>
           <CardHeader>
             <CardTitle className='text-lg'>Please Share Your Feedback</CardTitle>
             <CardDescription>

@@ -34,7 +34,7 @@ Here, we use `app` router for building the tool, while `pages` router for buildi
 
 ## Disclaimer
 
-While building this project in Dockerized form or publishing the website in production, I encourage you to upload videos (as maintaining it in `git lfs` is going to cost it), please keep all the related videos in [this folder](/public/video/). All the videos are currently uploaded in this [gdrive folder](https://drive.google.com/drive/folders/1LvPTY8Z559shYoWTaSOHFuWOFKGG8QHv), you can download them from there and upload them in the above-mentioned folder.
+While building this project in Dockerized form or publishing the website in production, I encourage you to upload videos (as maintaining it in `git lfs` is going to cost it), please keep all the related videos in [this folder](/public/video/). All the videos are currently uploaded in this [gdrive folder](https://drive.google.com/drive/folders/1aVUMw0OFTuUI_H78pf2OkRefmbT6PNe6?usp=sharing), you can download them from there and upload them in the above-mentioned folder.
 
 ## Learn More
 

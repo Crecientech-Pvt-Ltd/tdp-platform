@@ -5,6 +5,6 @@ node_modules
 .idea
 scripts/**/*.csv
 scripts/**/*.tsv
-scripts/**/*.cypher
 scripts/**/*.native
 backend/src/data-commons/data/
+__pycache__/

@@ -1,6 +1,6 @@
 -- DO NOT EDIT
 
-CREATE TABLE overall_association_score_v2
+CREATE TABLE overall_association_score
 (
   gene_id LowCardinality(String),
   gene_name LowCardinality(String),

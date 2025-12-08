@@ -31,3 +31,15 @@ model Combination {
   @@id([sessionId, group, program, project])
   @@index([sessionId, group, program, project])
 }
+
+model Feedback {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  text      String   @db.Text
+  status    String   @default("pending")  // 'pending' or 'taken'
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}

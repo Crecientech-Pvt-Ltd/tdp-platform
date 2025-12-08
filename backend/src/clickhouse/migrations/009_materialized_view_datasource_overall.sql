@@ -1,6 +1,7 @@
 -- DO NOT EDIT
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_datasource_association_score_overall_association_score
+REFRESH EVERY 1 WEEK
 ENGINE = MergeTree()
 ORDER BY (disease_id, gene_id)
 POPULATE

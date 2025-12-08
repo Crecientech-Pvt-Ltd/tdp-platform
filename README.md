@@ -51,7 +51,7 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
    > [!NOTE]
    > This is not the most conventional & intuitive place to keep the videos, but this was hard-coded in the frontend code, so directed to keep the videos in this folder. This will soon be changed and once done will be updated in the manual. Also, this workflow will be gradually improved to avoid these steps, but currently the video size exceeds 100MB limit of commit size, so this is the workaround.
 
-   [Video Files](https://drive.google.com/drive/folders/1ZnQ7802kUhu9uGyD7rXONvULb4ELSv4l)
+   [Video Files](https://drive.google.com/drive/folders/1aVUMw0OFTuUI_H78pf2OkRefmbT6PNe6)
 
 5. Docker compose up the database and seed the data.
 

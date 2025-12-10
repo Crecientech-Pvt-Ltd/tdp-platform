@@ -197,8 +197,9 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
   }
   return (
     <ScrollArea className='flex h-[calc(96vh-1.5px)] flex-col border-r bg-secondary'>
-      <div className='flex flex-col'>
-        <Label className='mb-2 pt-4 pl-2 font-bold'>Disease Map</Label>
+      <div className='flex flex-col px-2 pt-2'>
+        <Export />
+        <Label className='mb-2 pt-2 pl-2 font-bold'>Disease Map</Label>
         <div className='flex w-full items-center'>
           <div className='min-w-0 grow px-2'>
             <DiseaseMapCombobox
@@ -221,7 +222,6 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
       <div className='mb-6 flex flex-col space-y-2 px-4'>
         <GeneSearch />
         <FileSheet />
-        <Export />
       </div>
     </ScrollArea>
   );

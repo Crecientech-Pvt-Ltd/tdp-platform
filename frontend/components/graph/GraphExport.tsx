@@ -16,7 +16,13 @@ import { useStore } from '@/lib/hooks';
 import type { CommonSection, EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
 import { type EventMessage, Events, eventEmitter } from '@/lib/utils';
 
-export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: React.RefObject<Set<string>> }) {
+export function GraphExport({
+  highlightedNodesRef,
+  hubGenesNodesRef,
+}: {
+  highlightedNodesRef?: React.RefObject<Set<string>>;
+  hubGenesNodesRef?: React.RefObject<Set<string>>;
+}) {
   const projectTitle = useStore(state => state.projectTitle);
   const sigma = useSigma<NodeAttributes, EdgeAttributes>();
 
@@ -38,7 +44,8 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
       async ({ format, all, csvType }: EventMessage[Events.EXPORT] & { csvType?: string }) => {
         switch (format) {
           case 'csv': {
-            if (!all && (!highlightedNodesRef || highlightedNodesRef.current.size === 0)) {
+            const combinedNodesArray = [...(highlightedNodesRef?.current ?? []), ...(hubGenesNodesRef?.current ?? [])];
+            if (!all && combinedNodesArray.length === 0) {
               toast.warning('No nodes selected', {
                 cancel: { label: 'Close', onClick() {} },
               });
@@ -62,40 +69,44 @@ export function GraphExport({ highlightedNodesRef }: { highlightedNodesRef?: Rea
                 : DISEASE_DEPENDENT_PROPERTIES.includes(radio as DiseaseDependentProperties)
                   ? diseaseName
                   : 'common';
-            const nodeIds = all ? sigma.getGraph().nodes() : Array.from(highlightedNodesRef?.current ?? []);
+            const nodeIds = all ? sigma.getGraph().nodes() : combinedNodesArray;
             const universalCsv = unparse(
               nodeIds.map(nodeId => {
                 const universalProperties: Record<string, string | number> = {};
                 if (selectedRadioNodeColor) {
                   if (typeof selectedNodeColorProperty === 'string') {
-                    universalProperties[selectedNodeColorProperty] = (
-                      universalData[nodeId][
-                        isDatabaseOrUser(selectedRadioNodeColor, selectedNodeColorProperty)
-                      ] as CommonSection & OtherSection
-                    )[selectedRadioNodeColor][selectedNodeColorProperty];
+                    universalProperties[selectedNodeColorProperty] =
+                      (
+                        universalData[nodeId][
+                          isDatabaseOrUser(selectedRadioNodeColor, selectedNodeColorProperty)
+                        ] as CommonSection & OtherSection
+                      )?.[selectedRadioNodeColor][selectedNodeColorProperty] ?? 'N/A';
                   } else {
                     for (const property of selectedNodeColorProperty) {
-                      universalProperties[property] = (
-                        universalData[nodeId][isDatabaseOrUser(selectedRadioNodeColor, property)] as CommonSection &
-                          OtherSection
-                      )[selectedRadioNodeColor][property];
+                      universalProperties[property] =
+                        (
+                          universalData[nodeId][isDatabaseOrUser(selectedRadioNodeColor, property)] as CommonSection &
+                            OtherSection
+                        )?.[selectedRadioNodeColor][property] ?? 'N/A';
                     }
                   }
                 }
 
                 if (selectedRadioNodeSize) {
                   if (typeof selectedNodeSizeProperty === 'string') {
-                    universalProperties[selectedNodeSizeProperty] = (
-                      universalData[nodeId][
-                        isDatabaseOrUser(selectedRadioNodeSize, selectedNodeSizeProperty)
-                      ] as CommonSection & OtherSection
-                    )[selectedRadioNodeSize][selectedNodeSizeProperty];
+                    universalProperties[selectedNodeSizeProperty] =
+                      (
+                        universalData[nodeId][
+                          isDatabaseOrUser(selectedRadioNodeSize, selectedNodeSizeProperty)
+                        ] as CommonSection & OtherSection
+                      )?.[selectedRadioNodeSize][selectedNodeSizeProperty] ?? 'N/A';
                   } else {
                     for (const property of selectedNodeSizeProperty) {
-                      universalProperties[property] = (
-                        universalData[nodeId][isDatabaseOrUser(selectedRadioNodeSize, property)] as CommonSection &
-                          OtherSection
-                      )[selectedRadioNodeSize][property];
+                      universalProperties[property] =
+                        (
+                          universalData[nodeId][isDatabaseOrUser(selectedRadioNodeSize, property)] as CommonSection &
+                            OtherSection
+                        )?.[selectedRadioNodeSize][property] ?? 'N/A';
                     }
                   }
                 }

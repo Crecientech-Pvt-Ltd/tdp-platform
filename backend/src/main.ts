@@ -4,7 +4,7 @@ import compression from 'compression';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
-import "./cron";
+import './cron';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

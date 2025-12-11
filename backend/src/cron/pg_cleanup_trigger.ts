@@ -1,11 +1,11 @@
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from '../../generated/prisma';
 
 const prisma = new PrismaClient();
 
 export async function cleanupOldData() {
   try {
     // 1 Delete combinations older than 12 hours
-    const deletedCombinations = await prisma.combination.deleteMany({
+    await prisma.combination.deleteMany({
       where: {
         verifiedAt: {
           lt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours
@@ -13,7 +13,7 @@ export async function cleanupOldData() {
       },
     });
     // 2 Delete sessions that now have zero combinations
-    const deletedSessions = await prisma.session.deleteMany({
+    await prisma.session.deleteMany({
       where: {
         combinations: {
           none: {}, // means no combinations linked
@@ -21,6 +21,6 @@ export async function cleanupOldData() {
       },
     });
   } catch (err) {
-    console.error("[CLEANUP] Error:", err);
+    console.error('[CLEANUP] Error:', err);
   }
 }

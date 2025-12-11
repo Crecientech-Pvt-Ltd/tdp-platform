@@ -36,6 +36,19 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
    cp frontend/.env.example frontend/.env
    ```
 
+   > ⚠️ **IMPORTANT: Hostname Configuration**
+   > - **For Development Environment:** Set database hostnames to `localhost` in your `.env` files
+   > - **For Production Environment:** Set database hostnames to their respective container names (e.g., `postgres`, `neo4j`, `clickhouse`)
+   > 
+   > Example:
+   > ```bash
+   > # Development
+   > DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+   > 
+   > # Production
+   > DATABASE_URL="postgresql://user:password@postgres:5432/dbname"
+   > ```
+
 3. **[FOR DEVELOPMENT ONLY]** Install all dependencies in frontend and backend repository. Also, install the dependencies in the root directory to setup git hooks and lint-staging along with commitlinting.
 
    ```bash
@@ -54,6 +67,52 @@ and analysing the gene data. Backend contains the graph traversal algorithm and 
    [Video Files](https://drive.google.com/drive/folders/1aVUMw0OFTuUI_H78pf2OkRefmbT6PNe6)
 
 5. Docker compose up the database and seed the data.
+
+   > ⚠️ **IMPORTANT: Port Conflicts**
+   > 
+   > Before starting database services, ensure that their default ports are not already in use on your host machine. If a port is already occupied by another service (e.g., PostgreSQL running on port 5432), you must either:
+   > 1. Stop the existing service on your host, OR
+   > 2. Change the port mapping in `docker-compose.yml` before starting the containers
+   > 
+   > **For PostgreSQL (default port 5432):**
+   > - If port 5432 is already in use and you start the PostgreSQL container without addressing this, the database will not initialize properly
+   > - In this case, you must:
+   >   1. Stop and remove the PostgreSQL container: `docker compose down postgres`
+   >   2. Remove the volume: `docker volume rm tdp-platform_postgres-data`
+   >   3. Change the port in `docker-compose.yml`: 
+   >      ```yaml
+   >      postgres:
+   >        ports:
+   >          - "5433:5432"  # Use a different host port
+   >      ```
+   >   4. Update your `DATABASE_URL` in `.env` files to use the new port
+   >   5. Restart the container: `docker compose up -d postgres`
+   > 
+   > This applies to other database services as well (Neo4j, ClickHouse, Redis, etc.).
+
+   > ⚠️ **IMPORTANT: Volume Initialization**
+   > 
+   > If a Docker volume already exists for a database service (PostgreSQL, Neo4j, ClickHouse, etc.) from a previous installation, the database may not initialize properly when you start the container.
+   > 
+   > **Solutions:**
+   > 1. **Remove existing volumes before initializing:**
+   >    ```bash
+   >    docker compose down -v  # Removes all volumes
+   >    docker compose up -d    # Fresh start with initialization
+   >    ```
+   > 
+   > 2. **Change the volume name in docker-compose.yml:**
+   >    ```yaml
+   >    services:
+   >      postgres:
+   >        volumes:
+   >          - postgres-data-v2:/var/lib/postgresql/data  # New volume name
+   >    
+   >    volumes:
+   >      postgres-data-v2:  # Define the new volume
+   >    ```
+   > 
+   > This applies to all database services that use persistent volumes (PostgreSQL, Neo4j, ClickHouse, Redis, etc.).
 
    > 💡 **NOTE**
    > In case, the server doesn't have the dump data. Transfer the files using the following command:
@@ -385,3 +444,81 @@ npx prisma generate
    ```
 
 3. If Video is not working, please Refer to [this point](#video-upload).
+
+4. **Database Volume Already Exists - Initialization Failure**
+
+   **Problem:** If a Docker volume already exists for a database service (PostgreSQL, Neo4j, ClickHouse, Redis, etc.) from a previous installation, the database will not initialize properly when you start the container.
+
+   **Fix:**
+
+   Either remove the existing volume before starting:
+   ```bash
+   docker compose down -v  # Removes all volumes
+   docker compose up -d    # Fresh start with initialization
+   ```
+
+   Or change the volume name in `docker-compose.yml`:
+   ```yaml
+   services:
+     postgres:
+       volumes:
+         - postgres-data-v2:/var/lib/postgresql/data  # Use new volume name
+   
+   volumes:
+     postgres-data-v2:  # Define the new volume
+   ```
+
+   This applies to all database services (PostgreSQL, Neo4j, ClickHouse, Redis, etc.) that use persistent volumes.
+
+5. **Hostname Configuration for Different Environments**
+
+   **Important:** Hostnames need to be changed based on your environment:
+   
+   - **Development Environment:** Use `localhost` as the hostname in your `.env` files
+   - **Production Environment:** Use the container name as the hostname in your `.env` files
+   
+   **Example:**
+   ```bash
+   # Development (.env file)
+   DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+   NEO4J_URI="bolt://localhost:7687"
+   
+   # Production (.env file)
+   DATABASE_URL="postgresql://user:password@postgres:5432/dbname"
+   NEO4J_URI="bolt://neo4j:7687"
+   ```
+
+6. **PostgreSQL Port Already in Use**
+
+   **Problem:** If PostgreSQL (or any database service) is already running on the default port on your host machine, starting the container without addressing this will cause the database to not initialize properly.
+
+   **Fix:**
+
+   First, change the port mapping in `docker-compose.yml`:
+   ```yaml
+   services:
+     postgres:
+       ports:
+         - "5433:5432"  # Use different host port
+   ```
+
+   Update your `DATABASE_URL` in `.env` files:
+   ```bash
+   DATABASE_URL="postgresql://user:password@localhost:5433/dbname"
+   ```
+
+   If you already started PostgreSQL without fixing the port conflict, you must:
+   ```bash
+   # Stop and remove the container
+   docker compose down postgres
+   
+   # Remove the volume
+   docker volume rm tdp-platform_postgres-data
+   
+   # Change the port in docker-compose.yml (as shown above)
+   
+   # Start again
+   docker compose up -d postgres
+   ```
+
+   This applies to other database services as well (Neo4j default ports: 7474, 7687; ClickHouse default ports: 8123, 9000; Redis default port: 6379).

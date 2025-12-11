@@ -101,8 +101,8 @@ curl http://localhost:5000/api/gsea/health       # GSEA
 # Verify databases
 docker exec -it neo4j cypher-shell -u neo4j -p $NEO4J_PASSWORD -d pdnet "MATCH (n:Gene) RETURN count(n) LIMIT 1"
 docker exec -it clickhouse clickhouse-client --query="SELECT 1"
-docker exec -it postgres psql -U postgres -d tdp -c "SELECT 1"
-docker exec -it redis redis-cli ping
+docker exec -it postgres psql -U $POSTGRES_USER -d $POSTGRES_DB_NAME -c "SELECT 1"
+docker exec -it redis redis-cli -a $REDIS_PASSWORD ping
 ```
 
 ## Development Mode

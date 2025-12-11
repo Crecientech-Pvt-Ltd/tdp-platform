@@ -68,7 +68,6 @@ export type EventMessage = {
   };
   [Events.EXPORT]: {
     format: 'png' | 'csv';
-    all?: boolean;
     csvType?: 'universal' | 'interaction' | 'both';
   };
   [Events.TOGGLE_SEED_GENES]: boolean;

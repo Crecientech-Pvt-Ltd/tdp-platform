@@ -39,7 +39,7 @@ export function Export() {
     if (!universal && !interaction) return;
 
     const csvType = universal && interaction ? 'both' : universal ? 'universal' : 'interaction';
-    eventEmitter.emit(Events.EXPORT, { format: 'csv', all: true, csvType } satisfies EventMessage[Events.EXPORT]);
+    eventEmitter.emit(Events.EXPORT, { format: 'csv', csvType } satisfies EventMessage[Events.EXPORT]);
   };
 
   return (

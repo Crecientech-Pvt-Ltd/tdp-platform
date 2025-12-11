@@ -1,0 +1,158 @@
+---
+title: Gene Expression Bar Plots
+description: Visualize gene and transcript expression across samples using interactive bar charts.
+---
+
+import Image from 'next/image';
+
+# Gene Expression Bar Plots
+
+A simple and intuitive module for visualizing gene- or transcript-level expression across samples.
+This tool helps researchers quickly compare expression patterns, verify sample grouping,
+and identify differences between experimental conditions.
+The plots are generated directly from uploaded count or TPM/FPKM matrices, allowing users to explore raw or normalized expression values.
+
+--- 
+
+# Step 1: Select Expression Type
+
+Choose whether the plot displays **gene-level** or **transcript-level** expression.
+
+You can toggle between the two modes and select one or more identifiers from the search bar.
+
+### Options
+- **Gene Data** – Displays expression values for genes.
+- **Transcript Data** – Displays expression values for transcript isoforms.
+
+### Features
+- Auto-complete search
+- Multiple selection
+
+*Expression type selection area*
+
+<Image 
+  src="/image/docs/data-commons-gene-toggles.png"
+  width={1200}
+  height={650}
+  alt="Expression type selector"
+  className="rounded-lg my-6"
+/>
+
+---
+
+# Step 2: View Single or Multiple Bar Plots
+
+The page updates automatically when identifiers are selected.
+
+### Single-gene view
+- Shows one large bar plot for the selected gene or transcript.  
+- Each bar represents the expression value for a specific sample.  
+- Bar colors correspond to **group assignments** chosen during the sample–group mapping step.
+
+### What the colors signify
+- Each color represents one experimental group (e.g., A, B, C, D, E, F).  
+- The mapping is based on the **Group Column** selected in the `Settings` panel.  
+- Samples belonging to the same group appear with the same color in the plot.
+
+
+*Single-gene expression plot*
+
+<Image 
+  src="/image/docs/data-commons-gene-single.png"
+  width={1200}
+  height={650}
+  alt="Single gene expression bar plot"
+  className="rounded-lg my-6"
+/>
+
+
+### Multi-gene view
+- Up to four bar plots appear at once.
+- Each plot has its own label and color legend.
+
+### Features
+- Consistent color mapping across genes.
+- Automatic scaling for clarity.
+
+*Multiple gene expression plots*
+
+<Image 
+  src="/image/docs/data-commons-gene-multiple.png"
+  width={1200}
+  height={650}
+  alt="Multiple gene expression bar plots"
+  className="rounded-lg my-6"
+/>
+
+---
+# Step 3: Configure Sample and Group Columns
+
+The **Settings** panel allows users to specify how samples are linked to their group assignments. This ensures that bar plots display the correct group colors and labels.
+
+### What you can configure
+- **Sample Column**  
+  Column containing sample identifiers. This value is used to match expression data with metadata.
+
+- **Group Column**  
+  Column containing group assignments such as treatment conditions or experimental groups.
+
+### How to use
+1. Click `Settings` to open the configuration panel.  
+2. Select the appropriate column names from the dropdowns.  
+3. Click `Apply Changes` to update the plots.
+
+### Additional options
+- `Download Data` – Download the input files used for gene or transcript expression.  
+- `Preview Files` – View the contents of the selected data files before applying changes.
+
+*Settings panel for column selection*
+
+<Image 
+  src="/image/docs/data-commons-gene-settings.png"
+  width={1200}
+  height={650}
+  alt="Settings panel for sample and group mapping"
+  className="rounded-lg my-6"
+/>
+---
+# Step 4: Download Plots
+
+Each plot includes a download icon for exporting images.
+
+### How to download
+- Click the **camera icon** on the top-right corner of a plot.
+- Select **Download plot as PNG**.
+
+### Output
+- High-resolution PNG image.
+- Suitable for publication, presentation, or reports.
+
+*Download plot example*
+
+<Image 
+  src="/image/docs/data-commons-gene-download .png"
+
+  width={900}
+  height={500}
+  alt="Download plot button"
+  className="rounded-lg my-6"
+/>
+
+---
+
+
+# Confirmation and Error Handling
+
+### When actions succeed
+- Selected plots load instantly.
+- Downloads begin automatically in ZIP format.
+- Settings update the plots immediately.
+
+### User actions available
+- Modify selected identifiers.
+- Retry file download.
+- Switch between **Gene Data** and **Transcript Data**.
+- Adjust settings to correct plot display.
+
+---
+

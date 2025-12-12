@@ -17,14 +17,15 @@ The platform supports standard bioinformatics file formats (`.csv`, `.tsv`, `.tx
 
 The workflow consists of three integrated analysis modules:
 
-### **[Gene Expression Analysis](data-commons/analysis-modules/gene-expression.mdx)**
+### **[Gene Expression Analysis](data-commons/gene-expression)**
 Compare expression levels across samples using interactive bar plots.  
 Visualize up to four genes or transcripts simultaneously, grouped by experimental conditions.
-### **[PCA Analysis](data-commons/analysis-modules/pca.mdx)**
+
+### **[PCA Analysis](data-commons/pca)**
 Explore sample relationships through Principal Component Analysis (PCA).  
 Identify clusters, detect outliers, and assess batch effects with interactive scatter plots.
 
-### **[Differential expression Analysis](data-commons/analysis-modules/differential.mdx)**
+### **[Differential expression Analysis](data-commons/differential)**
 Visualize differential expression results using volcano plots.  
 Adjust significance thresholds (p-value, log₂FC) in real time and export filtered gene lists for downstream analysis.
 
@@ -147,8 +148,7 @@ When opening a project that has `password.txt`, a password prompt appears:
 - **Correct Password:** The dataset is unlocked and files load normally.  
 - **Incorrect Password:** Access is denied and the project remains locked.
 
-> **Security Notice:** Project passwords are stored securely on the server and **cannot be recovered** by administrators.  
-> Share passwords only with authorized team members.
+> **Security Notice:** Passwords are protected, but they can be updated if the user requests.
 
 ---
 
@@ -156,7 +156,7 @@ When opening a project that has `password.txt`, a password prompt appears:
 
 ## Preview & ZIP Download (Settings Menu)
 
-Each analysis module (Gene Expression, PCA, Volcano Plot) includes a **Settings ** menu on the dashboard.  
+Each analysis module (Gene Expression, PCA, Volcano Plot) includes a **Settings** menu on the dashboard.  
 This menu provides two key features for reproducibility and data sharing.
 
 <Image

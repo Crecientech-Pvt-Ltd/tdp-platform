@@ -97,7 +97,7 @@ const SinglePlot = memo(function SinglePlot({
             tickfont: { size: 15 },
           },
           yaxis: {
-            title: { text: 'Total read count(millions)', font: { size: 20 }, standoff: 10 },
+            title: { text: 'Total read count', font: { size: 20 }, standoff: 10 },
             tickfont: { size: 15 },
           },
           margin: {
@@ -151,7 +151,7 @@ function MultiPlotGrid({ genes, geneDataMap, getBarColors, viewportHeight, dataS
   const heightFactor = compact ? 0.44 : 0.75;
   const heightOffset = compact ? 80 : 120;
   const titleSize = compact ? 16 : 16;
-  const yAxisTitle = compact ? 'Total read count' : 'Total read count (millions)';
+  const yAxisTitle = compact ? 'Total read count' : 'Total read count';
   const yAxisTitleSize = compact ? 13 : 14;
 
   return (

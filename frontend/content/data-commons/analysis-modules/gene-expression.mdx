@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 # Gene Expression Bar Plots
 
-A simple and intuitive module for visualizing gene- or transcript-level expression across samples.
+A simple and intuitive module for visualizing gene or transcript-level expression across samples.
 This tool helps researchers quickly compare expression patterns, verify sample grouping,
 and identify differences between experimental conditions.
 The plots are generated directly from uploaded count or TPM/FPKM matrices, allowing users to explore raw or normalized expression values.
@@ -51,7 +51,6 @@ The page updates automatically when identifiers are selected.
 
 ### What the colors signify
 - Each color represents one experimental group (e.g., A, B, C, D, E, F).  
-- The mapping is based on the **Group Column** selected in the `Settings` panel.  
 - Samples belonging to the same group appear with the same color in the plot.
 
 
@@ -137,22 +136,6 @@ Each plot includes a download icon for exporting images.
   alt="Download plot button"
   className="rounded-lg my-6"
 />
-
----
-
-
-# Confirmation and Error Handling
-
-### When actions succeed
-- Selected plots load instantly.
-- Downloads begin automatically in ZIP format.
-- Settings update the plots immediately.
-
-### User actions available
-- Modify selected identifiers.
-- Retry file download.
-- Switch between **Gene Data** and **Transcript Data**.
-- Adjust settings to correct plot display.
 
 ---
 

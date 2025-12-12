@@ -1,11 +1,11 @@
 ---
-title: Volcano Plot Analysis
+title: Differential Expression Analysis
 description: Interactive visualization of differential gene expression results
 ---
 
 import Image from 'next/image';
 
-# Volcano Plot Analysis
+# Differential Expression Analysis
 
 **Identify significantly differentially expressed genes with interactive thresholds**
 
@@ -48,7 +48,7 @@ Your DE file must contain these columns:
 
 ### Gene vs Transcript Level
 
-- If filename contains `transcript`, treated as **transcript-level DE**
+- If filename contains `transcript`, treated as **transcript-level DE** (In case of server side sorting)
 - Otherwise, treated as **gene-level DE**
 - Multiple DE files can be uploaded for different comparisons
 
@@ -56,7 +56,7 @@ Your DE file must contain these columns:
 
 ## Step 1: Select Contrast and Search Genes
 
-The top panel allows users to choose the comparison of interest and optionally highlight specific genes.
+The top panel allows users to choose a differential-expression comparison (contrast) and optionally highlight specific genes of interest.
 
 ### Contrast Selection
 - Choose a comparison from the **Contrast** dropdown (e.g., A3).  
@@ -133,7 +133,7 @@ A summary bar shows:
 - **Upregulated**  
 - **Downregulated**  
 - **Not significant**  
-- **Selected genes**  
+- **Highlighted genes**  
 - **Total genes**
 
 ---
@@ -166,25 +166,3 @@ The **Settings** panel allows configuration of axes and scale options.
 />
 
 ---
-
-
-# Confirmation and Error Handling
-
-### Successful Actions
-- Plot updates instantly after threshold or axis changes.  
-- Search results highlight immediately.  
-- Gene counts adjust in real time.  
-- Downloads begin automatically.
-
-### Errors and Warnings
-- **Invalid column selection** — settings panel highlights the issue.  
-- **Missing values** — plot may show incomplete points.  
-- **Empty plot** — triggered when thresholds remove all visible genes.  
-
-### User Actions
-- Adjust thresholds to restore visibility.  
-- Re-select correct logFC or p-value columns in settings.  
-- Preview files to check for formatting issues.
-
----
-

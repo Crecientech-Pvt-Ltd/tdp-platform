@@ -24,7 +24,7 @@ Visualize up to four genes or transcripts simultaneously, grouped by experimenta
 Explore sample relationships through Principal Component Analysis (PCA).  
 Identify clusters, detect outliers, and assess batch effects with interactive scatter plots.
 
-### **[Volcano Plot Analysis](data-commons/analysis-modules/volcano.mdx)**
+### **[Differential expression Analysis](data-commons/analysis-modules/differential.mdx)**
 Visualize differential expression results using volcano plots.  
 Adjust significance thresholds (p-value, log₂FC) in real time and export filtered gene lists for downstream analysis.
 
@@ -52,7 +52,7 @@ The platform automatically classifies uploaded files based on keywords found in 
 ### Step 2: Upload Files
 
 You can analyze existing project data stored on the server or upload new files manually.  
-The platform supports both workflows and organizes files automatically based on the **File Type Detection Rules** described in Step 1.
+The platform supports both workflows.
 
 ---
 
@@ -109,7 +109,7 @@ Navigate between modules using the tab interface:
 
 - **Gene Expression:** Query genes and visualize TPM, FPKM, or raw counts.
 - **PCA:** Explore sample clustering and similarity patterns.
-- **Volcano Plot:** Adjust statistical filters to highlight significant genes.
+- **Differential Expression Analysis:** Adjust statistical filters in Volcano Plots to highlight significant genes.
 
 ---
 ## Password-Protected Datasets
@@ -128,7 +128,7 @@ Password security is handled entirely on the **server side**:
 - The password applies **only to that specific Group–Program–Project** and does not affect others.
 - If no `password.txt` file is present, the project loads normally without requiring authentication.
 
-> **Note:** The **Upload Files** panel does *not* include a password field.  
+> **Note:** The **Upload Manual Files** option does *not* include a password field, as password protection applies only to server-stored project data.  
 
 ---
 
@@ -156,8 +156,16 @@ When opening a project that has `password.txt`, a password prompt appears:
 
 ## Preview & ZIP Download (Settings Menu)
 
-Each analysis module (Gene Expression, PCA, Volcano Plot) includes a **Settings (⋮)** menu on the dashboard.  
+Each analysis module (Gene Expression, PCA, Volcano Plot) includes a **Settings ** menu on the dashboard.  
 This menu provides two key features for reproducibility and data sharing.
+
+<Image
+  width={220}
+  height={200}
+  src="/image/docs/data-commons-settings.png"
+  alt="Settings present inside the analysis modules"
+  className="rounded-lg my-4"
+/>
 
 ### **1. Preview Files**
 View all files associated with the current analysis:
@@ -177,7 +185,14 @@ Click **Download ZIP** inside the Settings menu to export a complete package con
 - **Sample sheet files**
 
 
-This ensures full reproducibility and simplifies collaboration between team members.
+<Image
+  width={420}
+  height={400}
+  src="/image/docs/data-commons-preview.png"
+  alt="Settings present inside the analysis modules"
+  className="rounded-lg my-4"
+/>
+
 
 ---
 
@@ -189,25 +204,5 @@ Before uploading, ensure:
 - **Naming:** Required filename keywords are included (see Step 1).
 - **Structure:** Single header row; no merged cells or comments.
 - **Data:** Numeric fields contain valid numbers (no `NA`, `Inf`, or text).
-
----
-
-## Common Issues & Solutions
-
-### **Files not detected correctly**
-- Check required keywords in filenames.
-- Ensure the extension is `.csv`, `.tsv`, or `.txt` (not Excel formats).
-
-### **Sample ID mismatch**
-- Sample names are **case-sensitive**.
-- Remove trailing spaces from header cells.
-
-### **Plots not loading**
-- Verify numeric data types in expression matrices.
-- Ensure correct column selection during sample mapping.
-
-### **No significant genes in Volcano Plot**
-- Lower the p-value or log₂FC cutoff.
-- Confirm that DE files contain valid statistics.
 
 ---

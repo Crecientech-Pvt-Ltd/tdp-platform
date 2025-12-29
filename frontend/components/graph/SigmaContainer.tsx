@@ -68,7 +68,7 @@ export const SigmaContainer = React.forwardRef<
       <Suspense>
         <LoadGraph />
       </Suspense>
-      <GraphExport highlightedNodesRef={highlightedNodesRef} />
+      <GraphExport hubGenesNodesRef={hubGenesNodesRef} highlightedNodesRef={highlightedNodesRef} />
       <GraphEvents
         highlightedNodesRef={highlightedNodesRef}
         clickedNodesRef={clickedNodesRef}

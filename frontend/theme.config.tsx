@@ -44,6 +44,12 @@ export const DocsThemeLayout = async ({
       navbar={navbar}
       footer={footer}
       pageMap={await getPageMap()}
+      toc={{
+        title: 'On This Page',
+        backToTop: true,
+      }}
+      editLink={null}
+      feedback={{ content: null }}
     >
       {children}
     </Layout>

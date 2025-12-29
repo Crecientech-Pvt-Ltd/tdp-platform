@@ -1,2 +1,6 @@
-pandas
-fastparquet
+click==8.3.0
+clickhouse-connect==0.9.2
+pandas==2.3.3
+inquirer==3.4.1
+neo4j==6.0.3
+rich==14.2.0

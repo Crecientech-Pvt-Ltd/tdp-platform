@@ -75,7 +75,7 @@ export default function AboutPage() {
   return (
     <div className='mx-auto my-8 w-full max-w-5xl'>
       <div className='mb-4 flex justify-end'>
-        <Link href='/feedback/view-feedback'>
+        <Link href='/view-feedback'>
           <Button variant='outline' className='font-medium'>
             View All Feedbacks
           </Button>

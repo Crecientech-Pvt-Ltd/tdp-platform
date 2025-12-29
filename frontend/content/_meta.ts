@@ -5,6 +5,7 @@ export default {
   dashboard: '',
   'network-visualization': '',
   'knowledge-base': '',
+  'data-commons': '',
   'use-cases-and-short-help-videos': 'Use cases & Help Videos',
   faq: 'FAQ',
   contact: 'contact',

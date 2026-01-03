@@ -33,6 +33,8 @@ COPY --from=builder /app/out/*.txt /usr/share/nginx/html/
 COPY --from=builder /app/out/*.html /usr/share/nginx/html/
 COPY --from=builder /app/out/*.xml /usr/share/nginx/html/
 
+RUN chown -R nginx:nginx /usr/share/nginx/html \
+ && chmod -R o+rX /usr/share/nginx/html
 
 # Create the .htpasswd file for Basic Auth
 # Use environment variables with a format like:

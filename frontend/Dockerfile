@@ -13,8 +13,6 @@ RUN pnpm run build
 
 ### STAGE 2: Run ###
 FROM nginx:1.28-alpine
-# Install apache2-utils for htpasswd
-RUN apk add --no-cache apache2-utils
 
 RUN rm /etc/nginx/conf.d/default.conf
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf

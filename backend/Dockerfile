@@ -22,5 +22,8 @@ COPY --from=build /app/dist /app/dist
 COPY --from=build /app/prisma /app/prisma
 COPY --from=build /app/generated /app/generated
 COPY --from=build /app/src/clickhouse/migrations /app/src/clickhouse/migrations
+ 
+# Expose the NestJS app port (default 4000)
+EXPOSE 4000
 
 CMD ["sh", "-c", "npx prisma db push && node dist/main"]

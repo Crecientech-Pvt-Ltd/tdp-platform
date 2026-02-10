@@ -58,7 +58,7 @@ async def gsea(
 
 @app.get("/")
 def hello_world():
-    return "Welcome to TBEP Python API!"
+    return "Welcome to TDP Python API!"
 
 if __name__ == "__main__":
     import uvicorn

@@ -69,7 +69,6 @@ export default function xVolcanoPlot({
     setTranscriptYAxisColumn,
   } = useTranscriptContrastData(deTranscriptFilesContent, debouncedContrasts);
 
-  // Select active data based on selectedType
   const contrastData = selectedType === 'gene' ? geneContrastData : transcriptContrastData;
   const availableColumns = selectedType === 'gene' ? geneAvailableColumns : transcriptAvailableColumns;
   const availableGenes = selectedType === 'gene' ? geneAvailableGenes : transcriptAvailableGenes;
@@ -79,7 +78,6 @@ export default function xVolcanoPlot({
   const setXAxisColumn = selectedType === 'gene' ? setGeneXAxisColumn : setTranscriptXAxisColumn;
   const setYAxisColumn = selectedType === 'gene' ? setGeneYAxisColumn : setTranscriptYAxisColumn;
 
-  // Update selectedType when file availability changes
   useEffect(() => {
     if (hasGene && !hasTranscript) setSelectedType('gene');
     else if (!hasGene && hasTranscript) setSelectedType('transcript');
@@ -107,7 +105,7 @@ export default function xVolcanoPlot({
 
     setLoading(true);
 
-    const contrastNames = parseContrastNames(activeFiles);
+    const contrastNames = Object.keys(activeFiles);
     setAvailableContrasts(contrastNames);
     setSelectedContrasts([contrastNames[0]]);
     setAllDataLoaded(true);
@@ -228,7 +226,7 @@ export default function xVolcanoPlot({
 
     return Object.keys(activeFiles).map(filename => ({
       filename,
-      description: `${selectedType === 'gene' ? 'Gene' : 'Transcript'} differential expression analysis results for ${filename.replace(/^differentialexpression[-_]?/i, '').replace(/\.(csv|tsv|txt)$/i, '') || 'default contrast'}`,
+      description: `${selectedType === 'gene' ? 'Gene' : 'Transcript'} differential expression analysis results for ${filename.replace(/^differentialexpression[-_]?/i, '').replace(/\.(csv|tsv|txt)$/i, '') || filename}`,
       xDescription: `Log fold change values representing the magnitude of expression difference between conditions. Positive values indicate upregulation, negative values indicate downregulation.`,
       yDescription: `Statistical significance values (p-values) from differential expression testing. Lower values indicate higher confidence in the observed differences.`,
       columns: availableColumns,
@@ -380,15 +378,9 @@ export default function xVolcanoPlot({
               <div className='w-full' style={{ height: `${viewportHeight * 0.7 - 16}px` }}>
                 <h3
                   className='mb-2 line-clamp-2 px-2 text-center font-semibold text-lg leading-tight'
-                  title={
-                    debouncedContrasts[0] === 'default'
-                      ? `Differential Expression`
-                      : `${debouncedContrasts[0].toUpperCase()}`
-                  }
+                  title={debouncedContrasts[0]}
                 >
-                  {debouncedContrasts[0] === 'default'
-                    ? `Differential Expression`
-                    : `${debouncedContrasts[0].toUpperCase()}`}
+                  {debouncedContrasts[0]}
                 </h3>
                 <div className='h-[calc(100%-4rem)] w-full'>{renderPlot(debouncedContrasts[0])}</div>
               </div>
@@ -412,9 +404,9 @@ export default function xVolcanoPlot({
                     <div className='flex h-full flex-col'>
                       <h3
                         className={`line-clamp-2 px-2 text-center font-semibold leading-tight ${debouncedContrasts.length >= 3 ? 'mb-1 h-10 text-base' : 'mb-2 h-12 text-base'}`}
-                        title={contrast === 'default' ? `Differential Expression` : `${contrast.toUpperCase()}`}
+                        title={contrast}
                       >
-                        {contrast === 'default' ? `Differential Expression` : `${contrast.toUpperCase()}`}
+                        {contrast}
                       </h3>
                       <div className='w-full flex-1'>{renderPlot(contrast)}</div>
                     </div>

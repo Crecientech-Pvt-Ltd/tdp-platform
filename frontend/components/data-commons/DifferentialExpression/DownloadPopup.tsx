@@ -50,12 +50,7 @@ export default memo(function DownloadPopup({
   const [isDownloading, setIsDownloading] = useState(false);
 
   const availableFiles = useMemo(() => {
-    return availableContrasts.map(contrast => {
-      if (contrast === 'default') {
-        return 'DifferentialExpression.csv';
-      }
-      return `DifferentialExpression-${contrast}.csv`;
-    });
+    return availableContrasts;
   }, [availableContrasts]);
 
   const [selectedFiles, setSelectedFiles] = useState<string[]>(availableFiles);
@@ -72,13 +67,7 @@ export default memo(function DownloadPopup({
 
   useEffect(() => {
     if (isOpen && selectedContrasts.length > 0) {
-      const autoSelectedFiles = selectedContrasts.map(contrast => {
-        if (contrast === 'default') {
-          return 'DifferentialExpression.csv';
-        }
-        return `DifferentialExpression-${contrast}.csv`;
-      });
-      setSelectedFiles(autoSelectedFiles);
+      setSelectedFiles(selectedContrasts);
     } else if (isOpen) {
       setSelectedFiles(availableFiles);
     } else {
@@ -97,11 +86,7 @@ export default memo(function DownloadPopup({
   }, [isOpen]);
 
   const getContrastFromFileName = useCallback((fileName: string): string => {
-    if (fileName === 'DifferentialExpression.csv') {
-      return 'default';
-    }
-    const match = fileName.match(/DifferentialExpression-(.+)\.csv/);
-    return match ? match[1] : 'default';
+    return fileName;
   }, []);
 
   const createCSVContent = useCallback((data: GenericRow[]): string => {
@@ -194,7 +179,7 @@ export default memo(function DownloadPopup({
 
       const zippedBuffer = zipSync(files);
       const zippedArrayBuffer =
-        zippedBuffer.buffer instanceof ArrayBuffer ? zippedBuffer.buffer : zippedBuffer.slice().buffer; // fallback, but zipSync should return ArrayBuffer-backed Uint8Array
+        zippedBuffer.buffer instanceof ArrayBuffer ? zippedBuffer.buffer : zippedBuffer.slice().buffer;
       const blob = new Blob([zippedArrayBuffer], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);
       const aElement = document.createElement('a');

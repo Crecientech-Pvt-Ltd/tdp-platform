@@ -67,67 +67,14 @@ export const findColumnKeys = (headers: string[]) => {
  * Get CSV content for a specific contrast file
  */
 export const getContrastCsvText = (contrast: string, deFiles: Record<string, string>): string => {
-  const deFileKeys = Object.keys(deFiles);
-  const lowerKeyMap = Object.fromEntries(deFileKeys.map(original => [original.toLowerCase(), original]));
-
-  if (contrast === 'default') {
-    const defaultKeys = ['differentialexpression.csv', 'differentialexpression.tsv', 'differentialexpression.txt'];
-
-    for (const key of defaultKeys) {
-      if (lowerKeyMap[key]) {
-        return deFiles[lowerKeyMap[key]];
-      }
-    }
-  } else {
-    const extensions = ['csv', 'tsv', 'txt'];
-    const separators = ['_', '-', ' '];
-    const prefixes = ['differentialexpression', 'de'];
-
-    for (const prefix of prefixes) {
-      for (const separator of separators) {
-        for (const ext of extensions) {
-          const pattern = `${prefix}${separator}${contrast}.${ext}`.toLowerCase();
-          if (lowerKeyMap[pattern]) {
-            return deFiles[lowerKeyMap[pattern]];
-          }
-        }
-      }
-    }
-
-    const fullFilenamePattern = contrast.toLowerCase();
-    if (lowerKeyMap[fullFilenamePattern]) {
-      return deFiles[lowerKeyMap[fullFilenamePattern]];
-    }
-
-    for (const ext of extensions) {
-      const withExt = `${fullFilenamePattern}.${ext}`;
-      if (lowerKeyMap[withExt]) {
-        return deFiles[lowerKeyMap[withExt]];
-      }
-    }
-  }
-
-  return '';
+  return deFiles[contrast] || '';
 };
 
 /**
  * Extract contrast names from file names
  */
 export const parseContrastNames = (deFiles: Record<string, string>): string[] => {
-  const diffExpRegex =
-    /^(?:.*)(?:(?:differential|diff)(?:[-_ ]?(?:expression|exp))?|(?:differential|de))(?:[-_ ]?)(.+?)\.(csv|tsv|xls|xlsx|txt)$/i;
-
-  return Object.keys(deFiles).map(filename => {
-    const match = filename.match(diffExpRegex);
-
-    if (match?.[1]) {
-      // Return the captured contrast name (group 1)
-      return match[1];
-    }
-
-    // If no match, return 'default' or the filename without extension as fallback
-    return filename.replace(/\.(csv|tsv|xls|xlsx|txt)$/i, '');
-  });
+  return Object.keys(deFiles);
 };
 
 /**

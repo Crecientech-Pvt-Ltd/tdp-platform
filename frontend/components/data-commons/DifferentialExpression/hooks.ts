@@ -127,24 +127,7 @@ export const useGeneContrastData = (deFiles: Record<string, string> | undefined,
     const newIdColumns: Record<string, string> = {};
 
     toFetch.forEach(contrast => {
-      let csvText = '';
-      if (contrast === 'default') {
-        const defaultKeys = ['differentialexpression.csv', 'differentialexpression.tsv', 'differentialexpression.txt'];
-        for (const key of defaultKeys) {
-          const found = Object.keys(deFiles).find(f => f.toLowerCase() === key);
-          if (found) {
-            csvText = deFiles[found];
-            break;
-          }
-        }
-      } else {
-        const found = Object.keys(deFiles).find(filename => {
-          const lower = filename.toLowerCase();
-          return lower.includes(contrast.toLowerCase()) || filename === contrast;
-        });
-        if (found) csvText = deFiles[found];
-      }
-
+      const csvText = deFiles[contrast] || '';
       if (csvText) {
         parseCsvData(csvText, results => {
           const headers = results.meta.fields ?? [];
@@ -243,24 +226,7 @@ export const useTranscriptContrastData = (
     const newIdColumns: Record<string, string> = {};
 
     toFetch.forEach(contrast => {
-      let csvText = '';
-      if (contrast === 'default') {
-        const defaultKeys = ['differentialexpression.csv', 'differentialexpression.tsv', 'differentialexpression.txt'];
-        for (const key of defaultKeys) {
-          const found = Object.keys(deFiles).find(f => f.toLowerCase() === key);
-          if (found) {
-            csvText = deFiles[found];
-            break;
-          }
-        }
-      } else {
-        const found = Object.keys(deFiles).find(filename => {
-          const lower = filename.toLowerCase();
-          return lower.includes(contrast.toLowerCase()) || filename === contrast;
-        });
-        if (found) csvText = deFiles[found];
-      }
-
+      const csvText = deFiles[contrast] || '';
       if (csvText) {
         parseCsvData(csvText, results => {
           const headers = results.meta.fields ?? [];

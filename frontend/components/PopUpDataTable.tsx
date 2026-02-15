@@ -1,3 +1,5 @@
+'use client';
+
 import { DownloadIcon } from 'lucide-react';
 import { unparse } from 'papaparse';
 import React from 'react';

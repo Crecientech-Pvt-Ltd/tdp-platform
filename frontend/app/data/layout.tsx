@@ -2,6 +2,7 @@
 
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import React from 'react';
+import { ChatInterface } from '@/components/chat-interface';
 import { LeftSideBar } from '@/components/left-panel';
 import { RightSideBar } from '@/components/right-panel';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
         <Button variant='basic' size='icon' className='h-9 shrink-0' onClick={handleLeftSidebarToggle}>
           {leftSidebar ? <ChevronLeftIcon className='size-4' /> : <ChevronRightIcon className='size-4' />}
         </Button>
+
         <div className='flex min-w-0 flex-1 justify-center px-1 sm:px-2'>
           <TabsList className='flex h-auto min-h-8 w-full max-w-4xl items-center gap-1 py-1 sm:gap-2'>
             {tabNames.map(tab => (
@@ -52,12 +54,13 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           </TabsList>
         </div>
         <div className='flex items-center gap-4'></div>
+
         <Button variant='basic' size='icon' className='h-9 shrink-0' onClick={handleRightSidebarToggle}>
           {rightSidebar ? <ChevronRightIcon className='size-4' /> : <ChevronLeftIcon className='size-4' />}
         </Button>
       </div>
 
-      <ResizablePanelGroup direction='horizontal' className='flex flex-1'>
+      <ResizablePanelGroup direction='horizontal' className='flex min-h-0 flex-1'>
         {leftSidebar && (
           <>
             <ResizablePanel defaultSize={16} minSize={16}>
@@ -70,7 +73,23 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100}
           className='h-full w-full bg-white'
         >
-          {children}
+          <ResizablePanelGroup direction='vertical' className='flex h-full min-h-0'>
+            {/* Main content (PCA plot area) */}
+            <ResizablePanel defaultSize={78} minSize={40} className='min-h-0'>
+              <div className='flex h-full min-h-0 overflow-hidden'>
+                <div className='min-h-0 flex-1 overflow-hidden'>{children}</div>
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Chat */}
+            <ResizablePanel defaultSize={20} minSize={10} className='border-t bg-white'>
+              <div className='flex h-full min-h-0 flex-col overflow-hidden'>
+                <ChatInterface />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </ResizablePanel>
         {rightSidebar && (
           <>

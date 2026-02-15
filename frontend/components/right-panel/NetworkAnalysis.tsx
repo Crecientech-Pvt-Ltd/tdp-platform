@@ -25,7 +25,7 @@ export function NetworkAnalysis() {
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className='-mb-2 mt-1 p-4'>
+      <CollapsibleContent className='mt-1 -mb-2 p-4'>
         <RadioGroup defaultValue='None' className='mb-2'>
           {algorithms.map(({ name, parameters }) => (
             <Popover key={name}>

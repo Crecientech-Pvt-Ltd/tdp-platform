@@ -2,7 +2,7 @@
 
 import { useSigma } from '@react-sigma/core';
 import { scaleLinear } from 'd3-scale';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DEFAULT_EDGE_COLOR } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import type { EdgeAttributes, NodeAttributes, OtherSection } from '@/lib/interface';
@@ -19,12 +19,16 @@ export function ColorAnalysis() {
   const radioOptions = useStore(state => state.radioOptions);
   const edgeOpacity = useStore(state => state.edgeOpacity);
 
-  const minScore =
-    typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search).has('file')
-        ? 0
-        : (Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0)
-      : 0;
+  const [minScore, setMinScore] = useState(0);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('file')) {
+      setMinScore(0);
+      return;
+    }
+    const stored = Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0;
+    setMinScore(stored);
+  }, []);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
@@ -42,7 +46,7 @@ export function ColorAnalysis() {
         return attr;
       });
     }
-  }, [showEdgeColor, edgeOpacity]);
+  }, [showEdgeColor, edgeOpacity, minScore]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {

@@ -10,19 +10,6 @@ import {
   parseIdToGroupMapping,
 } from './utils';
 
-export function useViewportHeight() {
-  const [viewportHeight, setViewportHeight] = useState(800);
-
-  useEffect(() => {
-    const updateHeight = () => setViewportHeight(window.innerHeight);
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
-
-  return viewportHeight;
-}
-
 export function usePCAColumns() {
   const [pcaColumns, setPcaColumns] = useState<string[]>([]);
   const [xAxisColumn, setXAxisColumn] = useState<string>('');

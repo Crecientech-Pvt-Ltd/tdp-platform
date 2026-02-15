@@ -1,7 +1,8 @@
 'use client';
 
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, MessageCircleIcon, XIcon } from 'lucide-react';
 import React from 'react';
+import { ChatInterface } from '@/components/chat-interface';
 import { LeftSideBar } from '@/components/left-panel';
 import { RightSideBar } from '@/components/right-panel';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   const [activeTab, setActiveTab] = React.useState(tabNames[0].key);
   const [leftSidebar, setLeftSidebar] = React.useState<boolean>(false);
   const [rightSidebar, setRightSidebar] = React.useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   const handleLeftSidebarToggle = React.useCallback(() => {
     setLeftSidebar(prev => !prev);
@@ -38,6 +40,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
         <Button variant='basic' size='icon' className='h-9 shrink-0' onClick={handleLeftSidebarToggle}>
           {leftSidebar ? <ChevronLeftIcon className='size-4' /> : <ChevronRightIcon className='size-4' />}
         </Button>
+
         <div className='flex min-w-0 flex-1 justify-center px-1 sm:px-2'>
           <TabsList className='flex h-auto min-h-8 w-full max-w-4xl items-center gap-1 py-1 sm:gap-2'>
             {tabNames.map(tab => (
@@ -52,12 +55,13 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           </TabsList>
         </div>
         <div className='flex items-center gap-4'></div>
+
         <Button variant='basic' size='icon' className='h-9 shrink-0' onClick={handleRightSidebarToggle}>
           {rightSidebar ? <ChevronRightIcon className='size-4' /> : <ChevronLeftIcon className='size-4' />}
         </Button>
       </div>
 
-      <ResizablePanelGroup direction='horizontal' className='flex flex-1'>
+      <ResizablePanelGroup direction='horizontal' className='flex min-h-0 flex-1'>
         {leftSidebar && (
           <>
             <ResizablePanel defaultSize={16} minSize={16}>
@@ -70,7 +74,9 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100}
           className='h-full w-full bg-white'
         >
-          {children}
+          <div className='flex h-full min-h-0 overflow-hidden'>
+            <div className='min-h-0 flex-1 overflow-hidden'>{children}</div>
+          </div>
         </ResizablePanel>
         {rightSidebar && (
           <>
@@ -81,6 +87,39 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           </>
         )}
       </ResizablePanelGroup>
+
+      {/* Floating chat icon and upward popup so charts keep full height */}
+      <div className='pointer-events-none fixed right-4 bottom-4 z-50 sm:right-6 sm:bottom-6'>
+        {isChatOpen && (
+          <div className='pointer-events-auto mb-3 h-[min(70vh,560px)] w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-xl border bg-white shadow-2xl'>
+            <div className='flex h-full min-h-0 flex-col'>
+              <div className='flex items-center justify-end border-b p-1.5'>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='h-7 w-7'
+                  onClick={() => setIsChatOpen(false)}
+                  aria-label='Close chat'
+                >
+                  <XIcon className='size-4' />
+                </Button>
+              </div>
+              <div className='min-h-0 flex-1 p-2'>
+                <ChatInterface />
+              </div>
+            </div>
+          </div>
+        )}
+        <Button
+          variant='default'
+          size='icon'
+          className='pointer-events-auto h-12 w-12 rounded-full shadow-lg'
+          onClick={() => setIsChatOpen(prev => !prev)}
+          aria-label={isChatOpen ? 'Close chat' : 'Open chat'}
+        >
+          {isChatOpen ? <XIcon className='size-5' /> : <MessageCircleIcon className='size-5' />}
+        </Button>
+      </div>
     </Tabs>
   );
 }

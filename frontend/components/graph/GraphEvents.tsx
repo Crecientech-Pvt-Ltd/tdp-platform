@@ -91,13 +91,51 @@ export function GraphEvents({
   const handleSelectedNodes = useCallback(
     (_selectedNodes: string[]) => {
       const graph = sigma.getGraph();
+      const selectedNodes = _selectedNodes.map(node => ({
+        Gene_Name: graph.getNodeAttribute(node, 'label') as string,
+        ID: node,
+        Description: graph.getNodeAttribute(node, 'description') as string,
+      }));
       useStore.setState({
-        selectedNodes: _selectedNodes.map(node => ({
-          Gene_Name: graph.getNodeAttribute(node, 'label') as string,
-          ID: node,
-          Description: graph.getNodeAttribute(node, 'description') as string,
-        })),
+        selectedNodes,
+        chatDataContext: selectedNodes,
       });
+    },
+    [sigma],
+  );
+
+  const handleNodeNeighborhood = useCallback(
+    (nodeId: string) => {
+      const graph = sigma.getGraph();
+      const getNodeData = (id: string) => ({
+        id,
+        label: graph.getNodeAttribute(id, 'label'),
+        description: graph.getNodeAttribute(id, 'description'),
+        attributes: graph.getNodeAttributes(id),
+      });
+
+      const firstOrderSet = new Set<string>();
+      graph.forEachNeighbor(nodeId, neighbor => {
+        firstOrderSet.add(neighbor);
+      });
+
+      const secondOrderSet = new Set<string>();
+      for (const firstOrder of firstOrderSet) {
+        graph.forEachNeighbor(firstOrder, neighbor => {
+          if (neighbor !== nodeId && !firstOrderSet.has(neighbor)) {
+            secondOrderSet.add(neighbor);
+          }
+        });
+      }
+
+      const neighborhood = {
+        node: getNodeData(nodeId),
+        firstOrder: Array.from(firstOrderSet).map(getNodeData),
+        secondOrder: Array.from(secondOrderSet).map(getNodeData),
+      };
+
+      console.log('Node neighborhood', neighborhood);
+      useStore.setState({ chatDataContext: neighborhood });
     },
     [sigma],
   );
@@ -308,6 +346,7 @@ export function GraphEvents({
       clickNode: e => {
         const graph = sigma.getGraph();
         if (!e.event.original.shiftKey) e.event.original.stopPropagation();
+        handleNodeNeighborhood(e.node);
         if (e.event.original.ctrlKey) {
           highlightedNodesRef.current.add(e.node);
           const trimmedQuery = nodeSearchQuery.trim();
@@ -339,7 +378,7 @@ export function GraphEvents({
         });
       },
     });
-  }, [registerEvents, sigma, draggedNode, handleMouseUp, handleMouseDown, handleMouseMove]);
+  }, [registerEvents, sigma, draggedNode, handleMouseUp, handleMouseDown, handleMouseMove, handleNodeNeighborhood]);
 
   const highlightNeighborNodes = useStore(state => state.highlightNeighborNodes);
   const [clickedNode, setClickedNode] = useState<string | null>(null);

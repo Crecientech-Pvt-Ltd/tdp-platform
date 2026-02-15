@@ -91,12 +91,11 @@ interface PCAPlotProps {
   traces: Partial<PlotData>[];
   xAxisColumn: string;
   yAxisColumn: string;
-  viewportHeight: number;
 }
 
-export const PCAPlot = memo(function PCAPlot({ traces, xAxisColumn, yAxisColumn, viewportHeight }: PCAPlotProps) {
+export const PCAPlot = memo(function PCAPlot({ traces, xAxisColumn, yAxisColumn }: PCAPlotProps) {
   return (
-    <div className='relative w-full' style={{ height: `${viewportHeight * 0.8 - 64}px` }}>
+    <div className='relative min-h-0 w-full flex-1'>
       <Plot
         data={traces}
         layout={{
@@ -116,7 +115,7 @@ export const PCAPlot = memo(function PCAPlot({ traces, xAxisColumn, yAxisColumn,
           showlegend: false,
         }}
         useResizeHandler
-        style={{ width: '100%', height: '90%' }}
+        style={{ width: '100%', height: '100%' }}
         config={{
           responsive: true,
           displayModeBar: true,
@@ -149,5 +148,9 @@ interface PCALayoutProps {
 }
 
 export function PCALayout({ children }: PCALayoutProps) {
-  return <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1400px] lg:px-8'>{children}</div>;
+  return (
+    <div className='mx-auto flex h-full min-h-0 w-full max-w-[95vw] flex-col px-4 sm:px-6 lg:max-w-[1400px] lg:px-8'>
+      {children}
+    </div>
+  );
 }

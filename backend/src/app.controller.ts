@@ -9,7 +9,7 @@ export class AppController {
 
   @Get()
   async getHello(): Promise<string> {
-    return 'Hello World!';
+    return 'Welcome to Root of TDP Backend!';
   }
 
   @Get('count-nodes')

@@ -99,6 +99,11 @@ export interface GraphStore {
   radialAnalysis: RadialAnalysisSetting;
 
   /**
+   * Data context for the chat interface (selected node neighborhood, etc.)
+   */
+  chatDataContext: unknown;
+
+  /**
    * ENSG IDs of all the nodes in Graph
    */
   geneNames: string[];

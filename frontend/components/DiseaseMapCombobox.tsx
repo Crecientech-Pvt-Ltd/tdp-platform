@@ -105,6 +105,11 @@ interface DiseaseMapComboboxProps {
   align?: 'start' | 'end' | 'center';
 }
 
+interface DiseaseEnvelope {
+  data?: unknown;
+  diseases?: unknown;
+}
+
 export function DiseaseMapCombobox({
   className,
   data = [],
@@ -113,16 +118,24 @@ export function DiseaseMapCombobox({
   align = 'start',
 }: DiseaseMapComboboxProps) {
   const [open, setOpen] = React.useState<boolean>(false);
-  // Use the search hook with initial data from props
-  const searchItems: SearchItem[] = React.useMemo(
-    () =>
-      data.map(item => ({
-        id: item.ID,
-        label: `${item.name} (${item.ID})`,
-        description: item.description,
-      })),
-    [data],
-  );
+  // Normalize incoming `data` to an array before mapping (defensive guard)
+  const searchItems: SearchItem[] = React.useMemo(() => {
+    const envelope = data && typeof data === 'object' ? (data as DiseaseEnvelope) : null;
+    const normalized: typeof data = Array.isArray(data)
+      ? data
+      : // handle common envelope shapes like { data: [...] } or { diseases: [...] }
+        Array.isArray(envelope?.data)
+        ? (envelope.data as typeof data)
+        : Array.isArray(envelope?.diseases)
+          ? (envelope.diseases as typeof data)
+          : [];
+
+    return normalized.map(item => ({
+      id: item.ID,
+      label: `${item.name} (${item.ID})`,
+      description: item.description,
+    }));
+  }, [data]);
 
   const optionsMap = React.useMemo(() => {
     const map = new Map<string, SearchItem>();

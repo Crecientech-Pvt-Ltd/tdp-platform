@@ -16,9 +16,9 @@ import {
 import { VolcanoPlotRenderer } from './Renderer';
 import SeeMore from './SeeMore';
 import type { GenericRow, Point, PointCounts, ProcessedData, SeeMoreDataItem, VolcanoPlotProps } from './types';
-import { calculateBounds, findColumnKeys, getContrastCsvText, parseContrastNames, processDataToPoints } from './utils';
+import { calculateBounds, findColumnKeys, getContrastCsvText, processDataToPoints } from './utils';
 
-export default function xVolcanoPlot({
+export default function VolcanoPlot({
   deGeneFilesContent,
   deTranscriptFilesContent,
   group,

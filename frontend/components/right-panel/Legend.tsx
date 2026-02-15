@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronsUpDownIcon } from 'lucide-react';
+import React from 'react';
 import { PROPERTY_TYPE_LABEL_MAPPING } from '@/lib/data';
 import { useStore } from '@/lib/hooks';
 import { P_VALUE_REGEX } from '@/lib/utils';
@@ -14,12 +15,18 @@ export function Legend() {
   const showEdgeColor = useStore(state => state.showEdgeColor);
   const defaultNodeColor = useStore(state => state.defaultNodeColor);
 
-  const minScore =
-    typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search).has('file')
-        ? 0
-        : (Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0)
-      : 0;
+  const [minScore, setMinScore] = React.useState(0);
+
+  React.useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('file')) {
+      setMinScore(0);
+      return;
+    }
+    const stored = Number(JSON.parse(localStorage.getItem('graphConfig') ?? '{}').minScore) ?? 0;
+    setMinScore(stored);
+  }, []);
+
+  const edgeDivisions = Math.max(1, Math.round((1 - (minScore ?? 0)) * 10));
 
   return (
     <Collapsible defaultOpen className='text-xs'>
@@ -83,7 +90,7 @@ export function Legend() {
             title='Edge Color'
             range={['yellow', 'red']}
             domain={[minScore ?? 0, 1]}
-            divisions={Math.round((1 - (minScore ?? 0)) * 10)}
+            divisions={edgeDivisions}
           />
         )}
       </CollapsibleContent>

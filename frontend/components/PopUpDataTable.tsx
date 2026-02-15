@@ -1,3 +1,5 @@
+'use client';
+
 import { DownloadIcon } from 'lucide-react';
 import { unparse } from 'papaparse';
 import React from 'react';
@@ -19,11 +21,16 @@ export default function PopUpDataTable<E, F>({
   tabsTitle,
   loading,
 }: PopUpDataTableProps<E, F>) {
+  // Defensive normalization to avoid hydration mismatches
+  const safeTabs: [string, string] = tabsTitle ?? ['Table 1', 'Table 2'];
+  const defaultTab = safeTabs[0];
+  const colsCount = safeTabs.length;
   /**
    * Function to download the selected genes data as a CSV file
    */
   const handleDownload = (fileName?: string) => {
-    const csv = unparse<E | F>(data[tabsTitle?.indexOf(fileName ?? tabsTitle[0]) ?? 0]);
+    const targetIndex = safeTabs.indexOf(fileName ?? safeTabs[0]);
+    const csv = unparse<E | F>(data[targetIndex === -1 ? 0 : targetIndex]);
     const element = document.createElement('a');
     const file = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     element.href = URL.createObjectURL(file);
@@ -49,30 +56,33 @@ export default function PopUpDataTable<E, F>({
       <DialogContent className='flex max-h-[90vh] min-h-[60vh] max-w-7xl flex-col'>
         <DialogTitle>{dialogTitle}</DialogTitle>
         <div className='grow overflow-y-scroll'>
-          <Tabs defaultValue={tabsTitle?.[0]}>
-            <TabsList className={cn('grid w-full', `grid-cols-${tabsTitle?.length}`)}>
-              {tabsTitle?.map(title => (
+          <Tabs defaultValue={defaultTab}>
+            <TabsList className={cn('grid w-full', `grid-cols-${colsCount}`)}>
+              {safeTabs.map(title => (
                 <TabsTrigger key={title} value={title}>
                   {title}
                 </TabsTrigger>
               ))}
             </TabsList>
-            <TabsContent key={tabsTitle?.[0]} value={tabsTitle![0]}>
-              <DataTable
-                data={data[0]}
-                loading={loading?.[0]}
-                columns={columns[0]}
-                filterColumnName={filterColumnNames[0]}
-              />
-            </TabsContent>
-            <TabsContent key={tabsTitle?.[1]} value={tabsTitle![1]}>
-              <DataTable
-                data={data[1]}
-                loading={loading?.[1]}
-                columns={columns[1]}
-                filterColumnName={filterColumnNames[1]}
-              />
-            </TabsContent>
+            {safeTabs.map((title, idx) => (
+              <TabsContent key={title || String(idx)} value={title}>
+                {idx === 0 ? (
+                  <DataTable<E>
+                    data={data[0]}
+                    loading={loading?.[0]}
+                    columns={columns[0]}
+                    filterColumnName={filterColumnNames[0]}
+                  />
+                ) : (
+                  <DataTable<F>
+                    data={data[1]}
+                    loading={loading?.[1]}
+                    columns={columns[1]}
+                    filterColumnName={filterColumnNames[1]}
+                  />
+                )}
+              </TabsContent>
+            ))}
           </Tabs>
         </div>
         <DialogFooter className='w-full gap-2'>

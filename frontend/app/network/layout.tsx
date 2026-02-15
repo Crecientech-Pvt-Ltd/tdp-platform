@@ -4,6 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon, FileTextIcon, HomeIcon } from 'lucid
 import Link from 'next/link';
 import React, { useEffect } from 'react';
 import { AppBar } from '@/components/app';
+import { ChatInterface } from '@/components/chat-interface';
 import { OpenTargetsHeatmap } from '@/components/heatmap';
 import { LeftSideBar } from '@/components/left-panel';
 import { RightSideBar } from '@/components/right-panel';
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
 export default function NetworkLayoutPage({ children }: { children: React.ReactNode }) {
   const activeTab = useStore(state => state.activeTab);
   const setActiveTab = useStore(state => state.setActiveTab);
+  const chatDataContext = useStore(state => state.chatDataContext);
   const [leftSidebar, setLeftSidebar] = React.useState<boolean>(true);
   const [rightSidebar, setRightSidebar] = React.useState<boolean>(true);
 
@@ -67,18 +69,28 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
         </ResizablePanel>
         <ResizableHandle withHandle className={leftSidebar ? 'flex' : 'hidden'} />
         <ResizablePanel defaultSize={68} className='h-full w-full bg-white'>
-          <TabsContent
-            forceMount
-            value='Network'
-            className={cn('mt-0 h-full', activeTab === 'Network' ? 'visible' : 'invisible fixed')}
-          >
-            {children}
-          </TabsContent>
-          <TabsContent value='Heatmap' className='mt-0 h-full'>
-            <ScrollArea className='h-full'>
-              <OpenTargetsHeatmap />
-            </ScrollArea>
-          </TabsContent>
+          <ResizablePanelGroup direction='vertical' className='h-full'>
+            <ResizablePanel defaultSize={72} minSize={30}>
+              <TabsContent
+                forceMount
+                value='Network'
+                className={cn('mt-0 h-full', activeTab === 'Network' ? 'visible' : 'invisible fixed')}
+              >
+                {children}
+              </TabsContent>
+              <TabsContent value='Heatmap' className='mt-0 h-full'>
+                <ScrollArea className='h-full'>
+                  <OpenTargetsHeatmap />
+                </ScrollArea>
+              </TabsContent>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={28} minSize={18} maxSize={50} className='border-muted/10 border-t-2'>
+              <div className='h-full p-2'>
+                <ChatInterface dataContext={chatDataContext} />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </ResizablePanel>
         <ResizableHandle withHandle className={rightSidebar ? 'flex' : 'hidden'} />
         <ResizablePanel defaultSize={16} minSize={16} className={rightSidebar ? 'block' : 'hidden'}>

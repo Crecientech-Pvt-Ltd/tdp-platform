@@ -166,52 +166,50 @@ export function HeatmapTable<T extends object>({
             </TableRow>
           ) : (
             // Actual data
-            table
-              .getRowModel()
-              .rows.map(row => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell, j) => {
-                    if (j === 0) {
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          className='px-1 py-2'
-                          style={{
-                            width: labelColWidth,
-                            minWidth: labelColWidth,
-                            maxWidth: labelColWidth,
-                          }}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      );
-                    }
-                    const value = cell.getValue() as number | undefined;
+            table.getRowModel().rows.map(row => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell, j) => {
+                  if (j === 0) {
                     return (
                       <TableCell
                         key={cell.id}
                         className='px-1 py-2'
-                        style={{ width: colWidth, minWidth: minColWidth, maxWidth: maxColWidth, textAlign: 'center' }}
+                        style={{
+                          width: labelColWidth,
+                          minWidth: labelColWidth,
+                          maxWidth: labelColWidth,
+                        }}
                       >
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className='flex h-8 items-center justify-start'>
-                              <span
-                                className={cn(
-                                  'inline-block size-6 border border-gray-400',
-                                  cell.column.id === 'Association Score' ? 'rounded-md' : 'rounded-full',
-                                )}
-                                style={{ background: colorScale?.(value, cell.column.id) ?? '#e3f0fa' }}
-                              />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>{typeof value === 'number' ? value.toFixed(2) : 'No data'}</TooltipContent>
-                        </Tooltip>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     );
-                  })}
-                </TableRow>
-              ))
+                  }
+                  const value = cell.getValue() as number | undefined;
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className='px-1 py-2'
+                      style={{ width: colWidth, minWidth: minColWidth, maxWidth: maxColWidth, textAlign: 'center' }}
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className='flex h-8 items-center justify-start'>
+                            <span
+                              className={cn(
+                                'inline-block size-6 border border-gray-400',
+                                cell.column.id === 'Association Score' ? 'rounded-md' : 'rounded-full',
+                              )}
+                              style={{ background: colorScale?.(value, cell.column.id) ?? '#e3f0fa' }}
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{typeof value === 'number' ? value.toFixed(2) : 'No data'}</TooltipContent>
+                      </Tooltip>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>

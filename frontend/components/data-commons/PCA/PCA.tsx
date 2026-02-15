@@ -6,7 +6,7 @@ import type { DownloadFileSpec } from '@/components/data-commons/common/Download
 import SeeMore from '@/components/data-commons/common/SeeMore';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
-import { usePCAColumns, usePCAData, useSampleColumns, useViewportHeight } from './hooks';
+import { usePCAColumns, usePCAData, useSampleColumns } from './hooks';
 import { EmptyState, GroupLegend, LoadingState, PCAHeader, PCALayout, PCAPlot } from './PCAComponents';
 import { getDefaultGroupColumn, getDefaultSampleColumn } from './utils';
 
@@ -29,8 +29,6 @@ export default function PCA({
 
   const { data: sampleData, loading: sampleLoading } = useFileData(sampleFile);
   const { data: pcaData, loading: pcaLoading } = useFileData(pcaFile);
-
-  const viewportHeight = useViewportHeight();
 
   const { pcaColumns, setPcaColumns, xAxisColumn, setXAxisColumn, yAxisColumn, setYAxisColumn, handleAxisChange } =
     usePCAColumns();
@@ -184,20 +182,15 @@ export default function PCA({
       ) : loading ? (
         <LoadingState>Loading data...</LoadingState>
       ) : (
-        <>
+        <div className='flex min-h-0 flex-1 flex-col'>
           <PCAHeader xAxisColumn={xAxisColumn} yAxisColumn={yAxisColumn} onSeeMoreClick={handleSeeMoreClick} />
 
           <div className='mb-6 flex items-center justify-center'>
             <GroupLegend groupToColor={groupToColor} sampleDataExists={sampleDataExists} />
           </div>
 
-          <PCAPlot
-            traces={traces}
-            xAxisColumn={xAxisColumn}
-            yAxisColumn={yAxisColumn}
-            viewportHeight={viewportHeight}
-          />
-        </>
+          <PCAPlot traces={traces} xAxisColumn={xAxisColumn} yAxisColumn={yAxisColumn} />
+        </div>
       )}
 
       <SeeMore

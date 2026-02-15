@@ -27,7 +27,4 @@ COPY . .
 RUN uv sync --frozen --no-dev
 
 # Use exec form for CMD and avoid unnecessary quotes
-# Expose the GSEA API port
-EXPOSE 5000
-
 CMD ["uv", "run", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]

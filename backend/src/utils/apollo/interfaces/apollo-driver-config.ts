@@ -16,7 +16,8 @@ export interface ServerRegistration {
  * @publicApi
  */
 export interface ApolloDriverConfig
-  extends Omit<ApolloServerOptionsWithTypeDefs<any>, 'typeDefs' | 'schema' | 'resolvers' | 'gateway'>,
+  extends
+    Omit<ApolloServerOptionsWithTypeDefs<any>, 'typeDefs' | 'schema' | 'resolvers' | 'gateway'>,
     ServerRegistration,
     GqlModuleOptions {
   /**

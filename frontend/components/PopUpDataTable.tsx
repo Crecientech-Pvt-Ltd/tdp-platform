@@ -19,6 +19,11 @@ export default function PopUpDataTable<E, F>({
   tabsTitle,
   loading,
 }: PopUpDataTableProps<E, F>) {
+  // Defensive normalization to avoid hydration mismatches
+  const safeTabs = Array.isArray(tabsTitle) && tabsTitle.length > 0 ? tabsTitle : [''];
+  const defaultTab = safeTabs[0];
+  const colsCount = safeTabs.length || 1;
+  const safeData = Array.isArray(data) ? data : [];
   /**
    * Function to download the selected genes data as a CSV file
    */
@@ -49,30 +54,24 @@ export default function PopUpDataTable<E, F>({
       <DialogContent className='flex max-h-[90vh] min-h-[60vh] max-w-7xl flex-col'>
         <DialogTitle>{dialogTitle}</DialogTitle>
         <div className='grow overflow-y-scroll'>
-          <Tabs defaultValue={tabsTitle?.[0]}>
-            <TabsList className={cn('grid w-full', `grid-cols-${tabsTitle?.length}`)}>
-              {tabsTitle?.map(title => (
+          <Tabs defaultValue={defaultTab}>
+            <TabsList className={cn('grid w-full', `grid-cols-${colsCount}`)}>
+              {safeTabs.map(title => (
                 <TabsTrigger key={title} value={title}>
                   {title}
                 </TabsTrigger>
               ))}
             </TabsList>
-            <TabsContent key={tabsTitle?.[0]} value={tabsTitle![0]}>
-              <DataTable
-                data={data[0]}
-                loading={loading?.[0]}
-                columns={columns[0]}
-                filterColumnName={filterColumnNames[0]}
-              />
-            </TabsContent>
-            <TabsContent key={tabsTitle?.[1]} value={tabsTitle![1]}>
-              <DataTable
-                data={data[1]}
-                loading={loading?.[1]}
-                columns={columns[1]}
-                filterColumnName={filterColumnNames[1]}
-              />
-            </TabsContent>
+            {safeTabs.map((title, idx) => (
+              <TabsContent key={title || String(idx)} value={title}>
+                <DataTable
+                  data={(safeData[idx] ?? []) as any}
+                  loading={loading?.[idx]}
+                  columns={columns[idx] as any}
+                  filterColumnName={filterColumnNames[idx]}
+                />
+              </TabsContent>
+            ))}
           </Tabs>
         </div>
         <DialogFooter className='w-full gap-2'>

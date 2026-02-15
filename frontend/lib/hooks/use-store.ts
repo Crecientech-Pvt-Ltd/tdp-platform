@@ -31,6 +31,7 @@ export const useStore = create<GraphStore>(set => ({
     hubGeneEdgeCount: 0,
     nodeDegreeProperty: 'Gene Degree',
   },
+  chatDataContext: '',
   geneNames: [],
   diseaseName: '',
   universalData: {},

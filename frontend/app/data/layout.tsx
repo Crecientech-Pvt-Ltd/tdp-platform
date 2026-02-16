@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, MessageCircleIcon, XIcon } from 'lucide-react';
 import React from 'react';
 import { ChatInterface } from '@/components/chat-interface';
 import { LeftSideBar } from '@/components/left-panel';
@@ -18,6 +18,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
   const [activeTab, setActiveTab] = React.useState(tabNames[0].key);
   const [leftSidebar, setLeftSidebar] = React.useState<boolean>(false);
   const [rightSidebar, setRightSidebar] = React.useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   const handleLeftSidebarToggle = React.useCallback(() => {
     setLeftSidebar(prev => !prev);
@@ -73,23 +74,9 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           defaultSize={leftSidebar && rightSidebar ? 68 : leftSidebar || rightSidebar ? 84 : 100}
           className='h-full w-full bg-white'
         >
-          <ResizablePanelGroup direction='vertical' className='flex h-full min-h-0'>
-            {/* Main content (PCA plot area) */}
-            <ResizablePanel defaultSize={78} minSize={40} className='min-h-0'>
-              <div className='flex h-full min-h-0 overflow-hidden'>
-                <div className='min-h-0 flex-1 overflow-hidden'>{children}</div>
-              </div>
-            </ResizablePanel>
-
-            <ResizableHandle withHandle />
-
-            {/* Chat */}
-            <ResizablePanel defaultSize={20} minSize={10} className='border-t bg-white'>
-              <div className='flex h-full min-h-0 flex-col overflow-hidden'>
-                <ChatInterface />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <div className='flex h-full min-h-0 overflow-hidden'>
+            <div className='min-h-0 flex-1 overflow-hidden'>{children}</div>
+          </div>
         </ResizablePanel>
         {rightSidebar && (
           <>
@@ -100,6 +87,39 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
           </>
         )}
       </ResizablePanelGroup>
+
+      {/* Floating chat icon and upward popup so charts keep full height */}
+      <div className='pointer-events-none fixed right-4 bottom-4 z-50 sm:right-6 sm:bottom-6'>
+        {isChatOpen && (
+          <div className='pointer-events-auto mb-3 h-[min(70vh,560px)] w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-xl border bg-white shadow-2xl'>
+            <div className='flex h-full min-h-0 flex-col'>
+              <div className='flex items-center justify-end border-b p-1.5'>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='h-7 w-7'
+                  onClick={() => setIsChatOpen(false)}
+                  aria-label='Close chat'
+                >
+                  <XIcon className='size-4' />
+                </Button>
+              </div>
+              <div className='min-h-0 flex-1 p-2'>
+                <ChatInterface />
+              </div>
+            </div>
+          </div>
+        )}
+        <Button
+          variant='default'
+          size='icon'
+          className='pointer-events-auto h-12 w-12 rounded-full shadow-lg'
+          onClick={() => setIsChatOpen(prev => !prev)}
+          aria-label={isChatOpen ? 'Close chat' : 'Open chat'}
+        >
+          {isChatOpen ? <XIcon className='size-5' /> : <MessageCircleIcon className='size-5' />}
+        </Button>
+      </div>
     </Tabs>
   );
 }

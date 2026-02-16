@@ -51,7 +51,7 @@ export default function MessageList({ messages, emptyText }: { messages: ChatMes
       {messages.map(message => (
         <div
           key={message.id}
-          className={`rounded-md p-2 leading-[1.3] ${
+          className={`p- 2 rounded-md leading-[1.3] ${
             message.role === 'user' ? 'bg-background' : message.role === 'system' ? 'bg-accent/20' : 'bg-muted'
           }`}
         >

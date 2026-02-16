@@ -100,18 +100,29 @@ When no graph context is provided, default to General Biomedical/Research Mode.
  * @param dataContext Raw graph context (node, firstOrder, secondOrder, etc.).
  * @returns A compact summary object or the original context if incomplete.
  */
-function summarizeGraph(dataContext: any) {
-  if (!dataContext?.node || !dataContext?.firstOrder) return dataContext;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
-  const target = dataContext.node.label;
+function summarizeGraph(dataContext: unknown) {
+  if (!isRecord(dataContext)) return dataContext;
 
-  const firstOrderGenes = dataContext.firstOrder.map((g: any) => g.label);
+  const node = dataContext.node;
+  const firstOrder = dataContext.firstOrder;
+  if (!isRecord(node) || !Array.isArray(firstOrder)) return dataContext;
+
+  const target = typeof node.label === 'string' ? node.label : '';
+
+  const firstOrderGenes = firstOrder
+    .map(g => (isRecord(g) && typeof g.label === 'string' ? g.label : null))
+    .filter((label): label is string => label !== null);
+  const secondOrder = dataContext.secondOrder;
 
   return {
     targetGene: target,
     firstOrderGenes: firstOrderGenes,
     firstOrderCount: firstOrderGenes.length,
-    secondOrderCount: dataContext.secondOrder?.length || 0,
+    secondOrderCount: Array.isArray(secondOrder) ? secondOrder.length : 0,
   };
 }
 
@@ -121,7 +132,7 @@ function summarizeGraph(dataContext: any) {
  * @param maxLength Maximum length of the returned string.
  * @returns A JSON string or a fallback string representation.
  */
-function safeStringify(obj: any, maxLength = 2000) {
+function safeStringify(obj: unknown, maxLength = 2000) {
   try {
     const full = JSON.stringify(obj, null, 2);
     if (full.length > maxLength) return `${full.slice(0, maxLength)}... (truncated)`;
@@ -136,10 +147,10 @@ function safeStringify(obj: any, maxLength = 2000) {
  * @param dataContext The candidate context value.
  * @returns True if the context is non-empty, otherwise false.
  */
-function hasDataContext(dataContext: any) {
+function hasDataContext(dataContext: unknown) {
   if (!dataContext) return false;
   if (Array.isArray(dataContext)) return dataContext.length > 0;
-  if (typeof dataContext === 'object') return Object.keys(dataContext).length > 0;
+  if (isRecord(dataContext)) return Object.keys(dataContext).length > 0;
   return true;
 }
 
@@ -149,7 +160,7 @@ function hasDataContext(dataContext: any) {
  * @param question User's natural-language question.
  * @returns A prompt string ready for the model API.
  */
-export function buildPrompt(dataContext: any, question: string) {
+export function buildPrompt(dataContext: unknown, question: string) {
   if (!hasDataContext(dataContext)) {
     return `${GENERAL_SYSTEM_PROMPT}
 

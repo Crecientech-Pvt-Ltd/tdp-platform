@@ -26,10 +26,12 @@ import {
   ZoomControl,
 } from '.';
 
-export const SigmaContainer = React.forwardRef<
-  Sigma<NodeAttributes, EdgeAttributes, Attributes>,
-  SigmaContainerProps<NodeAttributes, EdgeAttributes, Attributes>
->((props, ref) => {
+export const SigmaContainer = ({
+  ref,
+  ...props
+}: SigmaContainerProps<NodeAttributes, EdgeAttributes, Attributes> & {
+  ref?: React.RefObject<Sigma<NodeAttributes, EdgeAttributes, Attributes> | null>;
+}) => {
   const clickedNodesRef = React.useRef(new Set<string>());
   const highlightedNodesRef = React.useRef(new Set<string>());
   const hubGenesNodesRef = React.useRef(new Set<string>());
@@ -88,5 +90,5 @@ export const SigmaContainer = React.forwardRef<
       </ControlsContainer>
     </_SigmaContainer>
   );
-});
+};
 SigmaContainer.displayName = 'Client_SigmaContainer';

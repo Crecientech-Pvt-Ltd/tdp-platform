@@ -22,15 +22,15 @@ export default function PopUpDataTable<E, F>({
   loading,
 }: PopUpDataTableProps<E, F>) {
   // Defensive normalization to avoid hydration mismatches
-  const safeTabs = Array.isArray(tabsTitle) && tabsTitle.length > 0 ? tabsTitle : [''];
+  const safeTabs: [string, string] = tabsTitle ?? ['Table 1', 'Table 2'];
   const defaultTab = safeTabs[0];
-  const colsCount = safeTabs.length || 1;
-  const safeData = Array.isArray(data) ? data : [];
+  const colsCount = safeTabs.length;
   /**
    * Function to download the selected genes data as a CSV file
    */
   const handleDownload = (fileName?: string) => {
-    const csv = unparse<E | F>(data[tabsTitle?.indexOf(fileName ?? tabsTitle[0]) ?? 0]);
+    const targetIndex = safeTabs.indexOf(fileName ?? safeTabs[0]);
+    const csv = unparse<E | F>(data[targetIndex === -1 ? 0 : targetIndex]);
     const element = document.createElement('a');
     const file = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     element.href = URL.createObjectURL(file);
@@ -66,12 +66,21 @@ export default function PopUpDataTable<E, F>({
             </TabsList>
             {safeTabs.map((title, idx) => (
               <TabsContent key={title || String(idx)} value={title}>
-                <DataTable
-                  data={(safeData[idx] ?? []) as any}
-                  loading={loading?.[idx]}
-                  columns={columns[idx] as any}
-                  filterColumnName={filterColumnNames[idx]}
-                />
+                {idx === 0 ? (
+                  <DataTable<E>
+                    data={data[0]}
+                    loading={loading?.[0]}
+                    columns={columns[0]}
+                    filterColumnName={filterColumnNames[0]}
+                  />
+                ) : (
+                  <DataTable<F>
+                    data={data[1]}
+                    loading={loading?.[1]}
+                    columns={columns[1]}
+                    filterColumnName={filterColumnNames[1]}
+                  />
+                )}
               </TabsContent>
             ))}
           </Tabs>

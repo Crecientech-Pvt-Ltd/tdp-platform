@@ -105,6 +105,11 @@ interface DiseaseMapComboboxProps {
   align?: 'start' | 'end' | 'center';
 }
 
+interface DiseaseEnvelope {
+  data?: unknown;
+  diseases?: unknown;
+}
+
 export function DiseaseMapCombobox({
   className,
   data = [],
@@ -115,13 +120,14 @@ export function DiseaseMapCombobox({
   const [open, setOpen] = React.useState<boolean>(false);
   // Normalize incoming `data` to an array before mapping (defensive guard)
   const searchItems: SearchItem[] = React.useMemo(() => {
+    const envelope = data && typeof data === 'object' ? (data as DiseaseEnvelope) : null;
     const normalized: typeof data = Array.isArray(data)
-      ? (data as typeof data)
+      ? data
       : // handle common envelope shapes like { data: [...] } or { diseases: [...] }
-        data && typeof data === 'object' && Array.isArray((data as any).data)
-        ? (data as any).data
-        : data && typeof data === 'object' && Array.isArray((data as any).diseases)
-          ? (data as any).diseases
+        Array.isArray(envelope?.data)
+        ? (envelope.data as typeof data)
+        : Array.isArray(envelope?.diseases)
+          ? (envelope.diseases as typeof data)
           : [];
 
     return normalized.map(item => ({

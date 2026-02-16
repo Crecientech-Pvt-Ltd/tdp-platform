@@ -13,11 +13,11 @@ export function AppBar() {
           {visible && (
             // biome-ignore lint/a11y/noStaticElementInteractions: hydration error (button inside button)
             <span
-              className='-bottom-2 absolute flex size-2.5'
+              className='absolute -bottom-2 flex size-2.5'
               onClick={() => setVisible(false)}
               onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setVisible(false)}
             >
-              <span className='-bottom-0.5 absolute z-50 inline-flex h-[150%] w-[150%] animate-ping rounded-full bg-sky-400 opacity-75' />
+              <span className='absolute -bottom-0.5 z-50 inline-flex h-[150%] w-[150%] animate-ping rounded-full bg-sky-400 opacity-75' />
               <span className='relative inline-flex size-2.5 rounded-full bg-sky-500' />
             </span>
           )}

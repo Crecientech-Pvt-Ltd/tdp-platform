@@ -7,6 +7,7 @@ import DownloadPopup, { type DownloadFileSpec } from '@/components/data-commons/
 import SeeMore from '@/components/data-commons/common/SeeMore';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
+import { Button } from '@/components/ui/button';
 import { usePCAColumns, usePCAData, useSampleColumns } from './hooks';
 import { EmptyState, GroupLegend, LoadingState, PCAHeader, PCALayout, PCAPlot } from './PCAComponents';
 import { getDefaultGroupColumn, getDefaultSampleColumn } from './utils';

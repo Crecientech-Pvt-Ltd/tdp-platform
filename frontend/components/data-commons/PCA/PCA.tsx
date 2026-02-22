@@ -1,11 +1,13 @@
 'use client';
 
+import { DownloadIcon } from 'lucide-react';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { DownloadFileSpec } from '@/components/data-commons/common/DownloadPopup';
+import DownloadPopup, { type DownloadFileSpec } from '@/components/data-commons/common/DownloadPopup';
 import SeeMore from '@/components/data-commons/common/SeeMore';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
+import { Button } from '@/components/ui/button';
 import { usePCAColumns, usePCAData, useSampleColumns } from './hooks';
 import { EmptyState, GroupLegend, LoadingState, PCAHeader, PCALayout, PCAPlot } from './PCAComponents';
 import { getDefaultGroupColumn, getDefaultSampleColumn } from './utils';
@@ -26,6 +28,7 @@ export default function PCA({
   project = 'analysis',
 }: PCAProps) {
   const [showSeeMore, setShowSeeMore] = useState(false);
+  const [showDownloadPopup, setShowDownloadPopup] = useState(false);
 
   const { data: sampleData, loading: sampleLoading } = useFileData(sampleFile);
   const { data: pcaData, loading: pcaLoading } = useFileData(pcaFile);
@@ -177,6 +180,20 @@ export default function PCA({
 
   return (
     <PCALayout>
+      {downloadFiles.length > 0 && (
+        <div className='mb-4 flex justify-start'>
+          <Button
+            onClick={() => setShowDownloadPopup(true)}
+            variant='outline'
+            size='sm'
+            className='flex items-center gap-2'
+          >
+            <DownloadIcon className='size-4' />
+            Download Data
+          </Button>
+        </div>
+      )}
+
       {!hasPCAFile ? (
         <EmptyState>Kindly add PCA file to view the plot.</EmptyState>
       ) : loading ? (
@@ -218,7 +235,16 @@ export default function PCA({
           buttonLabel: 'Download Data',
           metadata,
         }}
+        hideDownloadButton
         title='PCA Configuration & Data Information'
+      />
+
+      <DownloadPopup
+        isOpen={showDownloadPopup}
+        onClose={() => setShowDownloadPopup(false)}
+        files={downloadFiles}
+        metadata={metadata}
+        zipName={`PCA-${project}.zip`}
       />
     </PCALayout>
   );

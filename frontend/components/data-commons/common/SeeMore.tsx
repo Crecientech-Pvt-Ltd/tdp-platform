@@ -53,6 +53,7 @@ interface SeeMoreProps {
   title?: string;
 
   download?: DownloadConfig;
+  hideDownloadButton?: boolean;
 }
 
 type DownloadMetadata = {
@@ -70,6 +71,7 @@ export default function SeeMore({
   sampleMapping: sampleMappingProp,
   title = 'Configuration & Data Information',
   download,
+  hideDownloadButton = false,
 }: SeeMoreProps) {
   const mapping = mappingProp ?? sampleMappingProp;
 
@@ -277,14 +279,16 @@ export default function SeeMore({
             <div className='order-1 flex w-full gap-2 sm:w-auto'>
               {canDownload && (
                 <>
-                  <Button
-                    onClick={() => setShowDownloadPopup(true)}
-                    variant='outline'
-                    className='flex items-center gap-2'
-                  >
-                    <DownloadIcon className='size-4' />
-                    {download?.buttonLabel ?? 'Download Data'}
-                  </Button>
+                  {!hideDownloadButton && (
+                    <Button
+                      onClick={() => setShowDownloadPopup(true)}
+                      variant='outline'
+                      className='flex items-center gap-2'
+                    >
+                      <DownloadIcon className='size-4' />
+                      {download?.buttonLabel ?? 'Download Data'}
+                    </Button>
+                  )}
                   <Button
                     onClick={handlePreviewFiles}
                     variant='outline'

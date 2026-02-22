@@ -1,11 +1,14 @@
 'use client';
 
+import { DownloadIcon } from 'lucide-react';
 import Papa from 'papaparse';
 import { useEffect, useId, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { VolcanoPlotControls } from './Controls';
+import DownloadPopup from './DownloadPopup';
 import {
   useDebounce,
   useGeneContrastData,
@@ -37,6 +40,7 @@ export default function VolcanoPlot({
   const [allDataLoaded, setAllDataLoaded] = useState<boolean>(false);
   const [useLog, setUseLog] = useState<1 | 0>(1);
   const [showSeeMore, setShowSeeMore] = useState<boolean>(false);
+  const [showDownloadPopup, setShowDownloadPopup] = useState<boolean>(false);
   const [selectedGenes, setSelectedGenes] = useState<Set<string>>(new Set());
   const [searchGenes, setSearchGenes] = useState<string[]>([]);
 
@@ -339,6 +343,20 @@ export default function VolcanoPlot({
 
   return (
     <div className='resizable-panel-container mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
+      {availableContrasts.length > 0 && processDataForDownload && (
+        <div className='mb-4 flex justify-start'>
+          <Button
+            onClick={() => setShowDownloadPopup(true)}
+            variant='outline'
+            size='sm'
+            className='flex items-center gap-2'
+          >
+            <DownloadIcon className='size-4' />
+            Download Data
+          </Button>
+        </div>
+      )}
+
       {hasGene && hasTranscript && (
         <div className='mb-6 flex justify-center lg:mb-3'>
           <div className='flex min-w-fit items-center gap-3'>
@@ -446,7 +464,27 @@ export default function VolcanoPlot({
         program={program}
         project={project}
         deFiles={activeFiles}
+        hideDownloadButton
       />
+      {availableContrasts.length > 0 && processDataForDownload && (
+        <DownloadPopup
+          isOpen={showDownloadPopup}
+          onClose={() => setShowDownloadPopup(false)}
+          availableContrasts={availableContrasts}
+          processDataForDownload={processDataForDownload}
+          currentSettings={{
+            xThreshold: thresholds.xThreshold,
+            yThreshold: thresholds.yThreshold,
+            useLog: useLog === 1,
+            xAxisColumn,
+            yAxisColumn,
+          }}
+          selectedContrasts={selectedContrasts}
+          group={group}
+          program={program}
+          project={project}
+        />
+      )}
     </div>
   );
 }

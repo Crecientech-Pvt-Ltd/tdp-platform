@@ -1,8 +1,11 @@
 'use client';
 
+import { DownloadIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import DownloadPopup from '@/components/data-commons/common/DownloadPopup';
 import SeeMore from '@/components/data-commons/common/SeeMore';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
+import { Button } from '@/components/ui/button';
 import {
   useDataFiles,
   useDataSource,
@@ -34,6 +37,7 @@ export default function TranscriptExpression({
   project,
 }: TranscriptExpressionProps) {
   const [showSeeMore, setShowSeeMore] = useState(false);
+  const [showDownloadPopup, setShowDownloadPopup] = useState(false);
 
   const viewportHeight = useViewportHeight();
 
@@ -107,6 +111,20 @@ export default function TranscriptExpression({
 
   return (
     <div className='mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
+      {downloadFiles.length > 0 && (
+        <div className='mb-4 flex justify-start'>
+          <Button
+            onClick={() => setShowDownloadPopup(true)}
+            variant='outline'
+            size='sm'
+            className='flex items-center gap-2'
+          >
+            <DownloadIcon className='size-4' />
+            Download Data
+          </Button>
+        </div>
+      )}
+
       <Controls
         hasGene={hasGene}
         hasTranscript={hasTranscript}
@@ -150,7 +168,15 @@ export default function TranscriptExpression({
           buttonLabel: 'Download Data',
           metadata,
         }}
+        hideDownloadButton
         title='Transcript Expression – Configuration & Data'
+      />
+      <DownloadPopup
+        isOpen={showDownloadPopup}
+        onClose={() => setShowDownloadPopup(false)}
+        files={downloadFiles}
+        metadata={metadata}
+        zipName={`TE-${project || 'data'}.zip`}
       />
     </div>
   );

@@ -47,7 +47,7 @@ function Slider({
           data-slot='slider-thumb'
           // biome-ignore lint/suspicious/noArrayIndexKey: skeleton have fixed number of rows
           key={index}
-          className='absolute -top-1 -left-2 block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50'
+          className='-top-1 -left-2 absolute block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50'
         />
       ))}
       <div className='mt-1 flex w-full justify-between'>

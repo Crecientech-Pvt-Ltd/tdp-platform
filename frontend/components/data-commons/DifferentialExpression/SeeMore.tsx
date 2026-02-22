@@ -51,6 +51,7 @@ interface SeeMoreProps {
   program: string;
   project: string;
   deFiles?: Record<string, string>;
+  hideDownloadButton?: boolean;
 }
 
 export default memo(function SeeMore({
@@ -70,6 +71,7 @@ export default memo(function SeeMore({
   program,
   project,
   deFiles,
+  hideDownloadButton = false,
 }: SeeMoreProps) {
   const [selectedXColumn, setSelectedXColumn] = useState(currentXColumn);
   const [selectedYColumn, setSelectedYColumn] = useState(currentYColumn);
@@ -215,14 +217,16 @@ export default memo(function SeeMore({
             <div className='order-1 flex w-full gap-2 sm:w-auto'>
               {availableContrasts.length > 0 && processDataForDownload && currentSettings && (
                 <>
-                  <Button
-                    onClick={() => setShowDownloadPopup(true)}
-                    variant='outline'
-                    className='flex items-center gap-2'
-                  >
-                    <DownloadIcon className='size-4' />
-                    Download Data
-                  </Button>
+                  {!hideDownloadButton && (
+                    <Button
+                      onClick={() => setShowDownloadPopup(true)}
+                      variant='outline'
+                      className='flex items-center gap-2'
+                    >
+                      <DownloadIcon className='size-4' />
+                      Download Data
+                    </Button>
+                  )}
                   <Button
                     onClick={handlePreviewFiles}
                     variant='outline'

@@ -65,6 +65,14 @@ export default function Home() {
   }, []);
 
   React.useEffect(() => {
+    const pendingSeedGenes = localStorage.getItem('pendingSeedGenesFromDE');
+    if (!pendingSeedGenes) return;
+
+    setFormData(prev => ({ ...prev, seedGenes: pendingSeedGenes }));
+    localStorage.removeItem('pendingSeedGenesFromDE');
+  }, []);
+
+  React.useEffect(() => {
     const escapeListener = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setTableOpen(false);

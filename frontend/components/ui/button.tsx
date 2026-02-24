@@ -48,7 +48,14 @@ function Button({
   }) {
   const Comp = asChild ? Slot : 'button';
 
-  return <Comp data-slot='button' className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+  return (
+    <Comp
+      suppressHydrationWarning
+      data-slot='button'
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  );
 }
 
 // biome-ignore lint/style/useComponentExportOnlyModules: It's being used in alert-dialog.tsx

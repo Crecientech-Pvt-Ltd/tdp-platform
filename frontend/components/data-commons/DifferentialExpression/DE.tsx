@@ -16,6 +16,7 @@ import {
   useTranscriptContrastData,
   useViewportDimensions,
 } from './hooks';
+import { NetworkDialog } from './NetworkDialog';
 import { VolcanoPlotRenderer } from './Renderer';
 import SeeMore from './SeeMore';
 import type { GenericRow, Point, PointCounts, ProcessedData, SeeMoreDataItem, VolcanoPlotProps } from './types';
@@ -43,7 +44,7 @@ export default function VolcanoPlot({
   const [showDownloadPopup, setShowDownloadPopup] = useState<boolean>(false);
   const [selectedGenes, setSelectedGenes] = useState<Set<string>>(new Set());
   const [searchGenes, setSearchGenes] = useState<string[]>([]);
-
+  const [showNetworkDialog, setShowNetworkDialog] = useState<boolean>(false);
   const debouncedContrasts = useDebounce(selectedContrasts, 150);
   const thresholds = useThresholds(1, 0.01);
   const { viewportHeight } = useViewportDimensions();
@@ -385,6 +386,7 @@ export default function VolcanoPlot({
         selectedGenes={selectedGenes}
         onGenesChange={handleGenesChange}
         onShowSettings={() => setShowSeeMore(true)}
+        onCreateNetwork={() => setShowNetworkDialog(true)}
         searchGenes={searchGenes}
         selectedType={selectedType}
       />
@@ -441,6 +443,13 @@ export default function VolcanoPlot({
           <p className='text-gray-500 text-lg'>Select contrasts to view their volcano plots</p>
         </div>
       )}
+      <NetworkDialog
+        isOpen={showNetworkDialog}
+        onClose={() => setShowNetworkDialog(false)}
+        availableContrasts={availableContrasts}
+        processedData={processedData}
+        selectedType={selectedType}
+      />
       <SeeMore
         isOpen={showSeeMore}
         onClose={() => setShowSeeMore(false)}

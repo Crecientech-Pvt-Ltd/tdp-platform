@@ -1,7 +1,6 @@
 'use client';
 
 import { useLazyQuery } from '@apollo/client/react';
-import { redirect } from 'next/navigation';
 import React, { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { DISEASE_DEPENDENT_PROPERTIES, type DiseaseDependentProperties } from '@/lib/data';
@@ -25,7 +24,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Spinner } from '../ui/spinner';
 import { GeneSearch, NodeColor, NodeSize } from '.';
 
-export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?: boolean }) {
+export function LeftSideBar() {
   const diseaseName = useStore(state => state.diseaseName);
   const geneIds = useStore(useShallow(state => state.geneNames.map(g => state.geneNameToID.get(g) ?? g)));
   const skipCommon = useRef<boolean>(false);
@@ -33,7 +32,6 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
   const [diseaseMap, setDiseaseMap] = React.useState<string>('MONDO_0004976');
   useEffect(() => {
     const graphConfig = localStorage.getItem('graphConfig');
-    if (!graphConfig && graphConfigPresent) redirect('/');
     const diseaseMap = graphConfig ? JSON.parse(graphConfig).diseaseMap : 'MONDO_0004976';
     useStore.setState({
       diseaseName: diseaseMap || 'MONDO_0004976',
@@ -44,7 +42,7 @@ export function LeftSideBar({ graphConfigPresent = true }: { graphConfigPresent?
       const data = await response.json();
       setDiseaseData(data);
     })();
-  }, [graphConfigPresent]);
+  }, []);
 
   const [fetchHeader, { loading, called }] = useLazyQuery<GetHeadersData, GetHeadersVariables>(GET_HEADERS_QUERY, {
     returnPartialData: true,

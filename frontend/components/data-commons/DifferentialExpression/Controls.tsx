@@ -1,4 +1,4 @@
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, Network } from 'lucide-react';
 import type React from 'react';
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ interface VolcanoPlotControlsProps {
   selectedGenes: Set<string>;
   onGenesChange: (genes: string[]) => void;
   onShowSettings: () => void;
+  onCreateNetwork: () => void;
   searchGenes?: string[];
   selectedType: 'gene' | 'transcript';
 }
@@ -30,6 +31,7 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
   availableGenes,
   onGenesChange,
   onShowSettings,
+  onCreateNetwork,
   searchGenes = [],
   selectedType,
 }) => {
@@ -114,12 +116,21 @@ export const VolcanoPlotControls: React.FC<VolcanoPlotControlsProps> = ({
             </div>
           )}
 
-          <div className='sm:ml-auto'>
+          <div className='flex gap-2 sm:ml-auto'>
+            <Button
+              onClick={onCreateNetwork}
+              variant='outline'
+              size='sm'
+              className='flex h-7 items-center justify-center gap-1 px-2 sm:h-7'
+            >
+              <Network className='size-3' />
+              <span className='text-xs'>Create Network</span>
+            </Button>
             <Button
               onClick={onShowSettings}
               variant='outline'
               size='sm'
-              className='flex h-7 w-full items-center justify-center gap-1 px-2 sm:h-7 sm:w-auto'
+              className='flex h-7 items-center justify-center gap-1 px-2 sm:h-7'
             >
               <InfoIcon className='size-3' />
               <span className='text-xs'>Settings</span>

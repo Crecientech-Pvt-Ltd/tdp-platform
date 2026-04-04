@@ -21,15 +21,10 @@ interface MultiSelectProps {
   className?: string;
 }
 
-export const MultiSelect = ({
-  options,
-  selectedValues = [],
-  onChange,
-  placeholder = 'Select...',
-  disabled = false,
-  className,
+export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(function MultiSelect(
+  { options, selectedValues = [], onChange, placeholder = 'Select...', disabled = false, className },
   ref,
-}: MultiSelectProps & { ref?: React.RefObject<HTMLButtonElement | null> }) => {
+) {
   const [open, setOpen] = React.useState(false);
   const selected = selectedValues ?? [];
 
@@ -42,13 +37,14 @@ export const MultiSelect = ({
     }
   }, [open]);
 
-  const setRefs = (node: HTMLButtonElement | null) => {
-    if (typeof ref === 'function') ref(node);
-    else if (ref && 'current' in ref) (ref as React.RefObject<HTMLButtonElement | null>).current = node;
-    if (triggerRef && 'current' in triggerRef) {
-      (triggerRef as React.RefObject<HTMLButtonElement | null>).current = node;
-    }
-  };
+  const setRefs = React.useCallback(
+    (node: HTMLButtonElement | null) => {
+      triggerRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
+    },
+    [ref],
+  );
 
   const toggleValue = (val: string) => {
     if (selected.includes(val)) {
@@ -110,4 +106,6 @@ export const MultiSelect = ({
       </Popover.Portal>
     </Popover.Root>
   );
-};
+});
+
+MultiSelect.displayName = 'MultiSelect';

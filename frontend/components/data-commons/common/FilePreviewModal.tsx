@@ -3,6 +3,7 @@
 import { ArrowLeftIcon, ArrowRightIcon, XIcon } from 'lucide-react';
 import Papa from 'papaparse';
 import React from 'react';
+import { buildDataCommonsApiUrl } from '@/components/data-commons/common/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
@@ -14,6 +15,7 @@ interface FilePreviewModalProps {
   group?: string;
   program?: string;
   project?: string;
+  dataCommonsPath?: string;
   uploadedContent?: string;
   multiple?: boolean;
   onNext?: () => void;
@@ -36,6 +38,7 @@ export default function FilePreviewModal({
   group,
   program,
   project,
+  dataCommonsPath,
   uploadedContent,
   multiple = false,
   onNext,
@@ -91,7 +94,11 @@ export default function FilePreviewModal({
       Papa.parse(uploadedContent, parseConfig);
     } else if (group && program && project) {
       // Parse remote file using Papa Parse's download feature
-      const url = `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/preview/${encodeURIComponent(filename)}`;
+      const url = buildDataCommonsApiUrl(
+        API_BASE,
+        `/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/preview/${encodeURIComponent(filename)}`,
+        dataCommonsPath,
+      );
 
       Papa.parse(url, {
         ...parseConfig,
@@ -105,7 +112,7 @@ export default function FilePreviewModal({
       setError('Missing project information for server file preview');
       setLoading(false);
     }
-  }, [open, filename, group, program, project, uploadedContent]);
+  }, [open, filename, group, program, project, dataCommonsPath, uploadedContent]);
 
   const showTable = !!table && table.data.length > 0;
 

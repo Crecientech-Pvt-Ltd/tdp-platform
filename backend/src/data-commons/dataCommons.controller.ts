@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, Post, Body, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { DataCommonsService } from './dataCommons.service';
 
@@ -7,8 +7,8 @@ export class DataCommonsController {
   constructor(private readonly service: DataCommonsService) {}
 
   @Get('structure')
-  getFullStructure() {
-    return this.service.getFullStructure();
+  getFullStructure(@Query('dataCommonsPath') dataCommonsPath?: string) {
+    return this.service.getFullStructure(dataCommonsPath);
   }
 
   @Get('project/:group/:program/:project/description')
@@ -16,9 +16,10 @@ export class DataCommonsController {
     @Param('group') group: string,
     @Param('program') program: string,
     @Param('project') project: string,
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.sendProjectDescription(group, program, project, res);
+    return this.service.sendProjectDescription(group, program, project, res, dataCommonsPath);
   }
 
   @Get('project/:group/:program/:project/files/:filename')
@@ -27,9 +28,10 @@ export class DataCommonsController {
     @Param('program') program: string,
     @Param('project') project: string,
     @Param('filename') filename: string,
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.sendProjectFile(group, program, project, filename, res);
+    return this.service.sendProjectFile(group, program, project, filename, res, dataCommonsPath);
   }
 
   @Get('project/:group/:program/:project/deFile/:filename')
@@ -38,9 +40,10 @@ export class DataCommonsController {
     @Param('program') program: string,
     @Param('project') project: string,
     @Param('filename') filename: string,
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.sendDeFile(group, program, project, filename, res);
+    return this.service.sendDeFile(group, program, project, filename, res, dataCommonsPath);
   }
 
   @Get('project/:group/:program/:project/initializedFiles')
@@ -48,9 +51,10 @@ export class DataCommonsController {
     @Param('group') group: string,
     @Param('program') program: string,
     @Param('project') project: string,
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.initializedFiles(group, program, project, res);
+    return this.service.initializedFiles(group, program, project, res, dataCommonsPath);
   }
 
   @Get('project/:group/:program/:project/preview/:filename')
@@ -59,9 +63,10 @@ export class DataCommonsController {
     @Param('program') program: string,
     @Param('project') project: string,
     @Param('filename') filename: string,
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.previewProjectFile(group, program, project, filename, res);
+    return this.service.previewProjectFile(group, program, project, filename, res, dataCommonsPath);
   }
 
   @Post('project/:group/:program/:project/password')
@@ -71,9 +76,10 @@ export class DataCommonsController {
     @Param('program') program: string,
     @Param('project') project: string,
     @Body() body: { password: string },
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.checkProjectPassword(req, group, program, project, body.password || '', res);
+    return this.service.checkProjectPassword(req, group, program, project, body.password || '', res, dataCommonsPath);
   }
 
   @Get('project/:group/:program/:project/verify-auth')
@@ -82,8 +88,9 @@ export class DataCommonsController {
     @Param('group') group: string,
     @Param('program') program: string,
     @Param('project') project: string,
+    @Query('dataCommonsPath') dataCommonsPath: string | undefined,
     @Res() res: Response,
   ) {
-    return this.service.verifyAuth(req, group, program, project, res);
+    return this.service.verifyAuth(req, group, program, project, res, dataCommonsPath);
   }
 }

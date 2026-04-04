@@ -1,5 +1,6 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { buildDataCommonsApiUrl } from '@/components/data-commons/common/api';
 import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 
 export interface FileSource {
@@ -44,6 +45,7 @@ export const useDataFiles = (): UseDataFilesReturn => {
   const group = searchParams?.get('group');
   const program = searchParams?.get('program');
   const project = searchParams?.get('project');
+  const dataCommonsPath = searchParams?.get('dataCommonsPath') ?? '';
   const geneFileName = searchParams?.get('geneFile');
   const transcriptFileName = searchParams?.get('transcriptFile');
   const pcaFileName = searchParams?.get('pcaFile');
@@ -83,8 +85,12 @@ export const useDataFiles = (): UseDataFilesReturn => {
 
   const getServerFileUrl = useMemo(
     () => (filename: string) =>
-      `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`,
-    [API_BASE, group, program, project],
+      buildDataCommonsApiUrl(
+        API_BASE,
+        `/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`,
+        dataCommonsPath,
+      ),
+    [API_BASE, dataCommonsPath, group, program, project],
   );
 
   const loadUploadedFile = async (fileId: string): Promise<FileSource | null> => {

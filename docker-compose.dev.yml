@@ -52,9 +52,9 @@ services:
     env_file:
       - backend/.env
     environment:
-      - DATA_COMMONS_PATH=/app/src/data-commons/data
+      - DATA_COMMONS_PATH=/mnt
     volumes:
-      - ./backend/src/data-commons/data:/app/src/data-commons/data
+      - "C:/Users/gargm/Downloads/data:/mnt"
     networks:
       - tdp-pdnet-network
 

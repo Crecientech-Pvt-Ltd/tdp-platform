@@ -1,16 +1,20 @@
 'use client';
-import { LockKeyholeIcon } from 'lucide-react';
+import { InfoIcon, LockKeyholeIcon } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+import { buildDataCommonsApiUrl } from '@/components/data-commons/common/api';
 import FileUploadPopup from '@/components/data-commons/common/FileUploadPopup';
 import PasswordPopup from '@/components/data-commons/common/PasswordPopup';
 import FileSelectionPopup from '@/components/data-commons/common/PopUp';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
+const DEFAULT_DATA_FOLDER_PATH = process.env.NEXT_PUBLIC_DATA_COMMONS_DEFAULT_FOLDER_PATH?.trim() || '/data1';
 
 type Project = {
   name: string;
@@ -28,9 +32,64 @@ type Group = {
   programs: Program[];
 };
 
+const WINDOWS_ABSOLUTE_PATH_REGEX = /^[A-Za-z]:[\\/]/;
+
+const normalizeDataFolderPath = (value: string) => value.trim().replace(/\\/g, '/');
+
+const getDataFolderPathError = (value: string) => {
+  const normalizedValue = normalizeDataFolderPath(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  if (WINDOWS_ABSOLUTE_PATH_REGEX.test(normalizedValue)) {
+    return 'Enter a mounted-root path like /data1, not a local Windows path.';
+  }
+
+  if (normalizedValue.includes('\0')) {
+    return 'The path contains invalid characters.';
+  }
+
+  const normalizedSubPath = normalizedValue.replace(/^\/+/, '');
+  const pathSegments = normalizedSubPath.split('/').filter(Boolean);
+
+  if (pathSegments.some(segment => segment === '.' || segment === '..')) {
+    return 'Use a folder path under the mounted root without "." or ".." segments.';
+  }
+
+  if (pathSegments.some(segment => /[<>:"|?*]/.test(segment))) {
+    return 'The path contains unsupported characters.';
+  }
+
+  return null;
+};
+
+const getErrorMessageFromResponse = async (response: Response) => {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    const payload = (await response.json()) as { message?: string | string[] };
+
+    if (Array.isArray(payload.message)) {
+      return payload.message.join(' ');
+    }
+
+    if (typeof payload.message === 'string' && payload.message.trim()) {
+      return payload.message;
+    }
+  }
+
+  const text = await response.text();
+  return text.trim() || 'Unable to load data commons structure';
+};
+
 export default function DataCommonsPage() {
   const [structure, setStructure] = React.useState<Group[]>([]);
   const [structureLoading, setStructureLoading] = React.useState<boolean>(true);
+  const [dataFolderPath, setDataFolderPath] = React.useState<string>(DEFAULT_DATA_FOLDER_PATH);
+  const [activeDataCommonsPath, setActiveDataCommonsPath] = React.useState<string>('');
+  const [structureError, setStructureError] = React.useState<string>('');
   const [selectedGroup, setSelectedGroup] = React.useState<string>('');
   const [selectedProgram, setSelectedProgram] = React.useState<string>('');
   const [selectedProject, setSelectedProject] = React.useState<string>('');
@@ -42,14 +101,49 @@ export default function DataCommonsPage() {
   const [imageLoading, setImageLoading] = React.useState<boolean>(false);
   const [showPasswordPopup, setShowPasswordPopup] = React.useState<boolean>(false);
 
-  React.useEffect(() => {
+  const loadStructure = React.useCallback(async (dataCommonsPath?: string) => {
+    const normalizedInputPath = normalizeDataFolderPath(dataCommonsPath ?? '');
+    const effectiveDataFolderPath = normalizedInputPath || DEFAULT_DATA_FOLDER_PATH;
+    const pathValidationError = getDataFolderPathError(effectiveDataFolderPath);
+
     setStructureLoading(true);
-    fetch(`${API_BASE}/data-commons/structure`)
-      .then(res => res.json())
-      .then(data => setStructure(data))
-      .catch(() => setStructure([]))
-      .finally(() => setStructureLoading(false));
+    setStructureError('');
+
+    if (pathValidationError) {
+      setStructure([]);
+      setStructureError(pathValidationError);
+      setStructureLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        buildDataCommonsApiUrl(API_BASE, '/data-commons/structure', effectiveDataFolderPath),
+      );
+
+      if (!response.ok) {
+        setStructure([]);
+        setStructureError(await getErrorMessageFromResponse(response));
+        return;
+      }
+
+      const data = (await response.json()) as Group[];
+      setStructure(data);
+      setActiveDataCommonsPath(effectiveDataFolderPath);
+      setDataFolderPath(effectiveDataFolderPath);
+    } catch (error) {
+      setStructure([]);
+      setStructureError(
+        error instanceof Error ? error.message : 'Unable to load folders from that mounted-root data path.',
+      );
+    } finally {
+      setStructureLoading(false);
+    }
   }, []);
+
+  React.useEffect(() => {
+    loadStructure(DEFAULT_DATA_FOLDER_PATH);
+  }, [loadStructure]);
 
   const groupObj = structure.find(g => g.name === selectedGroup);
   const programs = groupObj?.programs.filter(p => p.projects.some(prj => prj.hasData && prj.files.length > 0)) || [];
@@ -62,7 +156,11 @@ export default function DataCommonsPage() {
       setLoading(true);
       setImageLoading(true);
       fetch(
-        `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/description`,
+        buildDataCommonsApiUrl(
+          API_BASE,
+          `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/description`,
+          activeDataCommonsPath,
+        ),
       )
         .then(res => {
           if (!res.ok) throw new Error('No description files');
@@ -82,7 +180,7 @@ export default function DataCommonsPage() {
       setDescriptionFiles([]);
       setImageLoading(false);
     }
-  }, [selectedGroup, selectedProgram, selectedProject]);
+  }, [activeDataCommonsPath, selectedGroup, selectedProgram, selectedProject]);
 
   React.useEffect(() => {
     if (descriptionFiles.length <= 1) return;
@@ -104,7 +202,11 @@ export default function DataCommonsPage() {
     if (selectedGroup && selectedProgram && selectedProject) {
       try {
         const response = await fetch(
-          `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/verify-auth`,
+          buildDataCommonsApiUrl(
+            API_BASE,
+            `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/verify-auth`,
+            activeDataCommonsPath,
+          ),
           { method: 'GET', credentials: 'include' },
         );
         if (!response.ok) {
@@ -141,11 +243,16 @@ export default function DataCommonsPage() {
   };
 
   const getImageUrl = (filename: string) =>
-    `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`;
+    buildDataCommonsApiUrl(
+      API_BASE,
+      `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`,
+      activeDataCommonsPath,
+    );
 
   const groupId = React.useId();
   const programId = React.useId();
   const projectId = React.useId();
+  const serverFolderId = React.useId();
 
   return (
     <div
@@ -163,6 +270,57 @@ export default function DataCommonsPage() {
 
       <div className='shrink-0'>
         <form className='px-8 pb-4'>
+          <div className='mb-4'>
+            <div className='flex items-center gap-2'>
+              <Label htmlFor={serverFolderId}>Data Folder Under Mounted Root</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type='button'
+                    className='inline-flex items-center text-muted-foreground transition-colors hover:text-foreground'
+                    aria-label='Information about the data folder structure'
+                  >
+                    <InfoIcon size={14} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side='right' align='start' className='max-w-80 text-white'>
+                  <div>
+                    Specify the mounted root path where the Data Commons directory is available to the application.
+                    <br />
+                    This location should expose the expected hierarchy for groups, programs, and projects.
+                    <br />
+                    Use a mounted server path rather than a local machine path.
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className='mt-1 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center'>
+              <Input
+                id={serverFolderId}
+                value={dataFolderPath}
+                onChange={e => setDataFolderPath(e.target.value)}
+                placeholder='Enter the mounted Data Commons root path'
+              />
+              <Button
+                type='button'
+                variant='outline'
+                className='w-full md:w-auto'
+                disabled={structureLoading}
+                onClick={() => {
+                  setSelectedGroup('');
+                  setSelectedProgram('');
+                  setSelectedProject('');
+                  setDescriptionFiles([]);
+                  setCurrentIndex(0);
+                  loadStructure(dataFolderPath);
+                }}
+              >
+                {structureLoading ? 'Loading...' : 'Load Folder'}
+              </Button>
+            </div>
+            {structureError ? <p className='mt-1 text-destructive text-xs'>{structureError}</p> : null}
+          </div>
+
           <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
             <div>
               <Label htmlFor={groupId}>Select Group</Label>
@@ -427,6 +585,7 @@ export default function DataCommonsPage() {
         selectedGroup={selectedGroup}
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}
+        dataCommonsPath={activeDataCommonsPath}
       />
       <FileUploadPopup isOpen={showFileUploadPopup} onClose={() => setShowFileUploadPopup(false)} />
       <PasswordPopup
@@ -436,6 +595,7 @@ export default function DataCommonsPage() {
         selectedGroup={selectedGroup}
         selectedProgram={selectedProgram}
         selectedProject={selectedProject}
+        dataCommonsPath={activeDataCommonsPath}
       />
     </div>
   );

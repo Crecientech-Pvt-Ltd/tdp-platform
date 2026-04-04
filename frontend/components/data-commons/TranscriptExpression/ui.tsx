@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { VirtualizedCombobox } from '@/components/VirtualizedCombobox';
+import type { GenePropertyMetadata } from '@/lib/interface';
 
 interface LoadingStateProps {
   children: React.ReactNode;
@@ -71,7 +72,7 @@ interface ControlsProps {
   hasTranscript: boolean;
   dataSource: 'gene' | 'transcript';
   onDataSourceChange: (checked: boolean) => void;
-  geneList: string[];
+  geneList: (string | GenePropertyMetadata)[];
   selectedGenes: Set<string>;
   onGeneSelection: (value: string | Set<string>) => void;
   onShowSeeMore: () => void;

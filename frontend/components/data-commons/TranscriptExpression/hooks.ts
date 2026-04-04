@@ -1,7 +1,11 @@
+import { useQuery } from '@apollo/client/react';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FileSource } from '@/components/data-commons/upload/hooks/useDataFiles';
 import { useFileData } from '@/components/data-commons/upload/hooks/useFileData';
+import { GENE_VERIFICATION_QUERY } from '@/lib/gql';
+import type { GeneVerificationData, GeneVerificationVariables } from '@/lib/interface/api/geneVerification';
+import type { GenePropertyMetadata } from '@/lib/interface/api/getHeaders';
 import { GROUP_COLORS } from './constants';
 import { normalizeSampleName } from './utils';
 
@@ -235,10 +239,19 @@ export function useParsedData(geneData: string | undefined, transcriptData: stri
 }
 
 export function useGeneSelection(dataSource: DataSource, parsedGeneData: GeneRow[], parsedTranscriptData: GeneRow[]) {
-  const [geneList, setGeneList] = useState<string[]>([]);
+  const [geneList, setGeneList] = useState<(string | GenePropertyMetadata)[]>([]);
+  const [geneIDs, setGeneIDs] = useState<string[]>([]);
   const [selectedGenes, setSelectedGenes] = useState<Set<string>>(new Set());
 
   const currentData = dataSource === 'gene' ? parsedGeneData : parsedTranscriptData;
+
+  const { data: verificationData } = useQuery<GeneVerificationData, GeneVerificationVariables>(
+    GENE_VERIFICATION_QUERY,
+    {
+      variables: { geneIDs },
+      skip: geneIDs.length === 0,
+    },
+  );
 
   useEffect(() => {
     if (currentData.length > 0) {
@@ -248,15 +261,38 @@ export function useGeneSelection(dataSource: DataSource, parsedGeneData: GeneRow
       const genes = currentData
         .map((row: GeneRow) => {
           const id = row[idCol] !== undefined ? row[idCol] : row['0'];
-          return id as string;
+          return `${id}`;
         })
         .filter(Boolean);
 
       genes.sort();
+      setGeneIDs(genes);
       setGeneList(genes);
+      setSelectedGenes(new Set());
+    } else {
+      setGeneIDs([]);
+      setGeneList([]);
       setSelectedGenes(new Set());
     }
   }, [currentData]);
+
+  useEffect(() => {
+    if (!verificationData || !verificationData.genes) return;
+
+    const nameMap = new Map<string, string>();
+    for (const gene of verificationData.genes) {
+      if (gene.ID && gene.Gene_name) {
+        nameMap.set(gene.ID, gene.Gene_name);
+      }
+    }
+
+    setGeneList(
+      geneIDs.map(id => ({
+        name: id,
+        description: nameMap.has(id) ? `${nameMap.get(id)} (${id})` : undefined,
+      })),
+    );
+  }, [verificationData, geneIDs]);
 
   const handleGeneSelection = useCallback((value: string | Set<string>) => {
     if (value instanceof Set) {

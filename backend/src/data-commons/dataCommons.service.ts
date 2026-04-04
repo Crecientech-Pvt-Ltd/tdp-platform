@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as fs from 'fs/promises';
-import { existsSync, createReadStream } from 'fs';
+import { createReadStream, existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 import * as jwt from 'jsonwebtoken';
@@ -18,12 +18,94 @@ const JWT_SECRET = process.env.JWT_SECRET || '1234';
 export class DataCommonsService {
   constructor(private readonly configService: ConfigService) {}
 
-  async getFullStructure() {
-    const groups = await getDirectories(DATA_PATH);
+  private normalizeMountedRootSubPath(dataCommonsPath?: string) {
+    const normalizedInput = dataCommonsPath?.trim();
+
+    if (!normalizedInput) {
+      return '';
+    }
+
+    if (/^[A-Za-z]:[\\/]/.test(normalizedInput)) {
+      throw new BadRequestException('Windows-style absolute paths are not allowed');
+    }
+
+    const slashNormalizedPath = normalizedInput.replace(/\\/g, '/');
+    const normalizedSubPath = slashNormalizedPath.replace(/^\/+/, '');
+
+    if (!normalizedSubPath || normalizedSubPath === '.') {
+      return '';
+    }
+
+    if (normalizedSubPath.includes('\0')) {
+      throw new BadRequestException('Path contains invalid characters');
+    }
+
+    const pathSegments = normalizedSubPath.split('/').filter(Boolean);
+
+    if (pathSegments.length === 0) {
+      return '';
+    }
+
+    if (pathSegments.some((segment) => segment === '.' || segment === '..')) {
+      throw new BadRequestException('Path cannot contain "." or ".." segments');
+    }
+
+    if (pathSegments.some((segment) => /[<>:"|?*]/.test(segment))) {
+      throw new BadRequestException('Path contains unsupported characters');
+    }
+
+    return pathSegments.join('/');
+  }
+
+  private resolveDataCommonsPath(dataCommonsPath?: string) {
+    const rootPath = path.resolve(DATA_PATH);
+    const normalizedSubPath = this.normalizeMountedRootSubPath(dataCommonsPath);
+    let candidatePath = rootPath;
+
+    if (normalizedSubPath) {
+      candidatePath = path.resolve(path.join(rootPath, normalizedSubPath));
+
+      if (!this.isPathWithinRoot(rootPath, candidatePath)) {
+        throw new BadRequestException('Invalid data commons folder path');
+      }
+    }
+
+    if (!existsSync(candidatePath)) {
+      throw new NotFoundException('Data commons folder not found on the server');
+    }
+
+    if (!statSync(candidatePath).isDirectory()) {
+      throw new BadRequestException('Selected path is not a folder');
+    }
+
+    return candidatePath;
+  }
+
+  private isPathWithinRoot(rootPath: string, targetPath: string) {
+    const relativePath = path.relative(rootPath, targetPath);
+
+    return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+  }
+
+  private getProjectPath(group: string, program: string, project: string, dataCommonsPath?: string) {
+    const rootPath = this.resolveDataCommonsPath(dataCommonsPath);
+    const projectPath = path.join(rootPath, group, program, project);
+    const resolvedProjectPath = path.resolve(projectPath);
+
+    if (!this.isPathWithinRoot(rootPath, resolvedProjectPath)) {
+      throw new BadRequestException('Invalid project path');
+    }
+
+    return resolvedProjectPath;
+  }
+
+  async getFullStructure(dataCommonsPath?: string) {
+    const rootPath = this.resolveDataCommonsPath(dataCommonsPath);
+    const groups = await getDirectories(rootPath);
 
     const structure = await Promise.all(
       groups.map(async (group) => {
-        const groupPath = path.join(DATA_PATH, group);
+        const groupPath = path.join(rootPath, group);
         const programs = await getDirectories(groupPath);
 
         const programsData = await Promise.all(
@@ -61,8 +143,14 @@ export class DataCommonsService {
     return structure;
   }
 
-  async sendProjectDescription(group: string, program: string, project: string, res: Response) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+  async sendProjectDescription(
+    group: string,
+    program: string,
+    project: string,
+    res: Response,
+    dataCommonsPath?: string,
+  ) {
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
     if (!existsSync(projectPath)) {
       res.status(404).send('Project folder not found');
@@ -81,8 +169,15 @@ export class DataCommonsService {
     }
   }
 
-  async sendProjectFile(group: string, program: string, project: string, filename: string, res: Response) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+  async sendProjectFile(
+    group: string,
+    program: string,
+    project: string,
+    filename: string,
+    res: Response,
+    dataCommonsPath?: string,
+  ) {
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const filePath = path.join(projectPath, filename);
 
     if (!existsSync(filePath)) {
@@ -112,8 +207,15 @@ export class DataCommonsService {
     }
   }
 
-  sendDeFile(group: string, program: string, project: string, filename: string, res: Response) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+  sendDeFile(
+    group: string,
+    program: string,
+    project: string,
+    filename: string,
+    res: Response,
+    dataCommonsPath?: string,
+  ) {
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const filePath = path.join(projectPath, filename);
 
     if (!existsSync(filePath)) {
@@ -128,8 +230,8 @@ export class DataCommonsService {
     }
   }
 
-  async initializedFiles(group: string, program: string, project: string, res: Response) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+  async initializedFiles(group: string, program: string, project: string, res: Response, dataCommonsPath?: string) {
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const allFiles = await getFiles(projectPath);
 
     const diffExpRegex =
@@ -220,8 +322,15 @@ export class DataCommonsService {
     });
   }
 
-  async previewProjectFile(group: string, program: string, project: string, filename: string, res: Response) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+  async previewProjectFile(
+    group: string,
+    program: string,
+    project: string,
+    filename: string,
+    res: Response,
+    dataCommonsPath?: string,
+  ) {
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const filePath = path.join(projectPath, filename);
 
     if (!existsSync(filePath)) {
@@ -270,8 +379,9 @@ export class DataCommonsService {
     project: string,
     password: string,
     res: Response,
+    dataCommonsPath?: string,
   ) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
     // Check if password file exists
@@ -413,8 +523,15 @@ export class DataCommonsService {
     }
   }
 
-  async verifyAuth(req: Request, group: string, program: string, project: string, res: Response) {
-    const projectPath = path.join(DATA_PATH, group, program, project);
+  async verifyAuth(
+    req: Request,
+    group: string,
+    program: string,
+    project: string,
+    res: Response,
+    dataCommonsPath?: string,
+  ) {
+    const projectPath = this.getProjectPath(group, program, project, dataCommonsPath);
     const passwordFilePath = path.join(projectPath, 'password.txt');
 
     // Check if password file exists

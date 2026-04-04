@@ -10,6 +10,11 @@ import { Badge } from './ui/badge';
 import { Spinner } from './ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
+function getOptionDisplay(option: string | GenePropertyMetadata) {
+  if (typeof option === 'string') return option;
+  return option.description ? `${option.description} (${option.name})` : option.name;
+}
+
 interface VirtualizedCommandProps {
   options: (string | GenePropertyMetadata)[];
   placeholder: string;
@@ -52,7 +57,9 @@ const VirtualizedCommand = ({
         if (typeof option === 'string') {
           return option.toLowerCase().includes(lowerCaseSearch);
         }
-        return option.name.toLowerCase().includes(lowerCaseSearch);
+        const label = option.name.toLowerCase();
+        const geneName = (option.description || '').toString().toLowerCase();
+        return label.includes(lowerCaseSearch) || geneName.includes(lowerCaseSearch);
       }),
     );
   };
@@ -119,7 +126,7 @@ const VirtualizedCommand = ({
                           : 'opacity-0',
                       )}
                     />
-                    {value}
+                    {getOptionDisplay(option)}
                   </div>
                   {typeof option !== 'string' && option.description && (
                     <Tooltip>
@@ -186,41 +193,47 @@ export function VirtualizedCombobox({
               value.size ? (
                 showSelectedAsChip ? (
                   <div className='relative flex max-w-full gap-1 overflow-x-auto'>
-                    {Array.from(value).map(option => (
-                      <Badge
-                        key={option}
-                        className={cn(
-                          'data-disabled:bg-muted-foreground data-disabled:text-muted data-disabled:hover:bg-muted-foreground',
-                          'data-fixed:bg-muted-foreground data-fixed:text-muted data-fixed:hover:bg-muted-foreground',
-                          'shrink-0 text-white',
-                        )}
-                      >
-                        {option}
-                        {/** biome-ignore lint/a11y/noStaticElementInteractions: button can't be inside button (Badge component is button) */}
-                        <span
+                    {Array.from(value).map(option => {
+                      const matchedOption = data.find(item => getProperty(item) === option);
+                      const label = matchedOption
+                        ? getOptionDisplay(matchedOption as string | GenePropertyMetadata)
+                        : option;
+                      return (
+                        <Badge
+                          key={option}
                           className={cn(
-                            'ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                            'data-disabled:bg-muted-foreground data-disabled:text-muted data-disabled:hover:bg-muted-foreground',
+                            'data-fixed:bg-muted-foreground data-fixed:text-muted data-fixed:hover:bg-muted-foreground',
+                            'shrink-0 text-white',
                           )}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && value instanceof Set) {
-                              value.delete(option);
-                            }
-                          }}
-                          onMouseDown={e => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          onClick={() => {
-                            if (value instanceof Set) {
-                              value.delete(option);
-                              onChange(value);
-                            }
-                          }}
                         >
-                          <XIcon className='size-3 text-white hover:text-gray-200' />
-                        </span>
-                      </Badge>
-                    ))}
+                          {label}
+                          {/** biome-ignore lint/a11y/noStaticElementInteractions: button can't be inside button (Badge component is button) */}
+                          <span
+                            className={cn(
+                              'ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                            )}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && value instanceof Set) {
+                                value.delete(option);
+                              }
+                            }}
+                            onMouseDown={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onClick={() => {
+                              if (value instanceof Set) {
+                                value.delete(option);
+                                onChange(value);
+                              }
+                            }}
+                          >
+                            <XIcon className='size-3 text-white hover:text-gray-200' />
+                          </span>
+                        </Badge>
+                      );
+                    })}
                   </div>
                 ) : (
                   `${value.size} selected`

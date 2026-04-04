@@ -65,7 +65,7 @@ export default function NetworkLayoutPage({ children }: { children: React.ReactN
         {leftSidebar && (
           <>
             <ResizablePanel defaultSize={16} minSize={16}>
-              <LeftSideBar graphConfigPresent={false} />
+              <LeftSideBar />
             </ResizablePanel>
             <ResizableHandle withHandle />
           </>

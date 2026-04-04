@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { redirect, useSearchParams } from 'next/navigation';
 import React, { Suspense } from 'react';
+import { buildDataCommonsApiUrl } from '@/components/data-commons/common/api';
 import { indexedDBManager } from '@/components/data-commons/upload/utils/indexedDB';
 import { Spinner } from '@/components/ui/spinner';
 import { TabsContent } from '@/components/ui/tabs';
@@ -51,6 +52,7 @@ function PDCSNetworkTabs() {
   const group = searchParams?.get('group');
   const program = searchParams?.get('program');
   const project = searchParams?.get('project');
+  const dataCommonsPath = searchParams?.get('dataCommonsPath') ?? '';
   const deGeneFiles = searchParams?.get('deGeneFiles');
   const deTranscriptFiles = searchParams?.get('deTranscriptFiles');
 
@@ -61,7 +63,11 @@ function PDCSNetworkTabs() {
   const deTranscriptFilesArray = deTranscriptFiles?.split(',').filter(Boolean);
 
   const getFileUrl = (filename: string) =>
-    `${API_BASE}/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`;
+    buildDataCommonsApiUrl(
+      API_BASE,
+      `/data-commons/project/${encodeURIComponent(group ?? '')}/${encodeURIComponent(program ?? '')}/${encodeURIComponent(project ?? '')}/files/${encodeURIComponent(filename)}`,
+      dataCommonsPath,
+    );
 
   React.useEffect(() => {
     const initializeDB = async () => {
@@ -90,7 +96,11 @@ function PDCSNetworkTabs() {
     const checkAuthentication = async () => {
       try {
         const response = await fetch(
-          `${API_BASE}/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/verify-auth`,
+          buildDataCommonsApiUrl(
+            API_BASE,
+            `/data-commons/project/${encodeURIComponent(group)}/${encodeURIComponent(program)}/${encodeURIComponent(project)}/verify-auth`,
+            dataCommonsPath,
+          ),
           { method: 'GET', credentials: 'include' },
         );
 
@@ -115,7 +125,7 @@ function PDCSNetworkTabs() {
     };
 
     checkAuthentication();
-  }, [group, program, project, uploadMode]);
+  }, [dataCommonsPath, group, program, project, uploadMode]);
 
   if (loading) {
     return (

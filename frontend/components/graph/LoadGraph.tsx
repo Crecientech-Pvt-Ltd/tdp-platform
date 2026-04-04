@@ -33,6 +33,38 @@ import {
 } from '../ui/alert-dialog';
 import { Spinner } from '../ui/spinner';
 
+type EnsemblLookupEntry = {
+  display_name?: string | null;
+};
+
+async function fetchEnsemblGeneNames(ids: string[]): Promise<Map<string, string>> {
+  const cleanedIDs = Array.from(new Set(ids.map(id => id.trim()).filter(Boolean)));
+  if (!cleanedIDs.length) return new Map<string, string>();
+
+  const response = await fetch('https://rest.ensembl.org/lookup/id', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ ids: cleanedIDs }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Ensembl lookup failed with status ${response.status}`);
+  }
+
+  const payload = (await response.json()) as Record<string, EnsemblLookupEntry | undefined>;
+  const nameMap = new Map<string, string>();
+
+  for (const id of cleanedIDs) {
+    const displayName = payload[id]?.display_name?.trim();
+    if (displayName) nameMap.set(id, displayName);
+  }
+
+  return nameMap;
+}
+
 export function LoadGraph() {
   const searchParams = useSearchParams();
   const loadGraph = useLoadGraph();
@@ -115,14 +147,39 @@ export function LoadGraph() {
           if (!result || !result.data) return;
           const geneNameToID = new Map<string, string>();
           const geneNames: string[] = [];
+          const missingEnsembl: string[] = [];
+
           for (const gene of result.data?.genes ?? []) {
-            geneNames.push(gene.Gene_name ?? gene.ID);
-            if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
+            const finalGeneName = gene.Gene_name?.trim() || '';
+
+            // Collect IDs that have no gene_name to resolve via Ensembl Biomart
+            if (!finalGeneName) {
+              missingEnsembl.push(gene.ID);
+            }
+
+            geneNames.push(finalGeneName || gene.ID);
+            if (finalGeneName) geneNameToID.set(finalGeneName, gene.ID);
             graph.addNode(gene.ID, {
-              label: gene.Gene_name,
+              label: finalGeneName || gene.ID,
               ID: gene.ID,
               description: gene.Description,
             });
+          }
+
+          if (missingEnsembl.length) {
+            try {
+              const mappedNames = await fetchEnsemblGeneNames(missingEnsembl);
+              for (const [id, name] of mappedNames.entries()) {
+                if (!geneNames.includes(name)) geneNames.push(name);
+                if (!geneNameToID.has(name)) geneNameToID.set(name, id);
+                graph.updateNodeAttributes(id, (attrs: any) => ({
+                  ...attrs,
+                  label: name,
+                }));
+              }
+            } catch (error) {
+              console.warn('Ensembl lookup failed for missing gene names', error);
+            }
           }
 
           const getGeneID = (value: string | null) => {
@@ -179,15 +236,28 @@ export function LoadGraph() {
           // store graphName in JSON in graphConfig key in localStorage
           localStorage.setItem('graphConfig', JSON.stringify({ ...graphConfig, graphName }));
           useStore.setState({ graphConfig: { ...graphConfig, graphName } });
+          const missingEnsembl = genes.filter(gene => !gene.Gene_name).map(gene => gene.ID);
+          let ensemblNameMap = new Map<string, string>();
+          if (missingEnsembl.length) {
+            try {
+              ensemblNameMap = await fetchEnsemblGeneNames(missingEnsembl);
+            } catch (error) {
+              console.warn('Ensembl lookup failed for missing gene names', error);
+            }
+          }
+
           const transformedData: Partial<SerializedGraph<NodeAttributes, EdgeAttributes>> = {
-            nodes: genes.map(gene => ({
-              key: gene.ID,
-              attributes: {
-                label: gene.Gene_name || '',
-                ID: gene.ID,
-                description: gene.Description || '',
-              },
-            })),
+            nodes: genes.map(gene => {
+              const resolvedName = gene.Gene_name?.trim() || ensemblNameMap.get(gene.ID) || gene.ID;
+              return {
+                key: gene.ID,
+                attributes: {
+                  label: resolvedName,
+                  ID: gene.ID,
+                  description: gene.Description || '',
+                },
+              };
+            }),
             edges: links.map(link => ({
               key: `${link.gene1}-${link.gene2}`,
               source: link.gene1,
@@ -206,11 +276,13 @@ export function LoadGraph() {
             graph.import(transformedData);
             loadGraph(graph);
             const geneNameToID = new Map<string, string>();
+            const geneNames = transformedData.nodes?.map(node => node.attributes?.label || node.key) || [];
             for (const gene of genes) {
-              if (gene.Gene_name) geneNameToID.set(gene.Gene_name, gene.ID);
+              const label = gene.Gene_name?.trim() || ensemblNameMap.get(gene.ID);
+              if (label) geneNameToID.set(label, gene.ID);
             }
             useStore.setState({
-              geneNames: transformedData.nodes?.map(node => node.attributes?.label ?? node.key) || [],
+              geneNames,
               totalNodes: transformedData.nodes?.length || 0,
               totalEdges: transformedData.edges?.length || 0,
               geneNameToID,

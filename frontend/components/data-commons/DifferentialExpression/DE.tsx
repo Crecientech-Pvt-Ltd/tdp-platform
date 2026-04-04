@@ -344,7 +344,7 @@ export default function VolcanoPlot({
 
   return (
     <div className='resizable-panel-container mx-auto w-full max-w-[95vw] px-4 sm:px-6 lg:max-w-[1500px] lg:px-8'>
-      {availableContrasts.length > 0 && processDataForDownload && (
+      {availableContrasts.length > 0 && (
         <div className='mb-4 flex justify-start'>
           <Button
             onClick={() => setShowDownloadPopup(true)}
@@ -475,7 +475,7 @@ export default function VolcanoPlot({
         deFiles={activeFiles}
         hideDownloadButton
       />
-      {availableContrasts.length > 0 && processDataForDownload && (
+      {availableContrasts.length > 0 && (
         <DownloadPopup
           isOpen={showDownloadPopup}
           onClose={() => setShowDownloadPopup(false)}

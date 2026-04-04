@@ -3,6 +3,7 @@
 import { strToU8, zipSync } from 'fflate';
 import { DownloadIcon, EyeIcon, XIcon } from 'lucide-react';
 import React from 'react';
+import { appendDataCommonsPath, buildDataCommonsApiUrl } from '@/components/data-commons/common/api';
 import FlexibleLabelList from '@/components/RenderLabel';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -22,6 +23,7 @@ interface FileSelectionPopupProps {
   selectedGroup: string;
   selectedProgram: string;
   selectedProject: string;
+  dataCommonsPath?: string;
 }
 
 interface FileData {
@@ -51,6 +53,7 @@ export default function FileSelectionPopup({
   selectedGroup,
   selectedProgram,
   selectedProject,
+  dataCommonsPath,
 }: FileSelectionPopupProps) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -93,14 +96,22 @@ export default function FileSelectionPopup({
 
   const getFileUrl = React.useCallback(
     (filename: string) =>
-      `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`,
-    [selectedGroup, selectedProgram, selectedProject],
+      buildDataCommonsApiUrl(
+        API_BASE,
+        `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/files/${encodeURIComponent(filename)}`,
+        dataCommonsPath,
+      ),
+    [dataCommonsPath, selectedGroup, selectedProgram, selectedProject],
   );
 
   const getDeFileUrl = React.useCallback(
     (filename: string) =>
-      `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/deFile/${encodeURIComponent(filename)}`,
-    [selectedGroup, selectedProgram, selectedProject],
+      buildDataCommonsApiUrl(
+        API_BASE,
+        `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/deFile/${encodeURIComponent(filename)}`,
+        dataCommonsPath,
+      ),
+    [dataCommonsPath, selectedGroup, selectedProgram, selectedProject],
   );
 
   React.useEffect(() => {
@@ -119,7 +130,11 @@ export default function FileSelectionPopup({
 
     const fetchInitializedFiles = async () => {
       try {
-        const url = `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/initializedFiles`;
+        const url = buildDataCommonsApiUrl(
+          API_BASE,
+          `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/initializedFiles`,
+          dataCommonsPath,
+        );
 
         const res = await fetch(url);
         const json: FileData = await res.json();
@@ -150,7 +165,7 @@ export default function FileSelectionPopup({
     return () => {
       isCancelled = true;
     };
-  }, [isOpen, selectedGroup, selectedProgram, selectedProject]);
+  }, [dataCommonsPath, isOpen, selectedGroup, selectedProgram, selectedProject]);
 
   const handleChange = React.useCallback(
     (
@@ -187,13 +202,14 @@ export default function FileSelectionPopup({
       deTranscriptFiles: selections.transcriptDiffExpFiles.join(','),
       sampleFile: selections.samplesheet,
     });
+    appendDataCommonsPath(params, dataCommonsPath);
 
     const url = `/data?${params.toString()}`;
 
     window.open(url, '_blank');
     setLoadingProceed(false);
     onClose();
-  }, [selectedGroup, selectedProgram, selectedProject, selections, onClose]);
+  }, [dataCommonsPath, selectedGroup, selectedProgram, selectedProject, selections, onClose]);
 
   const toggleDownloadSelection = React.useCallback((type: string) => {
     setDownloadSelections(prev => {
@@ -689,6 +705,7 @@ export default function FileSelectionPopup({
           group={selectedGroup}
           program={selectedProgram}
           project={selectedProject}
+          dataCommonsPath={dataCommonsPath}
           multiple={previewState.fileList.length > 1}
           onNext={handleNextPreview}
           onPrev={handlePrevPreview}

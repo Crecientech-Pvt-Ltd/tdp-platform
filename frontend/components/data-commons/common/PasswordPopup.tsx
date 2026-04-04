@@ -2,6 +2,7 @@
 
 import { AlertCircle, Eye, EyeOff, Lock, X } from 'lucide-react';
 import React from 'react';
+import { buildDataCommonsApiUrl } from '@/components/data-commons/common/api';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ interface PasswordPopupProps {
   selectedGroup: string;
   selectedProgram: string;
   selectedProject: string;
+  dataCommonsPath?: string;
 }
 
 export default function PasswordPopup({
@@ -26,6 +28,7 @@ export default function PasswordPopup({
   selectedGroup,
   selectedProgram,
   selectedProject,
+  dataCommonsPath,
 }: PasswordPopupProps) {
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -53,7 +56,11 @@ export default function PasswordPopup({
 
     try {
       const response = await fetch(
-        `${API_BASE}/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
+        buildDataCommonsApiUrl(
+          API_BASE,
+          `/data-commons/project/${encodeURIComponent(selectedGroup)}/${encodeURIComponent(selectedProgram)}/${encodeURIComponent(selectedProject)}/password`,
+          dataCommonsPath,
+        ),
         {
           method: 'POST',
           credentials: 'include',

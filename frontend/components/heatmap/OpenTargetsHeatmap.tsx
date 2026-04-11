@@ -18,6 +18,49 @@ import { VirtualizedCombobox } from '../VirtualizedCombobox';
 import { assocColorScale, prioritizationColorScale } from './colorScales';
 import { HeatmapTable } from './HeatmapTable';
 
+function buildAssociationTableData(
+  rows: OpenTargetsTableData['targetDiseaseAssociationTable']['rows'] | undefined,
+): TargetDiseaseAssociationRow[] {
+  return (
+    rows?.map(row => {
+      const datasources: Record<string, number> = {};
+      if (Array.isArray(row.datasourceScores)) {
+        for (const item of row.datasourceScores as { key: string; score: number }[]) {
+          datasources[item.key] = item.score;
+        }
+      }
+
+      return {
+        target: row.target.name,
+        'Association Score': row.overall_score,
+        ...datasources,
+      };
+    }) ?? []
+  );
+}
+
+function buildPrioritizationTableData(
+  rows: OpenTargetsTableData['targetPrioritizationTable']['rows'] | undefined,
+  geneIdToName: Map<string, string>,
+): TargetDiseaseAssociationRow[] {
+  return (
+    rows?.map(row => {
+      const prioritization: Record<string, number> = {};
+      if (Array.isArray(row.target.prioritization)) {
+        for (const item of row.target.prioritization) {
+          prioritization[item.key] = item.score;
+        }
+      }
+
+      return {
+        target: geneIdToName.get(row.target.id) ?? row.target.name,
+        'Association Score': row.overall_score,
+        ...prioritization,
+      };
+    }) ?? []
+  );
+}
+
 export function OpenTargetsHeatmap() {
   const geneNames = useStore(state => state.geneNames);
   const geneNameToID = useStore(state => state.geneNameToID);
@@ -31,38 +74,34 @@ export function OpenTargetsHeatmap() {
   const geneIds = useMemo(() => geneNames.map(g => geneNameToID.get(g) ?? g).sort(), [geneNames, geneNameToID]);
   const [geneIdsToQuery, setGeneIdsToQuery] = useState<string[]>([]);
   const [selectedGeneNames, setSelectedGeneNames] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<'tda' | 'tpf'>('tda');
 
   const [runQuery, { data: queryData, previousData, loading }] = useLazyQuery<
     OpenTargetsTableData,
     OpenTargetsTableVariables
   >(OPENTARGET_HEATMAP_QUERY);
 
-  const maxPage = Math.max(
-    1,
-    Math.ceil(((queryData ?? previousData)?.targetDiseaseAssociationTable.totalCount ?? 0) / pagination.limit),
+  const geneIdToName = useMemo(
+    () => new Map(Array.from(geneNameToID.entries(), ([geneName, geneId]) => [geneId, geneName])),
+    [geneNameToID],
   );
 
-  const tableData: TargetDiseaseAssociationRow[] =
-    queryData?.targetDiseaseAssociationTable.rows.map(row => {
-      const prioritization: Record<string, number> = {};
-      if (Array.isArray(row.target.prioritization)) {
-        for (const item of row.target.prioritization) {
-          prioritization[item.key] = item.score;
-        }
-      }
-      const datasources: Record<string, number> = {};
-      if (Array.isArray(row.datasourceScores)) {
-        for (const item of row.datasourceScores as { key: string; score: number }[]) {
-          datasources[item.key] = item.score;
-        }
-      }
-      return {
-        target: row.target.name,
-        'Association Score': row.overall_score,
-        ...datasources,
-        ...prioritization,
-      };
-    }) || [];
+  const maxPage = Math.max(
+    1,
+    Math.ceil(
+      ((activeTab === 'tda'
+        ? (queryData ?? previousData)?.targetDiseaseAssociationTable.totalCount
+        : (queryData ?? previousData)?.targetPrioritizationTable.totalCount) ?? 0) / pagination.limit,
+    ),
+  );
+
+  const associationRows = (queryData ?? previousData)?.targetDiseaseAssociationTable.rows;
+  const prioritizationRows = (queryData ?? previousData)?.targetPrioritizationTable.rows;
+  const associationTableData = useMemo(() => buildAssociationTableData(associationRows), [associationRows]);
+  const prioritizationTableData = useMemo(
+    () => buildPrioritizationTableData(prioritizationRows, geneIdToName),
+    [prioritizationRows, geneIdToName],
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
@@ -166,6 +205,7 @@ export function OpenTargetsHeatmap() {
           }, [])
           .sort()
       : geneIds;
+    setGeneIdsToQuery(tmpGeneIdsToQuery);
 
     runQuery({
       variables: {
@@ -178,10 +218,11 @@ export function OpenTargetsHeatmap() {
   };
 
   const handlePaginationChange = (next: { page: number; limit: number }) => {
+    const effectiveGeneIds = geneIdsToQuery.length ? geneIdsToQuery : geneIds;
     useStore.setState({ heatmapPagination: next });
     runQuery({
       variables: {
-        geneIds: geneIdsToQuery,
+        geneIds: effectiveGeneIds,
         diseaseId,
         orderBy: orderByStringToEnum(sortingColumn),
         page: next,
@@ -190,15 +231,34 @@ export function OpenTargetsHeatmap() {
   };
 
   const handleSortingChange = (columnId: string) => {
+    const effectiveGeneIds = geneIdsToQuery.length ? geneIdsToQuery : geneIds;
     useStore.setState({ heatmapSortingColumn: columnId });
     runQuery({
       variables: {
-        geneIds: geneIdsToQuery,
+        geneIds: effectiveGeneIds,
         diseaseId,
         orderBy: orderByStringToEnum(columnId),
         page: pagination,
       },
     });
+  };
+
+  const handleTabChange = (value: string) => {
+    const nextTab = value === 'tpf' ? 'tpf' : 'tda';
+    const effectiveGeneIds = geneIdsToQuery.length ? geneIdsToQuery : geneIds;
+    setActiveTab(nextTab);
+
+    if (nextTab === 'tpf' && sortingColumn !== 'Association Score') {
+      useStore.setState({ heatmapSortingColumn: 'Association Score' });
+      runQuery({
+        variables: {
+          geneIds: effectiveGeneIds,
+          diseaseId,
+          orderBy: orderByStringToEnum('Association Score'),
+          page: pagination,
+        },
+      });
+    }
   };
 
   return (
@@ -220,7 +280,7 @@ export function OpenTargetsHeatmap() {
           className='w-full'
         />
       </div>
-      <Tabs defaultValue='tda' className='flex flex-col items-center px-4'>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className='flex flex-col items-center px-4'>
         <TabsList className='my-4 w-[95%]'>
           <TabsTrigger className='w-full' value='tda'>
             Target-disease Association
@@ -233,7 +293,7 @@ export function OpenTargetsHeatmap() {
           <div className='flex flex-col items-center pr-12'>
             <HeatmapTable
               columns={associationColumns}
-              data={tableData}
+              data={associationTableData}
               sortingColumn={sortingColumn}
               onSortChange={handleSortingChange}
               colorScale={value => assocColorScale(typeof value === 'number' ? value : 0)}
@@ -248,7 +308,7 @@ export function OpenTargetsHeatmap() {
           <div className='flex flex-col items-center pr-12'>
             <HeatmapTable
               columns={prioritizationColumns}
-              data={tableData}
+              data={prioritizationTableData}
               sortingColumn={sortingColumn}
               onSortChange={handleSortingChange}
               colorScale={(value, columnId) =>

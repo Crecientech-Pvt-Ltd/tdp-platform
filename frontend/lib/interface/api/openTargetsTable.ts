@@ -51,6 +51,15 @@ export interface OpenTargetsTableData {
 
     totalCount: number;
   };
+
+  targetPrioritizationTable: {
+    rows: {
+      target: Target;
+      overall_score: number;
+    }[];
+
+    totalCount: number;
+  };
 }
 
 export enum OrderByEnum {

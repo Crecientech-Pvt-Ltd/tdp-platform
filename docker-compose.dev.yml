@@ -11,7 +11,7 @@ services:
       - "8080:80"
     depends_on:
       - nestjs
-      # - frontend
+      - frontend
       - gsea
     networks:
       - tdp-pdnet-network
@@ -52,24 +52,24 @@ services:
     env_file:
       - backend/.env
     environment:
-      - DATA_COMMONS_PATH=/mnt
+      - DATA_COMMONS_PATH=/data-root
     volumes:
-      - "C:/Users/gargm/Downloads/data:/mnt"
+      - ${DATA_COMMONS_HOST_PATH}:/data-root
     networks:
       - tdp-pdnet-network
 
-  # frontend:
-  #   build:
-  #     context: frontend
-  #     dockerfile: Dockerfile
-  #   container_name: frontend
-  #   restart: always
-  #   ports:
-  #     - "3000:80"
-  #   env_file:
-  #     - frontend/.env
-  #   networks:
-  #     - tdp-pdnet-network
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - "3000:80"
+    env_file:
+      - frontend/.env
+    networks:
+      - tdp-pdnet-network
 
   gsea:
     build:

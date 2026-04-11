@@ -40,6 +40,16 @@ export class ClickhouseResolver {
     return this.clickhouseService.getTargetDiseaseAssociationTable(geneIds, diseaseId, orderBy, pagination);
   }
 
+  @Query(() => TargetDiseaseAssociationTable)
+  async targetPrioritizationTable(
+    @Args('geneIds', { type: () => [String] }) geneIds: string[],
+    @Args('diseaseId', { type: () => String }) diseaseId: string,
+    @Args('page', { type: () => Pagination, nullable: true })
+    pagination: Pagination,
+  ) {
+    return this.clickhouseService.getTargetPrioritizationTable(geneIds, diseaseId, pagination);
+  }
+
   @Query(() => [GeneProperty])
   async geneProperties(
     @Args('geneIds', { type: () => [String] }) geneIds: string[],

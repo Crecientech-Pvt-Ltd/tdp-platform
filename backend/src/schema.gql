@@ -125,6 +125,7 @@ type Query {
   getGeneInteractions(input: InteractionInput!, order: Int!): GeneInteractionOutput!
   headers(diseaseId: String!): Headers!
   targetDiseaseAssociationTable(diseaseId: String!, geneIds: [String!]!, orderBy: OrderByEnum = SCORE, page: Pagination): TargetDiseaseAssociationTable!
+  targetPrioritizationTable(diseaseId: String!, geneIds: [String!]!, page: Pagination): TargetDiseaseAssociationTable!
   topGenesByDisease(diseaseId: String!, limit: Int! = 25): [TopGene!]!
 }
 

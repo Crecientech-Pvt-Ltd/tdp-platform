@@ -182,6 +182,79 @@ export class ClickhouseService implements OnApplicationBootstrap {
     }
   }
 
+  async getTargetPrioritizationTable(
+    geneIds: string[],
+    diseaseId: string,
+    { page, limit }: Pagination,
+  ): Promise<TargetDiseaseAssociationTable> {
+    const offset = (page - 1) * limit;
+
+    const query = `
+      SELECT
+        selected_genes.gene_id,
+        coalesce(oas.gene_name, selected_genes.gene_id) AS gene_name,
+        ifNull(oas.score, 0) AS overall_score,
+        count() OVER () AS total_count
+      FROM (
+        SELECT arrayJoin({geneIds:Array(String)}) AS gene_id
+      ) AS selected_genes
+      LEFT JOIN overall_association_score oas
+        ON oas.gene_id = selected_genes.gene_id
+        AND oas.disease_id = {diseaseId:String}
+      ORDER BY overall_score DESC, gene_name ASC
+      LIMIT {limit:UInt32}
+      OFFSET {offset:UInt32}
+    `;
+
+    try {
+      const resultSet = await this.client.query({
+        query,
+        query_params: {
+          geneIds,
+          diseaseId,
+          limit,
+          offset,
+        },
+        format: 'JSONEachRow',
+      });
+
+      const results: TargetDiseaseAssociationRow[] = [];
+      let totalCount = 0;
+
+      for await (const rows of resultSet.stream<{
+        gene_id: string;
+        gene_name: string;
+        overall_score: number;
+        total_count: number;
+      }>()) {
+        for (const row of rows) {
+          const data = row.json();
+
+          if (totalCount === 0) {
+            totalCount = data.total_count;
+          }
+
+          results.push({
+            target: {
+              id: data.gene_id,
+              name: data.gene_name,
+            },
+            datasourceScores: [],
+            overall_score: data.overall_score,
+          });
+        }
+      }
+
+      return {
+        rows: results,
+        totalCount,
+      };
+    } catch (error) {
+      this.logger.error('targetPrioritizationTable query failed', error);
+      throw error;
+    }
+  }
+
   async getBatchPrioritizationTable(geneIds: string[]): Promise<Map<string, ScoredKeyValue[]>> {
     const query = `
       SELECT

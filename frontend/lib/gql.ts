@@ -111,5 +111,19 @@ export const OPENTARGET_HEATMAP_QUERY = gql`
       }
       totalCount
     }
+    targetPrioritizationTable(diseaseId: $diseaseId, geneIds: $geneIds, page: $page) {
+      rows {
+        target {
+          id
+          name
+          prioritization {
+            key
+            score
+          }
+        }
+        overall_score
+      }
+      totalCount
+    }
   }
 `;

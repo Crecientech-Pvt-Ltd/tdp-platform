@@ -51,7 +51,7 @@ export default function Home() {
   }, []);
 
   const [formData, setFormData] = React.useState<GraphConfigForm>({
-    seedGenes: 'MAPT, STX6, EIF2AK3, MOBP, DCTN1, LRRK2',
+    seedGenes: '',
     diseaseMap: 'MONDO_0004976',
     order: '0',
     interactionType: ['PPI'],
@@ -90,12 +90,19 @@ export default function Home() {
 
   const [autofill, setAutofill] = React.useState(false);
   const [autofillLoading, setAutofillLoading] = React.useState(false);
+  // Use string for input box, number for fetch
+  const [autofillNum, setAutofillNum] = React.useState<string>('25');
 
   const handleAutofill = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!autofill) return;
-    const fd = new FormData(e.currentTarget);
-    const num = Number.parseInt(fd.get('autofill-num') as string, 10);
+    const num = Number(autofillNum);
+    if (!autofillNum || Number.isNaN(num) || num < 1) {
+      toast.error('Please enter a valid number greater than 0', {
+        cancel: { label: 'Close', onClick() {} },
+      });
+      return;
+    }
     setAutofillLoading(true);
     try {
       await fetchTopGenes({
@@ -121,6 +128,13 @@ export default function Home() {
     }
   }, [topGenesData]);
 
+  React.useEffect(() => {
+    if (diseaseData && formData.seedGenes === '') {
+      fetchTopGenes({ variables: { diseaseId: formData.diseaseMap, limit: 25 } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diseaseData, fetchTopGenes, formData.diseaseMap, formData.seedGenes]);
+
   const handleSubmit = async () => {
     const { seedGenes } = formData;
     const geneIDs = distinct(seedGenes.split(/[,|\n]/).map(gene => gene.trim().toUpperCase())).filter(Boolean);
@@ -140,7 +154,14 @@ export default function Home() {
   };
 
   const handleSelect = (val: string, key: string) => {
-    setFormData({ ...formData, [key]: val });
+    setFormData(prev => {
+      if (key === 'diseaseMap') {
+        setAutofillNum('25');
+        fetchTopGenes({ variables: { diseaseId: val, limit: 25 } });
+        return { ...prev, [key]: val };
+      }
+      return { ...prev, [key]: val };
+    });
   };
   const handleMultiSelect = (vals: string[], key: string) => {
     setFormData({ ...formData, [key]: vals });
@@ -281,7 +302,8 @@ export default function Home() {
                     min={1}
                     className='h-8 w-20'
                     placeholder='e.g. 25'
-                    defaultValue={25}
+                    value={autofillNum}
+                    onChange={e => setAutofillNum(e.target.value)}
                     disabled={autofillLoading || topGenesLoading}
                   />
                   <Button

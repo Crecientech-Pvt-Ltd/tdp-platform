@@ -50,10 +50,10 @@ export function GENE_INTERACTIONS_QUERY(order: number, interactionTypes: string[
         RETURN genes, links
         `;
     case 1:
-      return `MATCH (g1:Gene)-[r:${relTypes}]-(g2:Gene)
-        WHERE g1.ID IN $geneIDs
-        AND r.score >= $minScore
-        WITH apoc.coll.toSet(COLLECT(g1 { .ID, .Gene_name, .Description}) + COLLECT(g2 { .ID, .Gene_name, .Description})) AS _genes, COLLECT({gene1: g1.ID, gene2: g2.ID, score: r.score, interactionType: type(r)}) AS _links
+      return `MATCH (g1:Gene) WHERE g1.ID IN $geneIDs
+        OPTIONAL MATCH (g1)-[r:${relTypes}]-(g2:Gene)
+        WHERE r.score >= $minScore
+        WITH apoc.coll.toSet(COLLECT(g1 { .ID, .Gene_name, .Description}) + [gene IN COLLECT(g2 { .ID, .Gene_name, .Description}) WHERE gene.ID IS NOT NULL]) AS _genes, [conn IN COLLECT({gene1: g1.ID, gene2: g2.ID, score: r.score, interactionType: type(r)}) WHERE conn.gene2 IS NOT NULL] AS _links
         ${graphExists ? '' : ",gds.graph.project($graphName,g1,g2,{ relationshipProperties: r { .score }, relationshipType: type(r) }, { undirectedRelationshipTypes: ['*'] }) AS graph"}
         RETURN _genes[0..${process.env.NODES_LIMIT || 5000}] AS genes, _links[0..${process.env.EDGES_LIMIT || 10000}] AS links
         `;
@@ -64,9 +64,10 @@ export function GENE_INTERACTIONS_QUERY(order: number, interactionTypes: string[
 
 export function FIRST_ORDER_GENES_QUERY(interactionTypes: string[]): string {
   const relTypes = formatInteractionTypes(interactionTypes);
-  return `MATCH (g1:Gene)-[r:${relTypes}]-(g2:Gene)
-    WHERE g1.ID IN $geneIDs AND r.score >= $minScore
-    WITH apoc.coll.toSet(COLLECT(g1.ID) + COLLECT(g2.ID)) AS _geneIDs
+  return `MATCH (g1:Gene) WHERE g1.ID IN $geneIDs
+    OPTIONAL MATCH (g1)-[r:${relTypes}]-(g2:Gene)
+    WHERE r.score >= $minScore
+    WITH apoc.coll.toSet(COLLECT(g1.ID) + [geneID IN COLLECT(g2.ID) WHERE geneID IS NOT NULL]) AS _geneIDs
     RETURN _geneIDs[0..${process.env.NODES_LIMIT || 5000}] AS geneIDs`;
 }
 
@@ -86,9 +87,9 @@ export function RENEW_QUERY(order: number, interactionTypes: string[]) {
         FINISH
         `;
     case 1:
-      return `MATCH (g1:Gene)-[r:${relTypes}]-(g2:Gene)
-        WHERE g1.ID IN $geneIDs
-        AND r.score >= $minScore
+      return `MATCH (g1:Gene) WHERE g1.ID IN $geneIDs
+        OPTIONAL MATCH (g1)-[r:${relTypes}]-(g2:Gene)
+        WHERE r.score >= $minScore
         WITH gds.graph.project($graphName,g1,g2,{ relationshipProperties: r { .score }, relationshipType: type(r) }, { undirectedRelationshipTypes: ['*'] }) AS graph
         FINISH
         `;

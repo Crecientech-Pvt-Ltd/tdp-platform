@@ -128,13 +128,6 @@ export default function Home() {
     }
   }, [topGenesData]);
 
-  React.useEffect(() => {
-    if (diseaseData && formData.seedGenes === '') {
-      fetchTopGenes({ variables: { diseaseId: formData.diseaseMap, limit: 25 } });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [diseaseData, fetchTopGenes, formData.diseaseMap, formData.seedGenes]);
-
   const handleSubmit = async () => {
     const { seedGenes } = formData;
     const geneIDs = distinct(seedGenes.split(/[,|\n]/).map(gene => gene.trim().toUpperCase())).filter(Boolean);
@@ -157,7 +150,6 @@ export default function Home() {
     setFormData(prev => {
       if (key === 'diseaseMap') {
         setAutofillNum('25');
-        fetchTopGenes({ variables: { diseaseId: val, limit: 25 } });
         return { ...prev, [key]: val };
       }
       return { ...prev, [key]: val };

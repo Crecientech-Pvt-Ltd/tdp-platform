@@ -88,37 +88,49 @@ export default function Home() {
   const [geneIDs, setGeneIDs] = React.useState<string[]>([]);
   const [showAlert, setShowAlert] = React.useState(false);
 
-  const [autofill, setAutofill] = React.useState(false);
+  const [autofill, setAutofill] = React.useState(true);
   const [autofillLoading, setAutofillLoading] = React.useState(false);
   // Use string for input box, number for fetch
   const [autofillNum, setAutofillNum] = React.useState<string>('25');
 
-  const handleAutofill = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const triggerAutofill = React.useCallback(
+    async (ignoreAutofillState = false) => {
+      if (!autofill && !ignoreAutofillState) return;
+      const num = Number(autofillNum);
+      if (!autofillNum || Number.isNaN(num) || num < 1) {
+        toast.error('Please enter a valid number greater than 0', {
+          cancel: { label: 'Close', onClick() {} },
+        });
+        return;
+      }
+      setAutofillLoading(true);
+      try {
+        await fetchTopGenes({
+          variables: {
+            diseaseId: formData.diseaseMap,
+            limit: num,
+          },
+        });
+      } catch {
+        toast.error('Failed to autofill genes from API', {
+          cancel: { label: 'Close', onClick() {} },
+        });
+      } finally {
+        setAutofillLoading(false);
+      }
+    },
+    [autofill, autofillNum, formData.diseaseMap, fetchTopGenes],
+  );
+
+  React.useEffect(() => {
     if (!autofill) return;
-    const num = Number(autofillNum);
-    if (!autofillNum || Number.isNaN(num) || num < 1) {
-      toast.error('Please enter a valid number greater than 0', {
-        cancel: { label: 'Close', onClick() {} },
-      });
-      return;
-    }
-    setAutofillLoading(true);
-    try {
-      await fetchTopGenes({
-        variables: {
-          diseaseId: formData.diseaseMap,
-          limit: num,
-        },
-      });
-    } catch {
-      toast.error('Failed to autofill genes from API', {
-        cancel: { label: 'Close', onClick() {} },
-      });
-    } finally {
-      setAutofillLoading(false);
-    }
-  };
+
+    const delay = setTimeout(() => {
+      triggerAutofill();
+    }, 500);
+
+    return () => clearTimeout(delay);
+  }, [autofill, triggerAutofill]);
 
   React.useEffect(() => {
     if (topGenesData?.topGenesByDisease) {
@@ -259,7 +271,14 @@ export default function Home() {
           <div className='space-y-4'>
             <div className='mb-2 flex h-8 items-center gap-2'>
               <div className='flex items-center gap-2'></div>
-              <Switch checked={autofill} onCheckedChange={setAutofill} id={autoFillToggleId} />
+              <Switch
+                checked={autofill}
+                onCheckedChange={val => {
+                  setAutofill(val);
+                  if (val) triggerAutofill(true);
+                }}
+                id={autoFillToggleId}
+              />
               <Label htmlFor={autoFillToggleId} className='whitespace-nowrap'>
                 Autofill Seed Genes
               </Label>
@@ -283,14 +302,13 @@ export default function Home() {
               </span>
               <div className='flex items-center gap-2'></div>
               {autofill && (
-                <form onSubmit={handleAutofill} className='flex items-center gap-2 sm:ml-4'>
+                <div className='flex items-center gap-2 sm:ml-4'>
                   <Label htmlFor={autoFillNumId}>No. of genes</Label>
                   <Input
                     id={autoFillNumId}
                     type='number'
                     inputMode='numeric'
                     required
-                    name='autofill-num'
                     min={1}
                     className='h-8 w-20'
                     placeholder='e.g. 25'
@@ -298,25 +316,13 @@ export default function Home() {
                     onChange={e => setAutofillNum(e.target.value)}
                     disabled={autofillLoading || topGenesLoading}
                   />
-                  <Button
-                    type='submit'
-                    disabled={autofillLoading || topGenesLoading}
-                    className='ml-2 h-8 cursor-pointer'
-                    style={{
-                      background:
-                        'linear-gradient(45deg, rgba(18,76,103,1) 0%, rgba(9,114,121,1) 35%, rgba(0,0,0,1) 100%)',
-                    }}
-                  >
-                    {autofillLoading || topGenesLoading ? (
-                      <>
-                        <LoaderIcon className='animate-spin' size={16} />
-                        Autofilling...
-                      </>
-                    ) : (
-                      'Autofill'
-                    )}
-                  </Button>
-                </form>
+                  {(autofillLoading || topGenesLoading) && (
+                    <>
+                      <LoaderIcon className='animate-spin' size={16} />
+                      <span>Autofilling...</span>
+                    </>
+                  )}
+                </div>
               )}
             </div>
             <div>

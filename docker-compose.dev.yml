@@ -54,7 +54,7 @@ services:
     environment:
       - DATA_COMMONS_PATH=/data-root
     volumes:
-      - ${DATA_COMMONS_HOST_PATH}:/data-root
+      - ${DATA_COMMONS_HOST_PATH}:"/data-root"
     networks:
       - tdp-pdnet-network
 

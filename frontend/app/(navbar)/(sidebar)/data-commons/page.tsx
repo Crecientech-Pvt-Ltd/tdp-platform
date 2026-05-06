@@ -14,7 +14,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
-const DEFAULT_DATA_FOLDER_PATH = process.env.NEXT_PUBLIC_DATA_COMMONS_DEFAULT_FOLDER_PATH?.trim() || '/data1';
+const DEFAULT_DATA_FOLDER_PATH = process.env.NEXT_PUBLIC_DATA_COMMONS_DEFAULT_FOLDER_PATH?.trim() || '/data-root';
 
 type Project = {
   name: string;

@@ -97,10 +97,11 @@ export default function Home() {
     async (ignoreAutofillState = false) => {
       if (!autofill && !ignoreAutofillState) return;
       const num = Number(autofillNum);
-      if (!autofillNum || Number.isNaN(num) || num < 1) {
-        toast.error('Please enter a valid number greater than 0', {
-          cancel: { label: 'Close', onClick() {} },
+      if (!autofillNum || Number.isNaN(num) || num < 10) {
+        toast.error('Please enter a valid number of at least 10', {
+          id: 'autofill-error',
         });
+        setFormData(f => ({ ...f, seedGenes: '' }));
         return;
       }
       setAutofillLoading(true);
@@ -134,27 +135,48 @@ export default function Home() {
 
   React.useEffect(() => {
     if (topGenesData?.topGenesByDisease) {
-      const genes: string[] = topGenesData.topGenesByDisease.map((g: { gene_name: string }) => g.gene_name);
-      setFormData(f => ({ ...f, seedGenes: genes.join(', ') }));
+      if (Number(autofillNum) >= 10) {
+        const genes: string[] = topGenesData.topGenesByDisease.map((g: { gene_name: string }) => g.gene_name);
+        setFormData(f => ({ ...f, seedGenes: genes.join(', ') }));
+      }
       setAutofillLoading(false);
     }
-  }, [topGenesData]);
+  }, [topGenesData, autofillNum]);
 
   const handleSubmit = async () => {
     const { seedGenes } = formData;
+
     const geneIDs = distinct(seedGenes.split(/[,|\n]/).map(gene => gene.trim().toUpperCase())).filter(Boolean);
+
+    if (geneIDs.length < 10) {
+      toast.error('Insufficient genes selected', {
+        description: 'Please enter at least 10 genes',
+        cancel: {
+          label: 'Close',
+          onClick() {},
+        },
+      });
+
+      return;
+    }
+
     setGeneIDs(geneIDs);
+
     const { error } = await verifyGenes({
       variables: { geneIDs },
     });
+
     if (error) {
       console.error(error);
+
       toast.error('Error fetching data', {
         cancel: { label: 'Close', onClick() {} },
         description: 'Server not available,Please try again later',
       });
+
       return;
     }
+
     setTableOpen(true);
   };
 
@@ -309,7 +331,7 @@ export default function Home() {
                     type='number'
                     inputMode='numeric'
                     required
-                    min={1}
+                    min={10}
                     className='h-8 w-20'
                     placeholder='e.g. 25'
                     value={autofillNum}
